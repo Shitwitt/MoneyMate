@@ -464,43 +464,52 @@ class _CelebrationState extends State<_Celebration> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    content: Stack(
-      alignment: Alignment.topCenter,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.workspace_premium_rounded,
-                size: 68,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'A little win!',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 12),
-              Text(widget.name, textAlign: TextAlign.center),
-              const SizedBox(height: 8),
-              const Text(
-                'Progress, not perfection. You’re doing beautifully.',
-                textAlign: TextAlign.center,
-                style: TextStyle(height: 1.6),
-              ),
-            ],
+    scrollable: true,
+    content: SizedBox(
+      width: 320,
+      child: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.workspace_premium_rounded,
+                  size: 68,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'A little win!',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 12),
+                Text(widget.name, textAlign: TextAlign.center),
+                const SizedBox(height: 8),
+                const Text(
+                  'Progress, not perfection. You’re doing beautifully.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(height: 1.6),
+                ),
+              ],
+            ),
           ),
-        ),
-        ConfettiWidget(
-          confettiController: confetti,
-          blastDirectionality: BlastDirectionality.explosive,
-          emissionFrequency: .04,
-          numberOfParticles: 14,
-          gravity: .2,
-        ),
-      ],
+          // Decorative particles must not dictate dialog intrinsic dimensions.
+          Positioned.fill(
+            child: IgnorePointer(
+              child: ConfettiWidget(
+                confettiController: confetti,
+                blastDirectionality: BlastDirectionality.explosive,
+                emissionFrequency: .04,
+                numberOfParticles: 14,
+                gravity: .2,
+              ),
+            ),
+          ),
+        ],
+      ),
     ),
     actions: [
       FilledButton(

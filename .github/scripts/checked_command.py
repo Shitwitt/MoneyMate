@@ -13,11 +13,17 @@ import sys
 if len(sys.argv) < 2:
     raise SystemExit('Usage: checked_command.py <command> [args...]')
 lines = collections.deque(maxlen=1500)
+first_failure = []
+capturing_failure = False
 with subprocess.Popen(sys.argv[1:], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                       text=True, encoding='utf-8', errors='replace') as process:
     for line in process.stdout:
         print(line, end='', flush=True)
         lines.append(line)
+        if 'EXCEPTION CAUGHT BY' in line:
+            capturing_failure = True
+        if capturing_failure and len(first_failure) < 160:
+            first_failure.append(line)
     code = process.wait()
 if code:
     selected = []
@@ -31,6 +37,8 @@ if code:
             continue
         selected.append(line)
     text = ''.join(selected)[-27000:]
+    if first_failure:
+        text = 'First Flutter exception:\n' + ''.join(first_failure)[:9000] + '\nLatest diagnostics:\n' + text[-18000:]
     for index in range(0, len(text), 3000):
         chunk = text[index:index + 3000].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
         print(f'::error title=Build diagnostics {index // 3000 + 1}::{chunk}', flush=True)

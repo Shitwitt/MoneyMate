@@ -1,5 +1,9 @@
 name: iOS compile check (manual, unsigned)
 on:
+  push:
+    paths:
+      - 'ios/**'
+      - '.github/workflows/build-ios.yml'
   workflow_dispatch:
 permissions:
   contents: read
@@ -15,7 +19,7 @@ jobs:
           channel: stable
           cache: true
       - run: flutter config --no-enable-swift-package-manager
-      - run: flutter pub get
+      - run: python3 .github/scripts/checked_command.py flutter pub get
       - run: flutter gen-l10n
       - name: Compile runner and WidgetKit extension without signing
         run: python3 .github/scripts/checked_command.py flutter build ios --release --no-codesign

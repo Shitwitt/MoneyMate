@@ -265,6 +265,10 @@ Other deliberate boundaries:
 
 Download **Code → Download ZIP** for your branch, or the **PaisaClone-source** workflow artifact. The archive contains the complete source tree, native wrappers and all bundled assets; SDKs, build outputs, private data, keystores and generated caches are intentionally excluded. Unzip, enter the folder containing `pubspec.yaml`, then run the commands above. You do **not** need to run `flutter create` or hand-copy files into a native `app/src` project.
 
+## Dependency compatibility
+
+The PDF/printing/image/archive versions are deliberately pinned as a coherent codec set. A newer image package can call archive APIs absent from an older PDF-constrained archive version even when the solver accepts both. Upgrade and test this group together, then commit the resolved `pubspec.lock`.
+
 ## Checks
 
 ```bash

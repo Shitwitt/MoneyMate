@@ -242,7 +242,15 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
           success: true,
         );
       } else {
-        Navigator.pop(context, true);
+        final route = ModalRoute.of(context);
+        if (route != null && !route.isActive) return;
+        // An achievement can open above this form during the save check.
+        // Close this route, never that dialog (and never leave a saved form).
+        if (route != null && !route.isCurrent) {
+          Navigator.of(context).removeRoute(route, true);
+        } else {
+          Navigator.pop(context, true);
+        }
       }
     }
   }

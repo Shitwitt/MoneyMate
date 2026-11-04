@@ -7,6 +7,7 @@ import 'package:paisaclone/core/models/models.dart';
 import 'package:paisaclone/core/theme/theme.dart';
 import 'package:paisaclone/features/onboarding/introduction_screen.dart';
 import 'package:paisaclone/features/onboarding/tink_illustration.dart';
+import 'package:paisaclone/features/transactions/transaction_form.dart';
 import 'package:paisaclone/main.dart';
 import 'package:paisaclone/shared/widgets.dart';
 
@@ -180,6 +181,12 @@ void main() {
       repo.persisted!.profiles.first.transactions.single.amountMinor,
       15000,
     );
+    expect(find.byType(TransactionForm), findsNothing);
+    expect(find.byType(BottomSheet), findsNothing);
+    expect(find.text('A little proud of myself'), findsOneWidget);
+    await tester.tap(find.text('A little proud of myself'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TransactionForm), findsNothing);
     expect(tester.takeException(), isNull);
   });
 

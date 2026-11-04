@@ -45,7 +45,7 @@ const binary = chromiumModule.default || chromiumModule;
     }
     async function nav(label) {
       const name = new RegExp('^' + label);
-      const target = page.getByRole('button', {name}).or(page.getByRole('tab', {name})).or(page.getByLabel(name)).or(page.getByText(label, {exact: true})).last();
+      const target = page.getByRole('button', {name}).or(page.getByRole('tab', {name})).or(page.getByLabel(name)).or(page.getByText(name)).last();
       // Flutter only exposes painted semantics nodes; DOM scrollIntoView cannot
       // materialize an offscreen SliverGrid item. Scroll its real canvas first.
       for (let attempt = 0; attempt < 8 && !await target.isVisible(); attempt++) {

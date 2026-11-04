@@ -89,84 +89,90 @@ class BudgetCard extends ConsumerWidget {
               ? const Color(0xffFEC84B)
               : AppColors.warningInk)
         : AppColors.semantic(context, 'income');
-    return BudgetWarningFrame(overLimit:status.remaining<0,child:Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(24),
-        onTap: openDetails
-            ? () => openPage(context, BudgetDetailScreen(budget.id))
-            : null,
-        child: Padding(
-          padding: const EdgeInsets.all(22),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  ColorIcon('category', budget.color, size: 40),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      budget.name,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  Text(
-                    '${(status.progress * 100).round()}%',
-                    style: TextStyle(color: color, fontWeight: FontWeight.w700),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 22),
-              WavyProgress(status.progress, color: color),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: AmountText(
-                      status.spent,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  Text('of ', style: Theme.of(context).textTheme.bodySmall),
-                  AmountText(
-                    status.limit,
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      '${status.label} · ${titleCase(budget.period)}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+    return BudgetWarningFrame(
+      overLimit: status.remaining < 0,
+      child: Card(
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: openDetails
+              ? () => openPage(context, BudgetDetailScreen(budget.id))
+              : null,
+          child: Padding(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    ColorIcon('category', budget.color, size: 40),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        budget.name,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ),
-                  ),
-                  AmountText(
-                    status.remaining.abs(),
-                    prefix: status.remaining < 0 ? 'Over ' : 'Left ',
-                    style: Theme.of(context).textTheme.labelSmall
-                        ?.copyWith(color: color),
-                  ),
-                ],
-              ),
-              if (status.carry != 0)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: AmountText(
-                    status.carry,
-                    prefix: 'Rollover ',
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
+                    Text(
+                      '${(status.progress * 100).round()}%',
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
-            ],
+                const SizedBox(height: 22),
+                WavyProgress(status.progress, color: color),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AmountText(
+                        status.spent,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    Text('of ', style: Theme.of(context).textTheme.bodySmall),
+                    AmountText(
+                      status.limit,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${status.label} · ${titleCase(budget.period)}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                    AmountText(
+                      status.remaining.abs(),
+                      prefix: status.remaining < 0 ? 'Over ' : 'Left ',
+                      style: Theme.of(context).textTheme.labelSmall
+                          ?.copyWith(color: color),
+                    ),
+                  ],
+                ),
+                if (status.carry != 0)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: AmountText(
+                      status.carry,
+                      prefix: 'Rollover ',
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
-    ));
+    );
   }
 }
 

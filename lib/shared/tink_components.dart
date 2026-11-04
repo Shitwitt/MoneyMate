@@ -33,7 +33,9 @@ class PrimaryButton extends StatelessWidget {
           )
         : null,
     child: AnimatedSwitcher(
-      duration: MediaQuery.disableAnimationsOf(context)?Duration.zero:const Duration(milliseconds: 160),
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 160),
       child: Row(
         key: ValueKey('$loading-$success'),
         mainAxisAlignment: MainAxisAlignment.center,
@@ -285,7 +287,18 @@ class PremiumBadge extends StatelessWidget {
       builder: (context, value, _) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          gradient:LinearGradient(begin:Alignment(-2+3*value,0),end:Alignment(-1+3*value,0),colors:[Theme.of(context).colorScheme.primaryContainer,Color.alphaBlend(Colors.white.withValues(alpha:.15),Theme.of(context).colorScheme.primaryContainer),Theme.of(context).colorScheme.primaryContainer]),
+          gradient: LinearGradient(
+            begin: Alignment(-2 + 3 * value, 0),
+            end: Alignment(-1 + 3 * value, 0),
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer,
+              Color.alphaBlend(
+                Colors.white.withValues(alpha: .15),
+                Theme.of(context).colorScheme.primaryContainer,
+              ),
+              Theme.of(context).colorScheme.primaryContainer,
+            ],
+          ),
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
@@ -434,11 +447,32 @@ class TinkMarkPainter extends CustomPainter {
 class BudgetWarningFrame extends StatelessWidget {
   final bool overLimit;
   final Widget child;
-  const BudgetWarningFrame({super.key,required this.overLimit,required this.child});
-  @override Widget build(BuildContext context)=>TweenAnimationBuilder<double>(
-    key:ValueKey(overLimit),tween:Tween(begin:0,end:1),duration:MediaQuery.disableAnimationsOf(context)?Duration.zero:const Duration(milliseconds:600),
-    child:child,builder:(context,value,child)=>Container(foregroundDecoration:BoxDecoration(borderRadius:AppRadius.cardBorder,
-      border:Border.all(width:1.5,color:AppColors.expense.withValues(alpha:overLimit?math.sin(value*math.pi)*.6:0))),child:child));
+  const BudgetWarningFrame({
+    super.key,
+    required this.overLimit,
+    required this.child,
+  });
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    key: ValueKey(overLimit),
+    tween: Tween(begin: 0, end: 1),
+    duration: MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 600),
+    child: child,
+    builder: (context, value, child) => Container(
+      foregroundDecoration: BoxDecoration(
+        borderRadius: AppRadius.cardBorder,
+        border: Border.all(
+          width: 1.5,
+          color: AppColors.expense.withValues(
+            alpha: overLimit ? math.sin(value * math.pi) * .6 : 0,
+          ),
+        ),
+      ),
+      child: child,
+    ),
+  );
 }
 
 /// Reveals chart ink, keeping the numeric/semantic summary independent of motion.
@@ -446,15 +480,40 @@ class ChartReveal extends StatelessWidget {
   final double progress;
   final bool circular;
   final Widget child;
-  const ChartReveal({super.key,required this.progress,required this.child,this.circular=false});
-  @override Widget build(BuildContext context){
-    final p=progress.clamp(0.0,1.0).toDouble();
-    final edge=(p+.025).clamp(0.0,1.0).toDouble();
-    return ShaderMask(blendMode:BlendMode.dstIn,shaderCallback:(rect){
-      const colors=[Colors.white,Colors.white,Colors.transparent,Colors.transparent];
-      final stops=[0.0,p,edge,1.0];
-      return circular?SweepGradient(colors:colors,stops:stops,transform:const GradientRotation(-math.pi/2)).createShader(rect)
-        :LinearGradient(begin:Alignment.centerLeft,end:Alignment.centerRight,colors:colors,stops:stops).createShader(rect);
-    },child:child);
+  const ChartReveal({
+    super.key,
+    required this.progress,
+    required this.child,
+    this.circular = false,
+  });
+  @override
+  Widget build(BuildContext context) {
+    final p = progress.clamp(0.0, 1.0).toDouble();
+    final edge = (p + .025).clamp(0.0, 1.0).toDouble();
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (rect) {
+        const colors = [
+          Colors.white,
+          Colors.white,
+          Colors.transparent,
+          Colors.transparent,
+        ];
+        final stops = [0.0, p, edge, 1.0];
+        return circular
+            ? SweepGradient(
+                colors: colors,
+                stops: stops,
+                transform: const GradientRotation(-math.pi / 2),
+              ).createShader(rect)
+            : LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: colors,
+                stops: stops,
+              ).createShader(rect);
+      },
+      child: child,
+    );
   }
 }

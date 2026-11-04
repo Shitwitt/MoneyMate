@@ -607,34 +607,37 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               itemBuilder: (context, index) {
                 if (index < offset) return const SizedBox.shrink();
                 final day = index - offset;
-                return Entrance(index:day%7,child:Tooltip(
-                  message: money(
-                    values[day],
-                    ledger.currency,
-                    hidden: ledger.settings.hideAmounts,
-                  ),
-                  child: Container(
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withValues(
-                        alpha: ledger.settings.hideAmounts
-                            ? .08
-                            : .06 + values[day] / max * .6,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
+                return Entrance(
+                  index: day % 7,
+                  child: Tooltip(
+                    message: money(
+                      values[day],
+                      ledger.currency,
+                      hidden: ledger.settings.hideAmounts,
                     ),
-                    child: Text(
-                      '${day + 1}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.dark(context)
-                            ? Colors.white
-                            : AppColors.ink,
-                        fontFeatures: AppTextStyles.tabular,
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary.withValues(
+                          alpha: ledger.settings.hideAmounts
+                              ? .08
+                              : .06 + values[day] / max * .6,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '${day + 1}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.dark(context)
+                              ? Colors.white
+                              : AppColors.ink,
+                          fontFeatures: AppTextStyles.tabular,
+                        ),
                       ),
                     ),
                   ),
-                ));
+                );
               },
             ),
           ],

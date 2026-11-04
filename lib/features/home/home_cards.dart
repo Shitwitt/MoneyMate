@@ -67,27 +67,34 @@ class SafeToSpendCard extends ConsumerWidget {
           InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () => openPage(context, const NetWorthScreen()),
-            child: ConstrainedBox(constraints:const BoxConstraints(minHeight:48),child:Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Total net worth',
-                      style: Theme.of(context).textTheme.bodySmall
-                          ?.copyWith(color: secondary),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Total net worth',
+                        style: Theme.of(context).textTheme.bodySmall
+                            ?.copyWith(color: secondary),
+                      ),
                     ),
-                  ),
-                  AmountText(
-                    ledger.netWorth,
-                    style: Theme.of(context).textTheme.titleSmall
-                        ?.copyWith(color: ink),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(Icons.chevron_right_rounded, size: 18, color: secondary),
-                ],
+                    AmountText(
+                      ledger.netWorth,
+                      style: Theme.of(context).textTheme.titleSmall
+                          ?.copyWith(color: ink),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 18,
+                      color: secondary,
+                    ),
+                  ],
+                ),
               ),
-            )),
+            ),
           ),
         ],
       ),

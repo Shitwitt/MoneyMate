@@ -192,7 +192,16 @@ class HomeScreen extends ConsumerWidget {
                             PopupMenuButton<String>(
                               tooltip: 'Tap for options; hold to rearrange',
                               iconSize: 19,
-                              child:ReorderableDelayedDragStartListener(index:index,child:const SizedBox.square(dimension:48,child:Icon(Icons.more_horiz_rounded,size:20))),
+                              child: ReorderableDelayedDragStartListener(
+                                index: index,
+                                child: const SizedBox.square(
+                                  dimension: 48,
+                                  child: Icon(
+                                    Icons.more_horiz_rounded,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
                               onSelected: (action) {
                                 if (action == 'hide') {
                                   runSafe(
@@ -230,7 +239,6 @@ class HomeScreen extends ConsumerWidget {
                         index: index,
                         child: _card(context, ref, ledger, id),
                       ),
-
                     ],
                   ),
                 );
@@ -257,7 +265,8 @@ class HomeScreen extends ConsumerWidget {
         return MonthSummaryCard(ledger);
       case 'accounts':
         return SizedBox(
-          height: 170*MediaQuery.textScalerOf(context).scale(1).clamp(1.0,1.6),
+          height:
+              170 * MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.6),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount:

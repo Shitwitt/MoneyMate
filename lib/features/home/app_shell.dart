@@ -17,6 +17,7 @@ class AppShell extends ConsumerStatefulWidget {
   @override
   ConsumerState<AppShell> createState() => _AppShellState();
 }
+
 class _AppShellState extends ConsumerState<AppShell> {
   String selected = 'home';
   @override
@@ -26,10 +27,106 @@ class _AppShellState extends ConsumerState<AppShell> {
     final active = tabs.contains(selected) ? selected : tabs.first;
     final index = tabs.indexOf(active);
     final l = AppLocalizations.of(context);
-    final labels = {'home': l.home, 'accounts': l.accounts, 'transactions': l.activity, 'plans': l.plans, 'reports': l.reports, 'more': l.more};
-    Widget page(String id) => switch (id) {'home' => const HomeScreen(), 'accounts' => const AccountsScreen(), 'transactions' => const TransactionsScreen(), 'plans' => const PlansScreen(), 'reports' => const ReportsScreen(), _ => const MoreScreen()};
+    final labels = {
+      'home': l.home,
+      'accounts': l.accounts,
+      'transactions': l.activity,
+      'plans': l.plans,
+      'reports': l.reports,
+      'more': l.more,
+    };
+    Widget page(String id) => switch (id) {
+      'home' => const HomeScreen(),
+      'accounts' => const AccountsScreen(),
+      'transactions' => const TransactionsScreen(),
+      'plans' => const PlansScreen(),
+      'reports' => const ReportsScreen(),
+      _ => const MoreScreen(),
+    };
     final wide = MediaQuery.sizeOf(context).width >= 900;
     final extended = MediaQuery.sizeOf(context).width >= 1250;
-    return Scaffold(body: Row(children: [if (wide) NavigationRail(extended: extended, minExtendedWidth: 205, labelType: extended ? null : settings.navLabels ? NavigationRailLabelType.all : NavigationRailLabelType.none, selectedIndex: index, onDestinationSelected: (index) => setState(() => selected = tabs[index]), leading: Padding(padding: const EdgeInsets.symmetric(vertical: 26), child: Row(mainAxisSize: MainAxisSize.min, children: [Image.asset('assets/branding/mark.png', width: 40, height: 40), if (extended) const Padding(padding: EdgeInsets.only(left: 12), child: Text('PaisaClone', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)))])), destinations: [for (final id in tabs) NavigationRailDestination(icon: Icon(tabIcons[id]), label: Text(labels[id]!))]), if (wide) const VerticalDivider(width: 1), Expanded(child: IndexedStack(index: index, children: [for (final id in tabs) KeyedSubtree(key: ValueKey(id), child: page(id))]))]), bottomNavigationBar: wide ? null : NavigationBar(selectedIndex: index, onDestinationSelected: (index) => setState(() => selected = tabs[index]), labelBehavior: settings.navLabels ? NavigationDestinationLabelBehavior.alwaysShow : NavigationDestinationLabelBehavior.alwaysHide, destinations: [for (final id in tabs) NavigationDestination(icon: Icon(tabIcons[id]), label: labels[id]!)]), floatingActionButton: FloatingActionButton.extended(onPressed: () => openPage(context, const TransactionForm()), tooltip: l.addTransaction, icon: const Icon(Icons.add_rounded), label: Text(wide ? l.addTransaction : 'Add entry')));
+    return Scaffold(
+      body: Row(
+        children: [
+          if (wide)
+            NavigationRail(
+              extended: extended,
+              minExtendedWidth: 205,
+              labelType: extended
+                  ? null
+                  : settings.navLabels
+                  ? NavigationRailLabelType.all
+                  : NavigationRailLabelType.none,
+              selectedIndex: index,
+              onDestinationSelected: (index) =>
+                  setState(() => selected = tabs[index]),
+              leading: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 26),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      'assets/branding/mark.png',
+                      width: 40,
+                      height: 40,
+                    ),
+                    if (extended)
+                      const Padding(
+                        padding: EdgeInsets.only(left: 12),
+                        child: Text(
+                          'PaisaClone',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              destinations: [
+                for (final id in tabs)
+                  NavigationRailDestination(
+                    icon: Icon(tabIcons[id]),
+                    label: Text(labels[id]!),
+                  ),
+              ],
+            ),
+          if (wide) const VerticalDivider(width: 1),
+          Expanded(
+            child: IndexedStack(
+              index: index,
+              children: [
+                for (final id in tabs)
+                  KeyedSubtree(key: ValueKey(id), child: page(id)),
+              ],
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: wide
+          ? null
+          : NavigationBar(
+              selectedIndex: index,
+              onDestinationSelected: (index) =>
+                  setState(() => selected = tabs[index]),
+              labelBehavior: settings.navLabels
+                  ? NavigationDestinationLabelBehavior.alwaysShow
+                  : NavigationDestinationLabelBehavior.alwaysHide,
+              destinations: [
+                for (final id in tabs)
+                  NavigationDestination(
+                    icon: Icon(tabIcons[id]),
+                    label: labels[id]!,
+                  ),
+              ],
+            ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => openPage(context, const TransactionForm()),
+        tooltip: l.addTransaction,
+        icon: const Icon(Icons.add_rounded),
+        label: Text(wide ? l.addTransaction : 'Add entry'),
+      ),
+    );
   }
 }

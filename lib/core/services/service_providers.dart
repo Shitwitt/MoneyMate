@@ -5,4 +5,7 @@ import 'widget_service.dart';
 
 final notificationServiceProvider = Provider((ref) => NotificationService());
 final widgetServiceProvider = Provider((ref) => WidgetService());
-final unlockedProvider = StateProvider<bool>((ref) => ref.watch(appProvider.select((app) => app.settings.lockMode)) == 'none');
+final unlockedProvider = StateProvider<bool>(
+  (ref) =>
+      ref.watch(appProvider.select((app) => app.settings.lockMode)) == 'none',
+);

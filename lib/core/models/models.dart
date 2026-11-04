@@ -6,14 +6,23 @@ Json readMap(Object? value) {
   if (value is! Map) throw const FormatException('Expected a JSON object');
   return Map<String, dynamic>.from(value);
 }
-String readString(Object? value, [String fallback = '']) => value == null ? fallback : value as String;
-int readInt(Object? value, [int fallback = 0]) => value == null ? fallback : (value as num).toInt();
-double readDouble(Object? value, [double fallback = 0]) => value == null ? fallback : (value as num).toDouble();
-bool readBool(Object? value, [bool fallback = false]) => value == null ? fallback : value as bool;
+
+String readString(Object? value, [String fallback = '']) =>
+    value == null ? fallback : value as String;
+int readInt(Object? value, [int fallback = 0]) =>
+    value == null ? fallback : (value as num).toInt();
+double readDouble(Object? value, [double fallback = 0]) =>
+    value == null ? fallback : (value as num).toDouble();
+bool readBool(Object? value, [bool fallback = false]) =>
+    value == null ? fallback : value as bool;
 DateTime readDate(Object? value) => DateTime.parse(value as String);
-DateTime? readOptionalDate(Object? value) => value == null ? null : readDate(value);
-List<String> readStrings(Object? value, [List<String> fallback = const []]) => value == null ? List.of(fallback) : List<String>.from(value as List);
-List<T> readModels<T>(Object? value, T Function(Json) parse) => value == null ? [] : (value as List).map((item) => parse(readMap(item))).toList();
+DateTime? readOptionalDate(Object? value) =>
+    value == null ? null : readDate(value);
+List<String> readStrings(Object? value, [List<String> fallback = const []]) =>
+    value == null ? List.of(fallback) : List<String>.from(value as List);
+List<T> readModels<T>(Object? value, T Function(Json) parse) => value == null
+    ? []
+    : (value as List).map((item) => parse(readMap(item))).toList();
 
 class Profile {
   final String id;
@@ -221,24 +230,15 @@ class Receipt {
     data: readString(json['data']),
   );
 
-  Json toJson() => {
-    'id': id,
-    'name': name,
-    'mime': mime,
-    'data': data,
-  };
+  Json toJson() => {'id': id, 'name': name, 'mime': mime, 'data': data};
 
-  Receipt copyWith({
-    String? id,
-    String? name,
-    String? mime,
-    String? data,
-  }) => Receipt(
-    id: id ?? this.id,
-    name: name ?? this.name,
-    mime: mime ?? this.mime,
-    data: data ?? this.data,
-  );
+  Receipt copyWith({String? id, String? name, String? mime, String? data}) =>
+      Receipt(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        mime: mime ?? this.mime,
+        data: data ?? this.data,
+      );
 }
 
 class MoneyTransaction {
@@ -1009,28 +1009,17 @@ class Achievement {
   final String id;
   final DateTime unlockedAt;
 
-  const Achievement({
-    required this.id,
-    required this.unlockedAt,
-  });
+  const Achievement({required this.id, required this.unlockedAt});
 
   factory Achievement.fromJson(Json json) => Achievement(
     id: readString(json['id']),
     unlockedAt: readDate(json['unlockedAt']),
   );
 
-  Json toJson() => {
-    'id': id,
-    'unlockedAt': unlockedAt.toIso8601String(),
-  };
+  Json toJson() => {'id': id, 'unlockedAt': unlockedAt.toIso8601String()};
 
-  Achievement copyWith({
-    String? id,
-    DateTime? unlockedAt,
-  }) => Achievement(
-    id: id ?? this.id,
-    unlockedAt: unlockedAt ?? this.unlockedAt,
-  );
+  Achievement copyWith({String? id, DateTime? unlockedAt}) =>
+      Achievement(id: id ?? this.id, unlockedAt: unlockedAt ?? this.unlockedAt);
 }
 
 class ExchangeRate {
@@ -1056,15 +1045,12 @@ class ExchangeRate {
     'updatedAt': updatedAt.toIso8601String(),
   };
 
-  ExchangeRate copyWith({
-    String? code,
-    double? perUsd,
-    DateTime? updatedAt,
-  }) => ExchangeRate(
-    code: code ?? this.code,
-    perUsd: perUsd ?? this.perUsd,
-    updatedAt: updatedAt ?? this.updatedAt,
-  );
+  ExchangeRate copyWith({String? code, double? perUsd, DateTime? updatedAt}) =>
+      ExchangeRate(
+        code: code ?? this.code,
+        perUsd: perUsd ?? this.perUsd,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
 }
 
 class AppSettings {
@@ -1104,7 +1090,22 @@ class AppSettings {
     this.monthStart = 1,
     this.fontScale = 1,
     this.isPro = false,
-    this.homeCards = const ['balance', 'cashflow', 'accounts', 'trend', 'budgets', 'goals', 'recent', 'templates', 'recurring', 'assets', 'loans', 'reports', 'achievements', 'premium'],
+    this.homeCards = const [
+      'balance',
+      'cashflow',
+      'accounts',
+      'trend',
+      'budgets',
+      'goals',
+      'recent',
+      'templates',
+      'recurring',
+      'assets',
+      'loans',
+      'reports',
+      'achievements',
+      'premium',
+    ],
     this.hiddenCards = const [],
     this.navTabs = const ['home', 'accounts', 'transactions', 'plans', 'more'],
     this.navLabels = true,
@@ -1131,9 +1132,30 @@ class AppSettings {
     monthStart: readInt(json['monthStart'], 1),
     fontScale: readDouble(json['fontScale'], 1),
     isPro: readBool(json['isPro'], false),
-    homeCards: readStrings(json['homeCards'], const ['balance', 'cashflow', 'accounts', 'trend', 'budgets', 'goals', 'recent', 'templates', 'recurring', 'assets', 'loans', 'reports', 'achievements', 'premium']),
+    homeCards: readStrings(json['homeCards'], const [
+      'balance',
+      'cashflow',
+      'accounts',
+      'trend',
+      'budgets',
+      'goals',
+      'recent',
+      'templates',
+      'recurring',
+      'assets',
+      'loans',
+      'reports',
+      'achievements',
+      'premium',
+    ]),
     hiddenCards: readStrings(json['hiddenCards'], const []),
-    navTabs: readStrings(json['navTabs'], const ['home', 'accounts', 'transactions', 'plans', 'more']),
+    navTabs: readStrings(json['navTabs'], const [
+      'home',
+      'accounts',
+      'transactions',
+      'plans',
+      'more',
+    ]),
     navLabels: readBool(json['navLabels'], true),
     lockMode: readString(json['lockMode'], 'none'),
     pinHash: readString(json['pinHash'], ''),
@@ -1219,7 +1241,8 @@ class AppSettings {
     pinSalt: pinSalt ?? this.pinSalt,
     notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
     budgetNotifications: budgetNotifications ?? this.budgetNotifications,
-    recurringNotifications: recurringNotifications ?? this.recurringNotifications,
+    recurringNotifications:
+        recurringNotifications ?? this.recurringNotifications,
     loanNotifications: loanNotifications ?? this.loanNotifications,
     backupReminders: backupReminders ?? this.backupReminders,
     allowSilentAdds: allowSilentAdds ?? this.allowSilentAdds,
@@ -1349,7 +1372,9 @@ class AppData {
   factory AppData.fromJson(Json json) => AppData(
     profiles: readModels(json['profiles'], ProfileData.fromJson),
     activeProfileId: readString(json['activeProfileId'], ''),
-    settings: json['settings'] == null ? const AppSettings() : AppSettings.fromJson(readMap(json['settings'])),
+    settings: json['settings'] == null
+        ? const AppSettings()
+        : AppSettings.fromJson(readMap(json['settings'])),
     schemaVersion: readInt(json['schemaVersion'], 1),
   );
 
@@ -1372,4 +1397,3 @@ class AppData {
     schemaVersion: schemaVersion ?? this.schemaVersion,
   );
 }
-

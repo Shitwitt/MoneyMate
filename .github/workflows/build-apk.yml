@@ -26,11 +26,13 @@ jobs:
       - run: flutter pub get
       - run: flutter gen-l10n
       - run: dart format lib test
-      - run: flutter analyze --no-fatal-infos
-      - run: flutter test
+      - run: python3 .github/scripts/checked_command.py flutter analyze --no-fatal-infos
+      - run: python3 .github/scripts/checked_command.py flutter test
       - name: Save normalized Dart source
         if: always()
-        run: git diff --binary -- lib test > dart-format.patch
+        run: |
+          git diff --binary -- lib test > dart-format.patch
+          python3 .github/scripts/format_diagnostic.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -50,10 +52,10 @@ jobs:
           else
             echo 'No signing secrets: producing an installable DEBUG-KEY-SIGNED release APK. See README before distributing.'
           fi
-      - run: flutter build apk --release
+      - run: python3 .github/scripts/checked_command.py flutter build apk --release
       - name: Web build (self-hosted renderer; no runtime CDN)
         run: |
-          flutter build web --release --no-web-resources-cdn
+          python3 .github/scripts/checked_command.py flutter build web --release --no-web-resources-cdn
           python3 scripts/create_web_cache.py
       - name: Package source for download
         run: git archive --format=zip --prefix=PaisaClone/ HEAD -o PaisaClone-source.zip

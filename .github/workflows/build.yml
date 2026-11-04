@@ -32,7 +32,7 @@ jobs:
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
+          python3 ../.github/scripts/checked_command.py ./gradlew assembleDebug --stacktrace
       - uses: actions/upload-artifact@v4
         with:
           name: PaisaClone-debug-APK

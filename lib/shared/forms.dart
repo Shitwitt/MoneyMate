@@ -186,7 +186,10 @@ Future<bool?> showEditor(
   var busy = false;
   final navigator = Navigator.of(context);
   final route = ModalBottomSheetRoute<bool>(
-    capturedThemes: InheritedTheme.capture(from: context, to: navigator.context),
+    capturedThemes: InheritedTheme.capture(
+      from: context,
+      to: navigator.context,
+    ),
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     isScrollControlled: true,
     useSafeArea: true,

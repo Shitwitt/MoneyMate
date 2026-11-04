@@ -19,8 +19,9 @@ with subprocess.Popen(sys.argv[1:], stdout=subprocess.PIPE, stderr=subprocess.ST
         lines.append(line)
     code = process.wait()
 if code:
-    text = ''.join(lines)[-350000:]
-    for index in range(0, len(text), 45000):
-        chunk = text[index:index + 45000].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
-        print(f'::error title=Build diagnostics {index // 45000 + 1}::{chunk}', flush=True)
+    selected = [line for line in lines if not line.lstrip().startswith('info •')]
+    text = ''.join(selected)[-27000:]
+    for index in range(0, len(text), 3000):
+        chunk = text[index:index + 3000].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+        print(f'::error title=Build diagnostics {index // 3000 + 1}::{chunk}', flush=True)
 raise SystemExit(code)

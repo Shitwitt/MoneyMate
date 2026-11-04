@@ -11,8 +11,9 @@ String readString(Object? value, [String fallback = '']) =>
     value == null ? fallback : value as String;
 int readInt(Object? value, [int fallback = 0]) {
   if (value == null) return fallback;
-  if (value is! int)
+  if (value is! int) {
     throw const FormatException('Expected an integer minor-unit value');
+  }
   return value;
 }
 
@@ -25,8 +26,9 @@ DateTime readDate(Object? value) {
   final parts = RegExp(
     r'^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,6})?)?(?:Z|[+-]\d{2}:?\d{2})?)?$',
   ).firstMatch(text);
-  if (parts == null)
+  if (parts == null) {
     throw const FormatException('Use an ISO date (YYYY-MM-DD)');
+  }
   final year = int.parse(parts[1]!),
       month = int.parse(parts[2]!),
       day = int.parse(parts[3]!);

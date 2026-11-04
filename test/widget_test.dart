@@ -53,9 +53,16 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
-  testWidgets('Account editor saves without retaining disposed controllers', (tester) async {
+  testWidgets('Account editor saves without retaining disposed controllers', (
+    tester,
+  ) async {
     final repo = MemoryRepository(appFor(fixture()));
-    await tester.pumpWidget(ProviderScope(overrides: [repositoryProvider.overrideWithValue(repo)], child: const PaisaApp(enablePlatformServices: false)));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [repositoryProvider.overrideWithValue(repo)],
+        child: const PaisaApp(enablePlatformServices: false),
+      ),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Accounts').last);
     await tester.pumpAndSettle();
@@ -66,13 +73,37 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
-    expect(repo.persisted!.profiles.first.accounts.any((account) => account.name == 'Cash envelope'), isTrue);
+    expect(
+      repo.persisted!.profiles.first.accounts.any(
+        (account) => account.name == 'Cash envelope',
+      ),
+      isTrue,
+    );
     expect(tester.takeException(), isNull);
   });
-  testWidgets('Profile picker scrolls safely with many isolated profiles', (tester) async {
+  testWidgets('Profile picker scrolls safely with many isolated profiles', (
+    tester,
+  ) async {
     final first = fixture();
-    final app = appFor(first).copyWith(profiles: [first, for (var i = 0; i < 39; i++) seedProfile(name: 'Extra $i', currency: 'USD', accountName: 'Everyday')]);
-    await tester.pumpWidget(ProviderScope(overrides: [repositoryProvider.overrideWithValue(MemoryRepository(app))], child: const PaisaApp(enablePlatformServices: false)));
+    final app = appFor(first).copyWith(
+      profiles: [
+        first,
+        for (var i = 0; i < 39; i++)
+          seedProfile(
+            name: 'Extra $i',
+            currency: 'USD',
+            accountName: 'Everyday',
+          ),
+      ],
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          repositoryProvider.overrideWithValue(MemoryRepository(app)),
+        ],
+        child: const PaisaApp(enablePlatformServices: false),
+      ),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Test').first);
     await tester.pumpAndSettle();
@@ -80,5 +111,4 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
-
 }

@@ -84,7 +84,9 @@ class BudgetCard extends ConsumerWidget {
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
-        onTap: openDetails ? () => openPage(context, BudgetDetailScreen(budget.id)) : null,
+        onTap: openDetails
+            ? () => openPage(context, BudgetDetailScreen(budget.id))
+            : null,
         child: Padding(
           padding: const EdgeInsets.all(22),
           child: Column(

@@ -22,7 +22,8 @@ class ReceiptService {
       throw const FormatException('Please choose an image smaller than 2 MB');
     }
     final mime = receiptMime(bytes);
-    if (mime == null) throw const FormatException('Choose a PNG, JPEG, or WebP image');
+    if (mime == null)
+      throw const FormatException('Choose a PNG, JPEG, or WebP image');
     return Receipt(
       id: uuid.v4(),
       name: file.name,

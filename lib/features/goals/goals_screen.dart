@@ -61,7 +61,9 @@ class GoalCard extends ConsumerWidget {
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
-        onTap: openDetails ? () => openPage(context, GoalDetailScreen(goal.id)) : null,
+        onTap: openDetails
+            ? () => openPage(context, GoalDetailScreen(goal.id))
+            : null,
         child: Padding(
           padding: const EdgeInsets.all(22),
           child: Column(

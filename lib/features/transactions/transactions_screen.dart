@@ -94,7 +94,12 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     final byAmount = ['largest', 'smallest'].contains(filter.sort);
     final groups = <DateTime, List<MoneyTransaction>>{};
     for (final entry in entries.take(limit)) {
-      groups.putIfAbsent(byAmount ? DateTime(1970) : dayOnly(entry.date), () => []).add(entry);
+      groups
+          .putIfAbsent(
+            byAmount ? DateTime(1970) : dayOnly(entry.date),
+            () => [],
+          )
+          .add(entry);
     }
     final dailyTotals = <DateTime, int>{};
     for (final entry in entries) {
@@ -278,10 +283,14 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                   ),
                 ),
               for (final group in groups.entries) ...[
-                if (!byAmount) SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _DayHeader(group.key, dailyTotals[group.key] ?? 0),
-                ),
+                if (!byAmount)
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _DayHeader(
+                      group.key,
+                      dailyTotals[group.key] ?? 0,
+                    ),
+                  ),
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   sliver: SliverList.builder(

@@ -74,7 +74,7 @@ GitHub requires you to be signed in to download workflow artifacts. Workflows ca
 
 **Signing default:** debug builds and the default release fallback are **debug-key-signed and installable**, not unsigned. Without a persistent key, a new CI runner may generate a different certificate. Updating an old install then requires uninstalling it first (which deletes local data). **Export and verify a backup first.** For stable upgrade identity or Play Store publication configure your own signing key below.
 
-### 2. Local Flutter — exact commands
+### 2. Local Flutter / Android Studio — exact commands
 
 Install **Flutter stable 3.47.9** (the workflow’s reproducible stable baseline), Android Studio / Android SDK, and **JDK 17**. Newer stable Flutter versions may work; re-run tests and update Android Gradle/Kotlin tooling together when upgrading.
 

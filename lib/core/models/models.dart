@@ -1109,8 +1109,8 @@ class AppSettings {
 
   const AppSettings({
     this.theme = 'system',
-    this.accent = 0xff557c36,
-    this.dynamicColors = true,
+    this.accent = 0xff916cff,
+    this.dynamicColors = false,
     this.locale = 'en',
     this.hideAmounts = false,
     this.numberFormat = 'international',
@@ -1134,7 +1134,7 @@ class AppSettings {
       'achievements',
       'premium',
     ],
-    this.hiddenCards = const [],
+    this.hiddenCards = const ['templates','assets','loans','achievements','premium'],
     this.navTabs = const ['home', 'accounts', 'transactions', 'plans', 'more'],
     this.navLabels = true,
     this.lockMode = 'none',
@@ -1151,8 +1151,8 @@ class AppSettings {
 
   factory AppSettings.fromJson(Json json) => AppSettings(
     theme: readString(json['theme'], 'system'),
-    accent: readInt(json['accent'], 0xff557c36),
-    dynamicColors: readBool(json['dynamicColors'], true),
+    accent: readInt(json['accent'], 0xff916cff),
+    dynamicColors: readBool(json['dynamicColors'], false),
     locale: readString(json['locale'], 'en'),
     hideAmounts: readBool(json['hideAmounts'], false),
     numberFormat: readString(json['numberFormat'], 'international'),

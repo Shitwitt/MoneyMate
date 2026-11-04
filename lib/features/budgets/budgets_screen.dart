@@ -78,9 +78,7 @@ class BudgetCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ledger = ref.watch(ledgerProvider)!;
     final status = ledger.budgetStatus(budget, DateTime.now());
-    final color = status.remaining < 0
-        ? Theme.of(context).colorScheme.error
-        : Color(budget.color);
+    final color = status.remaining < 0 ? AppColors.semantic(context,'expense') : status.progress >= .8 ? (AppColors.dark(context)?const Color(0xffFDB022):AppColors.warningInk) : status.progress >= .6 ? (AppColors.dark(context)?const Color(0xffFEC84B):AppColors.warningInk) : AppColors.semantic(context,'income');
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
@@ -140,7 +138,7 @@ class BudgetCard extends ConsumerWidget {
                   AmountText(
                     status.remaining.abs(),
                     prefix: status.remaining < 0 ? 'Over ' : 'Left ',
-                    style: Theme.of(context).textTheme.labelSmall,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(color:color),
                   ),
                 ],
               ),

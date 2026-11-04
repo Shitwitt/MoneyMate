@@ -88,7 +88,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               destinations: [
                 for (final id in tabs)
                   NavigationRailDestination(
-                    icon: Icon(tabIcons[id]),
+                    icon: AnimatedScale(scale: active==id?1.08:1,duration:const Duration(milliseconds:150),child:Icon(tabIcons[id])),
                     label: Text(labels[id]!),
                   ),
               ],
@@ -117,16 +117,14 @@ class _AppShellState extends ConsumerState<AppShell> {
               destinations: [
                 for (final id in tabs)
                   NavigationDestination(
-                    icon: Icon(tabIcons[id]),
+                    icon: AnimatedScale(scale: active==id?1.08:1,duration:const Duration(milliseconds:150),child:Icon(tabIcons[id])),
                     label: labels[id]!,
                   ),
               ],
             ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => openPage(context, const TransactionForm()),
-        tooltip: l.addTransaction,
-        icon: const Icon(Icons.add_rounded),
-        label: Text(wide ? l.addTransaction : 'Add entry'),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => openTransactionSheet(context), tooltip: l.addTransaction,
+        child: const Icon(Icons.add_rounded,size:30),
       ),
     );
   }

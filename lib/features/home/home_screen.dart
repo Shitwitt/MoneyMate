@@ -26,6 +26,7 @@ import '../transactions/transaction_form.dart';
 import '../transactions/transaction_tile.dart';
 import '../transactions/transactions_screen.dart';
 import 'net_worth_screen.dart';
+import 'home_cards.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -49,7 +50,7 @@ class HomeScreen extends ConsumerWidget {
         .toList();
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 84,
+        toolbarHeight: 76,
         title: InkWell(
           borderRadius: BorderRadius.circular(18),
           onTap: () => _profiles(context, ref),
@@ -57,9 +58,8 @@ class HomeScreen extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               CircleAvatar(
-                backgroundColor: Color(profile.profile.color)
-                    .withValues(alpha: .5),
-                foregroundColor: Theme.of(context).colorScheme.onSurface,
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
                 child: Text(
                   profile.profile.name.characters.first.toUpperCase(),
                   style: const TextStyle(fontWeight: FontWeight.w600),
@@ -84,7 +84,7 @@ class HomeScreen extends ConsumerWidget {
                           child: Text(
                             profile.profile.name,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleLarge,
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
                         const SizedBox(width: 4),
@@ -133,7 +133,11 @@ class HomeScreen extends ConsumerWidget {
               () => ref.read(appProvider.notifier).processRecurring(),
             ).then((_) {}),
             child: ReorderableListView.builder(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+              header: Padding(padding:const EdgeInsets.only(bottom:20),child:Row(children:[
+                Expanded(child:Text('Your overview',style:Theme.of(context).textTheme.headlineMedium)),
+                Text(DateFormat('MMM yyyy',app.settings.locale).format(DateTime.now()),style:Theme.of(context).textTheme.labelLarge),
+              ])),
               itemCount: ids.length,
               buildDefaultDragHandles: false,
               onReorder: (oldIndex, newIndex) {
@@ -215,7 +219,7 @@ class HomeScreen extends ConsumerWidget {
                           ],
                         ),
                       if (id != 'balance') const SizedBox(height: 10),
-                      _card(context, ref, ledger, id),
+                      Entrance(index:index,child:_card(context, ref, ledger, id)),
                       if (id == 'balance')
                         Align(
                           alignment: Alignment.centerRight,
@@ -227,7 +231,7 @@ class HomeScreen extends ConsumerWidget {
                               size: 14,
                             ),
                             label: const Text(
-                              'Make this home yours',
+                              'Customize overview',
                               style: TextStyle(fontSize: 11),
                             ),
                           ),
@@ -250,149 +254,9 @@ class HomeScreen extends ConsumerWidget {
         expense = ledger.total('expense', month);
     switch (id) {
       case 'balance':
-        return Card(
-          color: const Color(0xff254222),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(28),
-            onTap: () => openPage(context, const NetWorthScreen()),
-            child: Container(
-              padding: const EdgeInsets.all(26),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xff254222), Color(0xff3b5730)],
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Expanded(
-                        child: Text(
-                          'A LITTLE PEACE OF MIND',
-                          style: TextStyle(
-                            color: Color(0xffd9e8c8),
-                            fontSize: 10,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                      ),
-                      const Icon(
-                        Icons.spa_outlined,
-                        color: Color(0xffc2dd9d),
-                        size: 27,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Total net worth',
-                    style: TextStyle(color: Color(0xffd9e8c8), fontSize: 13),
-                  ),
-                  const SizedBox(height: 10),
-                  AmountText(
-                    ledger.netWorth,
-                    style: const TextStyle(
-                      fontSize: 36,
-                      letterSpacing: -1.4,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 7,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xffc8e5a7).withValues(alpha: .18),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.south_west_rounded,
-                              color: Color(0xffd6eebc),
-                              size: 14,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              ledger.settings.hideAmounts
-                                  ? '••••'
-                                  : '${income > 0 ? ((income - expense) / income * 100).round() : 0}% saved',
-                              style: const TextStyle(
-                                color: Color(0xffe6f4d4),
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Spacer(),
-                      const Text(
-                        'See the bigger picture',
-                        style: TextStyle(
-                          color: Color(0xffd9e8c8),
-                          fontSize: 11,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      const Icon(
-                        Icons.arrow_forward_rounded,
-                        color: Color(0xffd9e8c8),
-                        size: 15,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
+        return Column(children:[SafeToSpendCard(ledger),const SizedBox(height:16),const HomeQuickActions()]);
       case 'cashflow':
-        return Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: StatCard(
-                    title: 'Money in',
-                    value: AmountText(income, compact: true),
-                    icon: Icons.south_west_rounded,
-                    caption: DateFormat('d MMM').format(month.start),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: StatCard(
-                    title: 'Money out',
-                    value: AmountText(expense, compact: true),
-                    icon: Icons.north_east_rounded,
-                    color: const Color(0xffbc7d5a),
-                    caption: 'This financial month',
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Small steps. A clearer picture.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-          ],
-        );
+        return MonthSummaryCard(ledger);
       case 'accounts':
         return SizedBox(
           height: 170,
@@ -426,7 +290,7 @@ class HomeScreen extends ConsumerWidget {
               return SizedBox(
                 width: 235,
                 child: Card(
-                  color: Color(account.color).withValues(alpha: .24),
+                  color: null,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(24),
                     onTap: () =>
@@ -755,7 +619,7 @@ class HomeScreen extends ConsumerWidget {
                   'Unlimited plans, deeper insights, and a little more possibility.',
                 ),
                 const SizedBox(height: 18),
-                FilledButton.tonal(
+                OutlinedButton(
                   onPressed: () => openPage(context, const PremiumScreen()),
                   child: const Text('Explore Plus · free simulation'),
                 ),

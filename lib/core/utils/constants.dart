@@ -1,5 +1,5 @@
-const appName = 'PaisaClone';
-const appVersion = '1.0.0';
+const appName = 'Tink';
+const appVersion = '1.1.0';
 const freeBudgetLimit = 3;
 const freeGoalLimit = 3;
 const freeEntityLimit = 10;
@@ -7,13 +7,13 @@ const freeBillLimit = 3;
 const maxReceiptBytes = 2 * 1024 * 1024;
 const maxBackupBytes = 50 * 1024 * 1024;
 const homeCardNames = <String, String>{
-  'balance': 'Net worth',
-  'cashflow': 'Income & spending',
+  'balance': 'At a glance',
+  'cashflow': 'This month',
   'accounts': 'Your accounts',
-  'trend': 'The bigger picture',
+  'trend': 'Cash flow',
   'budgets': 'Budgets',
   'goals': 'Dreams in progress',
-  'recent': 'Recent activity',
+  'recent': 'Transactions',
   'templates': 'Quick templates',
   'recurring': 'Subscriptions',
   'assets': 'Assets',
@@ -43,16 +43,8 @@ const assetTypes = [
 const periods = ['weekly', 'monthly', 'yearly', 'custom'];
 const frequencies = ['daily', 'weekly', 'monthly', 'yearly', 'custom'];
 const palette = [
-  0xffa4ca6a,
-  0xffb6a5e8,
-  0xfff2b88f,
-  0xff88bacc,
-  0xffed9c9b,
-  0xffe4c569,
-  0xff88c7b5,
-  0xffa5addd,
-  0xffdbadd1,
-  0xffb9b7aa,
+  0xff916cff, 0xff2E90FA, 0xffF79009, 0xff12B76A, 0xffEE46BC,
+  0xff7F56D9, 0xff6172F3, 0xff15B79E, 0xffA78BFF, 0xff8A8A96,
 ];
 
 const languageNames = {

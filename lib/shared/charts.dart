@@ -45,8 +45,8 @@ class TrendChart extends StatelessWidget {
         )
         .toList();
     final maxValue = [...income, ...expense].fold<double>(0, math.max);
-    final primary = Theme.of(context).colorScheme.primary;
-    const secondary = Color(0xffe5a97e);
+    final primary = AppColors.semantic(context,'income');
+    final secondary = AppColors.semantic(context,'expense');
     final titles = FlTitlesData(
       leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -70,7 +70,7 @@ class TrendChart extends StatelessWidget {
         ),
       ),
     );
-    final chart = line
+    Widget chart(double progress) => line
         ? LineChart(
             LineChartData(
               minY: 0,
@@ -85,7 +85,7 @@ class TrendChart extends StatelessWidget {
                       months,
                       (index) => FlSpot(
                         index.toDouble(),
-                        (series == 0 ? income : expense)[index],
+                        (series == 0 ? income : expense)[index] * progress,
                       ),
                     ),
                     isCurved: true,
@@ -113,7 +113,7 @@ class TrendChart extends StatelessWidget {
                 touchTooltipData: BarTouchTooltipData(
                   getTooltipItem: (group, index, rod, rodIndex) => BarTooltipItem(
                     '${rodIndex == 0 ? 'Income' : 'Expense'}\n${money(toMinor(rod.toY, ledger.currency), ledger.currency, indian: ledger.settings.numberFormat == 'indian')}',
-                    const TextStyle(color: Colors.white, fontSize: 11),
+                    const TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ),
               ),
@@ -124,13 +124,13 @@ class TrendChart extends StatelessWidget {
                   barsSpace: 5,
                   barRods: [
                     BarChartRodData(
-                      toY: income[index],
+                      toY: income[index] * progress,
                       color: primary,
                       width: 12,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     BarChartRodData(
-                      toY: expense[index],
+                      toY: expense[index] * progress,
                       color: secondary,
                       width: 12,
                       borderRadius: BorderRadius.circular(6),
@@ -142,7 +142,9 @@ class TrendChart extends StatelessWidget {
           );
     return Column(
       children: [
-        SizedBox(height: 200, child: chart),
+        Semantics(label:'Income and expense chart, $months financial months. Income ${money(windows.fold<int>(0,(sum,w)=>sum+ledger.total('income',w)),ledger.currency)}. Expenses ${money(windows.fold<int>(0,(sum,w)=>sum+ledger.total('expense',w)),ledger.currency)}.',
+          child:ExcludeSemantics(child:TweenAnimationBuilder<double>(tween:Tween(begin:0,end:1),duration:MediaQuery.disableAnimationsOf(context)?Duration.zero:const Duration(milliseconds:600),curve:Curves.easeOutCubic,
+            builder:(context,value,_)=>SizedBox(height:200,child:chart(value))))),
         const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -209,15 +211,7 @@ class _CategoryChartState extends State<CategoryChart> {
         ),
       );
     }
-    const colors = [
-      0xff91b86d,
-      0xffb6a5e8,
-      0xfff2b88f,
-      0xff88bacc,
-      0xffed9c9b,
-      0xffe4c569,
-      0xff88c7b5,
-    ];
+    const colors = AppColors.chart;
     return Column(
       children: [
         SizedBox(
@@ -225,8 +219,8 @@ class _CategoryChartState extends State<CategoryChart> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              PieChart(
-                PieChartData(
+              TweenAnimationBuilder<double>(tween:Tween(begin:0,end:1),duration:MediaQuery.disableAnimationsOf(context)?Duration.zero:const Duration(milliseconds:600),curve:Curves.easeOutCubic,
+                builder:(context,progress,_)=>PieChart(PieChartData(
                   centerSpaceRadius: 66,
                   sectionsSpace: 4,
                   startDegreeOffset: -90,
@@ -241,12 +235,12 @@ class _CategoryChartState extends State<CategoryChart> {
                     for (var i = 0; i < values.length; i++)
                       PieChartSectionData(
                         value: values[i].value.toDouble(),
-                        color: Color(colors[i]),
-                        radius: touched == i ? 34 : 26,
+                        color: colors[i],
+                        radius: (touched == i ? 34.0 : 26.0) * progress,
                         showTitle: false,
                       ),
                   ],
-                ),
+                )),
               ),
               SizedBox(
                 width: 125,
@@ -284,7 +278,7 @@ class _CategoryChartState extends State<CategoryChart> {
                   width: 10,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: Color(colors[i]),
+                    color: colors[i],
                     shape: BoxShape.circle,
                   ),
                 ),

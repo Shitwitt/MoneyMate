@@ -319,7 +319,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
             TextFormField(
               controller: _amount,
               autofocus: widget.initial == null && widget.template == null,
-              style: Theme.of(context).textTheme.displaySmall,
+              style: Theme.of(context).textTheme.displaySmall?.copyWith(fontFamily:'Inter',fontFeatures:AppTextStyles.tabular),
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
@@ -714,7 +714,7 @@ class _Calculator extends StatelessWidget {
               '=',
             ]
             .map(
-              (key) => FilledButton.tonal(
+              (key) => OutlinedButton(
                 onPressed: () {
                   if (key == '⌫') {
                     if (controller.text.isNotEmpty) {
@@ -743,3 +743,10 @@ class _Calculator extends StatelessWidget {
             .toList(),
   );
 }
+
+Future<void> openTransactionSheet(BuildContext context,{String initialType='expense'}) => showModalBottomSheet<void>(
+  context:context,isScrollControlled:true,useSafeArea:true,showDragHandle:false,
+  constraints:const BoxConstraints(maxWidth:720),
+  builder:(context)=>ClipRRect(borderRadius:const BorderRadius.vertical(top:Radius.circular(28)),child:SizedBox(
+    height:MediaQuery.sizeOf(context).height*.94,child:TransactionForm(initialType:initialType))),
+);

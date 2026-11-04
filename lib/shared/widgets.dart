@@ -1,4 +1,4 @@
-import 'dart:math' as math;
+import 'dart:ui' show FontFeature;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +6,13 @@ import 'package:shimmer/shimmer.dart';
 
 import '../core/data/providers.dart';
 import '../core/utils/money.dart';
+import '../core/theme/app_colors.dart';
+import 'tink_components.dart';
+export '../core/theme/app_colors.dart';
+export '../core/theme/app_radius.dart';
+export '../core/theme/app_spacing.dart';
+export '../core/theme/app_text_styles.dart';
+export 'tink_components.dart';
 
 IconData iconFor(String key) => switch (key) {
   'food' => Icons.restaurant_rounded,
@@ -69,6 +76,7 @@ class AmountText extends ConsumerWidget {
   final TextStyle? style;
   final bool compact;
   final String prefix;
+  final bool animate;
   const AmountText(
     this.amount, {
     super.key,
@@ -76,27 +84,25 @@ class AmountText extends ConsumerWidget {
     this.style,
     this.compact = false,
     this.prefix = '',
+    this.animate = false,
   });
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(appProvider.select((data) => data.settings));
     final code =
         currency ?? ref.watch(profileProvider)?.profile.currency ?? 'INR';
-    final text = money(
-      amount,
-      code,
-      hidden: settings.hideAmounts,
-      indian: settings.numberFormat == 'indian',
-      compact: compact,
-      locale: settings.locale,
+    final effectiveStyle = DefaultTextStyle.of(context).style.merge(style).copyWith(
+      fontFamily: 'Inter', fontFeatures: const [FontFeature.tabularFigures()]);
+    Widget render(int value) => Text(
+      '${settings.hideAmounts ? '' : prefix}${money(value, code, hidden: settings.hideAmounts, indian: settings.numberFormat == 'indian', compact: compact, locale: settings.locale)}',
+      style: effectiveStyle, maxLines: 1, overflow: TextOverflow.ellipsis,
     );
-    return Text(
-      '${settings.hideAmounts ? '' : prefix}$text',
-      style: style,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-    );
+    if (!animate || settings.hideAmounts || MediaQuery.disableAnimationsOf(context)) return render(amount);
+    return TweenAnimationBuilder<double>(tween: Tween(begin: 0, end: amount.toDouble()),
+      duration: const Duration(milliseconds: 650), curve: Curves.easeOutCubic,
+      builder: (context, value, child) => render(value.round()));
   }
+
 }
 
 class ColorIcon extends StatelessWidget {
@@ -105,26 +111,8 @@ class ColorIcon extends StatelessWidget {
   final double size;
   const ColorIcon(this.icon, this.color, {super.key, this.size = 48});
   @override
-  Widget build(BuildContext context) => Container(
-    width: size,
-    height: size,
-    decoration: BoxDecoration(
-      color: Color(color).withValues(
-        alpha: Theme.of(context).brightness == Brightness.dark ? .23 : .30,
-      ),
-      borderRadius: BorderRadius.circular(size * .32),
-    ),
-    child: Icon(
-      iconFor(icon),
-      size: size * .48,
-      color: Theme.of(context).brightness == Brightness.dark
-          ? Color(color)
-          : Color(color)
-                .withRed((Color(color).r * 170).round())
-                .withGreen((Color(color).g * 170).round())
-                .withBlue((Color(color).b * 170).round()),
-    ),
-  );
+  Widget build(BuildContext context) => CategoryIcon(icon: iconFor(icon), color: Color(color), size: size);
+
 }
 
 class SectionHeader extends StatelessWidget {
@@ -141,11 +129,11 @@ class SectionHeader extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 8, bottom: 14),
+    padding: const EdgeInsets.only(top: 4, bottom: 12),
     child: Row(
       children: [
         Expanded(
-          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+          child: Text(title, style: Theme.of(context).textTheme.titleMedium),
         ),
         if (trailing != null) trailing!,
         if (action != null) TextButton(onPressed: onTap, child: Text(action!)),
@@ -178,8 +166,8 @@ class EmptyState extends StatelessWidget {
           height: 88,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.primaryContainer
-                .withValues(alpha: .6),
-            borderRadius: BorderRadius.circular(32),
+                .withValues(alpha: .45),
+            borderRadius: BorderRadius.circular(28),
           ),
           child: Icon(
             icon,
@@ -204,7 +192,7 @@ class EmptyState extends StatelessWidget {
         ),
         if (action != null) ...[
           const SizedBox(height: 20),
-          FilledButton.tonal(onPressed: onAction, child: Text(action!)),
+          OutlinedButton(onPressed: onAction, child: Text(action!)),
         ],
       ],
     ),
@@ -253,9 +241,9 @@ class FeaturePage extends StatelessWidget {
         child: padded
             ? Padding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                child: child,
+                child: Entrance(child: child),
               )
-            : child,
+            : Entrance(child: child),
       ),
     ),
   );
@@ -291,7 +279,7 @@ class StatCard extends StatelessWidget {
               children: [
                 Icon(
                   icon,
-                  color: color ?? Theme.of(context).colorScheme.primary,
+                  color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
                   size: 20,
                 ),
                 const SizedBox(width: 8),
@@ -325,61 +313,12 @@ class StatCard extends StatelessWidget {
   );
 }
 
+/// Compatibility wrapper: the premium design uses a clean, rounded track.
 class WavyProgress extends StatelessWidget {
   final double value;
   final Color? color;
   const WavyProgress(this.value, {super.key, this.color});
-  @override
-  Widget build(BuildContext context) => Semantics(
-    label: '${(value * 100).round()} percent',
-    child: TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: value.clamp(0, 1)),
-      duration: const Duration(milliseconds: 550),
-      curve: Curves.easeOutCubic,
-      builder: (context, progress, child) => SizedBox(
-        height: 14,
-        width: double.infinity,
-        child: CustomPaint(
-          painter: _WavePainter(
-            progress,
-            color ?? Theme.of(context).colorScheme.primary,
-            Theme.of(context).colorScheme.surfaceContainerHighest,
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-class _WavePainter extends CustomPainter {
-  final double progress;
-  final Color color, track;
-  _WavePainter(this.progress, this.color, this.track);
-  @override
-  void paint(Canvas canvas, Size size) {
-    final radius = RRect.fromRectAndRadius(
-      Offset.zero & size,
-      const Radius.circular(7),
-    );
-    canvas.drawRRect(radius, Paint()..color = track);
-    canvas.save();
-    canvas.clipRRect(radius);
-    final width = size.width * progress;
-    final path = Path()
-      ..moveTo(0, size.height)
-      ..lineTo(0, 3);
-    for (double x = 0; x <= width; x += 2) {
-      path.lineTo(x, 3 + math.sin(x / 9) * 2);
-    }
-    path.lineTo(width, size.height);
-    path.close();
-    canvas.drawPath(path, Paint()..color = color);
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(_WavePainter old) =>
-      old.progress != progress || old.color != color || old.track != track;
+  @override Widget build(BuildContext context) => ProgressBar(value, color: color);
 }
 
 class LoadingSkeleton extends StatelessWidget {

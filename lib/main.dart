@@ -22,6 +22,7 @@ import 'core/theme/app_theme.dart';
 import 'core/utils/money.dart';
 import 'features/home/app_shell.dart';
 import 'features/onboarding/onboarding_screen.dart';
+import 'features/onboarding/splash_screen.dart';
 import 'features/settings/backup_screen.dart';
 import 'features/settings/security_gate.dart';
 import 'features/transactions/transaction_form.dart';
@@ -36,6 +37,9 @@ Future<void> main() async {
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('assets/fonts/OFL.txt');
     yield LicenseEntryWithLineBreaks(['Noto fonts'], license);
+    for(final family in ['Poppins','Inter']) {
+      yield LicenseEntryWithLineBreaks([family],await rootBundle.loadString('assets/fonts/$family-OFL.txt'));
+    }
   });
   runApp(const Bootstrap());
 }
@@ -47,9 +51,13 @@ class Bootstrap extends StatefulWidget {
 }
 
 class _BootstrapState extends State<Bootstrap> {
-  late Future<LocalStore> future = LocalStore.open();
+  Future<LocalStore> load({bool previous=false})async {
+    final result=await Future.wait([LocalStore.open(recoverPrevious:previous),Future<void>.delayed(const Duration(milliseconds:700))]);
+    return result.first as LocalStore;
+  }
+  late Future<LocalStore> future = load();
   void reload({bool previous = false}) =>
-      setState(() => future = LocalStore.open(recoverPrevious: previous));
+      setState(() => future = load(previous: previous));
   @override
   Widget build(BuildContext context) => FutureBuilder<LocalStore>(
     future: future,
@@ -63,6 +71,7 @@ class _BootstrapState extends State<Bootstrap> {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: buildTheme(const AppSettings(), Brightness.light),
+        darkTheme: buildTheme(const AppSettings(), Brightness.dark),
         home: snapshot.hasError
             ? Scaffold(
                 appBar: AppBar(
@@ -160,7 +169,7 @@ class _BootstrapState extends State<Bootstrap> {
                   ),
                 ),
               )
-            : const Scaffold(body: LoadingSkeleton()),
+            : const TinkSplashScreen(),
       );
     },
   );
@@ -395,7 +404,7 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
     Widget material(ColorScheme? light, ColorScheme? dark) => MaterialApp(
       navigatorKey: navigator,
       debugShowCheckedModeBanner: false,
-      title: 'PaisaClone',
+      title: 'Tink',
       theme: buildTheme(app.settings, Brightness.light, dynamicScheme: light),
       darkTheme: buildTheme(app.settings, Brightness.dark, dynamicScheme: dark),
       themeMode: switch (app.settings.theme) {

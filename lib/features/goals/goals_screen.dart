@@ -71,7 +71,7 @@ class GoalCard extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  ColorIcon(goal.icon, goal.color),
+                  ProgressRing(progress,size:56,strokeWidth:4,child:ColorIcon(goal.icon,goal.color,size:40)),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
@@ -84,7 +84,7 @@ class GoalCard extends ConsumerWidget {
                         const SizedBox(height: 4),
                         Text(
                           progress >= 1
-                              ? 'You did it. Take a moment. ✨'
+                              ? 'Goal complete. A little win.'
                               : days < 0
                               ? 'Past your target date. Keep going.'
                               : '$days days to make it happen',
@@ -97,12 +97,12 @@ class GoalCard extends ConsumerWidget {
                     progress >= 1
                         ? Icons.verified_rounded
                         : Icons.chevron_right_rounded,
-                    color: Color(goal.color),
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ],
               ),
               const SizedBox(height: 22),
-              WavyProgress(progress, color: Color(goal.color)),
+              ProgressBar(progress),
               const SizedBox(height: 14),
               Row(
                 children: [

@@ -360,7 +360,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                       'Spending velocity, period comparisons, seasonal patterns, and beautiful PDF reports.',
                     ),
                     const SizedBox(height: 18),
-                    FilledButton.tonal(
+                    OutlinedButton(
                       onPressed: () => openPage(context, const PremiumScreen()),
                       child: const Text('Explore PaisaClone Plus'),
                     ),

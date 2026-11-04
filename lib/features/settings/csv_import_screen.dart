@@ -98,7 +98,7 @@ class _CsvImportScreenState extends ConsumerState<CsvImportScreen> {
           style: TextStyle(height: 1.6),
         ),
         const SizedBox(height: 20),
-        FilledButton.tonalIcon(
+        OutlinedButton.icon(
           onPressed: _pick,
           icon: const Icon(Icons.upload_file_rounded),
           label: Text(

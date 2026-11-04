@@ -440,7 +440,7 @@ class AccountDetailScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        FilledButton.tonalIcon(
+                        OutlinedButton.icon(
                           onPressed: () =>
                               openPage(context, TransactionForm(accountId: id)),
                           icon: const Icon(Icons.add_rounded),

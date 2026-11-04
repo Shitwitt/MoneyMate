@@ -454,7 +454,7 @@ class BillDetailScreen extends ConsumerWidget {
                                 },
                                 child: const Text('Move to loan'),
                               ),
-                            FilledButton.tonal(
+                            OutlinedButton(
                               onPressed: () => runSafe(
                                 context,
                                 () => ref

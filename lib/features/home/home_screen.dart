@@ -59,7 +59,9 @@ class HomeScreen extends ConsumerWidget {
             children: [
               CircleAvatar(
                 backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                foregroundColor: Theme.of(context)
+                    .colorScheme
+                    .onPrimaryContainer,
                 child: Text(
                   profile.profile.name.characters.first.toUpperCase(),
                   style: const TextStyle(fontWeight: FontWeight.w600),
@@ -134,10 +136,26 @@ class HomeScreen extends ConsumerWidget {
             ).then((_) {}),
             child: ReorderableListView.builder(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
-              header: Padding(padding:const EdgeInsets.only(bottom:20),child:Row(children:[
-                Expanded(child:Text('Your overview',style:Theme.of(context).textTheme.headlineMedium)),
-                Text(DateFormat('MMM yyyy',app.settings.locale).format(DateTime.now()),style:Theme.of(context).textTheme.labelLarge),
-              ])),
+              header: Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Your overview',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                    ),
+                    Text(
+                      DateFormat(
+                        'MMM yyyy',
+                        app.settings.locale,
+                      ).format(DateTime.now()),
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                  ],
+                ),
+              ),
               itemCount: ids.length,
               buildDefaultDragHandles: false,
               onReorder: (oldIndex, newIndex) {
@@ -219,7 +237,10 @@ class HomeScreen extends ConsumerWidget {
                           ],
                         ),
                       if (id != 'balance') const SizedBox(height: 10),
-                      Entrance(index:index,child:_card(context, ref, ledger, id)),
+                      Entrance(
+                        index: index,
+                        child: _card(context, ref, ledger, id),
+                      ),
                       if (id == 'balance')
                         Align(
                           alignment: Alignment.centerRight,
@@ -254,7 +275,13 @@ class HomeScreen extends ConsumerWidget {
         expense = ledger.total('expense', month);
     switch (id) {
       case 'balance':
-        return Column(children:[SafeToSpendCard(ledger),const SizedBox(height:16),const HomeQuickActions()]);
+        return Column(
+          children: [
+            SafeToSpendCard(ledger),
+            const SizedBox(height: 16),
+            const HomeQuickActions(),
+          ],
+        );
       case 'cashflow':
         return MonthSummaryCard(ledger);
       case 'accounts':

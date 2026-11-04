@@ -56,29 +56,73 @@ class Ledger {
   int get toPay => data.loans
       .where((loan) => loan.direction == 'borrowed')
       .fold(0, (sum, loan) => sum + loanRemaining(loan));
+
   /// Conservative planning estimate, not a bank-confirmed spendable balance.
   /// Investments/savings and future-dated credits cannot fund today's spending.
   SafeToSpendSummary safeToSpend(DateTime now) {
     final end = financialMonth(now, settings.monthStart).end;
-    final liquid = data.accounts.where((item) => !item.excluded && !item.archived && !['investment','savings'].contains(item.type)).toList();
+    final liquid = data.accounts
+        .where(
+          (item) =>
+              !item.excluded &&
+              !item.archived &&
+              !['investment', 'savings'].contains(item.type),
+        )
+        .toList();
     final ids = liquid.map((item) => item.id).toSet();
-    final balance = liquid.fold<int>(0,(sum,item) => sum + inBase(accountBalance(item.id,before: now),item.currency));
+    final balance = liquid.fold<int>(
+      0,
+      (sum, item) =>
+          sum + inBase(accountBalance(item.id, before: now), item.currency),
+    );
     var upcoming = 0;
     var complete = true;
-    for (final rule in data.recurrings.where((rule) => rule.enabled && rule.type == 'expense' && ids.contains(rule.accountId))) {
+    for (final rule in data.recurrings.where(
+      (rule) =>
+          rule.enabled &&
+          rule.type == 'expense' &&
+          ids.contains(rule.accountId),
+    )) {
       var cursor = rule.nextDue;
       var count = 0;
-      while (cursor.isBefore(end) && (rule.end == null || !cursor.isAfter(rule.end!))) {
-        if (++count > 1000) { complete = false; break; }
-        upcoming += inBase(rule.amountMinor,account(rule.accountId).currency);
-        cursor = nextOccurrence(rule,cursor);
+      while (cursor.isBefore(end) &&
+          (rule.end == null || !cursor.isAfter(rule.end!))) {
+        if (++count > 1000) {
+          complete = false;
+          break;
+        }
+        upcoming += inBase(rule.amountMinor, account(rule.accountId).currency);
+        cursor = nextOccurrence(rule, cursor);
       }
     }
-    upcoming += data.transactions.where((entry) => !entry.date.isBefore(now) && entry.date.isBefore(end) && ids.contains(entry.accountId) &&
-      (entry.type == 'expense' || (entry.type == 'transfer' && !ids.contains(entry.toAccountId)))).fold<int>(0,(sum,entry) => sum + entryValue(entry));
-    final loans = data.loans.where((loan) => loan.direction == 'borrowed' && loan.due.isBefore(end)).fold<int>(0,(sum,loan) => sum + loanRemaining(loan));
-    final goals = data.goals.where((goal) => goal.accountId.isEmpty).fold<int>(0,(sum,goal) => sum + math.min(goal.targetMinor,goalSaved(goal)));
-    return SafeToSpendSummary(balance: balance, upcoming: upcoming, loans: loans, goals: goals, complete: complete, end: end);
+    upcoming += data.transactions
+        .where(
+          (entry) =>
+              !entry.date.isBefore(now) &&
+              entry.date.isBefore(end) &&
+              ids.contains(entry.accountId) &&
+              (entry.type == 'expense' ||
+                  (entry.type == 'transfer' &&
+                      !ids.contains(entry.toAccountId))),
+        )
+        .fold<int>(0, (sum, entry) => sum + entryValue(entry));
+    final loans = data.loans
+        .where((loan) => loan.direction == 'borrowed' && loan.due.isBefore(end))
+        .fold<int>(0, (sum, loan) => sum + loanRemaining(loan));
+    final goals = data.goals
+        .where((goal) => goal.accountId.isEmpty)
+        .fold<int>(
+          0,
+          (sum, goal) => sum + math.min(goal.targetMinor, goalSaved(goal)),
+        );
+    return SafeToSpendSummary(
+      balance: balance,
+      upcoming: upcoming,
+      loans: loans,
+      goals: goals,
+      complete: complete,
+      end: end,
+    );
   }
 
   int get netWorth => accountsTotal + assetsTotal + toReceive - toPay;
@@ -196,9 +240,16 @@ class SafeToSpendSummary {
   final int balance, upcoming, loans, goals;
   final bool complete;
   final DateTime end;
-  const SafeToSpendSummary({required this.balance,required this.upcoming,required this.loans,required this.goals,required this.complete,required this.end});
+  const SafeToSpendSummary({
+    required this.balance,
+    required this.upcoming,
+    required this.loans,
+    required this.goals,
+    required this.complete,
+    required this.end,
+  });
   int get reserved => upcoming + loans + goals;
-  int get available => complete ? math.max(0,balance-reserved) : 0;
+  int get available => complete ? math.max(0, balance - reserved) : 0;
 }
 
 class BudgetStatus {

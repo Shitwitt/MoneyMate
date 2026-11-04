@@ -37,8 +37,10 @@ Future<void> main() async {
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('assets/fonts/OFL.txt');
     yield LicenseEntryWithLineBreaks(['Noto fonts'], license);
-    for(final family in ['Poppins','Inter']) {
-      yield LicenseEntryWithLineBreaks([family],await rootBundle.loadString('assets/fonts/$family-OFL.txt'));
+    for (final family in ['Poppins', 'Inter']) {
+      yield LicenseEntryWithLineBreaks([
+        family,
+      ], await rootBundle.loadString('assets/fonts/$family-OFL.txt'));
     }
   });
   runApp(const Bootstrap());
@@ -51,10 +53,14 @@ class Bootstrap extends StatefulWidget {
 }
 
 class _BootstrapState extends State<Bootstrap> {
-  Future<LocalStore> load({bool previous=false})async {
-    final result=await Future.wait([LocalStore.open(recoverPrevious:previous),Future<void>.delayed(const Duration(milliseconds:700))]);
+  Future<LocalStore> load({bool previous = false}) async {
+    final result = await Future.wait([
+      LocalStore.open(recoverPrevious: previous),
+      Future<void>.delayed(const Duration(milliseconds: 700)),
+    ]);
     return result.first as LocalStore;
   }
+
   late Future<LocalStore> future = load();
   void reload({bool previous = false}) =>
       setState(() => future = load(previous: previous));

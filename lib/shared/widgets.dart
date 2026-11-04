@@ -91,18 +91,29 @@ class AmountText extends ConsumerWidget {
     final settings = ref.watch(appProvider.select((data) => data.settings));
     final code =
         currency ?? ref.watch(profileProvider)?.profile.currency ?? 'INR';
-    final effectiveStyle = DefaultTextStyle.of(context).style.merge(style).copyWith(
-      fontFamily: 'Inter', fontFeatures: const [FontFeature.tabularFigures()]);
+    final effectiveStyle = DefaultTextStyle.of(context).style
+        .merge(style)
+        .copyWith(
+          fontFamily: 'Inter',
+          fontFeatures: const [FontFeature.tabularFigures()],
+        );
     Widget render(int value) => Text(
       '${settings.hideAmounts ? '' : prefix}${money(value, code, hidden: settings.hideAmounts, indian: settings.numberFormat == 'indian', compact: compact, locale: settings.locale)}',
-      style: effectiveStyle, maxLines: 1, overflow: TextOverflow.ellipsis,
+      style: effectiveStyle,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
-    if (!animate || settings.hideAmounts || MediaQuery.disableAnimationsOf(context)) return render(amount);
-    return TweenAnimationBuilder<double>(tween: Tween(begin: 0, end: amount.toDouble()),
-      duration: const Duration(milliseconds: 650), curve: Curves.easeOutCubic,
-      builder: (context, value, child) => render(value.round()));
+    if (!animate ||
+        settings.hideAmounts ||
+        MediaQuery.disableAnimationsOf(context))
+      return render(amount);
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: amount.toDouble()),
+      duration: const Duration(milliseconds: 650),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) => render(value.round()),
+    );
   }
-
 }
 
 class ColorIcon extends StatelessWidget {
@@ -111,8 +122,8 @@ class ColorIcon extends StatelessWidget {
   final double size;
   const ColorIcon(this.icon, this.color, {super.key, this.size = 48});
   @override
-  Widget build(BuildContext context) => CategoryIcon(icon: iconFor(icon), color: Color(color), size: size);
-
+  Widget build(BuildContext context) =>
+      CategoryIcon(icon: iconFor(icon), color: Color(color), size: size);
 }
 
 class SectionHeader extends StatelessWidget {
@@ -279,7 +290,8 @@ class StatCard extends StatelessWidget {
               children: [
                 Icon(
                   icon,
-                  color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
+                  color:
+                      color ?? Theme.of(context).colorScheme.onSurfaceVariant,
                   size: 20,
                 ),
                 const SizedBox(width: 8),
@@ -318,7 +330,8 @@ class WavyProgress extends StatelessWidget {
   final double value;
   final Color? color;
   const WavyProgress(this.value, {super.key, this.color});
-  @override Widget build(BuildContext context) => ProgressBar(value, color: color);
+  @override
+  Widget build(BuildContext context) => ProgressBar(value, color: color);
 }
 
 class LoadingSkeleton extends StatelessWidget {

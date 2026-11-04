@@ -71,7 +71,12 @@ class GoalCard extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  ProgressRing(progress,size:56,strokeWidth:4,child:ColorIcon(goal.icon,goal.color,size:40)),
+                  ProgressRing(
+                    progress,
+                    size: 56,
+                    strokeWidth: 4,
+                    child: ColorIcon(goal.icon, goal.color, size: 40),
+                  ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(

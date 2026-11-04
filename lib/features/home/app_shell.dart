@@ -88,7 +88,11 @@ class _AppShellState extends ConsumerState<AppShell> {
               destinations: [
                 for (final id in tabs)
                   NavigationRailDestination(
-                    icon: AnimatedScale(scale: active==id?1.08:1,duration:const Duration(milliseconds:150),child:Icon(tabIcons[id])),
+                    icon: AnimatedScale(
+                      scale: active == id ? 1.08 : 1,
+                      duration: const Duration(milliseconds: 150),
+                      child: Icon(tabIcons[id]),
+                    ),
                     label: Text(labels[id]!),
                   ),
               ],
@@ -117,14 +121,19 @@ class _AppShellState extends ConsumerState<AppShell> {
               destinations: [
                 for (final id in tabs)
                   NavigationDestination(
-                    icon: AnimatedScale(scale: active==id?1.08:1,duration:const Duration(milliseconds:150),child:Icon(tabIcons[id])),
+                    icon: AnimatedScale(
+                      scale: active == id ? 1.08 : 1,
+                      duration: const Duration(milliseconds: 150),
+                      child: Icon(tabIcons[id]),
+                    ),
                     label: labels[id]!,
                   ),
               ],
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => openTransactionSheet(context), tooltip: l.addTransaction,
-        child: const Icon(Icons.add_rounded,size:30),
+        onPressed: () => openTransactionSheet(context),
+        tooltip: l.addTransaction,
+        child: const Icon(Icons.add_rounded, size: 30),
       ),
     );
   }

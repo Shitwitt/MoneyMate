@@ -43,8 +43,16 @@ const assetTypes = [
 const periods = ['weekly', 'monthly', 'yearly', 'custom'];
 const frequencies = ['daily', 'weekly', 'monthly', 'yearly', 'custom'];
 const palette = [
-  0xff916cff, 0xff2E90FA, 0xffF79009, 0xff12B76A, 0xffEE46BC,
-  0xff7F56D9, 0xff6172F3, 0xff15B79E, 0xffA78BFF, 0xff8A8A96,
+  0xff916cff,
+  0xff2E90FA,
+  0xffF79009,
+  0xff12B76A,
+  0xffEE46BC,
+  0xff7F56D9,
+  0xff6172F3,
+  0xff15B79E,
+  0xffA78BFF,
+  0xff8A8A96,
 ];
 
 const languageNames = {

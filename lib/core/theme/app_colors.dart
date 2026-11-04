@@ -29,10 +29,19 @@ abstract final class AppColors {
   static const errorBackground = Color(0xFFFEECEB);
   static const warningBackground = Color(0xFFFFF6E6);
   static const infoBackground = Color(0xFFEAF3FF);
-  static const chart = [primary, Color(0xFFB5A0EC), Color(0xFFCDC3E3), Color(0xFFA8B8D0), Color(0xFFC9C4CE), Color(0xFF8E91A9), Color(0xFFD8D3E0)];
+  static const chart = [
+    primary,
+    Color(0xFFB5A0EC),
+    Color(0xFFCDC3E3),
+    Color(0xFFA8B8D0),
+    Color(0xFFC9C4CE),
+    Color(0xFF8E91A9),
+    Color(0xFFD8D3E0),
+  ];
 
-  static bool dark(BuildContext context) => Theme.of(context).brightness == Brightness.dark;
-  static Color semantic(BuildContext context, String type) => switch(type) {
+  static bool dark(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark;
+  static Color semantic(BuildContext context, String type) => switch (type) {
     'income' => dark(context) ? const Color(0xFF34D399) : incomeInk,
     'expense' => dark(context) ? const Color(0xFFF87171) : expenseInk,
     'transfer' => dark(context) ? const Color(0xFF60A5FA) : transferInk,

@@ -45,8 +45,8 @@ class TrendChart extends StatelessWidget {
         )
         .toList();
     final maxValue = [...income, ...expense].fold<double>(0, math.max);
-    final primary = AppColors.semantic(context,'income');
-    final secondary = AppColors.semantic(context,'expense');
+    final primary = AppColors.semantic(context, 'income');
+    final secondary = AppColors.semantic(context, 'expense');
     final titles = FlTitlesData(
       leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -142,9 +142,21 @@ class TrendChart extends StatelessWidget {
           );
     return Column(
       children: [
-        Semantics(label:'Income and expense chart, $months financial months. Income ${money(windows.fold<int>(0,(sum,w)=>sum+ledger.total('income',w)),ledger.currency)}. Expenses ${money(windows.fold<int>(0,(sum,w)=>sum+ledger.total('expense',w)),ledger.currency)}.',
-          child:ExcludeSemantics(child:TweenAnimationBuilder<double>(tween:Tween(begin:0,end:1),duration:MediaQuery.disableAnimationsOf(context)?Duration.zero:const Duration(milliseconds:600),curve:Curves.easeOutCubic,
-            builder:(context,value,_)=>SizedBox(height:200,child:chart(value))))),
+        Semantics(
+          label:
+              'Income and expense chart, $months financial months. Income ${money(windows.fold<int>(0, (sum, w) => sum + ledger.total('income', w)), ledger.currency)}. Expenses ${money(windows.fold<int>(0, (sum, w) => sum + ledger.total('expense', w)), ledger.currency)}.',
+          child: ExcludeSemantics(
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: 1),
+              duration: MediaQuery.disableAnimationsOf(context)
+                  ? Duration.zero
+                  : const Duration(milliseconds: 600),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, _) =>
+                  SizedBox(height: 200, child: chart(value)),
+            ),
+          ),
+        ),
         const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -219,28 +231,36 @@ class _CategoryChartState extends State<CategoryChart> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              TweenAnimationBuilder<double>(tween:Tween(begin:0,end:1),duration:MediaQuery.disableAnimationsOf(context)?Duration.zero:const Duration(milliseconds:600),curve:Curves.easeOutCubic,
-                builder:(context,progress,_)=>PieChart(PieChartData(
-                  centerSpaceRadius: 66,
-                  sectionsSpace: 4,
-                  startDegreeOffset: -90,
-                  pieTouchData: PieTouchData(
-                    touchCallback: (event, response) => setState(
-                      () => touched = event.isInterestedForInteractions
-                          ? response?.touchedSection?.touchedSectionIndex ?? -1
-                          : -1,
-                    ),
-                  ),
-                  sections: [
-                    for (var i = 0; i < values.length; i++)
-                      PieChartSectionData(
-                        value: values[i].value.toDouble(),
-                        color: colors[i],
-                        radius: (touched == i ? 34.0 : 26.0) * progress,
-                        showTitle: false,
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: 1),
+                duration: MediaQuery.disableAnimationsOf(context)
+                    ? Duration.zero
+                    : const Duration(milliseconds: 600),
+                curve: Curves.easeOutCubic,
+                builder: (context, progress, _) => PieChart(
+                  PieChartData(
+                    centerSpaceRadius: 66,
+                    sectionsSpace: 4,
+                    startDegreeOffset: -90,
+                    pieTouchData: PieTouchData(
+                      touchCallback: (event, response) => setState(
+                        () => touched = event.isInterestedForInteractions
+                            ? response?.touchedSection?.touchedSectionIndex ??
+                                  -1
+                            : -1,
                       ),
-                  ],
-                )),
+                    ),
+                    sections: [
+                      for (var i = 0; i < values.length; i++)
+                        PieChartSectionData(
+                          value: values[i].value.toDouble(),
+                          color: colors[i],
+                          radius: (touched == i ? 34.0 : 26.0) * progress,
+                          showTitle: false,
+                        ),
+                    ],
+                  ),
+                ),
               ),
               SizedBox(
                 width: 125,

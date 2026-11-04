@@ -438,7 +438,7 @@ class AppController extends StateNotifier<AppData> {
         !profile.entities.any((entity) => entity.id == item.id) &&
         profile.entities.where((entity) => entity.kind == item.kind).length >=
             freeEntityLimit)
-      throw const PremiumRequired('unlimited ${item.kind}s');
+      throw PremiumRequired('unlimited ${item.kind}s');
     return profile.copyWith(
       entities: replace(profile.entities, item, (item) => item.id),
     );

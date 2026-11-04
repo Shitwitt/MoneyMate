@@ -82,7 +82,8 @@ class RegionalScreen extends ConsumerWidget {
               context,
               () => controller.settings((s) => s.copyWith(numberFormat: value)),
             ),
-            const SizedBox(height: 12),
+          ),
+          const SizedBox(height: 12),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(22),
@@ -132,7 +133,6 @@ class RegionalScreen extends ConsumerWidget {
               style: TextStyle(fontSize: 12, height: 1.5),
             ),
             const SizedBox(height: 100),
-          ),
         ],
       ),
     );

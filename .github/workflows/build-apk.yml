@@ -25,6 +25,7 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter gen-l10n
+      - run: dart fix --apply
       - run: dart format lib test
       - name: Initial source normalization (session branch only)
         if: github.ref == 'refs/heads/arena/9ea2a134-moneymate'

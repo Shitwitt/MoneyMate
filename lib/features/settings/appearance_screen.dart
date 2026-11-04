@@ -150,12 +150,12 @@ class AppearanceScreen extends ConsumerWidget {
                         (s) => s.copyWith(fontScale: value),
                       ),
                     ),
-                    const Text(
-                      'A little intention goes a long way.',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  ),
+                  const Text(
+                    'A little intention goes a long way.',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],

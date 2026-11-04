@@ -11,8 +11,7 @@ class DeepLinkRequest {
 class DeepLinkService {
   /// app_links also emits the ordinary browser address on startup.
   static bool isWebFinanceLink(Uri uri) =>
-      uri.scheme == 'paisa' ||
-      (uri.scheme == 'https' && uri.path == '/add');
+      uri.scheme == 'paisa' || (uri.scheme == 'https' && uri.path == '/add');
 
   static DeepLinkRequest parse(Uri uri, ProfileData data) {
     final action = uri.scheme == 'paisa'

@@ -44,16 +44,24 @@ const binary = chromiumModule.default || chromiumModule;
       }
     }
     async function nav(label) {
+      // Do not wheel a newly pushed route while Flutter's 300ms transition hides semantics.
+      await page.waitForTimeout(350);
       const name = new RegExp('^' + label);
       const target = page.getByRole('button', {name}).or(page.getByRole('tab', {name})).or(page.getByLabel(name)).or(page.getByText(name)).last();
       // Flutter only exposes painted semantics nodes; DOM scrollIntoView cannot
       // materialize an offscreen SliverGrid item. Scroll its real canvas first.
+      if (!await target.isVisible()) {
+        await page.mouse.move(200, 440);
+        await page.mouse.wheel(0, -3000);
+        await page.waitForTimeout(220);
+      }
       for (let attempt = 0; attempt < 8 && !await target.isVisible(); attempt++) {
         await page.mouse.move(200, 440);
         await page.mouse.wheel(0, 400);
         await page.waitForTimeout(180);
       }
       await target.click({timeout: 15000});
+      await page.waitForTimeout(350);
     }
     await page.goto('http://127.0.0.1:8080', {waitUntil: 'domcontentloaded'});
     await ready();

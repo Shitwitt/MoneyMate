@@ -15,21 +15,20 @@ ThemeData tinkTheme(
 }) {
   GoogleFonts.config.allowRuntimeFetching = false;
   final dark = brightness == Brightness.dark;
-  final accent = settings.accent == 0xff557c36
-      ? AppColors.primary
-      : Color(settings.accent);
+  final requested = settings.accent == 0xff557c36 ? AppColors.primary : Color(settings.accent);
+  final accent = settings.dynamicColors && settings.accent != 0xff557c36 && dynamicScheme != null ? dynamicScheme.primary : requested;
+  final onAccent = 1.05/(accent.computeLuminance()+.05) >= 3 ? Colors.white : AppColors.ink;
+  final brand = accent == AppColors.primary;
   final background = dark ? AppColors.darkSurface : AppColors.background;
-  final card = dark ? AppColors.darkCard : AppColors.card;
+  final card = dark ? (settings.theme=='black'?const Color(0xff16161E):AppColors.darkCard) : AppColors.card;
   final ink = dark ? Colors.white : AppColors.ink;
   final secondary = dark ? AppColors.darkSecondary : AppColors.secondary;
   final outline = dark ? AppColors.darkDivider : AppColors.outline;
   final scheme = ColorScheme.fromSeed(seedColor: accent, brightness: brightness)
       .copyWith(
         primary: accent,
-        onPrimary: Colors.white,
-        primaryContainer: dark
-            ? const Color(0xff302544)
-            : AppColors.primaryLight,
+        onPrimary: onAccent,
+        primaryContainer: brand ? (dark ? const Color(0xff302544) : AppColors.primaryLight) : Color.alphaBlend(accent.withValues(alpha:dark ? .22 : .12),card),
         onPrimaryContainer: dark
             ? const Color(0xffE4D8FF)
             : AppColors.primaryInk,
@@ -111,7 +110,7 @@ ThemeData tinkTheme(
       border: const OutlineInputBorder(borderRadius: AppRadius.buttonBorder),
       enabledBorder: OutlineInputBorder(
         borderRadius: AppRadius.buttonBorder,
-        borderSide: BorderSide(color: outline),
+        borderSide: BorderSide(color: scheme.outline),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: AppRadius.buttonBorder,
@@ -139,12 +138,12 @@ ThemeData tinkTheme(
           (states) => states.contains(WidgetState.disabled)
               ? scheme.surfaceContainerHighest
               : states.contains(WidgetState.pressed)
-              ? AppColors.primaryPressed
+              ? (brand ? AppColors.primaryPressed : Color.lerp(accent,AppColors.ink,.12)!)
               : accent,
         ),
         foregroundColor: WidgetStateProperty.resolveWith(
           (states) =>
-              states.contains(WidgetState.disabled) ? secondary : Colors.white,
+              states.contains(WidgetState.disabled) ? secondary : onAccent,
         ),
         overlayColor: const WidgetStatePropertyAll(Color(0x15000000)),
         elevation: const WidgetStatePropertyAll(0),
@@ -155,7 +154,7 @@ ThemeData tinkTheme(
         minimumSize: const Size(48, 54),
         foregroundColor: ink,
         backgroundColor: card,
-        side: BorderSide(color: outline),
+        side: BorderSide(color: scheme.outline),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         textStyle: text.titleSmall,
         shape: const RoundedRectangleBorder(
@@ -178,7 +177,7 @@ ThemeData tinkTheme(
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: accent,
-      foregroundColor: Colors.white,
+      foregroundColor: onAccent,
       elevation: 2,
       shape: const CircleBorder(),
       sizeConstraints: const BoxConstraints.tightFor(width: 60, height: 60),

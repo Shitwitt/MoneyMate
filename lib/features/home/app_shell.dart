@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/data/providers.dart';
 import '../../l10n/generated/app_localizations.dart';
-import '../../shared/widgets.dart';
 import '../accounts/accounts_screen.dart';
 import '../budgets/budgets_screen.dart';
 import '../reports/reports_screen.dart';
@@ -75,7 +74,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                       const Padding(
                         padding: EdgeInsets.only(left: 12),
                         child: Text(
-                          'PaisaClone',
+                          'Tink',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,

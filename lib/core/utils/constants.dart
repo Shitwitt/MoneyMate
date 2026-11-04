@@ -20,7 +20,7 @@ const homeCardNames = <String, String>{
   'loans': 'Loans',
   'reports': 'Reports & insights',
   'achievements': 'Little wins',
-  'premium': 'PaisaClone Plus',
+  'premium': 'Tink Pro',
 };
 const accountTypes = [
   'cash',

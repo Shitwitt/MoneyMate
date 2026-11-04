@@ -33,7 +33,7 @@ class PremiumRequired implements Exception {
   final String feature;
   const PremiumRequired(this.feature);
   @override
-  String toString() => 'Unlock Plus for $feature';
+  String toString() => 'Unlock Pro for $feature';
 }
 
 class AppController extends StateNotifier<AppData> {
@@ -96,6 +96,7 @@ class AppController extends StateNotifier<AppData> {
     return app.copyWith(
       profiles: [...app.profiles, profile],
       activeProfileId: profile.profile.id,
+      settings:app.profiles.isEmpty?app.settings.copyWith(numberFormat:currency=='INR'?'indian':'international'):app.settings,
     );
   });
   Future<void> switchProfile(String id) => mutate((app) {

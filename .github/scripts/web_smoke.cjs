@@ -1,4 +1,4 @@
-/* Real Chromium smoke test of the compiled Flutter web app. No private data. */
+/* Chromium smoke test. Only new, fictional demo records are ever used. */
 const {createRequire} = require('node:module');
 const {spawn} = require('node:child_process');
 const fs = require('node:fs');
@@ -17,7 +17,7 @@ const binary = chromiumModule.default || chromiumModule;
       await new Promise(resolve => setTimeout(resolve, 100));
     }
     browser = await playwright.launch({executablePath: await binary.executablePath(), args: binary.args, headless: true});
-    const context = await browser.newContext({viewport: {width: 390, height: 844}, deviceScaleFactor: 1, locale: 'en-US'});
+    const context = await browser.newContext({viewport: {width: 390, height: 844}, deviceScaleFactor: 1, locale: 'en-IN', colorScheme: 'light'});
     page = await context.newPage();
     const remoteRequests = new Set(), errors = [];
     page.on('request', request => {
@@ -25,27 +25,64 @@ const binary = chromiumModule.default || chromiumModule;
       if (['http:', 'https:'].includes(url.protocol) && !['127.0.0.1', 'localhost'].includes(url.hostname)) remoteRequests.add(url.origin);
     });
     page.on('pageerror', error => errors.push(error.message));
+    page.on('console', message => {
+      if (/A RenderFlex overflowed|EXCEPTION CAUGHT BY|DartError/.test(message.text())) errors.push(message.text());
+    });
     async function ready() {
       await page.waitForSelector('#splash', {state: 'detached', timeout: 90000});
       await page.locator('flt-semantics-placeholder, flt-semantics').first().waitFor({state: 'attached', timeout: 90000});
       const placeholder = page.locator('flt-semantics-placeholder');
       if (await placeholder.count()) await placeholder.evaluate(element => element.click());
     }
+    async function capture(name) {
+      for (const quality of [50, 35, 20, 10]) {
+        const jpg = await page.screenshot({type: 'jpeg', quality, animations: 'disabled'});
+        fs.writeFileSync(name, jpg);
+        if (jpg.length < 35000) break;
+      }
+    }
+    async function nav(label) { await page.getByText(label, {exact: true}).last().click(); }
     await page.goto('http://127.0.0.1:8080', {waitUntil: 'domcontentloaded'});
     await ready();
-    await page.getByRole('button', {name: 'Continue', exact: true}).click({timeout: 20000});
-    await page.getByRole('textbox').first().fill('Demo User');
-    await page.getByRole('button', {name: 'Continue', exact: true}).click();
-    const demoToggle = page.getByRole('switch').or(page.getByRole('checkbox')).first();
-    await demoToggle.click();
-    await page.getByRole('button', {name: 'Get started', exact: true}).click();
-    await page.getByText('Total net worth', {exact: false}).first().waitFor({timeout: 30000});
-    // Deliberately small diagnostic image; downloadable full sources remain separate.
-    for (const quality of [50, 35, 20, 10]) {
-      const jpg = await page.screenshot({type: 'jpeg', quality, animations: 'disabled'});
-      fs.writeFileSync('web-dashboard.jpg', jpg);
-      if (jpg.length < 35000) break;
+    await page.getByRole('button', {name: 'Continue', exact: true}).waitFor();
+    await capture('web-intro.jpg');
+    for (let i = 0; i < 5; i++) {
+      await page.getByRole('button', {name: 'Continue', exact: true}).click();
+      // Allow this deliberate finite PageView slide to complete before advancing.
+      await page.waitForTimeout(350);
     }
+    await page.getByRole('button', {name: 'Get started', exact: true}).click();
+    const name = page.getByRole('textbox', {name: 'What should we call you?', exact: true}).first();
+    await name.click();
+    await page.keyboard.type('Demo User', {delay: 45});
+    await page.keyboard.press('Tab');
+    await page.getByRole('button', {name: 'Continue', exact: true}).click();
+    await page.getByText('Show me around with sample data', {exact: true}).waitFor();
+    await page.getByRole('switch').or(page.getByRole('checkbox')).first().click();
+    await page.getByRole('button', {name: 'Start using Tink', exact: true}).click();
+    const celebration = page.getByRole('button', {name: 'A little proud of myself', exact: true});
+    if (await celebration.isVisible()) await celebration.click();
+    await page.getByText('Safe to spend', {exact: true}).first().waitFor({timeout: 30000});
+    await page.waitForTimeout(800);
+    await capture('web-dashboard.jpg');
+    await nav('Accounts');
+    await page.getByText('Recorded balance', {exact: true}).first().waitFor();
+    await capture('web-accounts.jpg');
+    await nav('More');
+    await nav('Reports');
+    await page.getByText('Your money, a little clearer', {exact: true}).waitFor();
+    await page.waitForTimeout(650);
+    await capture('web-reports.jpg');
+    await page.getByRole('button', {name: 'Back', exact: true}).click();
+    await nav('Settings');
+    await nav('Appearance');
+    await page.getByText('Dark', {exact: true}).click();
+    await page.getByRole('button', {name: 'Back', exact: true}).click();
+    await page.getByRole('button', {name: 'Back', exact: true}).click();
+    await nav('Home');
+    await page.getByText('Safe to spend', {exact: true}).waitFor();
+    await page.waitForTimeout(700);
+    await capture('web-dark.jpg');
     await page.reload({waitUntil: 'domcontentloaded'});
     await ready();
     await page.getByText('Demo User', {exact: false}).first().waitFor({timeout: 20000});
@@ -61,12 +98,12 @@ const binary = chromiumModule.default || chromiumModule;
     await ready();
     await page.getByText('Demo User', {exact: false}).first().waitFor({timeout: 30000});
     if (remoteRequests.size) throw new Error('Unexpected runtime network hosts: ' + [...remoteRequests].join(', '));
-    if (errors.length) throw new Error('Uncaught browser errors: ' + errors.join('\n'));
-    console.log('::notice title=Web smoke::PASS: demo onboarding, persisted browser reload, offline reload, and no external runtime requests.');
+    if (errors.length) throw new Error('Browser/layout errors: ' + errors.join('\n'));
+    console.log('::notice title=Tink web smoke::PASS: six intros, real demo onboarding, accounts, reports, dark theme, persisted reload, offline reload and zero external runtime requests.');
   } catch (error) {
     if (page) {
       console.log('Page text:', (await page.locator('body').innerText().catch(() => '')).slice(-8000));
-      console.log('Input labels:', await page.locator('input').evaluateAll(inputs => inputs.map(input => ({label: input.getAttribute('aria-label'), type: input.type}))).catch(() => []));
+      console.log('Demo input diagnostics:', await page.locator('input').evaluateAll(inputs => inputs.map(input => ({label: input.getAttribute('aria-label'), value: input.value, type: input.type}))).catch(() => []));
       await page.screenshot({path: 'web-failure.jpg', type: 'jpeg', quality: 30}).catch(() => {});
     }
     console.error(error);

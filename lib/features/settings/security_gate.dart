@@ -170,7 +170,7 @@ class _SecurityGateState extends ConsumerState<SecurityGate>
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 12),
-                          const Text('Unlock PaisaClone to continue.'),
+                          const Text('Unlock Tink to continue.'),
                           const SizedBox(height: 32),
                           TextField(
                             controller: pin,

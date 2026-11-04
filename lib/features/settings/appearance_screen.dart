@@ -56,7 +56,7 @@ class AppearanceScreen extends ConsumerWidget {
                             const SizedBox(height: 14),
                             Text(
                               mode == 'black'
-                                  ? 'Just Black · Plus'
+                                  ? 'Midnight · Pro'
                                   : '${mode[0].toUpperCase()}${mode.substring(1)}',
                               style: const TextStyle(fontSize: 12),
                             ),
@@ -92,7 +92,7 @@ class AppearanceScreen extends ConsumerWidget {
             children: [
               for (var i = 0; i < palette.length; i++)
                 Semantics(
-                  label: 'Accent ${i + 1}${i > 4 ? ', Plus' : ''}',
+                  label: 'Accent ${i + 1}${i > 4 ? ', Pro' : ''}',
                   button: true,
                   selected: settings.accent == palette[i],
                   child: InkResponse(
@@ -117,12 +117,12 @@ class AppearanceScreen extends ConsumerWidget {
                       child: settings.accent == palette[i]
                           ? const Icon(
                               Icons.check_rounded,
-                              color: Color(0xff26351c),
+                              color: Color(0xff0B0B0F),
                             )
                           : i > 4 && !settings.isPro
                           ? const Icon(
                               Icons.auto_awesome_rounded,
-                              color: Color(0xff26351c),
+                              color: Color(0xff0B0B0F),
                               size: 17,
                             )
                           : null,

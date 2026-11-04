@@ -59,7 +59,7 @@ class BackupService {
       ..addFile(
         ArchiveFile.string(
           'READ-ME.txt',
-          'PaisaClone local backup. Includes every profile and embedded receipt. UNENCRYPTED: keep private. Restore from Settings > Backup. PIN hashes are intentionally excluded.',
+          'Tink local backup. Includes every profile and embedded receipt. UNENCRYPTED: keep private. Restore from Settings > Backup. PIN hashes are intentionally excluded.',
         ),
       );
     return Uint8List.fromList(ZipEncoder().encode(archive));
@@ -83,7 +83,7 @@ class BackupService {
       final files = archive.files.where(
         (file) => file.name == 'paisaclone.json' && file.isFile,
       );
-      require(files.length == 1, 'This ZIP is not a PaisaClone backup');
+      require(files.length == 1, 'This ZIP is not a Tink backup');
       // Never extract arbitrary paths to the filesystem (prevents ZIP traversal).
       content = files.single.content as List<int>;
     }

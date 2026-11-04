@@ -6,7 +6,6 @@ import 'package:shimmer/shimmer.dart';
 
 import '../core/data/providers.dart';
 import '../core/utils/money.dart';
-import '../core/theme/app_colors.dart';
 import 'tink_components.dart';
 export '../core/theme/app_colors.dart';
 export '../core/theme/app_radius.dart';
@@ -338,6 +337,7 @@ class LoadingSkeleton extends StatelessWidget {
   const LoadingSkeleton({super.key});
   @override
   Widget build(BuildContext context) => Shimmer.fromColors(
+    enabled:!MediaQuery.disableAnimationsOf(context),
     baseColor: Colors.grey.withValues(alpha: .15),
     highlightColor: Colors.grey.withValues(alpha: .06),
     child: ListView(

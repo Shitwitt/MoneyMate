@@ -4,7 +4,7 @@
   "accounts": "Comptes",
   "activity": "Activité",
   "plans": "Projets",
-  "more": "Plus",
+  "more": "Pro",
   "reports": "Rapports",
   "addTransaction": "Ajouter une opération",
   "settings": "Réglages",
@@ -34,6 +34,6 @@
   "language": "Langue",
   "backup": "Sauvegarde et restauration",
   "security": "Confidentialité et sécurité",
-  "unlockPlus": "Débloquer Plus",
+  "unlockPlus": "Débloquer Pro",
   "privacyPromise": "Sans compte. Sans cloud. Sans souci."
 }

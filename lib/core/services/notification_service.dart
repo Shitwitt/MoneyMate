@@ -144,7 +144,7 @@ class NotificationService {
               await _schedule(
                 '${rule.id}:$i',
                 'Recurring payment',
-                'A scheduled payment is due. Open PaisaClone to review it.',
+                'A scheduled payment is due. Open Tink to review it.',
                 date,
               );
               date = nextOccurrence(rule, date);
@@ -177,7 +177,7 @@ class NotificationService {
           await _schedule(
             'backup',
             'Keep your memories safe',
-            'Make a private local backup of your PaisaClone data.',
+            'Make a private local backup of your Tink data.',
             due.isAfter(now) ? due : now.add(const Duration(hours: 1)),
           );
         }

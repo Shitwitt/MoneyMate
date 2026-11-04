@@ -25,7 +25,6 @@ import '../transactions/templates_screen.dart';
 import '../transactions/transaction_form.dart';
 import '../transactions/transaction_tile.dart';
 import '../transactions/transactions_screen.dart';
-import 'net_worth_screen.dart';
 import 'home_cards.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -271,8 +270,6 @@ class HomeScreen extends ConsumerWidget {
   Widget _card(BuildContext context, WidgetRef ref, Ledger ledger, String id) {
     final profile = ledger.data;
     final month = financialMonth(DateTime.now(), ledger.settings.monthStart);
-    final income = ledger.total('income', month),
-        expense = ledger.total('expense', month);
     switch (id) {
       case 'balance':
         return Column(
@@ -648,7 +645,7 @@ class HomeScreen extends ConsumerWidget {
                 const SizedBox(height: 18),
                 OutlinedButton(
                   onPressed: () => openPage(context, const PremiumScreen()),
-                  child: const Text('Explore Plus · free simulation'),
+                  child: const Text('Explore Pro · free simulation'),
                 ),
               ],
             ),

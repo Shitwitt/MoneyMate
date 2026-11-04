@@ -22,6 +22,7 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => FilledButton(
     onPressed: loading || success ? null : onPressed,
+    style: success || loading ? FilledButton.styleFrom(disabledBackgroundColor:success?AppColors.incomeInk:Theme.of(context).colorScheme.primary,disabledForegroundColor:success?Colors.white:Theme.of(context).colorScheme.onPrimary) : null,
     child: AnimatedSwitcher(
       duration: const Duration(milliseconds: 160),
       child: Row(
@@ -30,11 +31,11 @@ class PrimaryButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (loading)
-            const SizedBox.square(
+            SizedBox.square(
               dimension: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onPrimary,
               ),
             )
           else if (success || icon != null)

@@ -27,25 +27,25 @@ class MoreScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final pro = ref.watch(appProvider).settings.isPro;
     final items = [
-      (l.accounts, 'bank', 0xffa4ca6a, const AccountsScreen()),
-      (l.activity, 'expense', 0xfff2b88f, const TransactionsScreen()),
-      (l.reports, 'asset', 0xffb6a5e8, const ReportsScreen()),
-      (l.budgets, 'category', 0xffe4c569, const BudgetsScreen()),
-      (l.goals, 'goal', 0xff88bacc, const GoalsScreen()),
-      (l.subscriptions, 'bills', 0xffb6a5e8, const RecurringScreen()),
-      (l.loans, 'loan', 0xff88c7b5, const LoansScreen()),
-      ('Bill splitter', 'person', 0xffed9c9b, const BillsScreen()),
-      (l.assets, 'asset', 0xffe4c569, const AssetsScreen()),
-      (l.categories, 'category', 0xffb6a5e8, const CatalogScreen('category')),
-      (l.labels, 'label', 0xfff2b88f, const CatalogScreen('label')),
-      (l.people, 'person', 0xff88c7b5, const CatalogScreen('person')),
-      (l.places, 'place', 0xff88bacc, const CatalogScreen('place')),
-      ('Quick templates', 'work', 0xffa4ca6a, const TemplatesScreen()),
-      (l.achievements, 'gift', 0xffe4c569, const AchievementsScreen()),
-      (l.settings, 'category', 0xffb9b7aa, const SettingsScreen()),
+      (l.accounts, 'bank', 0xff8A8A96, const AccountsScreen()),
+      (l.activity, 'expense', 0xff8A8A96, const TransactionsScreen()),
+      (l.reports, 'asset', 0xff8A8A96, const ReportsScreen()),
+      (l.budgets, 'category', 0xff8A8A96, const BudgetsScreen()),
+      (l.goals, 'goal', 0xff8A8A96, const GoalsScreen()),
+      (l.subscriptions, 'bills', 0xff8A8A96, const RecurringScreen()),
+      (l.loans, 'loan', 0xff8A8A96, const LoansScreen()),
+      ('Bill splitter', 'person', 0xff8A8A96, const BillsScreen()),
+      (l.assets, 'asset', 0xff8A8A96, const AssetsScreen()),
+      (l.categories, 'category', 0xff8A8A96, const CatalogScreen('category')),
+      (l.labels, 'label', 0xff8A8A96, const CatalogScreen('label')),
+      (l.people, 'person', 0xff8A8A96, const CatalogScreen('person')),
+      (l.places, 'place', 0xff8A8A96, const CatalogScreen('place')),
+      ('Quick templates', 'work', 0xff8A8A96, const TemplatesScreen()),
+      (l.achievements, 'gift', 0xff8A8A96, const AchievementsScreen()),
+      (l.settings, 'category', 0xff8A8A96, const SettingsScreen()),
     ];
     return FeaturePage(
-      title: 'A little more',
+      title: 'Your toolkit',
       actions: [
         IconButton(
           tooltip: 'Help & FAQ',
@@ -64,13 +64,13 @@ class MoreScreen extends ConsumerWidget {
                   contentPadding: const EdgeInsets.all(20),
                   leading: const Icon(Icons.auto_awesome_rounded, size: 30),
                   title: Text(
-                    pro ? 'Your Plus space' : 'Make a little more room',
+                    pro ? 'Your Pro space' : 'Make a little more room',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   subtitle: Text(
                     pro
                         ? 'Unlimited possibilities. Same privacy.'
-                        : 'Explore PaisaClone Plus · simulated & free',
+                        : 'Explore Tink Pro · simulated & free',
                     style: const TextStyle(fontSize: 12),
                   ),
                   trailing: const Icon(Icons.chevron_right_rounded),
@@ -91,7 +91,7 @@ class MoreScreen extends ConsumerWidget {
                   crossAxisCount: columns,
                   crossAxisSpacing: 14,
                   mainAxisSpacing: 14,
-                  childAspectRatio: 1.35,
+                  childAspectRatio: 1.35/MediaQuery.textScalerOf(context).scale(1).clamp(1.0,2.0),
                 ),
                 itemCount: items.length,
                 itemBuilder: (context, index) {

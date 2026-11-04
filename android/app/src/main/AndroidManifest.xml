@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <!-- No INTERNET or broad storage permission in release. System pickers grant scoped access. -->
-    <application android:label="PaisaClone" android:name="${applicationName}"
+    <application android:label="Tink" android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher" android:allowBackup="false"
         android:fullBackupContent="false" android:usesCleartextTraffic="false">
         <activity android:name=".MainActivity" android:exported="true"

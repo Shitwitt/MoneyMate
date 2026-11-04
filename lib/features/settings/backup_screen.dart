@@ -48,7 +48,7 @@ class BackupScreen extends ConsumerWidget {
         final bytes = BackupService.export(ref.read(appProvider), zip: zip);
         await FileService.save(
           bytes,
-          'PaisaClone-${DateFormat('yyyy-MM-dd-HHmm').format(DateTime.now())}.${zip ? 'zip' : 'json'}',
+          'Tink-${DateFormat('yyyy-MM-dd-HHmm').format(DateTime.now())}.${zip ? 'zip' : 'json'}',
           mime: zip ? 'application/zip' : 'application/json',
         );
         await ref
@@ -148,7 +148,7 @@ class BackupScreen extends ConsumerWidget {
                 );
                 await FileService.save(
                   template.buffer.asUint8List(),
-                  'PaisaClone-import-template.csv',
+                  'Tink-import-template.csv',
                   mime: 'text/csv',
                 );
               }),
@@ -172,7 +172,7 @@ class BackupScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 18),
           const Text(
-            'Optional cloud storage: use your device’s share/save sheet to put an export in Google Drive, iCloud Drive, or another provider you choose. PaisaClone has no cloud SDK and never uploads anything automatically.\n\nWeb: data belongs to this browser and origin. Private browsing, clearing site data, or changing hosts can erase it. Download backups regularly.',
+            'Optional cloud storage: use your device’s share/save sheet to put an export in Google Drive, iCloud Drive, or another provider you choose. Tink has no cloud SDK and never uploads anything automatically.\n\nWeb: data belongs to this browser and origin. Private browsing, clearing site data, or changing hosts can erase it. Download backups regularly.',
             style: TextStyle(fontSize: 12, height: 1.7),
           ),
           const SizedBox(height: 100),

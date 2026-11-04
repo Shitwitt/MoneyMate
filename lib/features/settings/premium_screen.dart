@@ -17,7 +17,7 @@ class PremiumScreen extends ConsumerWidget {
             .read(appProvider.notifier)
             .settings((settings) => settings.copyWith(isPro: true)),
         success:
-            'Plus unlocked forever on this installation. No payment, ever.',
+            'Pro unlocked on this installation. No payment, ever.',
       );
       if (done && context.mounted && Navigator.canPop(context)) {
         Navigator.pop(context);
@@ -25,58 +25,15 @@ class PremiumScreen extends ConsumerWidget {
     }
 
     return FeaturePage(
-      title: 'A little more possibility',
+      title: 'Tink Pro',
       child: ListView(
         padding: const EdgeInsets.only(bottom: 36),
         children: [
-          Container(
-            padding: const EdgeInsets.all(30),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).colorScheme.primaryContainer,
-                  Theme.of(context).colorScheme.tertiaryContainer,
-                ],
-              ),
-              borderRadius: BorderRadius.circular(32),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface
-                        .withValues(alpha: .7),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: const Text(
-                    'PAISACLONE PLUS',
-                    style: TextStyle(
-                      letterSpacing: 2,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 28),
-                const Icon(Icons.auto_awesome_rounded, size: 46),
-                const SizedBox(height: 20),
-                Text(
-                  'Your dreams.\nWithout limits.',
-                  style: Theme.of(context).textTheme.displaySmall,
-                ),
-                const SizedBox(height: 14),
-                const Text(
-                  'Same privacy. A little more room to grow.',
-                  style: TextStyle(height: 1.6),
-                ),
-              ],
-            ),
-          ),
+          AppCard(color:AppColors.darkSurface,padding:const EdgeInsets.all(24),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+            Row(children:[Text('Tink',style:Theme.of(context).textTheme.headlineMedium?.copyWith(color:Colors.white)),const SizedBox(width:10),const PremiumBadge(),const Spacer(),const Icon(Icons.auto_awesome_rounded,color:AppColors.darkAccent,size:28)]),
+            const SizedBox(height:32),Text('A little more\nroom to grow.',style:Theme.of(context).textTheme.displaySmall?.copyWith(color:Colors.white,height:1.2)),const SizedBox(height:16),
+            const Text('Same privacy. More possibilities.\nNo checkout, subscription or real payment.',style:TextStyle(color:AppColors.darkSecondary,height:1.5)),
+          ])),
           const SizedBox(height: 24),
           for (final feature in [
             ('Budgets & goals', '3 each', 'Unlimited'),
@@ -84,7 +41,7 @@ class PremiumScreen extends ConsumerWidget {
             ('Split bills', '3 bills', 'Unlimited'),
             ('Reports', 'Core charts + CSV', 'Velocity, comparisons, heatmap'),
             ('PDF reports', '—', 'Export & print'),
-            ('Themes', 'System, light & dark', 'Just Black + extra accents'),
+            ('Themes', 'System, light & dark', 'Midnight + extra accents'),
           ])
             Card(
               child: Padding(
@@ -113,7 +70,7 @@ class PremiumScreen extends ConsumerWidget {
                       child: Text(
                         feature.$3,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
                       ),
                     ),
@@ -125,7 +82,7 @@ class PremiumScreen extends ConsumerWidget {
           FilledButton.icon(
             onPressed: pro ? null : unlock,
             icon: Icon(pro ? Icons.verified_rounded : Icons.lock_open_rounded),
-            label: Text(pro ? 'You’re already Plus' : 'Unlock Premium Forever'),
+            label: Text(pro ? 'Pro is enabled' : 'Unlock Pro for free'),
           ),
           const SizedBox(height: 12),
           const Text(

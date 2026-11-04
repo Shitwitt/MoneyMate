@@ -71,7 +71,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
       if (kind == 'csv') {
         await FileService.save(
           CsvService.export(ledger, entries),
-          'PaisaClone-report.csv',
+          'Tink-report.csv',
           mime: 'text/csv',
         );
         return;
@@ -87,12 +87,12 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
       if (kind == 'print') {
         await Printing.layoutPdf(
           onLayout: (_) async => bytes,
-          name: 'PaisaClone-report.pdf',
+          name: 'Tink-report.pdf',
         );
       } else {
         await FileService.save(
           bytes,
-          'PaisaClone-report.pdf',
+          'Tink-report.pdf',
           mime: 'application/pdf',
         );
       }
@@ -150,8 +150,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
           onSelected: _export,
           itemBuilder: (_) => const [
             PopupMenuItem(value: 'csv', child: Text('Export filtered CSV')),
-            PopupMenuItem(value: 'pdf', child: Text('Save PDF · Plus')),
-            PopupMenuItem(value: 'print', child: Text('Print report · Plus')),
+            PopupMenuItem(value: 'pdf', child: Text('Save PDF · Pro')),
+            PopupMenuItem(value: 'print', child: Text('Print report · Pro')),
           ],
         ),
       ],
@@ -222,9 +222,11 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                       title: stat.$1,
                       value: AmountText(
                         stat.$2,
+                        style:TextStyle(color:AppColors.semantic(context,stat.$1=='Income'?'income':stat.$1=='Expenses'?'expense':stat.$2>=0?'income':'expense')),
                         compact: constraints.maxWidth < 650,
                       ),
                       icon: stat.$3,
+                      color:AppColors.semantic(context,stat.$1=='Income'?'income':stat.$1=='Expenses'?'expense':stat.$2>=0?'income':'expense'),
                       caption: stat.$1 == 'Net cash flow'
                           ? '${income > 0 ? ((income - expense) / income * 100).toStringAsFixed(1) : '0'}% savings rate'
                           : '${entries.where((entry) => entry.type == (stat.$1 == 'Income' ? 'income' : 'expense')).length} entries',
@@ -362,7 +364,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                     const SizedBox(height: 18),
                     OutlinedButton(
                       onPressed: () => openPage(context, const PremiumScreen()),
-                      child: const Text('Explore PaisaClone Plus'),
+                      child: const Text('Explore Tink Pro'),
                     ),
                   ],
                 ),
@@ -603,7 +605,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                     ),
                     child: Text(
                       '${day + 1}',
-                      style: const TextStyle(fontSize: 12),
+                      style: TextStyle(fontSize:12,color:AppColors.dark(context)?Colors.white:AppColors.ink,fontFeatures:AppTextStyles.tabular),
                     ),
                   ),
                 );

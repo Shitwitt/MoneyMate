@@ -8,6 +8,7 @@ import '../../core/data/providers.dart';
 import '../../core/services/service_providers.dart';
 import '../../shared/actions.dart';
 import '../../shared/widgets.dart';
+import '../onboarding/introduction_screen.dart';
 
 class HelpScreen extends ConsumerWidget {
   const HelpScreen({super.key});
@@ -17,13 +18,15 @@ class HelpScreen extends ConsumerWidget {
     const example =
         'paisa://silent_add?amount=180&type=expense&name=Coffee&account=Everyday&category=Food%20%26%20Dining';
     return FeaturePage(
-      title: 'A little help along the way',
+      title: 'Help & a little clarity',
       child: ListView(
         padding: const EdgeInsets.only(bottom: 100),
         children: [
+          AppCard(padding:EdgeInsets.zero,child:ListTile(leading:const TinkLogo(size:44),title:const Text('Meet Tink again'),subtitle:const Text('Replay the six-page introduction'),trailing:const Icon(Icons.chevron_right_rounded),onTap:()=>openPage(context,IntroductionScreen(onFinish:()=>Navigator.pop(context))))),
+          const SizedBox(height:24),
           const SectionHeader('Your home-screen companions'),
           const Text(
-            'Android: long-press your launcher → Widgets → PaisaClone, or request a widget below. iOS: long-press the Home Screen → + → PaisaClone, after configuring the App Group with your signing team (see README). Widgets refresh after saved changes and use the active profile.',
+            'Android: long-press your launcher → Widgets → Tink, or request a widget below. iOS: long-press the Home Screen → + → Tink, after configuring the App Group with your signing team (see README). Widgets refresh after saved changes and use the active profile.',
             style: TextStyle(height: 1.6),
           ),
           const SizedBox(height: 16),
@@ -102,7 +105,7 @@ class HelpScreen extends ConsumerWidget {
                   !await confirm(
                     context,
                     'Allow automated entries?',
-                    'Links will be able to add income or expenses without a second confirmation when PaisaClone is unlocked. Do not enable on shared devices.',
+                    'Links will be able to add income or expenses without a second confirmation when Tink is unlocked. Do not enable on shared devices.',
                     confirmLabel: 'Allow',
                   )) {
                 return;
@@ -155,8 +158,8 @@ class HelpScreen extends ConsumerWidget {
               'Web data is deleted along with this origin’s site storage. Export a ZIP/JSON backup, and restore it in the new browser. Installable PWA caching is an offline convenience, not a backup.',
             ),
             (
-              'What does Plus cost?',
-              'Nothing in this project. Unlocking Plus only saves a local flag. There is no real purchase or subscription to cancel.',
+              'What does Pro cost?',
+              'Nothing in this project. Unlocking Pro only saves a local flag. There is no real purchase or subscription to cancel.',
             ),
             (
               'Can I change the PIN if I forget it?',

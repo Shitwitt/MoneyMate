@@ -4,32 +4,35 @@
   <base href="$FLUTTER_BASE_HREF">
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-  <meta name="description" content="Your money. Your device. A private, offline-first finance companion.">
-  <meta name="theme-color" content="#254222">
+  <meta name="description" content="Tink. Your money. A clearer mind. Private, offline-first personal finance.">
+  <meta name="theme-color" content="#916CFF">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="PaisaClone">
+  <meta name="apple-mobile-web-app-title" content="Tink">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="manifest" href="manifest.json">
-  <title>PaisaClone · Your money. Your device.</title>
+  <title>Tink · Your money. A clearer mind.</title>
   <style>
-    html,body{margin:0;background:#f7f8f2;height:100%;font-family:system-ui,-apple-system,sans-serif}
-    #splash{height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#254222;gap:20px}
-    #splash img{width:80px;height:80px;border-radius:24px;animation:breathe 2s ease-in-out infinite}
-    #splash p{font-size:13px;letter-spacing:.03em;color:#64715a}
-    @keyframes breathe{50%{transform:translateY(-5px)}}
+    html,body{margin:0;background:#F7F7FB;height:100%;font-family:system-ui,-apple-system,sans-serif}
+    #splash{height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#0B0B0F;gap:20px}
+    #splash img{width:88px;height:88px;border-radius:24px;animation:arrive .6s cubic-bezier(.22,1,.36,1) both}
+    #splash strong{font-size:34px;font-weight:700;letter-spacing:-1.2px}
+    #splash p{font-size:14px;color:#5A5A66;margin:0}
+    #splash:after{content:'';height:3px;width:64px;background:#916CFF;border-radius:4px}
+    @keyframes arrive{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+    @media(prefers-color-scheme:dark){html,body{background:#121218}#splash{color:#FFF}#splash p{color:#A5A5B2}}
     @media(prefers-reduced-motion:reduce){#splash img{animation:none}}
   </style>
 </head>
 <body>
-  <div id="splash" role="status"><img src="icons/Icon-192.png" alt="PaisaClone"><strong>A little clarity is on its way.</strong><p>Your money. Your device.</p></div>
+  <div id="splash" role="status"><img src="icons/Icon-192.png" alt="Tink logo"><strong>Tink</strong><p>Your money. A clearer mind.</p></div>
   <script>
     window.addEventListener('flutter-first-frame',()=>document.getElementById('splash')?.remove());
     if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js').catch(()=>{}));}
   </script>
   <script src="flutter_bootstrap.js" async></script>
-  <noscript>PaisaClone needs JavaScript enabled. Its data stays in your browser, not on a server.</noscript>
+  <noscript>Tink needs JavaScript enabled. Its data stays in your browser, not on a server.</noscript>
 </body>
 </html>

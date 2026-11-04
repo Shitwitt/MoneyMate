@@ -64,7 +64,7 @@ class Profile {
     required this.name,
     required this.currency,
     required this.createdAt,
-    this.color = 0xffa4ca6a,
+    this.color = 0xff916cff,
   });
 
   factory Profile.fromJson(Json json) => Profile(
@@ -72,7 +72,7 @@ class Profile {
     name: readString(json['name']),
     currency: readString(json['currency']),
     createdAt: readDate(json['createdAt']),
-    color: readInt(json['color'], 0xffa4ca6a),
+    color: readInt(json['color'], 0xff916cff),
   );
 
   Json toJson() => {
@@ -117,7 +117,7 @@ class Account {
     required this.currency,
     this.type = 'bank',
     this.openingMinor = 0,
-    this.color = 0xffa4ca6a,
+    this.color = 0xff916cff,
     this.icon = 'bank',
     this.notes = '',
     this.excluded = false,
@@ -131,7 +131,7 @@ class Account {
     currency: readString(json['currency']),
     type: readString(json['type'], 'bank'),
     openingMinor: readInt(json['openingMinor'], 0),
-    color: readInt(json['color'], 0xffa4ca6a),
+    color: readInt(json['color'], 0xff916cff),
     icon: readString(json['icon'], 'bank'),
     notes: readString(json['notes'], ''),
     excluded: readBool(json['excluded'], false),
@@ -194,7 +194,7 @@ class Category {
     required this.name,
     this.type = 'expense',
     this.icon = 'category',
-    this.color = 0xffa4ca6a,
+    this.color = 0xff916cff,
     this.hidden = false,
     this.order = 0,
   });
@@ -204,7 +204,7 @@ class Category {
     name: readString(json['name']),
     type: readString(json['type'], 'expense'),
     icon: readString(json['icon'], 'category'),
-    color: readInt(json['color'], 0xffa4ca6a),
+    color: readInt(json['color'], 0xff916cff),
     hidden: readBool(json['hidden'], false),
     order: readInt(json['order'], 0),
   );
@@ -413,7 +413,7 @@ class Budget {
     this.period = 'monthly',
     this.end,
     this.rollover = false,
-    this.color = 0xffa4ca6a,
+    this.color = 0xff916cff,
   });
 
   factory Budget.fromJson(Json json) => Budget(
@@ -425,7 +425,7 @@ class Budget {
     period: readString(json['period'], 'monthly'),
     end: readOptionalDate(json['end']),
     rollover: readBool(json['rollover'], false),
-    color: readInt(json['color'], 0xffa4ca6a),
+    color: readInt(json['color'], 0xff916cff),
   );
 
   Json toJson() => {
@@ -1157,8 +1157,8 @@ class AppSettings {
 
   factory AppSettings.fromJson(Json json) => AppSettings(
     theme: readString(json['theme'], 'system'),
-    accent: readInt(json['accent'], 0xff916cff),
-    dynamicColors: readBool(json['dynamicColors'], false),
+    accent: readInt(json['accent'],0xff916cff)==0xff557c36 ? 0xff916cff : readInt(json['accent'],0xff916cff),
+    dynamicColors: readInt(json['accent'],0xff916cff)==0xff557c36 ? false : readBool(json['dynamicColors'],false),
     locale: readString(json['locale'], 'en'),
     hideAmounts: readBool(json['hideAmounts'], false),
     numberFormat: readString(json['numberFormat'], 'international'),

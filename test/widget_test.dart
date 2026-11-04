@@ -23,9 +23,9 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('PaisaClone'), findsOneWidget);
+    expect(find.text('Tink'), findsOneWidget);
     expect(find.text('Continue'), findsOneWidget);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text('Skip'));
     await tester.pumpAndSettle();
     expect(find.text('Let’s make it yours.'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(3));

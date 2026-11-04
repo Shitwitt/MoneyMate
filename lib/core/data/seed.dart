@@ -42,22 +42,22 @@ List<ExchangeRate> defaultRates() {
 
 List<Category> defaultCategories() {
   const expense = [
-    ['Food & Dining', 'food', 0xfff2b88f],
-    ['Groceries', 'groceries', 0xffa4ca6a],
-    ['Transport', 'transport', 0xff88bacc],
-    ['Shopping', 'shopping', 0xffb6a5e8],
-    ['Bills & Utilities', 'bills', 0xffe4c569],
-    ['Entertainment', 'entertainment', 0xffed9c9b],
-    ['Health', 'health', 0xff88c7b5],
-    ['Education', 'education', 0xffa5addd],
-    ['Travel', 'travel', 0xffdbadd1],
-    ['Other', 'category', 0xffb9b7aa],
+    ['Food & Dining', 'food', 0xffF79009],
+    ['Groceries', 'groceries', 0xff12B76A],
+    ['Transport', 'transport', 0xff2E90FA],
+    ['Shopping', 'shopping', 0xffEE46BC],
+    ['Bills & Utilities', 'bills', 0xff916CFF],
+    ['Entertainment', 'entertainment', 0xffEE46BC],
+    ['Health', 'health', 0xff12B76A],
+    ['Education', 'education', 0xff6172F3],
+    ['Travel', 'travel', 0xff15B79E],
+    ['Other', 'category', 0xff8A8A96],
   ];
   const income = [
-    ['Salary', 'salary', 0xffa4ca6a],
-    ['Freelance', 'work', 0xff88bacc],
-    ['Investment income', 'asset', 0xffb6a5e8],
-    ['Gifts', 'gift', 0xfff2b88f],
+    ['Salary', 'salary', 0xff12B76A],
+    ['Freelance', 'work', 0xff2E90FA],
+    ['Investment income', 'asset', 0xff916CFF],
+    ['Gifts', 'gift', 0xffF79009],
   ];
   return [
     for (final group in [expense, income])
@@ -114,7 +114,7 @@ ProfileData seedProfile({
     currency: currency,
     openingMinor: amount(3500),
     icon: 'cash',
-    color: 0xffb6a5e8,
+    color: 0xff916CFF,
   );
   final savings = Account(
     id: uuid.v4(),
@@ -123,7 +123,7 @@ ProfileData seedProfile({
     currency: currency,
     openingMinor: amount(24000),
     icon: 'savings',
-    color: 0xff88bacc,
+    color: 0xff2E90FA,
   );
   final accounts = [
     everyday.copyWith(
@@ -143,7 +143,7 @@ ProfileData seedProfile({
     id: uuid.v4(),
     name: 'Everyday',
     kind: 'label',
-    color: 0xffa4ca6a,
+    color: 0xff12B76A,
   );
   final person = NamedEntity(
     id: uuid.v4(),
@@ -231,7 +231,7 @@ ProfileData seedProfile({
         limitMinor: amount(2500),
         start: DateTime(now.year, now.month),
         categoryIds: [travel.id],
-        color: 0xff88bacc,
+        color: 0xff2E90FA,
       ),
     ],
     goals: [goal],

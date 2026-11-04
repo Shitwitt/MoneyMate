@@ -10,13 +10,13 @@ files = sorted(p for p in root.rglob('*') if p.is_file() and p.name not in {'ser
 revision = hashlib.sha256(b''.join(hashlib.sha256(p.read_bytes()).digest() for p in files)).hexdigest()[:16]
 urls = ['./' + p.relative_to(root).as_posix() for p in files]
 worker = r"""
-const CACHE = 'paisaclone-REVISION';
+const CACHE = 'tink-REVISION';
 const FILES = URLS;
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('paisaclone-') && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim()));
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => (key.startsWith('tink-') || key.startsWith('paisaclone-')) && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);

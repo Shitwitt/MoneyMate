@@ -36,11 +36,11 @@ jobs:
           TZ: America/New_York
         run: python3 .github/scripts/checked_command.py flutter test test/regression_test.dart
       - name: Package source for download
-        run: git archive --format=zip --prefix=PaisaClone/ HEAD -o PaisaClone-source.zip
+        run: git archive --format=zip --prefix=Tink/ HEAD -o Tink-source.zip
       - uses: actions/upload-artifact@v5
         with:
-          name: PaisaClone-source
-          path: PaisaClone-source.zip
+          name: Tink-source
+          path: Tink-source.zip
           if-no-files-found: error
           retention-days: 30
 
@@ -82,9 +82,11 @@ jobs:
             echo 'No signing secrets: producing an installable DEBUG-KEY-SIGNED release APK. See README before distributing.'
           fi
       - run: python3 .github/scripts/checked_command.py flutter build apk --release
+      - name: Verify APK branding, version, native payload, signature and offline permissions
+        run: python3 .github/scripts/checked_command.py python3 .github/scripts/verify_apk.py build/app/outputs/flutter-apk/app-release.apk
       - uses: actions/upload-artifact@v5
         with:
-          name: PaisaClone-release-APK
+          name: Tink-release-APK
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 30
@@ -94,12 +96,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          cp build/app/outputs/flutter-apk/app-release.apk PaisaClone-Android-release.apk
-          sha256sum PaisaClone-Android-release.apk > PaisaClone-Android-release.apk.sha256
+          cp build/app/outputs/flutter-apk/app-release.apk Tink-Android-release.apk
+          sha256sum Tink-Android-release.apk > Tink-Android-release.apk.sha256
+          git archive --format=zip --prefix=Tink/ HEAD -o Tink-source.zip
           gh release create "apk-release-${GITHUB_RUN_ID}" --target "$GITHUB_SHA" --prerelease \
-            --title 'PaisaClone — optimized installable Android APK' \
+            --title 'Tink 1.1 — redesigned Android app' \
             --notes 'Release-mode Android APK for Android 7/API 24 or newer. Uses a debug signing key unless a persistent keystore was configured in Actions secrets. No Internet permission. Back up and verify data before uninstalling an older differently signed build. See README for privacy and real-device QA limits.' \
-            PaisaClone-Android-release.apk PaisaClone-Android-release.apk.sha256
+            Tink-Android-release.apk Tink-Android-release.apk.sha256 Tink-source.zip Tink-APK-metadata.txt
 
   web:
     name: Self-hosted web + real-browser offline smoke test
@@ -132,13 +135,13 @@ jobs:
       - uses: actions/upload-artifact@v5
         if: always()
         with:
-          name: PaisaClone-Web-screenshots
+          name: Tink-Web-screenshots
           path: web-*.jpg
           if-no-files-found: ignore
           retention-days: 7
       - uses: actions/upload-artifact@v5
         with:
-          name: PaisaClone-Web
+          name: Tink-Web
           path: build/web/
           if-no-files-found: error
           retention-days: 14

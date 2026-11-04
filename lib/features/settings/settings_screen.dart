@@ -83,7 +83,7 @@ class SettingsScreen extends ConsumerWidget {
               const HelpScreen(),
             ),
             (
-              settings.isPro ? 'Manage Plus' : l.unlockPlus,
+              settings.isPro ? 'Manage Pro' : l.unlockPlus,
               'Simulated premium · no real payments',
               Icons.auto_awesome_rounded,
               const PremiumScreen(),
@@ -99,7 +99,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   leading: Icon(
                     item.$3,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   title: Text(item.$1),
                   subtitle: Text(item.$2, style: const TextStyle(fontSize: 11)),
@@ -118,7 +118,7 @@ class SettingsScreen extends ConsumerWidget {
                     width: 30,
                     height: 30,
                   ),
-                  title: const Text('About PaisaClone'),
+                  title: const Text('About Tink'),
                   subtitle: const Text('v$appVersion · Private by design'),
                   onTap: () => showAboutDialog(
                     context: context,

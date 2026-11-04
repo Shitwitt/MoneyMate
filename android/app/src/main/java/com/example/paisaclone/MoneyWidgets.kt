@@ -13,9 +13,9 @@ abstract class MoneyWidget(private val layout: Int) : AppWidgetProvider() {
         val prefs = context.getSharedPreferences("HomeWidgetPreferences", Context.MODE_PRIVATE)
         for (id in ids) {
             val views = RemoteViews(context.packageName, layout)
-            views.setTextViewText(R.id.widget_profile, prefs.getString("profile", "PaisaClone"))
+            views.setTextViewText(R.id.widget_profile, prefs.getString("profile", "Tink"))
             when (layout) {
-                R.layout.widget_balance -> views.setTextViewText(R.id.widget_value, prefs.getString("balance", "Open PaisaClone"))
+                R.layout.widget_balance -> views.setTextViewText(R.id.widget_value, prefs.getString("balance", "Open Tink"))
                 R.layout.widget_budget -> {
                     views.setTextViewText(R.id.widget_value, prefs.getString("budget", "Create a budget"))
                     views.setTextViewText(R.id.widget_caption, prefs.getString("budgetName", "Your next good habit"))

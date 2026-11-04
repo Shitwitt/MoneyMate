@@ -156,7 +156,7 @@ class _BootstrapState extends State<Bootstrap> {
                                           '',
                                     ),
                                   ),
-                                  'PaisaClone-raw-recovery.json',
+                                  'Tink-raw-recovery.json',
                                   mime: 'application/json',
                                 );
                               }),

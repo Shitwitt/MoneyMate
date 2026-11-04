@@ -31,7 +31,8 @@ jobs:
         run: |
           python3 .github/scripts/checked_command.py flutter pub get
           flutter gen-l10n
-          printf 'flutter.sdk=%s\nsdk.dir=%s\nflutter.buildMode=debug\nflutter.versionName=1.0.0\nflutter.versionCode=1\n' "$FLUTTER_ROOT" "$ANDROID_HOME" > android/local.properties
+          VERSION="$(sed -n 's/^version: //p' pubspec.yaml)"
+          printf 'flutter.sdk=%s\nsdk.dir=%s\nflutter.buildMode=debug\nflutter.versionName=%s\nflutter.versionCode=%s\n' "$FLUTTER_ROOT" "$ANDROID_HOME" "${VERSION%+*}" "${VERSION##*+}" > android/local.properties
       - name: Prepare recommended Android NDK (retry downloads)
         run: python3 .github/scripts/checked_command.py bash .github/scripts/prepare_android.sh
       - uses: gradle/actions/setup-gradle@v4
@@ -42,7 +43,7 @@ jobs:
           python3 ../.github/scripts/checked_command.py ./gradlew assembleDebug --stacktrace
       - uses: actions/upload-artifact@v5
         with:
-          name: PaisaClone-debug-APK
+          name: Tink-debug-APK
           path: build/app/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
@@ -52,9 +53,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          cp build/app/outputs/apk/debug/app-debug.apk PaisaClone-Android.apk
-          sha256sum PaisaClone-Android.apk > PaisaClone-Android.apk.sha256
+          cp build/app/outputs/apk/debug/app-debug.apk Tink-Android.apk
+          sha256sum Tink-Android.apk > Tink-Android.apk.sha256
           gh release create "apk-${GITHUB_RUN_ID}" --target "$GITHUB_SHA" --prerelease \
-            --title 'PaisaClone — installable Android APK' \
-            --notes 'Install PaisaClone-Android.apk on Android 7/API 24 or newer. Debug-key-signed for sideload testing, not a Play Store release. Export a verified backup before uninstalling an older build to resolve a signing mismatch. See README for privacy, device QA and known limits.' \
-            PaisaClone-Android.apk PaisaClone-Android.apk.sha256
+            --title 'Tink — installable Android APK' \
+            --notes 'Install Tink-Android.apk on Android 7/API 24 or newer. Debug-key-signed for sideload testing, not a Play Store release. Export a verified backup before uninstalling an older build to resolve a signing mismatch. See README for privacy, device QA and known limits.' \
+            Tink-Android.apk Tink-Android.apk.sha256

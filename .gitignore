@@ -38,3 +38,7 @@ ios/Runner/GeneratedPluginRegistrant.*
 !pubspec.lock
 !ios/Podfile.lock
 .env
+
+# Python development and CI helpers
+__pycache__/
+*.py[cod]

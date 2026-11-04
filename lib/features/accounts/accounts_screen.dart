@@ -8,6 +8,7 @@ import '../../core/data/ledger.dart';
 import '../../core/data/providers.dart';
 import '../../core/data/seed.dart';
 import '../../core/models/models.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/services/receipt_service.dart';
 import '../../core/utils/constants.dart';
 import '../../core/utils/dates.dart';
@@ -188,126 +189,9 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
                 for (final account in profile.accounts.where(
                   (item) => item.type == type,
                 ))
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Card(
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(24),
-                        onTap: () {
-                          if (wide) {
-                            setState(() => selectedId = account.id);
-                          } else {
-                            openPage(context, AccountDetailScreen(account.id));
-                          }
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(18),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  account.imageBase64.isEmpty
-                                      ? ColorIcon(account.icon, account.color)
-                                      : CircleAvatar(
-                                          backgroundImage: MemoryImage(
-                                            base64Decode(account.imageBase64),
-                                          ),
-                                        ),
-                                  const SizedBox(width: 14),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          account.name,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium,
-                                        ),
-                                        Text(
-                                          '${account.currency}${account.archived ? ' · Archived' : ''}${account.excluded ? ' · Excluded' : ''}',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelSmall,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const Icon(Icons.chevron_right_rounded),
-                                ],
-                              ),
-                              const SizedBox(height: 20),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: AmountText(
-                                      ledger.accountBalance(account.id),
-                                      currency: account.currency,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                    ),
-                                  ),
-                                  Text(
-                                    'THIS MONTH',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelSmall,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.south_west_rounded,
-                                    size: 14,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  AmountText(
-                                    _accountFlow(
-                                      profile,
-                                      account.id,
-                                      month,
-                                      true,
-                                    ),
-                                    currency: account.currency,
-                                    compact: true,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelMedium,
-                                  ),
-                                  const SizedBox(width: 18),
-                                  const Icon(
-                                    Icons.north_east_rounded,
-                                    size: 14,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  AmountText(
-                                    _accountFlow(
-                                      profile,
-                                      account.id,
-                                      month,
-                                      false,
-                                    ),
-                                    currency: account.currency,
-                                    compact: true,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelMedium,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  Padding(padding:const EdgeInsets.only(bottom:12),child:AccountOverviewCard(account:account,ledger:ledger,month:month,onTap:(){
+                    if(wide){setState(()=>selectedId=account.id);}else{openPage(context,AccountDetailScreen(account.id));}
+                  })),
               ],
             ),
       ],
@@ -343,6 +227,35 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
             )
           : accountList(),
     );
+  }
+}
+
+class AccountOverviewCard extends StatelessWidget {
+  final Account account;
+  final Ledger ledger;
+  final DateWindow month;
+  final VoidCallback onTap;
+  const AccountOverviewCard({super.key,required this.account,required this.ledger,required this.month,required this.onTap});
+  @override Widget build(BuildContext context){
+    final credit=account.type=='credit card';
+    return Theme(data:credit?buildTheme(ledger.settings.copyWith(theme:'dark',dynamicColors:false),Brightness.dark):Theme.of(context),child:Builder(builder:(context)=>AppCard(
+      color:credit?AppColors.darkSurface:null,onTap:onTap,child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+        Row(children:[account.imageBase64.isEmpty?ColorIcon(account.icon,account.color,size:44):CircleAvatar(backgroundImage:MemoryImage(base64Decode(account.imageBase64))),
+          const SizedBox(width:12),Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+            Text(account.name,maxLines:1,overflow:TextOverflow.ellipsis,style:Theme.of(context).textTheme.titleSmall),
+            const SizedBox(height:4),Text('${account.currency}${account.archived?' · Archived':''}${account.excluded?' · Excluded':''}',style:Theme.of(context).textTheme.bodySmall),
+          ])),const Icon(Icons.chevron_right_rounded,size:20)]),const SizedBox(height:24),
+        Text('Recorded balance',style:Theme.of(context).textTheme.bodySmall),const SizedBox(height:6),
+        AmountText(ledger.accountBalance(account.id),currency:account.currency,style:Theme.of(context).textTheme.headlineLarge),const SizedBox(height:20),
+        Wrap(spacing:20,runSpacing:12,children:[
+          for(final income in [true,false])Row(mainAxisSize:MainAxisSize.min,children:[
+            Icon(income?Icons.south_west_rounded:Icons.north_east_rounded,size:16,color:AppColors.semantic(context,income?'income':'expense')),
+            const SizedBox(width:6),AmountText(_accountFlow(ledger.data,account.id,month,income),currency:account.currency,compact:true,
+              style:Theme.of(context).textTheme.labelLarge?.copyWith(color:AppColors.semantic(context,income?'income':'expense'))),
+            const SizedBox(width:6),Text(income?'in':'out',style:Theme.of(context).textTheme.bodySmall),
+          ]),
+        ]),
+      ]))));
   }
 }
 

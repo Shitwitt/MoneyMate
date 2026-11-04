@@ -60,7 +60,7 @@ class PdfService {
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
             pw.Text(
-              'PAISACLONE / PRIVATE FINANCE',
+              'TINK / PRIVATE FINANCE',
               style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
             ),
             pw.Text(
@@ -96,7 +96,7 @@ class PdfService {
           pw.Container(
             padding: const pw.EdgeInsets.all(18),
             decoration: pw.BoxDecoration(
-              color: PdfColor.fromHex('#EDF4E3'),
+              color: PdfColor.fromHex('#EDE7FF'),
               borderRadius: pw.BorderRadius.circular(12),
             ),
             child: pw.Column(
@@ -136,7 +136,7 @@ class PdfService {
                   pw.Container(
                     height: 6,
                     width: expense > 0 ? 470 * category.value / expense : 0,
-                    color: PdfColor.fromHex('#83A856'),
+                    color: PdfColor.fromHex('#916CFF'),
                   ),
                 ],
               ),

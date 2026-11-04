@@ -19,8 +19,9 @@ class LocalStore implements AppRepository {
     await Hive.initFlutter();
     final box = await Hive.openBox<String>('paisaclone_v1');
     final raw = box.get(recoverPrevious ? 'previous' : 'state');
-    if (recoverPrevious && raw == null)
+    if (recoverPrevious && raw == null) {
       throw const FormatException('No previous snapshot is available');
+    }
     final data = raw == null
         ? const AppData()
         : AppData.fromJson(readMap(jsonDecode(raw)));

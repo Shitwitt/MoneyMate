@@ -84,11 +84,12 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
       (item) => item.id == _accountId,
     );
     final amount = entry?.amountMinor ?? template?.amountMinor;
-    if (amount != null)
+    if (amount != null) {
       _amount.text = fromMinor(
         amount,
         account.currency,
       ).toStringAsFixed(decimalsFor(account.currency));
+    }
     _name.text = entry?.name ?? template?.name ?? '';
     _notes.text = entry?.notes ?? template?.notes ?? '';
     _labels = {...?entry?.labelIds, ...?template?.labelIds};
@@ -99,7 +100,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
       _loanId = entry.loanId;
       _date = entry.date;
       _receipts = [...entry.receipts];
-      if (entry.toAccountId.isNotEmpty)
+      if (entry.toAccountId.isNotEmpty) {
         _receive.text =
             fromMinor(
               entry.toAmountMinor,
@@ -113,6 +114,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
                     .currency,
               ),
             );
+      }
     }
     _amount.addListener(_updateReceive);
   }
@@ -232,8 +234,9 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
   Future<void> _receipt(ImageSource source) async {
     await runSafe(context, () async {
       final receipt = await ReceiptService.pick(source);
-      if (receipt != null && mounted)
+      if (receipt != null && mounted) {
         setState(() => _receipts = [..._receipts, receipt]);
+      }
     });
   }
 
@@ -294,10 +297,11 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
               onSelectionChanged: (value) {
                 setState(() {
                   _type = value.first;
-                  if (_type != 'transfer')
+                  if (_type != 'transfer') {
                     _categoryId = profile.categories
                         .firstWhere((item) => item.type == _type)
                         .id;
+                  }
                 });
                 _updateReceive();
               },
@@ -403,13 +407,14 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
               (id) {
                 setState(() {
                   _accountId = id;
-                  if (_toAccountId == id)
+                  if (_toAccountId == id) {
                     _toAccountId =
                         profile.accounts
                             .where((item) => item.id != id && !item.archived)
                             .firstOrNull
                             ?.id ??
                         '';
+                  }
                 });
                 _updateReceive();
               },
@@ -710,11 +715,12 @@ class _Calculator extends StatelessWidget {
               (key) => FilledButton.tonal(
                 onPressed: () {
                   if (key == '⌫') {
-                    if (controller.text.isNotEmpty)
+                    if (controller.text.isNotEmpty) {
                       controller.text = controller.text.substring(
                         0,
                         controller.text.length - 1,
                       );
+                    }
                   } else if (key == '=') {
                     try {
                       controller.text = evaluateAmount(

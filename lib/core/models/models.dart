@@ -279,7 +279,7 @@ class MoneyTransaction {
     this.loanId = '',
     this.receipts = const [],
     this.recurringId = '',
-    this.createdAt = null,
+    this.createdAt,
   });
 
   factory MoneyTransaction.fromJson(Json json) => MoneyTransaction(
@@ -383,7 +383,7 @@ class Budget {
     required this.start,
     this.categoryIds = const [],
     this.period = 'monthly',
-    this.end = null,
+    this.end,
     this.rollover = false,
     this.color = 0xffa4ca6a,
   });
@@ -636,7 +636,7 @@ class Recurring {
     this.type = 'expense',
     this.frequency = 'monthly',
     this.interval = 1,
-    this.end = null,
+    this.end,
     this.autoPost = true,
     this.enabled = true,
     this.notes = '',
@@ -727,7 +727,7 @@ class Asset {
     required this.valueMinor,
     this.type = 'other',
     this.purchaseMinor = 0,
-    this.purchaseDate = null,
+    this.purchaseDate,
     this.notes = '',
     this.icon = 'asset',
     this.color = 0xffe7be7d,
@@ -1118,7 +1118,7 @@ class AppSettings {
     this.loanNotifications = true,
     this.backupReminders = false,
     this.allowSilentAdds = false,
-    this.lastBackup = null,
+    this.lastBackup,
   });
 
   factory AppSettings.fromJson(Json json) => AppSettings(

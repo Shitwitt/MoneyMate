@@ -59,7 +59,7 @@ class ProfilesScreen extends ConsumerWidget {
                           'Rename profile',
                           initial: data.profile.name,
                         );
-                        if (value != null && context.mounted)
+                        if (value != null && context.mounted) {
                           await runSafe(
                             context,
                             () => ref
@@ -81,6 +81,7 @@ class ProfilesScreen extends ConsumerWidget {
                                   ),
                                 ),
                           );
+                        }
                       } else if (await confirm(
                             context,
                             'Delete ${data.profile.name}?',

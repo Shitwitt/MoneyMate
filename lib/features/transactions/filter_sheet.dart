@@ -58,13 +58,14 @@ Future<TransactionFilter?> showTransactionFilters(
                     end: dates!.end.subtract(const Duration(days: 1)),
                   ),
           );
-          if (range != null)
+          if (range != null) {
             setLocal(
               () => dates = DateWindow(
                 dayOnly(range.start),
                 dayOnly(range.end).add(const Duration(days: 1)),
               ),
             );
+          }
         },
       ),
       if (dates != null)
@@ -152,14 +153,16 @@ Future<TransactionFilter?> showTransactionFilters(
       int? parse(TextEditingController controller) {
         if (controller.text.trim().isEmpty) return null;
         final value = num.tryParse(controller.text.replaceAll(',', ''));
-        if (value == null || !value.isFinite || value < 0)
+        if (value == null || !value.isFinite || value < 0) {
           throw const FormatException('Enter a nonnegative filter amount');
+        }
         return toMinor(value, profile.profile.currency);
       }
 
       final low = parse(min), high = parse(max);
-      if (low != null && high != null && low > high)
+      if (low != null && high != null && low > high) {
         throw const FormatException('Minimum cannot exceed maximum');
+      }
       result = TransactionFilter(
         query: initial.query,
         dates: dates,

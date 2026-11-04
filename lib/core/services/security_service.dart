@@ -9,8 +9,9 @@ class SecurityService {
     bits: 256,
   );
   static Future<(String, String)> createPin(String pin) async {
-    if (!RegExp(r'^\d{6}$').hasMatch(pin))
+    if (!RegExp(r'^\d{6}$').hasMatch(pin)) {
       throw const FormatException('Use exactly six digits');
+    }
     final random = Random.secure();
     final salt = List.generate(16, (_) => random.nextInt(256));
     final key = await _algorithm.deriveKey(
@@ -25,8 +26,9 @@ class SecurityService {
     String expected,
     String salt,
   ) async {
-    if (expected.isEmpty || salt.isEmpty || !RegExp(r'^\d{6}$').hasMatch(pin))
+    if (expected.isEmpty || salt.isEmpty || !RegExp(r'^\d{6}$').hasMatch(pin)) {
       return false;
+    }
     try {
       final key = await _algorithm.deriveKey(
         secretKey: SecretKey(utf8.encode(pin)),

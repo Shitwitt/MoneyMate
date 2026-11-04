@@ -46,8 +46,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     setState(() => busy = true);
     final done = await runSafe(context, () async {
       final initial = num.tryParse(opening.text.replaceAll(',', ''));
-      if (initial == null || !initial.isFinite)
+      if (initial == null || !initial.isFinite) {
         throw const FormatException('Enter a valid starting balance');
+      }
       await ref
           .read(appProvider.notifier)
           .createProfile(

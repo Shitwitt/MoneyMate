@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-import 'package:cross_file/cross_file.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -21,13 +19,15 @@ class FileService {
     );
     if (result == null) return null;
     final file = result.files.single;
-    if (file.size > maxBackupBytes)
+    if (file.size > maxBackupBytes) {
       throw const FormatException('File exceeds the 50 MB safety limit');
+    }
     final bytes = file.bytes;
-    if (bytes == null)
+    if (bytes == null) {
       throw const FormatException(
         'The system picker could not read this file. Copy it to your device and try again.',
       );
+    }
     return PickedDocument(file.name, bytes);
   }
 

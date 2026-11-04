@@ -14,8 +14,9 @@ class ReceiptService {
     );
     if (file == null) return null;
     final bytes = await file.readAsBytes();
-    if (bytes.length > maxReceiptBytes)
+    if (bytes.length > maxReceiptBytes) {
       throw const FormatException('Please choose an image smaller than 2 MB');
+    }
     final mime = bytes.length > 3 && bytes[0] == 0x89 && bytes[1] == 0x50
         ? 'image/png'
         : bytes.length > 12 &&

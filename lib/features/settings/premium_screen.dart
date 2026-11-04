@@ -18,8 +18,9 @@ class PremiumScreen extends ConsumerWidget {
         success:
             'Plus unlocked forever on this installation. No payment, ever.',
       );
-      if (done && context.mounted && Navigator.canPop(context))
+      if (done && context.mounted && Navigator.canPop(context)) {
         Navigator.pop(context);
+      }
     }
 
     return FeaturePage(

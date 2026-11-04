@@ -133,10 +133,11 @@ Future<void> editLoan(
           ],
           (value) => setLocal(() {
             personId = value;
-            if (value.isNotEmpty)
+            if (value.isNotEmpty) {
               name.text = profile.entities
                   .firstWhere((item) => item.id == value)
                   .name;
+            }
           }),
           display: (id) => id.isEmpty
               ? 'Quick name instead'
@@ -175,10 +176,11 @@ Future<void> editLoan(
     ],
     onSave: () async {
       final rate = double.tryParse(interest.text);
-      if (rate == null || !rate.isFinite || rate < 0 || rate > 1000)
+      if (rate == null || !rate.isFinite || rate < 0 || rate > 1000) {
         throw const FormatException(
           'Enter a valid flat interest rate (0–1000%)',
         );
+      }
       await ref
           .read(appProvider.notifier)
           .upsertLoan(
@@ -212,13 +214,14 @@ class LoanDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ledger = ref.watch(ledgerProvider)!;
     final loan = ledger.data.loans.where((item) => item.id == id).firstOrNull;
-    if (loan == null)
+    if (loan == null) {
       return const Scaffold(
         body: EmptyState(
           title: 'Loan removed',
           message: 'Any posted repayments remain in your transaction history.',
         ),
       );
+    }
     final remaining = ledger.loanRemaining(loan);
     final total = (loan.principalMinor * (1 + loan.interestPercent / 100))
         .round();

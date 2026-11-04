@@ -190,20 +190,22 @@ Future<void> editBill(
         selected,
         (value) => setLocal(() {
           selected = value;
-          if (!selected.contains(payer) && selected.isNotEmpty)
+          if (!selected.contains(payer) && selected.isNotEmpty) {
             payer = selected.first;
+          }
         }),
       ),
       OutlinedButton.icon(
         onPressed: () async {
           final name = await askText(context, 'Add someone', label: 'Name');
-          if (name != null)
+          if (name != null) {
             setLocal(() {
               final id = uuid.v4();
               participants[id] = name;
               fields[id] = TextEditingController(text: '1');
               selected.add(id);
             });
+          }
         },
         icon: const Icon(Icons.person_add_alt_1_rounded),
         label: const Text('Quick add participant'),
@@ -243,8 +245,9 @@ Future<void> editBill(
           ),
     ],
     onSave: () async {
-      if (selected.length < 2)
+      if (selected.length < 2) {
         throw const FormatException('Add at least two participants');
+      }
       final total = toMinor(
         evaluateAmount(amount.text),
         profile.profile.currency,
@@ -258,20 +261,23 @@ Future<void> editBill(
                 : double.tryParse(fields[id]!.text) ?? -1,
           )
           .toList();
-      if (weights.any((value) => !value.isFinite || value < 0))
+      if (weights.any((value) => !value.isFinite || value < 0)) {
         throw const FormatException('Enter valid nonnegative shares');
+      }
       if (method == 'exact') {
         shares = weights
             .map((value) => toMinor(value, profile.profile.currency))
             .toList();
-        if (shares.fold<int>(0, (a, b) => a + b) != total)
+        if (shares.fold<int>(0, (a, b) => a + b) != total) {
           throw const FormatException(
             'Exact amounts must add up to the bill total',
           );
+        }
       } else {
         if (method == 'percentage' &&
-            (weights.fold<double>(0, (a, b) => a + b) - 100).abs() > .001)
+            (weights.fold<double>(0, (a, b) => a + b) - 100).abs() > .001) {
           throw const FormatException('Percentages must add up to 100');
+        }
         shares = splitWeighted(total, weights);
       }
       final result = [
@@ -295,10 +301,11 @@ Future<void> editBill(
           initial.shares.any(
             (share) => share.personId != initial.paidById && share.settled,
           ) &&
-          (total != initial.totalMinor || payer != initial.paidById))
+          (total != initial.totalMinor || payer != initial.paidById)) {
         throw const FormatException(
           'Do not change totals or payer after settlement. Create a new adjustment bill instead.',
         );
+      }
       await ref
           .read(appProvider.notifier)
           .upsertBill(
@@ -329,13 +336,14 @@ class BillDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(profileProvider)!;
     final bill = profile.bills.where((item) => item.id == id).firstOrNull;
-    if (bill == null)
+    if (bill == null) {
       return const Scaffold(
         body: EmptyState(
           title: 'Bill removed',
           message: 'Any debts already moved to loans are retained.',
         ),
       );
+    }
     return FeaturePage(
       title: bill.title,
       actions: [
@@ -430,7 +438,7 @@ class BillDetailScreen extends ConsumerWidget {
                                         'It will be tracked as a personal debt with a 30-day due date, and marked handled in this bill.',
                                         confirmLabel: 'Move to loans',
                                       ) &&
-                                      context.mounted)
+                                      context.mounted) {
                                     await runSafe(
                                       context,
                                       () => ref
@@ -442,6 +450,7 @@ class BillDetailScreen extends ConsumerWidget {
                                           ),
                                       success: 'Share moved to loans',
                                     );
+                                  }
                                 },
                                 child: const Text('Move to loan'),
                               ),

@@ -52,8 +52,9 @@ DateWindow budgetWindow(Budget budget, DateTime date, int weekStart) {
   }
   if (budget.period == 'yearly') {
     var start = safeMonth(day.year, budget.start.month, budget.start.day);
-    if (day.isBefore(start))
+    if (day.isBefore(start)) {
       start = safeMonth(day.year - 1, budget.start.month, budget.start.day);
+    }
     return DateWindow(
       start,
       safeMonth(start.year + 1, budget.start.month, budget.start.day),

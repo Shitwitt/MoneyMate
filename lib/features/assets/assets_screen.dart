@@ -68,8 +68,9 @@ class AssetsScreen extends ConsumerWidget {
 
 int parseAssetValue(String text, String currency) {
   final value = num.tryParse(text.replaceAll(',', ''));
-  if (value == null || !value.isFinite || value < 0)
+  if (value == null || !value.isFinite || value < 0) {
     throw const FormatException('Enter a nonnegative value');
+  }
   return toMinor(value, currency);
 }
 
@@ -169,13 +170,14 @@ class AssetDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ledger = ref.watch(ledgerProvider)!;
     final asset = ledger.data.assets.where((item) => item.id == id).firstOrNull;
-    if (asset == null)
+    if (asset == null) {
       return const Scaffold(
         body: EmptyState(
           title: 'Asset removed',
           message: 'Your account balances are unchanged.',
         ),
       );
+    }
     return FeaturePage(
       title: asset.name,
       actions: [

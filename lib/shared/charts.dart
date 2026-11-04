@@ -22,11 +22,12 @@ class TrendChart extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    if (ledger.settings.hideAmounts)
+    if (ledger.settings.hideAmounts) {
       return const SizedBox(
         height: 210,
         child: Center(child: Icon(Icons.visibility_off_rounded)),
       );
+    }
     final now = anchor ?? DateTime.now();
     final windows = List.generate(
       months,
@@ -190,30 +191,33 @@ class _CategoryChartState extends State<CategoryChart> {
   int touched = -1;
   @override
   Widget build(BuildContext context) {
-    if (widget.ledger.settings.hideAmounts)
+    if (widget.ledger.settings.hideAmounts) {
       return const SizedBox(
         height: 220,
         child: Center(child: Icon(Icons.visibility_off_rounded)),
       );
+    }
     final breakdown = widget.ledger
         .breakdown(widget.entries, 'category')
         .entries
         .toList();
-    if (breakdown.isEmpty)
+    if (breakdown.isEmpty) {
       return const EmptyState(
         title: 'Your story starts here',
         message: 'Add some transactions to see the bigger picture.',
         icon: Icons.donut_large_rounded,
       );
+    }
     final total = breakdown.fold<int>(0, (sum, entry) => sum + entry.value);
     final values = breakdown.take(6).toList();
-    if (breakdown.length > 6)
+    if (breakdown.length > 6) {
       values.add(
         MapEntry(
           'Other categories',
           breakdown.skip(6).fold(0, (sum, entry) => sum + entry.value),
         ),
       );
+    }
     const colors = [
       0xff91b86d,
       0xffb6a5e8,

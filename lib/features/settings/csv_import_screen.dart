@@ -69,8 +69,9 @@ class _CsvImportScreenState extends ConsumerState<CsvImportScreen> {
           'Import only valid rows?',
           '${preview!.valid.length} rows will be imported; ${preview!.errors.length} invalid rows will be skipped. No existing data is overwritten.',
           confirmLabel: 'Import valid rows',
-        ))
+        )) {
       return;
+    }
     if (!mounted) return;
     setState(() => busy = true);
     final saved = await runSafe(

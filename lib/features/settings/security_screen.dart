@@ -24,19 +24,21 @@ class SecurityScreen extends ConsumerWidget {
       try {
         if (!await auth.canCheckBiometrics ||
             (await auth.getAvailableBiometrics()).isEmpty) {
-          if (context.mounted)
+          if (context.mounted) {
             toast(
               context,
               'Set up a fingerprint or face in your device settings first.',
             );
+          }
           return;
         }
       } catch (_) {
-        if (context.mounted)
+        if (context.mounted) {
           toast(
             context,
             'This device does not expose biometric authentication.',
           );
+        }
         return;
       }
     }
@@ -156,10 +158,11 @@ class SecurityScreen extends ConsumerWidget {
                           entered,
                           settings.pinHash,
                           settings.pinSalt,
-                        ))
+                        )) {
                           throw const FormatException(
                             'That PIN does not match',
                           );
+                        }
                         await ref
                             .read(appProvider.notifier)
                             .settings(

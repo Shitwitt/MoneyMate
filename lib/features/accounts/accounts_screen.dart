@@ -103,8 +103,9 @@ Future<void> editAccount(
     ],
     onSave: () async {
       final number = num.tryParse(opening.text.replaceAll(',', ''));
-      if (number == null || !number.isFinite)
+      if (number == null || !number.isFinite) {
         throw const FormatException('Enter a valid opening balance');
+      }
       await ref
           .read(appProvider.notifier)
           .upsertAccount(
@@ -375,13 +376,14 @@ class AccountDetailScreen extends ConsumerWidget {
     final account = ledger.data.accounts
         .where((item) => item.id == id)
         .firstOrNull;
-    if (account == null)
+    if (account == null) {
       return const Scaffold(
         body: EmptyState(
           title: 'Account removed',
           message: 'Go back to your accounts.',
         ),
       );
+    }
     return FeaturePage(
       title: account.name,
       padded: false,
@@ -403,8 +405,9 @@ class AccountDetailScreen extends ConsumerWidget {
                 context,
                 () => ref.read(appProvider.notifier).deleteAccount(id),
               );
-              if (deleted && context.mounted && Navigator.canPop(context))
+              if (deleted && context.mounted && Navigator.canPop(context)) {
                 Navigator.pop(context);
+              }
             }
           },
           itemBuilder: (_) => const [

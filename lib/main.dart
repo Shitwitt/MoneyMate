@@ -52,11 +52,12 @@ class _BootstrapState extends State<Bootstrap> {
   Widget build(BuildContext context) => FutureBuilder<LocalStore>(
     future: future,
     builder: (context, snapshot) {
-      if (snapshot.hasData)
+      if (snapshot.hasData) {
         return ProviderScope(
           overrides: [repositoryProvider.overrideWithValue(snapshot.data!)],
           child: const PaisaApp(),
         );
+      }
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: buildTheme(const AppSettings(), Brightness.light),
@@ -125,10 +126,11 @@ class _BootstrapState extends State<Bootstrap> {
                             ),
                             TextButton(
                               onPressed: () => runSafe(context, () async {
-                                if (!Hive.isBoxOpen('paisaclone_v1'))
+                                if (!Hive.isBoxOpen('paisaclone_v1')) {
                                   throw const FormatException(
                                     'Storage is not accessible. Check device permissions and free space.',
                                   );
+                                }
                                 await FileService.save(
                                   Uint8List.fromList(
                                     utf8.encode(
@@ -182,8 +184,9 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    if (widget.enablePlatformServices)
+    if (widget.enablePlatformServices) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _initRuntime());
+    }
   }
 
   @override
@@ -208,11 +211,12 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
       await ref.read(appProvider.notifier).processRecurring();
     } catch (error) {
       final context = navigator.currentContext;
-      if (context != null && context.mounted)
+      if (context != null && context.mounted) {
         toast(
           context,
           'Recurring catch-up could not be saved. Check free storage and try again.',
         );
+      }
     }
   }
 
@@ -232,11 +236,12 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
         _acceptLink,
         onError: (Object error) {
           final context = navigator.currentContext;
-          if (context != null && context.mounted)
+          if (context != null && context.mounted) {
             toast(context, 'This link could not be opened.');
+          }
         },
       );
-      if (kIsWeb && Uri.base.queryParameters.containsKey('amount'))
+      if (kIsWeb && Uri.base.queryParameters.containsKey('amount')) {
         _acceptLink(
           Uri(
             scheme: 'https',
@@ -245,6 +250,7 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
             query: Uri.base.query,
           ),
         );
+      }
     } catch (_) {
       /* Deep links are optional on unsupported platforms. */
     }
@@ -267,8 +273,9 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
     final now = DateTime.now();
     if (lastLink == uri.toString() &&
         lastLinkAt != null &&
-        now.difference(lastLinkAt!) < const Duration(seconds: 2))
+        now.difference(lastLinkAt!) < const Duration(seconds: 2)) {
       return;
+    }
     lastLink = uri.toString();
     lastLinkAt = now;
     if (pending.length >= 10) return;
@@ -280,8 +287,9 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
     if (processing ||
         !mounted ||
         ref.read(profileProvider) == null ||
-        !ref.read(unlockedProvider))
+        !ref.read(unlockedProvider)) {
       return;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted || processing) return;
       processing = true;
@@ -315,13 +323,15 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
                   confirmLabel: 'Add transaction',
                 );
             if (!approved) return;
-            if (ref.read(appProvider).activeProfileId != profile.profile.id)
+            if (ref.read(appProvider).activeProfileId != profile.profile.id) {
               throw const FormatException(
                 'Profile changed. Open the link again in the intended profile.',
               );
+            }
             await ref.read(appProvider.notifier).saveTransaction(transaction);
-            if (context.mounted)
+            if (context.mounted) {
               toast(context, 'Transaction saved privately on your device');
+            }
           });
         }
       } finally {
@@ -337,8 +347,9 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
       unawaited(_sync(next));
       if (previous?.activeProfileId != next.activeProfileId ||
           previous?.profiles.isEmpty == true) {
-        if (next.profiles.isNotEmpty && widget.enablePlatformServices)
+        if (next.profiles.isNotEmpty && widget.enablePlatformServices) {
           unawaited(_catchUp());
+        }
       }
       _drainLinks();
       if (previous != null &&
@@ -360,19 +371,21 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
                 .where((item) => !old.contains(item.id))
                 .toList() ??
             <Achievement>[];
-        if (fresh.isNotEmpty)
+        if (fresh.isNotEmpty) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             final context = navigator.currentContext;
             if (context != null &&
                 context.mounted &&
-                ref.read(unlockedProvider))
+                ref.read(unlockedProvider)) {
               showDialog<void>(
                 context: context,
                 builder: (_) => _Celebration(
                   badges.firstWhere((badge) => badge.id == fresh.first.id).name,
                 ),
               );
+            }
           });
+        }
       }
     });
     ref.listen<bool>(unlockedProvider, (previous, next) {

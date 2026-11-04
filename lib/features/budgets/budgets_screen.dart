@@ -270,13 +270,14 @@ class BudgetDetailScreen extends ConsumerWidget {
     final budget = ledger.data.budgets
         .where((item) => item.id == id)
         .firstOrNull;
-    if (budget == null)
+    if (budget == null) {
       return const Scaffold(
         body: EmptyState(
           title: 'Budget removed',
           message: 'Your transaction history is unchanged.',
         ),
       );
+    }
     final status = ledger.budgetStatus(budget, DateTime.now());
     return FeaturePage(
       title: budget.name,

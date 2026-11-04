@@ -159,11 +159,12 @@ class RecurringScreen extends ConsumerWidget {
                                     'Delete recurring rule?',
                                     'Already posted transactions will remain.',
                                   ) &&
-                                  context.mounted)
+                                  context.mounted) {
                                 await runSafe(
                                   context,
                                   () => controller.deleteRecurring(rule.id),
                                 );
+                              }
                           }
                         },
                         itemBuilder: (_) => [
@@ -321,8 +322,9 @@ Future<void> editRecurring(
     ],
     onSave: () async {
       final step = int.tryParse(interval.text);
-      if (step == null || step < 1 || step > 365)
+      if (step == null || step < 1 || step > 365) {
         throw const FormatException('Interval must be 1–365');
+      }
       final currency = profile.accounts
           .firstWhere((item) => item.id == accountId)
           .currency;

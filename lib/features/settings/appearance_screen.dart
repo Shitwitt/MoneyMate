@@ -153,10 +153,7 @@ class AppearanceScreen extends ConsumerWidget {
                   ),
                   const Text(
                     'A little intention goes a long way.',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),

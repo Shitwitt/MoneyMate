@@ -248,8 +248,9 @@ class AppController extends StateNotifier<AppData> {
   Future<void> upsertBudget(Budget item) => updateProfile((profile, app) {
     if (!app.settings.isPro &&
         !profile.budgets.any((budget) => budget.id == item.id) &&
-        profile.budgets.length >= freeBudgetLimit)
+        profile.budgets.length >= freeBudgetLimit) {
       throw const PremiumRequired('unlimited budgets');
+    }
     return profile.copyWith(
       budgets: replace(profile.budgets, item, (item) => item.id),
     );
@@ -262,8 +263,9 @@ class AppController extends StateNotifier<AppData> {
   Future<void> upsertGoal(Goal item) => updateProfile((profile, app) {
     if (!app.settings.isPro &&
         !profile.goals.any((goal) => goal.id == item.id) &&
-        profile.goals.length >= freeGoalLimit)
+        profile.goals.length >= freeGoalLimit) {
       throw const PremiumRequired('unlimited savings goals');
+    }
     return profile.copyWith(
       goals: replace(profile.goals, item, (item) => item.id),
     );
@@ -437,8 +439,9 @@ class AppController extends StateNotifier<AppData> {
     if (!app.settings.isPro &&
         !profile.entities.any((entity) => entity.id == item.id) &&
         profile.entities.where((entity) => entity.kind == item.kind).length >=
-            freeEntityLimit)
+            freeEntityLimit) {
       throw PremiumRequired('unlimited ${item.kind}s');
+    }
     return profile.copyWith(
       entities: replace(profile.entities, item, (item) => item.id),
     );
@@ -492,7 +495,7 @@ class AppController extends StateNotifier<AppData> {
               (rule.end == null || !due.isAfter(rule.end!)) &&
               count < 1000) {
             final id = '${rule.id}@${due.toIso8601String()}';
-            if (existing.add(id))
+            if (existing.add(id)) {
               entries.add(
                 MoneyTransaction(
                   id: id,
@@ -506,6 +509,7 @@ class AppController extends StateNotifier<AppData> {
                   notes: rule.notes,
                 ),
               );
+            }
             due = nextOccurrence(rule, due);
             count++;
             if (!rule.autoPost) break;
@@ -518,8 +522,9 @@ class AppController extends StateNotifier<AppData> {
   Future<void> upsertBill(Bill item) => updateProfile((profile, app) {
     if (!app.settings.isPro &&
         !profile.bills.any((bill) => bill.id == item.id) &&
-        profile.bills.length >= freeBillLimit)
+        profile.bills.length >= freeBillLimit) {
       throw const PremiumRequired('unlimited split bills');
+    }
     return profile.copyWith(
       bills: replace(profile.bills, item, (item) => item.id),
     );

@@ -406,7 +406,7 @@ class HomeScreen extends ConsumerWidget {
               final accounts = profile.accounts
                   .where((account) => !account.archived)
                   .toList();
-              if (index == accounts.length)
+              if (index == accounts.length) {
                 return SizedBox(
                   width: 160,
                   child: OutlinedButton(
@@ -421,6 +421,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                 );
+              }
               final account = accounts[index];
               return SizedBox(
                 width: 235,

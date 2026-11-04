@@ -41,16 +41,19 @@ class HelpScreen extends ConsumerWidget {
                 title: Text(widget.$2),
                 trailing: const Icon(Icons.add_rounded),
                 onTap: () => runSafe(context, () async {
-                  if (kIsWeb || defaultTargetPlatform != TargetPlatform.android)
+                  if (kIsWeb ||
+                      defaultTargetPlatform != TargetPlatform.android) {
                     throw const FormatException(
                       'Add this widget from your mobile device’s home-screen widget gallery.',
                     );
+                  }
                   final supported =
                       await HomeWidget.isRequestPinWidgetSupported() ?? false;
-                  if (!supported)
+                  if (!supported) {
                     throw const FormatException(
                       'Your launcher does not support pin requests. Add it from the launcher’s widget gallery.',
                     );
+                  }
                   await HomeWidget.requestPinWidget(androidName: widget.$1);
                 }),
               ),
@@ -100,15 +103,17 @@ class HelpScreen extends ConsumerWidget {
                     'Allow automated entries?',
                     'Links will be able to add income or expenses without a second confirmation when PaisaClone is unlocked. Do not enable on shared devices.',
                     confirmLabel: 'Allow',
-                  ))
+                  )) {
                 return;
-              if (context.mounted)
+              }
+              if (context.mounted) {
                 await runSafe(
                   context,
                   () => ref
                       .read(appProvider.notifier)
                       .settings((s) => s.copyWith(allowSilentAdds: value)),
                 );
+              }
             },
           ),
           const SizedBox(height: 12),

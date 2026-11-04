@@ -90,10 +90,11 @@ Widget formDate(
       context: context,
       initialTime: TimeOfDay.fromDateTime(date),
     );
-    if (time != null)
+    if (time != null) {
       onChanged(
         DateTime(picked.year, picked.month, picked.day, time.hour, time.minute),
       );
+    }
   },
 );
 Widget formColors(int value, ValueChanged<int> onChanged) => Wrap(

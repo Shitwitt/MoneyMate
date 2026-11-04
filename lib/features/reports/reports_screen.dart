@@ -77,8 +77,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
         );
         return;
       }
-      if (!ref.read(appProvider).settings.isPro)
+      if (!ref.read(appProvider).settings.isPro) {
         throw const PremiumRequired('PDF reports');
+      }
       final bytes = await PdfService.report(
         ledger,
         entries,
@@ -389,13 +390,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   }) {
     final sorted = values.entries.where((entry) => entry.value > 0).toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    if (sorted.isEmpty)
+    if (sorted.isEmpty) {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(24),
           child: Text('No matching activity in this selection.'),
         ),
       );
+    }
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),

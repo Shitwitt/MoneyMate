@@ -210,13 +210,14 @@ class GoalDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ledger = ref.watch(ledgerProvider)!;
     final goal = ledger.data.goals.where((item) => item.id == id).firstOrNull;
-    if (goal == null)
+    if (goal == null) {
       return const Scaffold(
         body: EmptyState(
           title: 'Goal removed',
           message: 'Your accounts and transactions are unchanged.',
         ),
       );
+    }
     final saved = ledger.goalSaved(goal);
     return FeaturePage(
       title: goal.name,
@@ -334,7 +335,7 @@ class GoalDetailScreen extends ConsumerWidget {
                           'Remove contribution?',
                           'Only this allocation will be removed.',
                         ) &&
-                        context.mounted)
+                        context.mounted) {
                       await runSafe(
                         context,
                         () => ref
@@ -357,6 +358,7 @@ class GoalDetailScreen extends ConsumerWidget {
                               ),
                             ),
                       );
+                    }
                   },
                 ),
               ),

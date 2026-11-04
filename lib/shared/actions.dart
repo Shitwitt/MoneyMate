@@ -17,14 +17,16 @@ Future<bool> runSafe(
     if (context.mounted && success != null) toast(context, success);
     return true;
   } on PremiumRequired {
-    if (context.mounted)
+    if (context.mounted) {
       await Navigator.of(
         context,
       ).push(MaterialPageRoute(builder: (_) => const PremiumScreen()));
+    }
     return false;
   } catch (error) {
-    if (context.mounted)
+    if (context.mounted) {
       toast(context, error.toString().replaceFirst('FormatException: ', ''));
+    }
     return false;
   }
 }

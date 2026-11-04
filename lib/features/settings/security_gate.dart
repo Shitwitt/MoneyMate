@@ -28,8 +28,9 @@ class _SecurityGateState extends ConsumerState<SecurityGate>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && ref.read(appProvider).settings.lockMode == 'biometric')
+      if (mounted && ref.read(appProvider).settings.lockMode == 'biometric') {
         _biometric();
+      }
     });
   }
 
@@ -45,18 +46,21 @@ class _SecurityGateState extends ConsumerState<SecurityGate>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (authenticating) return;
     if (state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.hidden)
+        state == AppLifecycleState.hidden) {
       setState(() => obscured = true);
+    }
     if (state == AppLifecycleState.paused) {
       backgrounded = true;
-      if (ref.read(appProvider).settings.lockMode != 'none')
+      if (ref.read(appProvider).settings.lockMode != 'none') {
         ref.read(unlockedProvider.notifier).state = false;
+      }
     }
     if (state == AppLifecycleState.resumed) {
       setState(() => obscured = false);
       if (backgrounded &&
-          ref.read(appProvider).settings.lockMode == 'biometric')
+          ref.read(appProvider).settings.lockMode == 'biometric') {
         _biometric();
+      }
       backgrounded = false;
     }
   }
@@ -79,16 +83,18 @@ class _SecurityGateState extends ConsumerState<SecurityGate>
         pin.clear();
       }
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(
           () => message = 'Biometrics unavailable. Use your six-digit PIN.',
         );
+      }
     }
-    if (mounted)
+    if (mounted) {
       setState(() {
         authenticating = false;
         obscured = false;
       });
+    }
   }
 
   Future<void> _pin() async {

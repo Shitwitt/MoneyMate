@@ -56,11 +56,12 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
       ref.read(profileProvider)!,
       current,
     );
-    if (result != null && mounted)
+    if (result != null && mounted) {
       setState(() {
         filter = result;
         limit = 80;
       });
+    }
   }
 
   Future<void> delete(Set<String> ids) async {
@@ -153,8 +154,9 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
         child: NotificationListener<ScrollNotification>(
           onNotification: (notification) {
             if (notification.metrics.extentAfter < 250 &&
-                limit < entries.length)
+                limit < entries.length) {
               setState(() => limit += 80);
+            }
             return false;
           },
           child: CustomScrollView(
@@ -312,8 +314,9 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                           selecting: selected.isNotEmpty,
                           selected: selected.contains(entry.id),
                           onSelect: () => setState(() {
-                            if (!selected.add(entry.id))
+                            if (!selected.add(entry.id)) {
                               selected.remove(entry.id);
+                            }
                           }),
                         ),
                       );

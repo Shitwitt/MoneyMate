@@ -36,10 +36,11 @@ class NotificationsScreen extends ConsumerWidget {
               onChanged: kIsWeb
                   ? null
                   : (value) => runSafe(context, () async {
-                      if (value && !await service.requestPermission())
+                      if (value && !await service.requestPermission()) {
                         throw const FormatException(
                           'Notification permission was not granted. Enable it in device Settings and try again.',
                         );
+                      }
                       await controller.settings(
                         (s) => s.copyWith(notificationsEnabled: value),
                       );

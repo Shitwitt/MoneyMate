@@ -75,10 +75,11 @@ class ExchangeRatesScreen extends ConsumerWidget {
                           if (number == null ||
                               !number.isFinite ||
                               number <= 0 ||
-                              number > 1000000000)
+                              number > 1000000000) {
                             throw const FormatException(
                               'Enter a positive exchange rate',
                             );
+                          }
                           await ref
                               .read(appProvider.notifier)
                               .setRate(

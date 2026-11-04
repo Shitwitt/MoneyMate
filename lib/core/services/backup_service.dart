@@ -46,10 +46,11 @@ class BackupService {
       'data': data,
     };
     final json = utf8.encode(jsonEncode(envelope));
-    if (json.length > maxBackupBytes)
+    if (json.length > maxBackupBytes) {
       throw const FormatException(
         'Backup exceeds 50 MB. Remove some receipts before exporting.',
       );
+    }
     if (!zip) return Uint8List.fromList(json);
     final archive = Archive()
       ..addFile(ArchiveFile('paisaclone.json', json.length, json))

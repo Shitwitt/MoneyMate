@@ -43,8 +43,9 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
-    if (android != null)
+    if (android != null) {
       return await android.requestNotificationsPermission() ?? false;
+    }
     return await plugin
             .resolvePlatformSpecificImplementation<
               IOSFlutterLocalNotificationsPlugin
@@ -129,8 +130,9 @@ class NotificationService {
         if (settings.recurringNotifications) {
           for (final rule in profile.recurrings.where((rule) => rule.enabled)) {
             var date = rule.nextDue;
-            if (date.isBefore(now) && !rule.autoPost)
+            if (date.isBefore(now) && !rule.autoPost) {
               date = now.add(const Duration(minutes: 1));
+            }
             for (
               var i = 0;
               i < 3 &&

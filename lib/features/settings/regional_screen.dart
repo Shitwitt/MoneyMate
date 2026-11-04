@@ -64,13 +64,14 @@ class RegionalScreen extends ConsumerWidget {
                     'Account currencies and transactions are kept as entered. Budgets, goals, loans, assets and bill shares are converted using your reference rates and rounded to $value precision. Export a backup before changing this.',
                     confirmLabel: 'Convert',
                   ) &&
-                  context.mounted)
+                  context.mounted) {
                 await runSafe(
                   context,
                   () => controller.updateProfile(
                     (data, app) => rebaseProfile(data, value),
                   ),
                 );
+              }
             },
           ),
           const SizedBox(height: 16),
@@ -84,55 +85,55 @@ class RegionalScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 12),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(22),
-                child: AmountText(
-                  toMinor(1234567.89, profile.profile.currency),
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(22),
+              child: AmountText(
+                toMinor(1234567.89, profile.profile.currency),
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
             ),
-            const SizedBox(height: 24),
-            const SectionHeader('Your financial calendar'),
-            formSelect(
-              'First day of week',
-              '${settings.weekStart}',
-              [for (var i = 1; i <= 7; i++) '$i'],
-              (value) => runSafe(
-                context,
-                () => controller.settings(
-                  (s) => s.copyWith(weekStart: int.parse(value)),
-                ),
-              ),
-              display: (id) => [
-                'Monday',
-                'Tuesday',
-                'Wednesday',
-                'Thursday',
-                'Friday',
-                'Saturday',
-                'Sunday',
-              ][int.parse(id) - 1],
-            ),
-            const SizedBox(height: 16),
-            formSelect(
-              'Financial month starts on day',
-              '${settings.monthStart}',
-              [for (var i = 1; i <= 31; i++) '$i'],
-              (value) => runSafe(
-                context,
-                () => controller.settings(
-                  (s) => s.copyWith(monthStart: int.parse(value)),
-                ),
+          ),
+          const SizedBox(height: 24),
+          const SectionHeader('Your financial calendar'),
+          formSelect(
+            'First day of week',
+            '${settings.weekStart}',
+            [for (var i = 1; i <= 7; i++) '$i'],
+            (value) => runSafe(
+              context,
+              () => controller.settings(
+                (s) => s.copyWith(weekStart: int.parse(value)),
               ),
             ),
-            const SizedBox(height: 12),
-            const Text(
-              'Days 29–31 clamp to the last day of shorter months. Existing budgets keep their own renewal dates; this changes dashboard and report periods.',
-              style: TextStyle(fontSize: 12, height: 1.5),
+            display: (id) => [
+              'Monday',
+              'Tuesday',
+              'Wednesday',
+              'Thursday',
+              'Friday',
+              'Saturday',
+              'Sunday',
+            ][int.parse(id) - 1],
+          ),
+          const SizedBox(height: 16),
+          formSelect(
+            'Financial month starts on day',
+            '${settings.monthStart}',
+            [for (var i = 1; i <= 31; i++) '$i'],
+            (value) => runSafe(
+              context,
+              () => controller.settings(
+                (s) => s.copyWith(monthStart: int.parse(value)),
+              ),
             ),
-            const SizedBox(height: 100),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Days 29–31 clamp to the last day of shorter months. Existing budgets keep their own renewal dates; this changes dashboard and report periods.',
+            style: TextStyle(fontSize: 12, height: 1.5),
+          ),
+          const SizedBox(height: 100),
         ],
       ),
     );

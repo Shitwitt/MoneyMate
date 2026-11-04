@@ -29,8 +29,9 @@ class Ledger {
             ? entry.amountMinor
             : -entry.amountMinor;
       }
-      if (entry.type == 'transfer' && entry.toAccountId == id)
+      if (entry.type == 'transfer' && entry.toAccountId == id) {
         result += entry.toAmountMinor;
+      }
     }
     return result;
   }
@@ -226,14 +227,18 @@ class TransactionFilter {
       if (dates != null && !dates!.contains(entry.date)) return false;
       if (accounts.isNotEmpty &&
           !accounts.contains(entry.accountId) &&
-          !accounts.contains(entry.toAccountId))
+          !accounts.contains(entry.toAccountId)) {
         return false;
-      if (categories.isNotEmpty && !categories.contains(entry.categoryId))
+      }
+      if (categories.isNotEmpty && !categories.contains(entry.categoryId)) {
         return false;
-      if (labels.isNotEmpty && !entry.labelIds.any(labels.contains))
+      }
+      if (labels.isNotEmpty && !entry.labelIds.any(labels.contains)) {
         return false;
-      if (people.isNotEmpty && !entry.personIds.any(people.contains))
+      }
+      if (people.isNotEmpty && !entry.personIds.any(people.contains)) {
         return false;
+      }
       if (places.isNotEmpty && !places.contains(entry.placeId)) return false;
       if (type != 'all' && type != entry.type) return false;
       final value = ledger.entryValue(entry);
@@ -251,8 +256,9 @@ class TransactionFilter {
             .join(' ');
         if (!'${entry.name} ${entry.notes} ${ledger.account(entry.accountId).name} ${ledger.category(entry.categoryId)?.name ?? ''} $extra'
             .toLowerCase()
-            .contains(needle))
+            .contains(needle)) {
           return false;
+        }
       }
       return true;
     }).toList();
@@ -273,11 +279,13 @@ class TransactionFilter {
 List<int> splitWeighted(int total, List<double> weights) {
   if (total <= 0 ||
       weights.isEmpty ||
-      weights.any((weight) => !weight.isFinite || weight < 0))
+      weights.any((weight) => !weight.isFinite || weight < 0)) {
     throw const FormatException('Enter a positive bill and valid shares');
+  }
   final sum = weights.fold<double>(0, (a, b) => a + b);
-  if (sum <= 0)
+  if (sum <= 0) {
     throw const FormatException('At least one share must be positive');
+  }
   final raw = weights.map((weight) => total * weight / sum).toList();
   final result = raw.map((value) => value.floor()).toList();
   final order = List.generate(weights.length, (index) => index)

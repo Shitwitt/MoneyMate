@@ -28,11 +28,12 @@ Future<bool> restoreBackup(
     if (!approved) return;
     await restore(preview);
     restored = true;
-    if (context.mounted)
+    if (context.mounted) {
       toast(
         context,
         'Backup restored. Review your currency rates and notification preferences.',
       );
+    }
   });
   return restored;
 }

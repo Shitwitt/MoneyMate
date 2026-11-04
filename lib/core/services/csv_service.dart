@@ -30,8 +30,9 @@ class CsvDocument {
       shouldParseNumbers: false,
       allowInvalid: false,
     ).convert(text);
-    if (rows.length < 2 || rows.length > 50001)
+    if (rows.length < 2 || rows.length > 50001) {
       throw const FormatException('CSV needs a header and 1–50,000 rows');
+    }
     return CsvDocument(
       rows.first.map((item) => item.toString().trim()).toList(),
       rows
@@ -56,10 +57,11 @@ class CsvDocument {
       try {
         final row = rows[i];
         final type = value(row, 'type').toLowerCase();
-        if (type != 'income' && type != 'expense')
+        if (type != 'income' && type != 'expense') {
           throw const FormatException(
             'type must be income or expense (transfers must be entered in-app)',
           );
+        }
         final name = value(row, 'name');
         if (name.isEmpty) throw const FormatException('name is required');
         final accountName = value(row, 'account');
@@ -73,10 +75,11 @@ class CsvDocument {
                     throw FormatException('unknown account "$accountName"'),
               );
         final code = value(row, 'currency');
-        if (code.isNotEmpty && code != account.currency)
+        if (code.isNotEmpty && code != account.currency) {
           throw FormatException(
             'currency must match account (${account.currency})',
           );
+        }
         final categoryName = value(row, 'category');
         final category = data.categories.firstWhere(
           (item) =>
@@ -88,11 +91,13 @@ class CsvDocument {
               throw FormatException('unknown $type category "$categoryName"'),
         );
         final number = num.tryParse(value(row, 'amount').replaceAll(',', ''));
-        if (number == null || !number.isFinite || number <= 0)
+        if (number == null || !number.isFinite || number <= 0) {
           throw const FormatException('amount must be a positive decimal');
+        }
         final date = DateTime.tryParse(value(row, 'date'));
-        if (date == null || date.year < 1970 || date.year > 2200)
+        if (date == null || date.year < 1970 || date.year > 2200) {
           throw const FormatException('date must use ISO format (YYYY-MM-DD)');
+        }
         final amount = toMinor(number, account.currency);
         if (amount <= 0) throw const FormatException('amount rounds to zero');
         final suppliedId = value(row, 'id');

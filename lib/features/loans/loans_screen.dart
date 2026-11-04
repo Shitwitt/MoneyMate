@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
 import '../../core/data/providers.dart';
 import '../../core/data/seed.dart';
 import '../../core/models/models.dart';
@@ -51,8 +52,7 @@ class LoansScreen extends ConsumerWidget {
           if (ledger.data.loans.isEmpty)
             EmptyState(
               title: 'Keep the money, not the awkwardness',
-              message:
-                  'Remember what you lent, borrowed, and paid back. All privately.',
+              message: 'Remember what you lent, borrowed, and paid back. All privately.',
               action: 'Add a loan',
               onAction: () => editLoan(context, ref),
               icon: Icons.handshake_outlined,
@@ -114,8 +114,7 @@ Future<void> editLoan(
   await showEditor(
     context,
     title: initial == null ? 'Keep things clear' : 'Edit loan',
-    description:
-        'Interest is a flat lifetime percentage, not APR. For a new disbursement, optionally create a matching account entry to keep net worth balanced.',
+    description: 'Interest is a flat lifetime percentage, not APR. For a new disbursement, optionally create a matching account entry to keep net worth balanced.',
     fields: (context, setLocal) => [
       formSelect('You…', direction, [
         'lent',

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/data/providers.dart';
 import '../../core/utils/money.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -125,8 +126,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               child: Image.asset(
                                 'assets/branding/welcome.png',
                                 height: 220,
-                                semanticLabel:
-                                    'A growing plant and coins, a fresh start for your finances',
+                                semanticLabel: 'A growing plant and coins, a fresh start for your finances',
                               ),
                             ),
                             const SizedBox(height: 30),
@@ -142,9 +142,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               style: Theme.of(context).textTheme.bodyLarge
                                   ?.copyWith(
                                     height: 1.7,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
                                   ),
                             ),
                             const SizedBox(height: 24),
@@ -184,9 +184,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             children: [
                               Text(
                                 'Let’s make it yours.',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.headlineLarge,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineLarge,
                               ),
                               const SizedBox(height: 10),
                               const Text(

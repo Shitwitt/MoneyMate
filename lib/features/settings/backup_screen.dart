@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+
 import '../../core/data/providers.dart';
 import '../../core/services/backup_service.dart';
 import '../../core/services/file_service.dart';
@@ -54,8 +55,7 @@ class BackupScreen extends ConsumerWidget {
             .read(appProvider.notifier)
             .settings((s) => s.copyWith(lastBackup: DateTime.now()));
       },
-      success:
-          'Export opened. Keep the saved file somewhere private and verify it before resetting this app.',
+      success: 'Export opened. Keep the saved file somewhere private and verify it before resetting this app.',
     );
   }
 
@@ -67,9 +67,8 @@ class BackupScreen extends ConsumerWidget {
       child: ListView(
         children: [
           Card(
-            color: Theme.of(
-              context,
-            ).colorScheme.primaryContainer.withValues(alpha: .65),
+            color: Theme.of(context).colorScheme.primaryContainer
+                .withValues(alpha: .65),
             child: const Padding(
               padding: EdgeInsets.all(24),
               child: Column(

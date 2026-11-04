@@ -1,6 +1,8 @@
 import 'dart:math' as math;
+
 import 'package:intl/intl.dart';
 import 'package:math_expressions/math_expressions.dart';
+
 import '../models/models.dart';
 
 const currencySymbols = <String, String>{

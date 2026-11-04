@@ -1,9 +1,15 @@
 import 'dart:math' as math;
+
 import '../models/models.dart';
 
 DateTime dayOnly(DateTime date) => DateTime(date.year, date.month, date.day);
-DateTime nextDay(DateTime date) => DateTime(date.year, date.month, date.day + 1);
-int calendarDaysBetween(DateTime start, DateTime end) => DateTime.utc(end.year, end.month, end.day).difference(DateTime.utc(start.year, start.month, start.day)).inDays;
+DateTime nextDay(DateTime date) =>
+    DateTime(date.year, date.month, date.day + 1);
+int calendarDaysBetween(DateTime start, DateTime end) => DateTime.utc(
+  end.year,
+  end.month,
+  end.day,
+).difference(DateTime.utc(start.year, start.month, start.day)).inDays;
 DateTime safeMonth(int year, int month, int day) {
   final first = DateTime(year, month);
   return DateTime(
@@ -111,7 +117,11 @@ DateTime nextOccurrence(Recurring rule, DateTime current) {
 List<DateWindow> monthlyWindows(DateTime anchor, int startDay, int count) {
   final current = financialMonth(anchor, startDay);
   return List.generate(count, (i) {
-    final start = safeMonth(current.start.year, current.start.month - count + 1 + i, startDay);
+    final start = safeMonth(
+      current.start.year,
+      current.start.month - count + 1 + i,
+      startDay,
+    );
     return DateWindow(start, safeMonth(start.year, start.month + 1, startDay));
   });
 }

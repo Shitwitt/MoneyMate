@@ -1,7 +1,9 @@
 import 'dart:math' as math;
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../core/data/ledger.dart';
 import '../core/models/models.dart';
 import '../core/utils/dates.dart';
@@ -59,9 +61,8 @@ class TrendChart extends StatelessWidget {
               ? Padding(
                   padding: const EdgeInsets.only(top: 10),
                   child: Text(
-                    DateFormat.MMM(
-                      ledger.settings.locale,
-                    ).format(windows[value.toInt()].start),
+                    DateFormat.MMM(ledger.settings.locale)
+                        .format(windows[value.toInt()].start),
                     style: Theme.of(context).textTheme.labelSmall,
                   ),
                 )

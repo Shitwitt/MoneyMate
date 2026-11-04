@@ -1,7 +1,9 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../core/data/ledger.dart';
 import '../../core/data/providers.dart';
 import '../../core/data/seed.dart';
@@ -40,8 +42,7 @@ Future<void> editAccount(
   await showEditor(
     context,
     title: initial == null ? 'A home for your money' : 'Edit account',
-    description:
-        'Use a negative opening balance for credit card debt. Changing an opening balance adjusts the ledger without creating a transaction.',
+    description: 'Use a negative opening balance for credit card debt. Changing an opening balance adjusts the ledger without creating a transaction.',
     fields: (context, setLocal) => [
       formText(name, 'Account name', required: true),
       formSelect(
@@ -220,15 +221,15 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
                                       children: [
                                         Text(
                                           account.name,
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.titleMedium,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium,
                                         ),
                                         Text(
                                           '${account.currency}${account.archived ? ' · Archived' : ''}${account.excluded ? ' · Excluded' : ''}',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.labelSmall,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelSmall,
                                         ),
                                       ],
                                     ),
@@ -253,9 +254,9 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
                                   ),
                                   Text(
                                     'THIS MONTH',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.labelSmall,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall,
                                   ),
                                 ],
                               ),
@@ -276,9 +277,9 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
                                     ),
                                     currency: account.currency,
                                     compact: true,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.labelMedium,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelMedium,
                                   ),
                                   const SizedBox(width: 18),
                                   const Icon(
@@ -295,9 +296,9 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen> {
                                     ),
                                     currency: account.currency,
                                     compact: true,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.labelMedium,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelMedium,
                                   ),
                                 ],
                               ),

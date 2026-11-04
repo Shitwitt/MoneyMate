@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:paisaclone/core/data/local_store.dart';
@@ -11,6 +12,7 @@ import 'package:paisaclone/core/services/backup_service.dart';
 import 'package:paisaclone/core/services/csv_service.dart';
 import 'package:paisaclone/core/services/deep_link_service.dart';
 import 'package:paisaclone/core/services/security_service.dart';
+
 import 'support.dart';
 
 void main() {
@@ -36,8 +38,7 @@ void main() {
       id: 'receipt',
       name: 'tiny.png',
       mime: 'image/png',
-      data:
-          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aG1cAAAAASUVORK5CYII=',
+      data: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aG1cAAAAASUVORK5CYII=',
     );
     data = data.copyWith(
       transactions: [

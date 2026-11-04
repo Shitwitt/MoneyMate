@@ -1,7 +1,9 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../core/data/providers.dart';
 import '../../core/data/seed.dart';
 import '../../core/models/models.dart';
@@ -723,9 +725,8 @@ class _Calculator extends StatelessWidget {
                     }
                   } else if (key == '=') {
                     try {
-                      controller.text = evaluateAmount(
-                        controller.text,
-                      ).toString();
+                      controller.text = evaluateAmount(controller.text)
+                          .toString();
                     } catch (_) {
                       toast(context, 'Finish the expression first');
                     }

@@ -1,7 +1,9 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
+
 import '../core/data/providers.dart';
 import '../core/utils/money.dart';
 
@@ -175,9 +177,8 @@ class EmptyState extends StatelessWidget {
           width: 88,
           height: 88,
           decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.primaryContainer.withValues(alpha: .6),
+            color: Theme.of(context).colorScheme.primaryContainer
+                .withValues(alpha: .6),
             borderRadius: BorderRadius.circular(32),
           ),
           child: Icon(
@@ -304,9 +305,8 @@ class StatCard extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             DefaultTextStyle(
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w700),
+              style: Theme.of(context).textTheme.headlineSmall!
+                  .copyWith(fontWeight: FontWeight.w700),
               child: value,
             ),
             if (caption != null) ...[

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
 import '../../core/data/providers.dart';
 import '../../core/data/seed.dart';
 import '../../core/models/models.dart';
@@ -96,8 +97,7 @@ Future<void> editAsset(
   await showEditor(
     context,
     title: initial == null ? 'Add something valuable' : 'Edit asset',
-    description:
-        'Values are manual, not live quotes. Avoid double-counting assets already tracked in an investment account; exclude that account from net worth.',
+    description: 'Values are manual, not live quotes. Avoid double-counting assets already tracked in an investment account; exclude that account from net worth.',
     fields: (context, setLocal) => [
       formText(name, 'Name', required: true),
       formSelect(

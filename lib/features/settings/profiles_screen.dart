@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/data/ledger.dart';
 import '../../core/data/providers.dart';
 import '../../shared/actions.dart';
@@ -126,8 +127,7 @@ class ProfilesScreen extends ConsumerWidget {
                     accountName: 'Everyday',
                     demo: true,
                   ),
-              success:
-                  'Created a separate demo profile. Your other profiles are untouched.',
+              success: 'Created a separate demo profile. Your other profiles are untouched.',
             ),
             icon: const Icon(Icons.explore_outlined),
             label: const Text('Explore with a separate demo profile'),

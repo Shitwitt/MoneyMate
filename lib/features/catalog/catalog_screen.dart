@@ -1,7 +1,9 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../core/data/ledger.dart';
 import '../../core/data/providers.dart';
 import '../../core/data/seed.dart';
@@ -140,9 +142,8 @@ class CatalogScreen extends ConsumerWidget {
               itemCount: entities.length,
               itemBuilder: (context, index) {
                 final entity = entities[index];
-                final entries = _filterFor(
-                  entity,
-                ).apply(ref.read(ledgerProvider)!);
+                final entries = _filterFor(entity)
+                    .apply(ref.read(ledgerProvider)!);
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Card(

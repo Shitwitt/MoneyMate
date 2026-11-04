@@ -1,8 +1,10 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
+
 import '../../core/data/ledger.dart';
 import '../../core/data/providers.dart';
 import '../../core/models/models.dart';
@@ -48,7 +50,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     super.initState();
     final settings = ref.read(appProvider).settings;
     final windows = monthlyWindows(DateTime.now(), settings.monthStart, 6);
-    filter = TransactionFilter(dates: DateWindow(windows.first.start, windows.last.end));
+    filter = TransactionFilter(
+      dates: DateWindow(windows.first.start, windows.last.end),
+    );
   }
 
   Future<void> _filters() async {
@@ -111,10 +115,21 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
         filter.dates ??
         DateWindow(DateTime(1970), DateTime.now().add(const Duration(days: 1)));
     final end = window.end.subtract(const Duration(days: 1));
-    final firstPeriod = financialMonth(window.start, ledger.settings.monthStart).start;
+    final firstPeriod = financialMonth(
+      window.start,
+      ledger.settings.monthStart,
+    ).start;
     final lastPeriod = financialMonth(end, ledger.settings.monthStart).start;
-    final chartMonths = math.max(1, math.min(12,
-      (lastPeriod.year - firstPeriod.year) * 12 + lastPeriod.month - firstPeriod.month + 1));
+    final chartMonths = math.max(
+      1,
+      math.min(
+        12,
+        (lastPeriod.year - firstPeriod.year) * 12 +
+            lastPeriod.month -
+            firstPeriod.month +
+            1,
+      ),
+    );
     final chartLedger = Ledger(
       ledger.data.copyWith(transactions: entries),
       ledger.settings,
@@ -327,9 +342,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             ..._advanced(context, ledger, entries, window, expense)
           else
             Card(
-              color: Theme.of(
-                context,
-              ).colorScheme.tertiaryContainer.withValues(alpha: .5),
+              color: Theme.of(context).colorScheme.tertiaryContainer
+                  .withValues(alpha: .5),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(

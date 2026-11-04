@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:paisaclone/core/models/models.dart';
 import 'package:paisaclone/core/services/csv_service.dart';
 import 'package:paisaclone/core/utils/dates.dart';
+
 import 'support.dart';
 
 void main() {
@@ -12,7 +14,12 @@ void main() {
     expect(() => readInt(123.5), throwsFormatException);
   });
   test('Strict date parser rejects normalized impossible dates', () {
-    for (final value in ['2026-02-31', '2026-13-01', '2026-11-04T25:00:00', '2026-11-04T12:60:00']) {
+    for (final value in [
+      '2026-02-31',
+      '2026-13-01',
+      '2026-11-04T25:00:00',
+      '2026-11-04T12:60:00',
+    ]) {
       expect(() => readDate(value), throwsFormatException);
     }
     expect(readDate('2024-02-29').day, 29);
@@ -32,8 +39,17 @@ void main() {
     expect(calendarDaysBetween(DateTime(2026, 3, 1), DateTime(2026, 4, 1)), 31);
   });
   test('CSV preview rejects impossible calendar dates before commit', () {
-    final csv = CsvDocument.parse(Uint8List.fromList(utf8.encode('date,type,name,amount\n2026-02-31,expense,Coffee,4.50\n')));
-    final result = csv.preview(fixture(), {'date': 0, 'type': 1, 'name': 2, 'amount': 3});
+    final csv = CsvDocument.parse(
+      Uint8List.fromList(
+        utf8.encode('date,type,name,amount\n2026-02-31,expense,Coffee,4.50\n'),
+      ),
+    );
+    final result = csv.preview(fixture(), {
+      'date': 0,
+      'type': 1,
+      'name': 2,
+      'amount': 3,
+    });
     expect(result.valid, isEmpty);
     expect(result.errors.length, 1);
   });

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
 import '../../core/data/achievements.dart';
 import '../../core/data/providers.dart';
 import '../../shared/widgets.dart';
@@ -63,9 +64,9 @@ class AchievementsScreen extends ConsumerWidget {
                               value: ((progress[badge.id] ?? 0) / badge.target)
                                   .clamp(0, 1),
                               strokeWidth: 3,
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerHighest,
+                              backgroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
                             ),
                           ),
                           Icon(

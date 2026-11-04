@@ -11,25 +11,37 @@ String readString(Object? value, [String fallback = '']) =>
     value == null ? fallback : value as String;
 int readInt(Object? value, [int fallback = 0]) {
   if (value == null) return fallback;
-  if (value is! int) throw const FormatException('Expected an integer minor-unit value');
+  if (value is! int)
+    throw const FormatException('Expected an integer minor-unit value');
   return value;
 }
+
 double readDouble(Object? value, [double fallback = 0]) =>
     value == null ? fallback : (value as num).toDouble();
 bool readBool(Object? value, [bool fallback = false]) =>
     value == null ? fallback : value as bool;
 DateTime readDate(Object? value) {
   final text = value as String;
-  final parts = RegExp(r'^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,6})?)?(?:Z|[+-]\d{2}:?\d{2})?)?$').firstMatch(text);
-  if (parts == null) throw const FormatException('Use an ISO date (YYYY-MM-DD)');
-  final year = int.parse(parts[1]!), month = int.parse(parts[2]!), day = int.parse(parts[3]!);
+  final parts = RegExp(
+    r'^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,6})?)?(?:Z|[+-]\d{2}:?\d{2})?)?$',
+  ).firstMatch(text);
+  if (parts == null)
+    throw const FormatException('Use an ISO date (YYYY-MM-DD)');
+  final year = int.parse(parts[1]!),
+      month = int.parse(parts[2]!),
+      day = int.parse(parts[3]!);
   final calendar = DateTime.utc(year, month, day);
-  if (calendar.year != year || calendar.month != month || calendar.day != day ||
-      int.parse(parts[4] ?? '0') > 23 || int.parse(parts[5] ?? '0') > 59 || int.parse(parts[6] ?? '0') > 59) {
+  if (calendar.year != year ||
+      calendar.month != month ||
+      calendar.day != day ||
+      int.parse(parts[4] ?? '0') > 23 ||
+      int.parse(parts[5] ?? '0') > 59 ||
+      int.parse(parts[6] ?? '0') > 59) {
     throw const FormatException('Invalid calendar date or time');
   }
   return DateTime.parse(text);
 }
+
 DateTime? readOptionalDate(Object? value) =>
     value == null ? null : readDate(value);
 List<String> readStrings(Object? value, [List<String> fallback = const []]) =>

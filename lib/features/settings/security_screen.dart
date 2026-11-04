@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:local_auth/local_auth.dart';
+
 import '../../core/data/providers.dart';
 import '../../core/services/security_service.dart';
 import '../../shared/actions.dart';
@@ -47,8 +48,7 @@ class SecurityScreen extends ConsumerWidget {
     await showEditor(
       context,
       title: biometric ? 'Biometrics + a backup PIN' : 'A key just for you',
-      description:
-          'Choose a six-digit PIN. It is salted and derived with PBKDF2; the PIN itself is never stored. Remember it: there is no server recovery.',
+      description: 'Choose a six-digit PIN. It is salted and derived with PBKDF2; the PIN itself is never stored. Remember it: there is no server recovery.',
       fields: (_, __) => [
         TextFormField(
           controller: pin,

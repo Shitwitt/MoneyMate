@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../core/utils/constants.dart';
 import 'actions.dart';
 import 'widgets.dart';
@@ -66,9 +67,8 @@ Widget formDate(
   bool includeTime = false,
 }) => ListTile(
   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-  tileColor: Theme.of(
-    context,
-  ).colorScheme.surfaceContainerHighest.withValues(alpha: .45),
+  tileColor: Theme.of(context).colorScheme.surfaceContainerHighest
+      .withValues(alpha: .45),
   leading: const Icon(Icons.calendar_today_rounded),
   title: Text(title),
   subtitle: Text(
@@ -208,9 +208,8 @@ Future<bool?> showEditor(
                 children: [
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: Theme.of(context).textTheme.headlineSmall
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                   if (description != null) ...[
                     const SizedBox(height: 8),
@@ -272,10 +271,14 @@ Future<String?> askText(
     context,
     title: title,
     fields: (context, setLocal) => [
-      TextFormField(controller: controller, obscureText: obscure, enableSuggestions: !obscure,
+      TextFormField(
+        controller: controller,
+        obscureText: obscure,
+        enableSuggestions: !obscure,
         decoration: InputDecoration(labelText: label),
         keyboardType: numeric ? TextInputType.number : TextInputType.text,
-        validator: requiredText),
+        validator: requiredText,
+      ),
     ],
     onSave: () async {
       result = controller.text.trim();

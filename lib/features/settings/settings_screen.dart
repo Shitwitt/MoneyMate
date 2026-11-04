@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/data/providers.dart';
 import '../../core/utils/constants.dart';
 import '../../l10n/generated/app_localizations.dart';

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:app_links/app_links.dart';
 import 'package:confetti/confetti.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
 import 'core/data/achievements.dart';
 import 'core/data/local_store.dart';
 import 'core/data/providers.dart';
@@ -134,9 +136,8 @@ class _BootstrapState extends State<Bootstrap> {
                                 await FileService.save(
                                   Uint8List.fromList(
                                     utf8.encode(
-                                      Hive.box<String>(
-                                            'paisaclone_v1',
-                                          ).get('state') ??
+                                      Hive.box<String>('paisaclone_v1')
+                                              .get('state') ??
                                           '',
                                     ),
                                   ),

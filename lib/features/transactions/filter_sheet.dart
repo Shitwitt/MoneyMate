@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/data/ledger.dart';
 import '../../core/models/models.dart';
 import '../../core/utils/dates.dart';
@@ -60,10 +61,8 @@ Future<TransactionFilter?> showTransactionFilters(
           );
           if (range != null) {
             setLocal(
-              () => dates = DateWindow(
-                dayOnly(range.start),
-                nextDay(range.end),
-              ),
+              () =>
+                  dates = DateWindow(dayOnly(range.start), nextDay(range.end)),
             );
           }
         },

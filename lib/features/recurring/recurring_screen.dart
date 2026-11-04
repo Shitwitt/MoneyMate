@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
 import '../../core/data/providers.dart';
 import '../../core/data/seed.dart';
 import '../../core/models/models.dart';
@@ -52,8 +53,7 @@ class RecurringScreen extends ConsumerWidget {
           if (rules.isEmpty)
             EmptyState(
               title: 'One less thing to remember',
-              message:
-                  'Rent, payday, your favourite music. Set it once and keep an eye on the rhythm.',
+              message: 'Rent, payday, your favourite music. Set it once and keep an eye on the rhythm.',
               icon: Icons.event_repeat_rounded,
               action: 'Add a recurring entry',
               onAction: () => editRecurring(context, ref),
@@ -71,9 +71,9 @@ class RecurringScreen extends ConsumerWidget {
                         width: 48,
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.secondaryContainer,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondaryContainer,
                           borderRadius: BorderRadius.circular(15),
                         ),
                         child: Column(

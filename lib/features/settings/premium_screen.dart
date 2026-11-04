@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/data/providers.dart';
 import '../../shared/actions.dart';
 import '../../shared/widgets.dart';
@@ -48,9 +49,8 @@ class PremiumScreen extends ConsumerWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.surface.withValues(alpha: .7),
+                    color: Theme.of(context).colorScheme.surface
+                        .withValues(alpha: .7),
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: const Text(

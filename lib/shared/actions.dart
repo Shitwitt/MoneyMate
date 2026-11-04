@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../core/data/providers.dart';
 import '../features/settings/premium_screen.dart';
 
@@ -18,9 +19,8 @@ Future<bool> runSafe(
     return true;
   } on PremiumRequired {
     if (context.mounted) {
-      await Navigator.of(
-        context,
-      ).push(MaterialPageRoute(builder: (_) => const PremiumScreen()));
+      await Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => const PremiumScreen()));
     }
     return false;
   } catch (error) {

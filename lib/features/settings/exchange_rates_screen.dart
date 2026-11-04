@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
 import '../../core/data/providers.dart';
 import '../../core/models/models.dart';
 import '../../core/utils/money.dart';
@@ -90,8 +91,7 @@ class ExchangeRatesScreen extends ConsumerWidget {
                                 ),
                               );
                         },
-                        success:
-                            'Reference rate updated. Reports use this rate; transfers remain unchanged.',
+                        success: 'Reference rate updated. Reports use this rate; transfers remain unchanged.',
                       );
                     },
             ),

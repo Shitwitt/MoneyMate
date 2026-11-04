@@ -1,7 +1,9 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
 import '../../core/data/ledger.dart';
 import '../../core/data/providers.dart';
 import '../../core/data/seed.dart';
@@ -92,8 +94,7 @@ class BillsScreen extends ConsumerWidget {
           if (bills.isEmpty)
             EmptyState(
               title: 'Share the moment. Split the bill.',
-              message:
-                  'Equal, exact, percentages or shares. Fair to the very last cent.',
+              message: 'Equal, exact, percentages or shares. Fair to the very last cent.',
               icon: Icons.groups_rounded,
               action: 'Split a bill',
               onAction: () => editBill(context, ref),
@@ -173,8 +174,7 @@ Future<void> editBill(
   await showEditor(
     context,
     title: initial == null ? 'Make it a fair share' : 'Edit bill',
-    description:
-        'One person pays the bill. Everyone else owes that person their share. Splits are rounded fairly and always sum exactly to the total.',
+    description: 'One person pays the bill. Everyone else owes that person their share. Splits are rounded fairly and always sum exactly to the total.',
     fields: (context, setLocal) => [
       formText(title, 'What was the occasion?', required: true),
       formText(
@@ -460,8 +460,7 @@ class BillDetailScreen extends ConsumerWidget {
                                 () => ref
                                     .read(appProvider.notifier)
                                     .settleBill(id, share.personId),
-                                success:
-                                    'Share settled · record any actual bank movement in Activity',
+                                success: 'Share settled · record any actual bank movement in Activity',
                               ),
                               child: const Text('Mark settled'),
                             ),

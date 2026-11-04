@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
 import '../../core/data/ledger.dart';
 import '../../core/data/providers.dart';
 import '../../core/data/seed.dart';
@@ -52,8 +53,7 @@ class BudgetsScreen extends ConsumerWidget {
       child: profile.budgets.isEmpty
           ? EmptyState(
               title: 'A plan, not a restriction',
-              message:
-                  'Give your spending a little direction. Start with food, transport, or everything.',
+              message: 'Give your spending a little direction. Start with food, transport, or everything.',
               icon: Icons.donut_large_rounded,
               action: 'Create a budget',
               onAction: () => editBudget(context, ref),
@@ -189,8 +189,7 @@ Future<void> editBudget(
   await showEditor(
     context,
     title: initial == null ? 'A little plan for your money' : 'Edit budget',
-    description:
-        'An empty category selection includes all expenses. Rollover carries unused allowance AND deducts overspending from the next period.',
+    description: 'An empty category selection includes all expenses. Rollover carries unused allowance AND deducts overspending from the next period.',
     fields: (context, setLocal) => [
       formText(name, 'Budget name', required: true),
       formText(

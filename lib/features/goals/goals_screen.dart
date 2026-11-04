@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
 import '../../core/data/providers.dart';
 import '../../core/data/seed.dart';
 import '../../core/models/models.dart';
@@ -29,8 +30,7 @@ class GoalsScreen extends ConsumerWidget {
       child: goals.isEmpty
           ? EmptyState(
               title: 'What are you dreaming of?',
-              message:
-                  'An emergency fund, a trip, a new beginning. Give your next dream a name.',
+              message: 'An emergency fund, a trip, a new beginning. Give your next dream a name.',
               icon: Icons.flag_rounded,
               action: 'Start a goal',
               onAction: () => editGoal(context, ref),
@@ -150,8 +150,7 @@ Future<void> editGoal(
   await showEditor(
     context,
     title: initial == null ? 'Give your dream a name' : 'Edit goal',
-    description:
-        'Manual contributions reserve money in your plan, not your accounts. Linking an account tracks its whole balance instead (do not link the same account to multiple goals unless intentional).',
+    description: 'Manual contributions reserve money in your plan, not your accounts. Linking an account tracks its whole balance instead (do not link the same account to multiple goals unless intentional).',
     fields: (context, setLocal) => [
       formText(name, 'Goal name', required: true),
       formText(
@@ -281,8 +280,7 @@ class GoalDetailScreen extends ConsumerWidget {
                 await showEditor(
                   context,
                   title: 'One step closer',
-                  description:
-                      'This is a savings allocation, not an account withdrawal.',
+                  description: 'This is a savings allocation, not an account withdrawal.',
                   fields: (_, __) => [
                     formText(
                       amount,

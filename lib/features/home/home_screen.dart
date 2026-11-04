@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
 import '../../core/data/ledger.dart';
 import '../../core/data/providers.dart';
 import '../../core/models/models.dart';
@@ -56,9 +57,8 @@ class HomeScreen extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               CircleAvatar(
-                backgroundColor: Color(
-                  profile.profile.color,
-                ).withValues(alpha: .5),
+                backgroundColor: Color(profile.profile.color)
+                    .withValues(alpha: .5),
                 foregroundColor: Theme.of(context).colorScheme.onSurface,
                 child: Text(
                   profile.profile.name.characters.first.toUpperCase(),
@@ -642,9 +642,9 @@ class HomeScreen extends ConsumerWidget {
                                     children: [
                                       Text(
                                         template.name,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.labelLarge,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelLarge,
                                       ),
                                       const SizedBox(height: 6),
                                       AmountText(
@@ -652,9 +652,9 @@ class HomeScreen extends ConsumerWidget {
                                         currency: ledger
                                             .account(template.accountId)
                                             .currency,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.labelSmall,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelSmall,
                                       ),
                                     ],
                                   ),
@@ -747,9 +747,8 @@ class HomeScreen extends ConsumerWidget {
                 const SizedBox(height: 14),
                 Text(
                   'Dream a little bigger.',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(context).textTheme.headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 8),
                 const Text(

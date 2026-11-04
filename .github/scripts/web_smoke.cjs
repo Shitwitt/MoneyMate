@@ -24,7 +24,7 @@ const binary = chromiumModule.default || chromiumModule;
     const remoteRequests = new Set();
     page.on('request', request => {
       const url = new URL(request.url());
-      if (['http:', 'https:'].includes(url.protocol) && !['127.0.0.1', 'localhost'].includes(url.hostname)) remoteRequests.add(url.origin);
+      if (['http:', 'https:'].includes(url.protocol) && !['127.0.0.1', 'localhost'].includes(url.hostname)) remoteRequests.add(url.href);
     });
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => {

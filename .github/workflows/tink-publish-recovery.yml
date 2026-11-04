@@ -13,8 +13,8 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - name: Confirm application matches the tested binary source
-        run: git diff --exit-code ca5277b HEAD -- lib android ios assets web pubspec.yaml pubspec.lock
+      - name: Confirm native application matches the tested binary source
+        run: git diff --exit-code ca5277b HEAD -- lib android ios assets pubspec.yaml pubspec.lock
       - uses: actions/setup-java@v5
         with:
           distribution: temurin

@@ -6,6 +6,21 @@ from pathlib import Path
 root = Path('build/web')
 if not root.joinpath('index.html').exists():
     raise SystemExit('Run flutter build web --release --no-web-resources-cdn first')
+# CanvasKit unconditionally downloads its default Roboto unless that family
+# appears in FontManifest.json, even when the visible UI uses Poppins/Inter.
+# Register the already-bundled Inter regular face under that engine fallback
+# alias. This changes neither the font file nor the app's selected typography.
+manifest_path = root / 'assets/FontManifest.json'
+manifest = json.loads(manifest_path.read_text())
+if not any(family['family'] == 'Roboto' for family in manifest):
+    inter = next((family for family in manifest if family['family'] == 'Inter'), None)
+    if inter is None:
+        raise SystemExit('Bundled Inter is required for the offline renderer fallback')
+    regular = next((font for font in inter['fonts'] if font.get('weight', 400) == 400 and font.get('style', 'normal') == 'normal'), None)
+    if regular is None or not (root / 'assets' / regular['asset']).is_file():
+        raise SystemExit('Missing bundled Inter regular font; refusing an online fallback')
+    manifest.append({'family': 'Roboto', 'fonts': [regular]})
+    manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
 files = sorted(p for p in root.rglob('*') if p.is_file() and p.name not in {'service-worker.js', 'flutter_service_worker.js'} and not p.name.endswith('.map'))
 revision = hashlib.sha256(b''.join(hashlib.sha256(p.read_bytes()).digest() for p in files)).hexdigest()[:16]
 urls = ['./' + p.relative_to(root).as_posix() for p in files]

@@ -36,6 +36,8 @@ jobs:
         env:
           TZ: America/New_York
         run: python3 .github/scripts/checked_command.py flutter test test/regression_test.dart
+      - name: Offline web packaging regression tests
+        run: python3 -m unittest discover -s scripts/tests
       - name: Package source for download
         run: git archive --format=zip --prefix=Tink/ HEAD -o Tink-source.zip
       - uses: actions/upload-artifact@v5

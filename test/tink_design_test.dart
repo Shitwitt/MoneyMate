@@ -176,7 +176,10 @@ void main() {
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Save transaction'));
-    await tester.pumpAndSettle();
+    // Particle decoration has its own clock; assert outcomes, then dismiss it.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 200));
     expect(
       repo.persisted!.profiles.first.transactions.single.amountMinor,
       15000,

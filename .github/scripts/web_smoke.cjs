@@ -35,6 +35,8 @@ const binary = chromiumModule.default || chromiumModule;
       if (await placeholder.count()) await placeholder.evaluate(element => element.click());
     }
     async function capture(name) {
+      await page.mouse.move(2, 2);
+      await page.waitForTimeout(180);
       for (const quality of [50, 35, 20, 10]) {
         const jpg = await page.screenshot({type: 'jpeg', quality, animations: 'disabled'});
         fs.writeFileSync(name, jpg);
@@ -42,7 +44,8 @@ const binary = chromiumModule.default || chromiumModule;
       }
     }
     async function nav(label) {
-      const target = page.getByRole('button', {name: new RegExp('^' + label)}).or(page.getByText(label, {exact: true})).last();
+      const name = new RegExp('^' + label);
+      const target = page.getByRole('button', {name}).or(page.getByRole('tab', {name})).or(page.getByLabel(name)).or(page.getByText(label, {exact: true})).last();
       // Flutter only exposes painted semantics nodes; DOM scrollIntoView cannot
       // materialize an offscreen SliverGrid item. Scroll its real canvas first.
       for (let attempt = 0; attempt < 8 && !await target.isVisible(); attempt++) {
@@ -72,15 +75,15 @@ const binary = chromiumModule.default || chromiumModule;
     await page.getByRole('button', {name: 'Start using Tink', exact: true}).click();
     const celebration = page.getByRole('button', {name: 'A little proud of myself', exact: true});
     if (await celebration.isVisible()) await celebration.click();
-    await page.getByText('Safe to spend', {exact: true}).first().waitFor({timeout: 30000});
+    await page.getByRole('button', {name: 'How safe to spend is calculated', exact: true}).waitFor({timeout: 30000});
     await page.waitForTimeout(800);
     await capture('web-dashboard.jpg');
     await nav('Accounts');
-    await page.getByText('Your money, in one place', {exact: true}).waitFor();
+    await page.getByLabel(/Your money, in one place/).or(page.getByText('Your money, in one place', {exact: false})).first().waitFor();
     await capture('web-accounts.jpg');
     await nav('More');
     await nav('Reports');
-    await page.getByText('Your money, a little clearer', {exact: true}).waitFor();
+    await page.getByLabel(/Your money, a little clearer/).or(page.getByText('Your money, a little clearer', {exact: false})).first().waitFor();
     await page.waitForTimeout(650);
     await capture('web-reports.jpg');
     await page.getByRole('button', {name: 'Back', exact: true}).click();
@@ -90,7 +93,7 @@ const binary = chromiumModule.default || chromiumModule;
     await page.getByRole('button', {name: 'Back', exact: true}).click();
     await page.getByRole('button', {name: 'Back', exact: true}).click();
     await nav('Home');
-    await page.getByText('Safe to spend', {exact: true}).waitFor();
+    await page.getByRole('button', {name: 'How safe to spend is calculated', exact: true}).waitFor();
     await page.waitForTimeout(700);
     await capture('web-dark.jpg');
     await page.reload({waitUntil: 'domcontentloaded'});
@@ -113,6 +116,7 @@ const binary = chromiumModule.default || chromiumModule;
   } catch (error) {
     if (page) {
       console.log('Page text:', (await page.locator('body').innerText().catch(() => '')).slice(-8000));
+      console.log('Aria labels:', JSON.stringify(await page.locator('[aria-label]').evaluateAll(nodes => nodes.map(n => ({role: n.getAttribute('role'), label: n.getAttribute('aria-label')})).filter(n => n.label).slice(-60)).catch(() => [])));
       console.log('Demo input diagnostics:', await page.locator('input').evaluateAll(inputs => inputs.map(input => ({label: input.getAttribute('aria-label'), value: input.value, type: input.type}))).catch(() => []));
       await page.screenshot({path: 'web-failure.jpg', type: 'jpeg', quality: 30}).catch(() => {});
     }

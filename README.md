@@ -1,15 +1,15 @@
-# PaisaClone 🌱
+# Tink
 
-**Your money. Your device.** An independent Material 3 / Material You Flutter expense tracker inspired by the privacy-first spirit of Paisa. Original source and branding; not affiliated with Hemanth Savarala, `dev.hemanths.paisa`, or paisa-tracker.app.
+**Your money. A clearer mind.** A privacy-first Material 3 Flutter finance companion with a premium neutral/violet interface. Tink is an independent local tracker, not a bank, card issuer, payment service, trading platform, or an integration with the Tink banking API. Interface references inspired the visual direction; no Stable Money logos, proprietary screens or illustrations are bundled.
 
-No accounts, backend, ads, analytics, payment service, or automatic network calls. The Android release deliberately has **no Internet permission**. All finance data and receipt images are local. Plus is a free, persisted simulation.
+No accounts, backend, ads, analytics, payment service, or automatic network calls. The Android release deliberately has **no Internet permission**. All finance data and receipt images are local. Pro is a free, persisted simulation.
 
 > This is a substantial, runnable implementation, not a claim of byte-for-byte or certified feature parity with Paisa. See [platform support and known limits](#platform-support-and-known-limits), [architecture](docs/ARCHITECTURE.md), and [device QA](docs/QA.md). Native biometrics, camera, notification delivery and widgets require real-device verification before distributing your own release.
 
 ## Project structure (start here)
 
 ```text
-PaisaClone/
+Tink/
 ├── pubspec.yaml                 # Complete dependencies, bundled art/fonts, version
 ├── l10n.yaml                    # Flutter gen-l10n configuration
 ├── lib/
@@ -18,7 +18,7 @@ PaisaClone/
 │   │   ├── models/models.dart   # Explicit typed JSON models; no build_runner
 │   │   ├── data/                # Hive repository, atomic controller, ledger, seeds
 │   │   ├── services/            # Backups, CSV/PDF, receipts, notifications, widgets
-│   │   ├── theme/               # Material 3 light/dark/Just Black/dynamic color
+│   │   ├── theme/               # Material 3 light/dark/Midnight/dynamic color
 │   │   └── utils/               # Fixed-point money, arithmetic, calendar rules
 │   ├── features/
 │   │   ├── onboarding/          # Wizard, first account, demo/restore
@@ -55,7 +55,7 @@ PaisaClone/
 
 ## GET YOUR APK NOW
 
-**Built APK available:** [Download the optimized Android APK (80.4 MB)](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-41853657467/PaisaClone-Android-release.apk). This is a release-mode, debug-key-signed sideload/test build for Android 7/API 24+. [Build evidence and remaining verification](docs/BUILD_STATUS.md).
+**Tink 1.1.0+2:** the redesigned source is included here. The updated, verified APK download and exact test evidence are recorded in [Build status](docs/BUILD_STATUS.md); historical 1.0 PaisaClone releases are **not** the redesigned Tink binary.
 
 **Here is how you get the APK ready to download and install** — fastest methods first:
 
@@ -65,10 +65,10 @@ PaisaClone/
 2. Push the files, then open the repository’s **Actions** tab. Both Android workflows run on every push. If needed, choose a workflow → **Run workflow** → select your branch → Run.
 3. For the quickest sideloadable build, open **Debug APK (Gradle)**. For optimized code choose **Release APK + Web + Tests**.
 4. Wait for a **green completed run**. Open the run and scroll to **Artifacts**.
-5. Download **PaisaClone-debug-APK** or **PaisaClone-release-APK**. GitHub wraps artifacts in a ZIP: **extract it** to get `app-debug.apk` / `app-release.apk`.
+5. Download **Tink-debug-APK** or **Tink-release-APK**. GitHub wraps artifacts in a ZIP: **extract it** to get `app-debug.apk` / `app-release.apk`.
 6. Send that `.apk` to your Android device, tap it, allow **Install unknown apps** for your browser/files app, then tap **Install**.
 
-**Direct APK without an artifact ZIP:** manually run either Android workflow with **publish_download** enabled, or opt in by including `[apk-download]` in your push commit message. On success the workflow publishes a GitHub prerelease with the actual `.apk` and a SHA-256 checksum under **Releases**. Debug APKs use `PaisaClone-Android.apk`; optimized release-mode APKs use `PaisaClone-Android-release.apk`. Only explicitly opted-in runs publish a prerelease. Public release assets can be downloaded directly without extracting a workflow artifact ZIP.
+**Direct APK without an artifact ZIP:** manually run either Android workflow with **publish_download** enabled, or opt in by including `[apk-download]` in your push commit message. On success the workflow publishes a GitHub prerelease with the actual `.apk` and a SHA-256 checksum under **Releases**. Debug APKs use `Tink-Android.apk`; optimized release-mode APKs use `Tink-Android-release.apk`. Only explicitly opted-in runs publish a prerelease. Public release assets can be downloaded directly without extracting a workflow artifact ZIP.
 
 GitHub requires you to be signed in to download workflow artifacts. Workflows cannot run if Actions are disabled, the account has exhausted its Actions quota, or the repository’s policy blocks the actions used here. Enable Actions in repository Settings and rerun; never paste tokens or signing secrets into source files.
 
@@ -79,7 +79,7 @@ GitHub requires you to be signed in to download workflow artifacts. Workflows ca
 Install **Flutter stable 3.47.9** (the workflow’s reproducible stable baseline), Android Studio / Android SDK, and **JDK 17**. Newer stable Flutter versions may work; re-run tests and update Android Gradle/Kotlin tooling together when upgrading.
 
 ```bash
-cd PaisaClone                    # or cd MoneyMate
+cd Tink                         # or cd MoneyMate
 flutter --version
 flutter doctor -v
 flutter doctor --android-licenses
@@ -133,7 +133,7 @@ flutter run -d chrome            # development web build
 flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8080
 ```
 
-No `.env`, API keys, Firebase project, backend, schema generator, or login is required. On first launch choose a name, currency and first account. Enable sample data to seed fictional activity in that new profile, or restore a JSON/ZIP backup. More → Settings → Profiles can create separate personal/business/demo spaces without touching your existing records.
+No `.env`, API keys, Firebase project, backend, schema generator, or login is required. On first launch, swipe through six original illustrated introduction pages (or Skip), then choose a name, currency and first account. The first INR profile defaults to Indian number grouping. Enable sample data to seed fictional activity in that new profile, or restore a JSON/ZIP backup. More → Settings → Profiles can create separate personal/business/demo spaces without touching your existing records.
 
 ## Release signing (recommended before your first long-term install)
 
@@ -208,8 +208,8 @@ The project opts for CocoaPods; if your Flutter installation enables experimenta
 * **Debts/bills/assets:** lent/borrowed with optional flat interest, partial/full repayments, optional atomic disbursement/repayment account entries, due reminders; equal/percentage/exact/weighted bill splits with exact rounding, net settlement suggestions, settled history and optional loan creation; manual asset values/purchase information and full value history.
 * **Recurring entries:** daily/weekly/monthly/yearly/custom intervals, start/end, pause/resume/skip, auto-post vs remind-only, idempotent catch-up, monthly burn normalization.
 * **Reports:** touch-enabled bar/line/category donut, filters/custom dates, category/account/name/tag/person/place breakdowns; Plus daily pace/projection, preceding equal-duration and prior-year comparisons, weekday seasonality, daily heatmap; CSV, multi-page PDF and printing with bundled Noto font fallbacks.
-* **Preferences:** Material 3 system/light/dark/Just Black, dynamic Android colors/accent palettes, text size, 13 navigation/action language starters + RTL, international/Indian numbering, financial month and week starts, PBKDF2 PIN/biometrics, hidden amounts, notification preferences, JSON/ZIP export with embedded receipts/checksum/restore preview, CSV mapper/validation/deduplication, home/nav customization/live nav preview, rates, widgets, links, help and licenses.
-* **Plus simulation:** repository-enforced free creation limits (3 budgets, 3 goals, 3 bills, 10 of each tag/entity), advanced-report/PDF/theme gates, persisted free unlock/restore/test-free controls. Downgrading never deletes existing data.
+* **Preferences:** Material 3 system/light/dark/Midnight, dynamic Android colors/accent palettes, text size, 13 navigation/action language starters + RTL, international/Indian numbering, financial month and week starts, PBKDF2 PIN/biometrics, hidden amounts, notification preferences, JSON/ZIP export with embedded receipts/checksum/restore preview, CSV mapper/validation/deduplication, home/nav customization/live nav preview, rates, widgets, links, help and licenses.
+* **Pro simulation:** repository-enforced free creation limits (3 budgets, 3 goals, 3 bills, 10 of each tag/entity), advanced-report/PDF/theme gates, persisted free unlock/restore/test-free controls. Downgrading never deletes existing data.
 
 ## Privacy & backup details
 
@@ -236,10 +236,29 @@ adb shell am start -a android.intent.action.VIEW \
 
 `https://paisaclone.example/add?...` in the manifest is a **deliberately unverified placeholder**, not a hosted fallback. To distribute verified HTTPS links, replace it with a domain you own; host a fallback page plus `.well-known/assetlinks.json` with your package/signing certificate and `apple-app-site-association`; set Android `autoVerify` and iOS Associated Domains. Do not claim ownership of paisa-tracker.app or use the original app’s package ID.
 
+## Tink design system
+
+Version **1.1.0+2** replaces the old green visual identity across all existing screens. The six-page introduction is also replayable from **More → Widgets, automation & FAQ / Help**. Functionality, finance records and schema identities are retained.
+
+- **Color:** violet `#916CFF`, pressed `#7A55F0`, pale violet `#EDE7FF`; neutral light surfaces `#F7F7FB` / white; dark surfaces `#121218` / `#1B1B23`. No pure-black main background. Midnight is the darker-card treatment of the legacy `black` preference.
+- **Type:** bundled **Poppins** headings/UI and **Inter** dense/tabular money text, loaded through Google Fonts with runtime fetching disabled. All eight existing Noto language fallback families and OFL licenses remain bundled. Circular Std is not included or represented as licensed.
+- **Components:** named color/type/spacing/radius/theme tokens; rounded cards, semantic transaction tiles, category icons, buttons, progress bars/rings, chart cards, premium badges and empty/loading states. Shared theming applies to every screen, editor, sheet, picker and dialog.
+- **Interaction:** fade/scale splash, swipeable vector-art introduction, finite home entrances/count-up, clean circular add-entry FAB and rounded entry sheet, save check, selected-nav scale, budget warning outline pulse, goal rings, chart reveal/heatmap entrances and subtle Pro badge shimmer. Primary motion respects reduced-motion preferences. No continuous celebratory animation is required to use a form.
+- **Contrast:** white on exact brand violet is **3.63:1**, not 4.5:1. Primary labels are therefore **20sp bold**, satisfying the WCAG AA large-text threshold of 3:1. Normal-size text uses neutral/semantic ink variants (at least 4.5:1 on their intended card backgrounds), not pale brand violet. See [the full rationale and tokens](docs/DESIGN_SYSTEM.md). This is not a claim of independent accessibility certification.
+- **Personalization:** new installs start violet. The legacy default green migrates to violet; explicitly customized accents, profile data, layouts and manual rates remain. Material You remains opt-in and functional. User-selected accents get a contrast-aware primary foreground.
+
+### What “Safe to spend” means
+
+The hero is a **calculated planning estimate**, not net worth relabeled and not a live bank balance. It starts with included, active, non-savings/non-investment account balances as of now. It deducts scheduled expense occurrences and recorded future outgoing transactions through the financial-period end, borrowed loan balances due in that period, and manual goal allocations. Internal transfers between spendable accounts are not deducted twice. Savings-linked goals are already outside spendable balances. Budget limits are **not** an additional deduction. Overlapping commitments can make the result conservative; exceptionally old schedules return a zero estimate and ask for review. Tap the information icon for the calculation. New regression tests cover this separately from net worth.
+
+### Upgrade compatibility
+
+Public app labels, icons, exports, web shell and widgets are Tink. To retain records and old backups, the internal Dart package `paisaclone`, Android ID **`com.example.paisaclone`**, iOS/App Group IDs, Hive **`paisaclone_v1`**, archive entry **`paisaclone.json`**, backup format **`paisaclone-backup`**, and existing **`paisa://`** links deliberately remain stable. **The same Android signing certificate is still required for an in-place upgrade.** Do not confuse identifier compatibility with signing compatibility.
+
 ## Customization
 
 * App identity: `pubspec.yaml`, `constants.dart`, Android namespace/application ID and Kotlin package/path, iOS bundle IDs, widget App Group/entitlements, display names and web manifest. Change them consistently.
-* App art/icons: replace bundled original PNGs in `assets/branding`, Android mipmaps, iOS `AppIcon.appiconset`, and `web/icons`. No remote fonts are loaded.
+* App art/icons: replace bundled original PNGs in `assets/branding`, Android mipmaps, iOS `AppIcon.appiconset`, and `web/icons`. No remote fonts are loaded. The editable icon source and generator are in `assets/branding/tink-mark.svg` and `tools/generate_branding.py`.
 * Categories/demo: `lib/core/data/seed.dart`. Rates there are illustrative **2026-01-01 reference values**, not quotes. Manual edits update their own timestamps; there is deliberately no fake “live refresh”.
 * Add a language: copy `lib/l10n/app_en.arb`, translate keys, add its label to `languageNames`, run `flutter gen-l10n`. Generated Dart is intentionally not committed; `flutter pub get`/gen-l10n produces it. The 13 included ARBs cover the app shell and primary actions; detailed form/help text remains English.
 * Version: increment `version: 1.0.0+1` in `pubspec.yaml` before shipping an update; change the iOS extension version too. Commit `pubspec.lock` after resolving to keep application dependencies reproducible.
@@ -270,7 +289,7 @@ Other deliberate boundaries:
 
 ## Source ZIP
 
-Download **Code → Download ZIP** for your branch, or the **PaisaClone-source** workflow artifact. The archive contains the complete source tree, native wrappers and all bundled assets; SDKs, build outputs, private data, keystores and generated caches are intentionally excluded. Unzip, enter the folder containing `pubspec.yaml`, then run the commands above. You do **not** need to run `flutter create` or hand-copy files into a native `app/src` project.
+Download **Code → Download ZIP** for your branch, or the **Tink-source** workflow artifact. The archive contains the complete source tree, native wrappers and all bundled assets; SDKs, build outputs, private data, keystores and generated caches are intentionally excluded. Unzip, enter the folder containing `pubspec.yaml`, then run the commands above. You do **not** need to run `flutter create` or hand-copy files into a native `app/src` project.
 
 ## Dependency compatibility
 

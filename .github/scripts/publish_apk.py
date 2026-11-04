@@ -11,6 +11,7 @@ import time
 source = Path(sys.argv[1])
 tag = sys.argv[2]
 target = sys.argv[3] if len(sys.argv) > 3 else os.environ['GITHUB_SHA']
+target = subprocess.check_output(['git', 'rev-parse', target], text=True).strip()
 apk = Path('Tink-Android-release.apk')
 if source.resolve() != apk.resolve():
     shutil.copyfile(source, apk)
@@ -33,6 +34,8 @@ notes = ('Tink 1.1.0 build 2. Optimized, verified Android 7/API 24+ APK with ARM
 def run(args):
     result = subprocess.run(args, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     print(result.stdout, end='', flush=True)
+    if result.returncode and ('HTTP 403' in result.stdout or 'HTTP 401' in result.stdout):
+        raise SystemExit('GitHub denied this workflow token. Check repository permissions; an authorized gh release create can reserve the release before retrying the upload. Do not add credentials to source.')
     return result.returncode == 0
 
 

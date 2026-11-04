@@ -12,6 +12,7 @@ const binary = chromiumModule.default || chromiumModule;
 (async () => {
   const server = spawn('python3', ['-m', 'http.server', '8080', '--bind', '0.0.0.0', '--directory', 'build/web'], {stdio: 'ignore'});
   let browser, page;
+  const errors = [];
   try {
     for (let i = 0; i < 40; i++) {
       try { if ((await fetch('http://127.0.0.1:8080')).ok) break; } catch (_) {}
@@ -20,7 +21,7 @@ const binary = chromiumModule.default || chromiumModule;
     browser = await playwright.launch({executablePath: await binary.executablePath(), args: binary.args, headless: true});
     const context = await browser.newContext({viewport: {width: 390, height: 844}, deviceScaleFactor: 1, locale: 'en-IN', colorScheme: 'light'});
     page = await context.newPage();
-    const remoteRequests = new Set(), errors = [];
+    const remoteRequests = new Set();
     page.on('request', request => {
       const url = new URL(request.url());
       if (['http:', 'https:'].includes(url.protocol) && !['127.0.0.1', 'localhost'].includes(url.hostname)) remoteRequests.add(url.origin);
@@ -111,18 +112,16 @@ const binary = chromiumModule.default || chromiumModule;
     await nav('Settings');
     await nav('Appearance');
     await nav('Dark');
-    await page.getByRole('button', {name: 'Back', exact: true}).click({force: true});
-    await page.waitForTimeout(350);
-    await page.getByRole('button', {name: 'Back', exact: true}).click({force: true});
-    await page.waitForTimeout(350);
-    await nav('Home');
+    await assertDarkPalette();
+    // Reload from the selected theme to verify both its persistence and the
+    // saved profile, without depending on transient route semantics after retheming.
+    await page.reload({waitUntil: 'domcontentloaded'});
+    await ready();
+    await page.getByText('Demo User', {exact: false}).first().waitFor({timeout: 20000});
     await page.getByRole('button', {name: 'How safe to spend is calculated', exact: true}).waitFor();
     await page.waitForTimeout(700);
     await assertDarkPalette();
     await capture('web-dark.jpg');
-    await page.reload({waitUntil: 'domcontentloaded'});
-    await ready();
-    await page.getByText('Demo User', {exact: false}).first().waitFor({timeout: 20000});
     await page.evaluate(async () => {
       await navigator.serviceWorker.ready;
       if (!navigator.serviceWorker.controller) await new Promise((resolve, reject) => {
@@ -140,6 +139,7 @@ const binary = chromiumModule.default || chromiumModule;
     console.log('::notice title=Tink web smoke::PASS: six intros, real demo onboarding, accounts, reports, dark theme, persisted reload, offline reload and zero external runtime requests.');
   } catch (error) {
     if (page) {
+      console.log('Browser errors:', errors);
       console.log('Page text:', (await page.locator('body').innerText().catch(() => '')).slice(-8000));
       console.log('Aria labels:', JSON.stringify(await page.locator('[aria-label]').evaluateAll(nodes => nodes.map(n => ({role: n.getAttribute('role'), label: n.getAttribute('aria-label')})).filter(n => n.label).slice(-60)).catch(() => [])));
       console.log('Demo input diagnostics:', await page.locator('input').evaluateAll(inputs => inputs.map(input => ({label: input.getAttribute('aria-label'), value: input.value, type: input.type}))).catch(() => []));

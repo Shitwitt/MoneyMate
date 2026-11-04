@@ -607,7 +607,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               itemBuilder: (context, index) {
                 if (index < offset) return const SizedBox.shrink();
                 final day = index - offset;
-                return Tooltip(
+                return Entrance(index:day%7,child:Tooltip(
                   message: money(
                     values[day],
                     ledger.currency,
@@ -634,7 +634,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                       ),
                     ),
                   ),
-                );
+                ));
               },
             ),
           ],

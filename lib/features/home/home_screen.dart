@@ -6,7 +6,6 @@ import '../../core/data/ledger.dart';
 import '../../core/data/providers.dart';
 import '../../core/models/models.dart';
 import '../../core/utils/constants.dart';
-import '../../core/utils/dates.dart';
 import '../../shared/actions.dart';
 import '../../shared/charts.dart';
 import '../../shared/widgets.dart';
@@ -190,19 +189,10 @@ class HomeScreen extends ConsumerWidget {
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
                             ),
-                            ReorderableDragStartListener(
-                              index: index,
-                              child: const Padding(
-                                padding: EdgeInsets.all(10),
-                                child: Icon(
-                                  Icons.drag_indicator_rounded,
-                                  size: 16,
-                                ),
-                              ),
-                            ),
                             PopupMenuButton<String>(
-                              tooltip: 'Customize this card',
+                              tooltip: 'Tap for options; hold to rearrange',
                               iconSize: 19,
+                              child:ReorderableDelayedDragStartListener(index:index,child:const SizedBox.square(dimension:48,child:Icon(Icons.more_horiz_rounded,size:20))),
                               onSelected: (action) {
                                 if (action == 'hide') {
                                   runSafe(
@@ -240,22 +230,7 @@ class HomeScreen extends ConsumerWidget {
                         index: index,
                         child: _card(context, ref, ledger, id),
                       ),
-                      if (id == 'balance')
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton.icon(
-                            onPressed: () =>
-                                openPage(context, const LayoutScreen()),
-                            icon: const Icon(
-                              Icons.dashboard_customize_outlined,
-                              size: 14,
-                            ),
-                            label: const Text(
-                              'Customize overview',
-                              style: TextStyle(fontSize: 11),
-                            ),
-                          ),
-                        ),
+
                     ],
                   ),
                 );
@@ -269,7 +244,6 @@ class HomeScreen extends ConsumerWidget {
 
   Widget _card(BuildContext context, WidgetRef ref, Ledger ledger, String id) {
     final profile = ledger.data;
-    final month = financialMonth(DateTime.now(), ledger.settings.monthStart);
     switch (id) {
       case 'balance':
         return Column(
@@ -283,7 +257,7 @@ class HomeScreen extends ConsumerWidget {
         return MonthSummaryCard(ledger);
       case 'accounts':
         return SizedBox(
-          height: 170,
+          height: 170*MediaQuery.textScalerOf(context).scale(1).clamp(1.0,1.6),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount:

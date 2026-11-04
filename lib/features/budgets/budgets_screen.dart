@@ -89,7 +89,7 @@ class BudgetCard extends ConsumerWidget {
               ? const Color(0xffFEC84B)
               : AppColors.warningInk)
         : AppColors.semantic(context, 'income');
-    return Card(
+    return BudgetWarningFrame(overLimit:status.remaining<0,child:Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
         onTap: openDetails
@@ -166,7 +166,7 @@ class BudgetCard extends ConsumerWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 

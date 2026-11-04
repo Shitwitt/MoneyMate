@@ -53,7 +53,7 @@ class SafeToSpendCard extends ConsumerWidget {
           const SizedBox(height: 8),
           Text(
             summary.complete
-                ? 'A little room for your everyday.'
+                ? 'After planned outgoings · Estimate'
                 : 'Review old recurring entries for a reliable estimate.',
             style: Theme.of(context).textTheme.bodySmall
                 ?.copyWith(color: secondary),
@@ -63,35 +63,11 @@ class SafeToSpendCard extends ConsumerWidget {
             height: 1,
             color: dark ? const Color(0xff4C405F) : const Color(0xffD9CFF2),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Icon(
-                Icons.shield_outlined,
-                size: 16,
-                color: dark ? AppColors.darkAccent : AppColors.primaryInk,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'After your planned outgoings',
-                  style: Theme.of(context).textTheme.bodySmall
-                      ?.copyWith(color: secondary),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Estimate',
-                style: Theme.of(context).textTheme.labelSmall
-                    ?.copyWith(color: secondary),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () => openPage(context, const NetWorthScreen()),
-            child: Padding(
+            child: ConstrainedBox(constraints:const BoxConstraints(minHeight:48),child:Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 children: [
@@ -111,7 +87,7 @@ class SafeToSpendCard extends ConsumerWidget {
                   Icon(Icons.chevron_right_rounded, size: 18, color: secondary),
                 ],
               ),
-            ),
+            )),
           ),
         ],
       ),

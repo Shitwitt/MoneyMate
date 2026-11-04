@@ -34,4 +34,5 @@ jobs:
       - name: Analyze design migration
         run: python3 .github/scripts/checked_command.py flutter analyze --no-fatal-infos
       - name: Test design migration
+        if: always()
         run: python3 .github/scripts/checked_command.py flutter test

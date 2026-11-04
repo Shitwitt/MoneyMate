@@ -153,7 +153,7 @@ class TrendChart extends StatelessWidget {
                   : const Duration(milliseconds: 600),
               curve: Curves.easeOutCubic,
               builder: (context, value, _) =>
-                  SizedBox(height: 200, child: chart(value)),
+                  SizedBox(height: 200, child:line?ChartReveal(progress:value,child:chart(1)):chart(value)),
             ),
           ),
         ),
@@ -237,7 +237,7 @@ class _CategoryChartState extends State<CategoryChart> {
                     ? Duration.zero
                     : const Duration(milliseconds: 600),
                 curve: Curves.easeOutCubic,
-                builder: (context, progress, _) => PieChart(
+                builder: (context, progress, _) => ChartReveal(progress:progress,circular:true,child:PieChart(
                   PieChartData(
                     centerSpaceRadius: 66,
                     sectionsSpace: 4,
@@ -255,12 +255,12 @@ class _CategoryChartState extends State<CategoryChart> {
                         PieChartSectionData(
                           value: values[i].value.toDouble(),
                           color: colors[i],
-                          radius: (touched == i ? 34.0 : 26.0) * progress,
+                          radius: touched == i ? 34.0 : 26.0,
                           showTitle: false,
                         ),
                     ],
                   ),
-                ),
+                )),
               ),
               SizedBox(
                 width: 125,

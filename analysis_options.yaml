@@ -1,0 +1,10 @@
+include: package:flutter_lints/flutter.yaml
+analyzer:
+  exclude:
+    - lib/l10n/generated/**
+  errors:
+    deprecated_member_use: ignore
+linter:
+  rules:
+    use_build_context_synchronously: true
+    avoid_print: true

@@ -1,0 +1,40 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub-cache/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+coverage/
+lib/l10n/generated/
+*.iml
+.idea/
+.vscode/
+.DS_Store
+# Android / signing secrets
+android/.gradle/
+android/local.properties
+android/key.properties
+*.jks
+*.keystore
+*.hprof
+# iOS generated files
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/ephemeral/
+ios/Flutter/Flutter.framework/
+ios/Flutter/Flutter.podspec
+ios/Runner/GeneratedPluginRegistrant.*
+**/xcuserdata/
+# Local backups and build artifacts are never source data.
+*.apk
+*.aab
+*.ipa
+*.zip
+*.hive
+*.lock
+!pubspec.lock
+!ios/Podfile.lock
+.env

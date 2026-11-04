@@ -1,0 +1,41 @@
+name: Debug APK (Gradle)
+on:
+  push:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: debug-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  debug-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.9'
+          channel: stable
+          cache: true
+      - name: Resolve packages and generate translations
+        run: |
+          flutter pub get
+          flutter gen-l10n
+          printf 'flutter.sdk=%s\nsdk.dir=%s\nflutter.buildMode=debug\nflutter.versionName=1.0.0\nflutter.versionCode=1\n' "$FLUTTER_ROOT" "$ANDROID_HOME" > android/local.properties
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build debug APK directly with Gradle
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PaisaClone-debug-APK
+          path: build/app/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14

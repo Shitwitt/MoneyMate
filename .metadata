@@ -1,0 +1,22 @@
+# Flutter project metadata. This file should be version controlled.
+version:
+  revision: "c197ca5199e9ee5661e865596c9c07294dfab51c"
+  channel: "stable"
+project_type: app
+migration:
+  platforms:
+    - platform: root
+      create_revision: c197ca5199e9ee5661e865596c9c07294dfab51c
+      base_revision: c197ca5199e9ee5661e865596c9c07294dfab51c
+    - platform: android
+      create_revision: c197ca5199e9ee5661e865596c9c07294dfab51c
+      base_revision: c197ca5199e9ee5661e865596c9c07294dfab51c
+    - platform: ios
+      create_revision: c197ca5199e9ee5661e865596c9c07294dfab51c
+      base_revision: c197ca5199e9ee5661e865596c9c07294dfab51c
+    - platform: web
+      create_revision: c197ca5199e9ee5661e865596c9c07294dfab51c
+      base_revision: c197ca5199e9ee5661e865596c9c07294dfab51c
+  unmanaged_files:
+    - 'lib/main.dart'
+    - 'ios/Runner.xcodeproj/project.pbxproj'

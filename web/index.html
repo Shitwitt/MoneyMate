@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="description" content="Your money. Your device. A private, offline-first finance companion.">
+  <meta name="theme-color" content="#254222">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="PaisaClone">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="manifest" href="manifest.json">
+  <title>PaisaClone · Your money. Your device.</title>
+  <style>
+    html,body{margin:0;background:#f7f8f2;height:100%;font-family:system-ui,-apple-system,sans-serif}
+    #splash{height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#254222;gap:20px}
+    #splash img{width:80px;height:80px;border-radius:24px;animation:breathe 2s ease-in-out infinite}
+    #splash p{font-size:13px;letter-spacing:.03em;color:#64715a}
+    @keyframes breathe{50%{transform:translateY(-5px)}}
+    @media(prefers-reduced-motion:reduce){#splash img{animation:none}}
+  </style>
+</head>
+<body>
+  <div id="splash" role="status"><img src="icons/Icon-192.png" alt="PaisaClone"><strong>A little clarity is on its way.</strong><p>Your money. Your device.</p></div>
+  <script>
+    window.addEventListener('flutter-first-frame',()=>document.getElementById('splash')?.remove());
+    if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js').catch(()=>{}));}
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+  <noscript>PaisaClone needs JavaScript enabled. Its data stays in your browser, not on a server.</noscript>
+</body>
+</html>

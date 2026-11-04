@@ -1,0 +1,3 @@
+date,type,name,amount,currency,account,category,notes
+2026-11-01,expense,Groceries,1250.50,INR,Everyday,Food & Dining,Weekly shop
+2026-11-02,income,Salary,50000.00,INR,Everyday,Salary,Monthly salary

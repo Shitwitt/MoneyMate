@@ -264,6 +264,7 @@ Future<String?> askText(
   String initial = '',
   String label = 'Name',
   bool numeric = false,
+  bool obscure = false,
 }) async {
   final controller = TextEditingController(text: initial);
   String? result;
@@ -271,7 +272,10 @@ Future<String?> askText(
     context,
     title: title,
     fields: (context, setLocal) => [
-      formText(controller, label, required: true, numeric: numeric),
+      TextFormField(controller: controller, obscureText: obscure, enableSuggestions: !obscure,
+        decoration: InputDecoration(labelText: label),
+        keyboardType: numeric ? TextInputType.number : TextInputType.text,
+        validator: requiredText),
     ],
     onSave: () async {
       result = controller.text.trim();

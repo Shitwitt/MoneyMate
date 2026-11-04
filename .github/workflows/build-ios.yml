@@ -1,0 +1,29 @@
+name: iOS compile check (manual, unsigned)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.9'
+          channel: stable
+          cache: true
+      - run: flutter config --no-enable-swift-package-manager
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - name: Compile runner and WidgetKit extension without signing
+        run: python3 .github/scripts/checked_command.py flutter build ios --release --no-codesign
+      - name: Archive unsigned app (not directly installable)
+        run: ditto -c -k --sequesterRsrc --keepParent build/ios/iphoneos/Runner.app PaisaClone-unsigned-iOS.zip
+      - uses: actions/upload-artifact@v5
+        with:
+          name: PaisaClone-iOS-unsigned-compile-check
+          path: PaisaClone-unsigned-iOS.zip
+          if-no-files-found: error
+          retention-days: 7

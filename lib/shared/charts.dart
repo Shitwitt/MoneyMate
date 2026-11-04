@@ -29,17 +29,7 @@ class TrendChart extends StatelessWidget {
       );
     }
     final now = anchor ?? DateTime.now();
-    final windows = List.generate(
-      months,
-      (i) => financialMonth(
-        safeMonth(
-          now.year,
-          now.month - months + 1 + i,
-          ledger.settings.monthStart,
-        ).add(const Duration(hours: 12)),
-        ledger.settings.monthStart,
-      ),
-    );
+    final windows = monthlyWindows(now, ledger.settings.monthStart, months);
     final income = windows
         .map(
           (window) =>

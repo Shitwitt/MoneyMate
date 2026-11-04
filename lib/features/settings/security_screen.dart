@@ -151,6 +151,7 @@ class SecurityScreen extends ConsumerWidget {
                         'Confirm your current PIN',
                         label: 'Six-digit PIN',
                         numeric: true,
+                        obscure: true,
                       );
                       if (entered == null || !context.mounted) return;
                       await runSafe(context, () async {

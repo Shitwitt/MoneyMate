@@ -19,8 +19,9 @@ abstract class MoneyWidget(private val layout: Int) : AppWidgetProvider() {
                 R.layout.widget_budget -> {
                     views.setTextViewText(R.id.widget_value, prefs.getString("budget", "Create a budget"))
                     views.setTextViewText(R.id.widget_caption, prefs.getString("budgetName", "Your next good habit"))
-                    // home_widget stores Dart ints as Android Longs.
-                    views.setProgressBar(R.id.widget_progress, 100, prefs.getLong("budgetPercent", 0L).toInt(), false)
+                    // StandardMessageCodec can produce Int or Long. Handle both safely.
+                    val percent = (prefs.all["budgetPercent"] as? Number)?.toInt() ?: 0
+                    views.setProgressBar(R.id.widget_progress, 100, percent, false)
                 }
             }
             val link = if (layout == R.layout.widget_quick_add) "paisa://quick_add" else "paisa://home"

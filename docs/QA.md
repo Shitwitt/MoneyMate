@@ -4,7 +4,7 @@ Automated finance, persistence, parsing, backup/security and basic widget tests 
 
 ## Build and install
 - Run `flutter analyze`, `flutter test`, both Android workflows and an optimized web build.
-- Sideload debug and release APKs on Android 6/API 23 and a current Android release; test gesture navigation/edge-to-edge, keyboard insets and 200% OS font size.
+- Sideload debug and release APKs on Android 7/API 24 and a current Android release; test gesture navigation/edge-to-edge, keyboard insets and 200% OS font size.
 - Sign twice with the SAME persistent keystore, increase version code and install the second with `adb install -r`; verify retained data. Test the expected failure for a different signing key without deleting the only data copy.
 - Build iOS on a Mac, configure both targets' team/App Group, archive and test on a real iPhone/iPad. Do not treat a Linux Android build as iOS verification.
 

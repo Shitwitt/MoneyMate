@@ -35,7 +35,7 @@ PaisaClone/
 │   ├── gradlew / gradlew.bat / gradle/wrapper/   # Actual Gradle wrapper included
 │   ├── settings.gradle / build.gradle / gradle.properties
 │   └── app/
-│       ├── build.gradle         # applicationId, minSdk 23, optional signing
+│       ├── build.gradle         # applicationId, minSdk 24, optional signing
 │       └── src/main/
 │           ├── AndroidManifest.xml
 │           ├── java/com/example/paisaclone/     # Kotlin Activity + 3 native widgets

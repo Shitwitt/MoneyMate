@@ -47,13 +47,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   void initState() {
     super.initState();
     final settings = ref.read(appProvider).settings;
-    final now = DateTime.now();
-    filter = TransactionFilter(
-      dates: DateWindow(
-        safeMonth(now.year, now.month - 5, settings.monthStart),
-        financialMonth(now, settings.monthStart).end,
-      ),
-    );
+    final windows = monthlyWindows(DateTime.now(), settings.monthStart, 6);
+    filter = TransactionFilter(dates: DateWindow(windows.first.start, windows.last.end));
   }
 
   Future<void> _filters() async {
@@ -116,16 +111,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
         filter.dates ??
         DateWindow(DateTime(1970), DateTime.now().add(const Duration(days: 1)));
     final end = window.end.subtract(const Duration(days: 1));
-    final chartMonths = math.max(
-      1,
-      math.min(
-        12,
-        (end.year - window.start.year) * 12 +
-            end.month -
-            window.start.month +
-            1,
-      ),
-    );
+    final firstPeriod = financialMonth(window.start, ledger.settings.monthStart).start;
+    final lastPeriod = financialMonth(end, ledger.settings.monthStart).start;
+    final chartMonths = math.max(1, math.min(12,
+      (lastPeriod.year - firstPeriod.year) * 12 + lastPeriod.month - firstPeriod.month + 1));
     final chartLedger = Ledger(
       ledger.data.copyWith(transactions: entries),
       ledger.settings,
@@ -442,7 +431,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     final now = DateTime.now();
     final elapsed = math.max(
       1,
-      math.min(window.days, now.difference(window.start).inDays + 1),
+      math.min(window.days, calendarDaysBetween(window.start, now) + 1),
     );
     final pace = (expense / elapsed).round();
     final previous = DateWindow(

@@ -62,7 +62,7 @@ Future<TransactionFilter?> showTransactionFilters(
             setLocal(
               () => dates = DateWindow(
                 dayOnly(range.start),
-                dayOnly(range.end).add(const Duration(days: 1)),
+                nextDay(range.end),
               ),
             );
           }

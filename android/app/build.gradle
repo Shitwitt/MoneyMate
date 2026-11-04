@@ -20,7 +20,7 @@ android {
     }
     defaultConfig {
         applicationId 'com.example.paisaclone'
-        minSdk 23
+        minSdk flutter.minSdkVersion // Flutter 3.47 stable requires API 24+.
         targetSdk flutter.targetSdkVersion
         versionCode flutter.versionCode
         versionName flutter.versionName

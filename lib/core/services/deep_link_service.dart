@@ -56,8 +56,8 @@ class DeepLinkService {
     }
     final date = query['date'] == null
         ? DateTime.now()
-        : DateTime.tryParse(query['date']!);
-    if (date == null || date.year < 1970 || date.year > 2200) {
+        : readDate(query['date']!).toLocal();
+    if (date.year < 1970 || date.year > 2200) {
       throw const FormatException('Invalid ISO date');
     }
     return DeepLinkRequest(

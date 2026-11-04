@@ -18,6 +18,7 @@
 FACE00000000000000000004 = {isa = PBXBuildFile; fileRef = FACE00000000000000000001; };
 FACE00000000000000000005 = {isa = PBXBuildFile; fileRef = FACE00000000000000000002; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 FACE00000000000000000006 = {isa = PBXBuildFile; fileRef = FACE00000000000000000003; };
+FACE00000000000000000021 = {isa = PBXBuildFile; fileRef = FACE00000000000000000020; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,7 @@ FACE0000000000000000000B = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147
 FACE00000000000000000001 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaisaWidgets.swift; sourceTree = "<group>"; };
 FACE00000000000000000002 = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; path = PaisaWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 FACE00000000000000000003 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+FACE00000000000000000020 = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,7 +138,7 @@ FACE00000000000000000009 = {isa = PBXFrameworksBuildPhase; buildActionMask = 214
 			path = Runner;
 			sourceTree = "<group>";
 		};
-FACE00000000000000000007 = {isa = PBXGroup; children = (FACE00000000000000000001, ); path = PaisaWidgets; sourceTree = "<group>"; };
+FACE00000000000000000007 = {isa = PBXGroup; children = (FACE00000000000000000001, FACE00000000000000000020, ); path = PaisaWidgets; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -240,7 +242,7 @@ FACE00000000000000000010 = {isa = PBXNativeTarget; buildConfigurationList = FACE
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-FACE0000000000000000000A = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+FACE0000000000000000000A = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (FACE00000000000000000021, ); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */

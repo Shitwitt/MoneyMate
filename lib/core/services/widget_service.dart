@@ -6,7 +6,13 @@ import '../utils/money.dart';
 
 class WidgetService {
   String? lastError;
-  Future<void> sync(AppData app) async {
+  Future<void> _queue = Future.value();
+  Future<void> sync(AppData app) {
+    final work = _queue.then((_) => _sync(app));
+    _queue = work.then<void>((_) {}, onError: (Object error, StackTrace trace) {});
+    return work;
+  }
+  Future<void> _sync(AppData app) async {
     if (kIsWeb || app.profiles.isEmpty) return;
     try {
       final profile = app.profiles.firstWhere(
@@ -43,7 +49,7 @@ class WidgetService {
       );
       await HomeWidget.saveWidgetData<String>(
         'budgetName',
-        profile.budgets.firstOrNull?.name ?? 'Your next good habit',
+        hidden ? 'Your private budget' : profile.budgets.firstOrNull?.name ?? 'Your next good habit',
       );
       await HomeWidget.updateWidget(
         androidName: 'BalanceWidget',

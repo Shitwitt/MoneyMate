@@ -2,6 +2,8 @@ import 'dart:math' as math;
 import '../models/models.dart';
 
 DateTime dayOnly(DateTime date) => DateTime(date.year, date.month, date.day);
+DateTime nextDay(DateTime date) => DateTime(date.year, date.month, date.day + 1);
+int calendarDaysBetween(DateTime start, DateTime end) => DateTime.utc(end.year, end.month, end.day).difference(DateTime.utc(start.year, start.month, start.day)).inDays;
 DateTime safeMonth(int year, int month, int day) {
   final first = DateTime(year, month);
   return DateTime(
@@ -17,7 +19,7 @@ class DateWindow {
   end; // Exclusive: includes every time on the final selected day.
   const DateWindow(this.start, this.end);
   bool contains(DateTime date) => !date.isBefore(start) && date.isBefore(end);
-  int get days => math.max(1, end.difference(start).inDays);
+  int get days => math.max(1, calendarDaysBetween(start, end));
 }
 
 DateWindow financialMonth(DateTime now, int startDay) {
@@ -41,14 +43,13 @@ DateWindow budgetWindow(Budget budget, DateTime date, int weekStart) {
   if (budget.period == 'custom') {
     return DateWindow(
       dayOnly(budget.start),
-      dayOnly(budget.end ?? budget.start).add(const Duration(days: 1)),
+      nextDay(budget.end ?? budget.start),
     );
   }
   if (budget.period == 'weekly') {
-    final start = day.subtract(
-      Duration(days: (day.weekday - weekStart + 7) % 7),
-    );
-    return DateWindow(start, start.add(const Duration(days: 7)));
+    final offset = (day.weekday - weekStart + 7) % 7;
+    final start = DateTime(day.year, day.month, day.day - offset);
+    return DateWindow(start, DateTime(start.year, start.month, start.day + 7));
   }
   if (budget.period == 'yearly') {
     var start = safeMonth(day.year, budget.start.month, budget.start.day);
@@ -103,4 +104,14 @@ DateTime nextOccurrence(Recurring rule, DateTime current) {
     rule.start.hour,
     rule.start.minute,
   );
+}
+
+/// Monthly chart buckets are anchored to the ACTIVE financial period, not the
+/// calendar month. Before payday a 20th-start chart must not invent next month.
+List<DateWindow> monthlyWindows(DateTime anchor, int startDay, int count) {
+  final current = financialMonth(anchor, startDay);
+  return List.generate(count, (i) {
+    final start = safeMonth(current.start.year, current.start.month - count + 1 + i, startDay);
+    return DateWindow(start, safeMonth(start.year, start.month + 1, startDay));
+  });
 }

@@ -94,8 +94,8 @@ class CsvDocument {
         if (number == null || !number.isFinite || number <= 0) {
           throw const FormatException('amount must be a positive decimal');
         }
-        final date = DateTime.tryParse(value(row, 'date'));
-        if (date == null || date.year < 1970 || date.year > 2200) {
+        final date = readDate(value(row, 'date')).toLocal();
+        if (date.year < 1970 || date.year > 2200) {
           throw const FormatException('date must use ISO format (YYYY-MM-DD)');
         }
         final amount = toMinor(number, account.currency);

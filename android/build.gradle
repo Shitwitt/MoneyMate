@@ -5,5 +5,22 @@ rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
     project.evaluationDependsOn(':app')
+    // Older plugins still default to Java 8, while recent AndroidX inline
+    // functions require Java 11+. Keep BOTH compilers aligned with our JDK 17.
+    if (project.name != 'app') {
+        project.afterEvaluate { pluginProject ->
+            if (pluginProject.plugins.hasPlugin('com.android.library')) {
+                pluginProject.android.compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+                pluginProject.tasks.matching {
+                    it.name.startsWith('compile') && it.name.endsWith('Kotlin')
+                }.configureEach {
+                    kotlinOptions.jvmTarget = '17'
+                }
+            }
+        }
+    }
 }
 tasks.register('clean', Delete) { delete rootProject.buildDir }

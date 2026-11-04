@@ -27,6 +27,8 @@ jobs:
           python3 .github/scripts/checked_command.py flutter pub get
           flutter gen-l10n
           printf 'flutter.sdk=%s\nsdk.dir=%s\nflutter.buildMode=debug\nflutter.versionName=1.0.0\nflutter.versionCode=1\n' "$FLUTTER_ROOT" "$ANDROID_HOME" > android/local.properties
+      - name: Prepare recommended Android NDK (retry downloads)
+        run: python3 .github/scripts/checked_command.py bash .github/scripts/prepare_android.sh
       - uses: gradle/actions/setup-gradle@v4
       - name: Build debug APK directly with Gradle
         working-directory: android

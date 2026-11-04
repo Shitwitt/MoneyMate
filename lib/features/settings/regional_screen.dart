@@ -4,25 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/data/currency_rebase.dart';
 import '../../core/data/providers.dart';
 import '../../core/utils/money.dart';
+import '../../core/utils/constants.dart';
 import '../../shared/actions.dart';
 import '../../shared/forms.dart';
 import '../../shared/widgets.dart';
-
-const languageNames = {
-  'en': 'English',
-  'hi': 'हिन्दी',
-  'pa': 'ਪੰਜਾਬੀ',
-  'mr': 'मराठी',
-  'gu': 'ગુજરાતી',
-  'bn': 'বাংলা',
-  'ta': 'தமிழ்',
-  'te': 'తెలుగు',
-  'es': 'Español',
-  'fr': 'Français',
-  'de': 'Deutsch',
-  'ar': 'العربية',
-  'pt': 'Português',
-};
 
 class RegionalScreen extends ConsumerWidget {
   const RegionalScreen({super.key});

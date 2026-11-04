@@ -54,3 +54,19 @@ const palette = [
   0xffdbadd1,
   0xffb9b7aa,
 ];
+
+const languageNames = {
+  'en': 'English',
+  'hi': 'हिन्दी',
+  'pa': 'ਪੰਜਾਬੀ',
+  'mr': 'मराठी',
+  'gu': 'ગુજરાતી',
+  'bn': 'বাংলা',
+  'ta': 'தமிழ்',
+  'te': 'తెలుగు',
+  'es': 'Español',
+  'fr': 'Français',
+  'de': 'Deutsch',
+  'ar': 'العربية',
+  'pt': 'Português',
+};

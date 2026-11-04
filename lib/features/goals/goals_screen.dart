@@ -6,6 +6,7 @@ import '../../core/data/providers.dart';
 import '../../core/data/seed.dart';
 import '../../core/models/models.dart';
 import '../../core/utils/constants.dart';
+import '../../core/utils/dates.dart';
 import '../../core/utils/money.dart';
 import '../../shared/actions.dart';
 import '../../shared/forms.dart';
@@ -49,17 +50,18 @@ class GoalsScreen extends ConsumerWidget {
 
 class GoalCard extends ConsumerWidget {
   final Goal goal;
-  const GoalCard(this.goal, {super.key});
+  final bool openDetails;
+  const GoalCard(this.goal, {super.key, this.openDetails = true});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ledger = ref.watch(ledgerProvider)!;
     final saved = ledger.goalSaved(goal);
     final progress = saved / goal.targetMinor;
-    final days = goal.deadline.difference(DateTime.now()).inDays;
+    final days = calendarDaysBetween(DateTime.now(), goal.deadline);
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
-        onTap: () => openPage(context, GoalDetailScreen(goal.id)),
+        onTap: openDetails ? () => openPage(context, GoalDetailScreen(goal.id)) : null,
         child: Padding(
           padding: const EdgeInsets.all(22),
           child: Column(
@@ -248,7 +250,7 @@ class GoalDetailScreen extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.only(bottom: 100),
         children: [
-          GoalCard(goal),
+          GoalCard(goal, openDetails: false),
           const SizedBox(height: 20),
           Row(
             children: [

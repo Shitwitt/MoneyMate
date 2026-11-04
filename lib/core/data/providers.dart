@@ -521,6 +521,13 @@ class AppController extends StateNotifier<AppData> {
         return profile.copyWith(transactions: entries, recurrings: rules);
       });
   Future<void> upsertBill(Bill item) => updateProfile((profile, app) {
+    final previous = profile.bills.where((bill) => bill.id == item.id).firstOrNull;
+    if (previous != null && previous.shares.any((share) => share.personId != previous.paidById && share.settled)) {
+      require(previous.totalMinor == item.totalMinor && previous.paidById == item.paidById &&
+        previous.shares.length == item.shares.length && previous.shares.every((old) =>
+          item.shares.any((next) => old.personId == next.personId && old.amountMinor == next.amountMinor && (!old.settled || next.settled))),
+        'Keep participant amounts and payer unchanged after settlement. Add an adjustment bill instead.');
+    }
     if (!app.settings.isPro &&
         !profile.bills.any((bill) => bill.id == item.id) &&
         profile.bills.length >= freeBillLimit) {
@@ -543,12 +550,14 @@ class AppController extends StateNotifier<AppData> {
       'Only personal debts can be added to your loan ledger',
     );
     final loans = [...profile.loans];
+    final partnerId = bill.paidById == 'me' ? share.personId : bill.paidById;
+    final linkedPerson = profile.entities.any((item) => item.id == partnerId && item.kind == 'person') ? partnerId : '';
     if (createLoan && share.amountMinor > 0 && personId != bill.paidById) {
       loans.add(
         Loan(
           id: uuid.v4(),
           personName: bill.paidById == 'me' ? share.name : bill.paidByName,
-          personId: bill.paidById == 'me' ? share.personId : bill.paidById,
+          personId: linkedPerson,
           principalMinor: share.amountMinor,
           due: DateTime.now().add(const Duration(days: 30)),
           direction: bill.paidById == 'me' ? 'lent' : 'borrowed',

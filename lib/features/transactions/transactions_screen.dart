@@ -91,9 +91,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     final expense = entries
         .where((entry) => entry.type == 'expense')
         .fold<int>(0, (sum, entry) => sum + ledger.entryValue(entry));
+    final byAmount = ['largest', 'smallest'].contains(filter.sort);
     final groups = <DateTime, List<MoneyTransaction>>{};
     for (final entry in entries.take(limit)) {
-      groups.putIfAbsent(dayOnly(entry.date), () => []).add(entry);
+      groups.putIfAbsent(byAmount ? DateTime(1970) : dayOnly(entry.date), () => []).add(entry);
     }
     final dailyTotals = <DateTime, int>{};
     for (final entry in entries) {
@@ -277,7 +278,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                   ),
                 ),
               for (final group in groups.entries) ...[
-                SliverPersistentHeader(
+                if (!byAmount) SliverPersistentHeader(
                   pinned: true,
                   delegate: _DayHeader(group.key, dailyTotals[group.key] ?? 0),
                 ),

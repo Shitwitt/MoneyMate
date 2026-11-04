@@ -766,51 +766,35 @@ class HomeScreen extends ConsumerWidget {
     }
   }
 
-  Future<void> _profiles(BuildContext context, WidgetRef ref) =>
-      showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          final app = ref.watch(appProvider);
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (final profile in app.profiles)
-                    ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Color(profile.profile.color),
-                        child: Text(
-                          profile.profile.name.characters.first.toUpperCase(),
-                        ),
-                      ),
-                      title: Text(profile.profile.name),
-                      trailing: profile.profile.id == app.activeProfileId
-                          ? const Icon(Icons.check_circle_rounded)
-                          : null,
-                      onTap: () async {
-                        Navigator.pop(context);
-                        await runSafe(
-                          context,
-                          () => ref
-                              .read(appProvider.notifier)
-                              .switchProfile(profile.profile.id),
-                        );
-                      },
-                    ),
-                  ListTile(
-                    leading: const Icon(Icons.manage_accounts_outlined),
-                    title: const Text('Manage your private spaces'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      openPage(context, const ProfilesScreen());
-                    },
-                  ),
-                ],
-              ),
+  Future<void> _profiles(BuildContext context, WidgetRef ref) => showModalBottomSheet<void>(
+    context: context, isScrollControlled: true, useSafeArea: true,
+    constraints: const BoxConstraints(maxWidth: 600),
+    builder: (sheetContext) => Consumer(builder: (sheetContext, sheetRef, _) {
+      final app = sheetRef.watch(appProvider);
+      return ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(sheetContext).height * .75),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            for (final profile in app.profiles) ListTile(
+              leading: CircleAvatar(backgroundColor: Color(profile.profile.color),
+                child: Text(profile.profile.name.characters.first.toUpperCase())),
+              title: Text(profile.profile.name),
+              trailing: profile.profile.id == app.activeProfileId ? const Icon(Icons.check_circle_rounded) : null,
+              onTap: () async {
+                final controller = sheetRef.read(appProvider.notifier);
+                Navigator.pop(sheetContext);
+                await runSafe(context, () => controller.switchProfile(profile.profile.id));
+              },
             ),
-          );
-        },
+            ListTile(
+              leading: const Icon(Icons.manage_accounts_outlined),
+              title: const Text('Manage your private spaces'),
+              onTap: () { Navigator.pop(sheetContext); openPage(context, const ProfilesScreen()); },
+            ),
+          ]),
+        ),
       );
+    }),
+  );
 }

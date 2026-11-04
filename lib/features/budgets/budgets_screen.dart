@@ -72,7 +72,8 @@ class BudgetsScreen extends ConsumerWidget {
 
 class BudgetCard extends ConsumerWidget {
   final Budget budget;
-  const BudgetCard(this.budget, {super.key});
+  final bool openDetails;
+  const BudgetCard(this.budget, {super.key, this.openDetails = true});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ledger = ref.watch(ledgerProvider)!;
@@ -83,7 +84,7 @@ class BudgetCard extends ConsumerWidget {
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
-        onTap: () => openPage(context, BudgetDetailScreen(budget.id)),
+        onTap: openDetails ? () => openPage(context, BudgetDetailScreen(budget.id)) : null,
         child: Padding(
           padding: const EdgeInsets.all(22),
           child: Column(
@@ -316,7 +317,7 @@ class BudgetDetailScreen extends ConsumerWidget {
                   '${DateFormat.yMMMd().format(status.window.start)} — ${DateFormat.yMMMd().format(status.window.end.subtract(const Duration(days: 1)))}',
                 ),
                 const SizedBox(height: 14),
-                BudgetCard(budget),
+                BudgetCard(budget, openDetails: false),
               ],
             ),
           ),

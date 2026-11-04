@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../models/models.dart';
 import '../utils/constants.dart';
+import '../utils/image_headers.dart';
 
 void require(bool condition, String message) {
   if (!condition) throw FormatException(message);
@@ -26,6 +27,9 @@ void validateData(AppData app) {
     'Active profile is missing',
   );
   final settings = app.settings;
+  require(languageNames.containsKey(settings.locale), 'Unsupported language');
+  require(['international', 'indian'].contains(settings.numberFormat), 'Invalid number format');
+  require(settings.hiddenCards.every(homeCardNames.containsKey), 'Invalid hidden home card');
   require(
     ['system', 'light', 'dark', 'black'].contains(settings.theme),
     'Invalid theme',
@@ -199,14 +203,16 @@ void validateProfile(ProfileData data) {
       entry.receipts.length <= 5,
       'Maximum five receipts per transaction',
     );
+    ids(entry.receipts.map((receipt) => receipt.id));
     for (final receipt in entry.receipts) {
       require(
         receipt.data.length <= maxReceiptBytes * 1.4,
         'Receipt is too large',
       );
+      final bytes = base64Decode(receipt.data);
       require(
-        ['image/jpeg', 'image/png', 'image/webp'].contains(receipt.mime) &&
-            base64Decode(receipt.data).length <= maxReceiptBytes,
+        bytes.length <= maxReceiptBytes && receiptMime(bytes) == receipt.mime &&
+          receipt.name.trim().isNotEmpty && receipt.name.length <= 255,
         'Invalid receipt image',
       );
     }

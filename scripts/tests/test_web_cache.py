@@ -44,6 +44,15 @@ class OfflineCacheTests(unittest.TestCase):
             self.assertEqual((root / 'service-worker.js').read_bytes(), first)
             self.assertEqual(sum(f['family'] == 'Roboto' for f in json.loads((root / 'assets/FontManifest.json').read_text())), 1)
 
+    def test_debug_engine_fallback_is_local_and_bundled(self):
+        repo = SCRIPT.parent.parent
+        bootstrap = (repo / 'web/flutter_bootstrap.js').read_text()
+        self.assertIn("new URL('fallback-fonts/', document.baseURI)", bootstrap)
+        self.assertNotIn('https://', bootstrap)
+        font = repo / 'web/fallback-fonts/roboto/v32/KFOmCnqEu92Fr1Me4GZLCzYlKw.woff2'
+        self.assertEqual(font.read_bytes()[:4], b'wOF2')
+        self.assertGreater(font.stat().st_size, 10000)
+
     def test_missing_local_font_fails_instead_of_going_online(self):
         with tempfile.TemporaryDirectory() as base:
             self.fixture(base, [])

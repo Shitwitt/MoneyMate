@@ -10,6 +10,8 @@ if not p.exists() and len(sys.argv) <= 2:
     p = Path('web-failure.jpg')
 if p.exists():
     text = base64.b64encode(p.read_bytes()).decode()
+    # Keep all five captures within the job's annotation budget.
+    chunk_size = 6000
     offset = part * 10
-    for index in range(offset, min(offset + 10, (len(text) + 2999) // 3000)):
-        print(f'::notice title={prefix}-{index + 1}::{text[index * 3000:(index + 1) * 3000]}')
+    for index in range(offset, min(offset + 10, (len(text) + chunk_size - 1) // chunk_size)):
+        print(f'::notice title={prefix}-{index + 1}::{text[index * chunk_size:(index + 1) * chunk_size]}')

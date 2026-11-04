@@ -55,7 +55,7 @@ Tink/
 
 ## GET YOUR APK NOW
 
-**Tink 1.1.0+2:** the redesigned source is included here. The updated, verified APK download and exact test evidence are recorded in [Build status](docs/BUILD_STATUS.md); historical 1.0 PaisaClone releases are **not** the redesigned Tink binary.
+**[Download Tink 1.1.0, build 2 — installable Android APK](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-41887240793/Tink-Android-release.apk)** · **82.6 MB**, Android 7+, ARM64/ARMv7/x86-64. This optimized APK is **test/debug-key signed**, not store-signed. [Checksum, certificate and verified test evidence](docs/BUILD_STATUS.md). Historical 1.0 PaisaClone releases are **not** the redesigned Tink binary. Back up and verify your data before uninstalling a differently signed older version.
 
 **Here is how you get the APK ready to download and install** — fastest methods first:
 
@@ -68,7 +68,9 @@ Tink/
 5. Download **Tink-debug-APK** or **Tink-release-APK**. GitHub wraps artifacts in a ZIP: **extract it** to get `app-debug.apk` / `app-release.apk`.
 6. Send that `.apk` to your Android device, tap it, allow **Install unknown apps** for your browser/files app, then tap **Install**.
 
-**Direct APK without an artifact ZIP:** manually run either Android workflow with **publish_download** enabled, or opt in by including `[apk-download]` in your push commit message. On success the workflow publishes a GitHub prerelease with the actual `.apk` and a SHA-256 checksum under **Releases**. Debug APKs use `Tink-Android.apk`; optimized release-mode APKs use `Tink-Android-release.apk`. Only explicitly opted-in runs publish a prerelease. Public release assets can be downloaded directly without extracting a workflow artifact ZIP.
+**Direct APK without an artifact ZIP:** manually run either Android workflow with **publish_download** enabled, or opt in by including `[apk-download]` in your push commit message. On success the workflow publishes a GitHub prerelease with the actual `.apk` and a SHA-256 checksum under **Releases**. Debug APKs use `Tink-Android.apk`; optimized release-mode APKs use `Tink-Android-release.apk`. Only explicitly opted-in runs publish a prerelease. Release creation/upload is idempotent, with bounded retries for transient failures. Public release assets can be downloaded directly without extracting a workflow artifact ZIP.
+
+If a repository policy rejects release/tag creation with `HTTP 403`, an authorized maintainer can reserve the prerelease with `gh release create <tag> --target <tested-full-sha> --prerelease --title Tink --notes "Verified APK upload pending"`, then retry the uploader against that existing release. The workflow token still needs `contents: write` for asset uploads; do not work around a genuine access denial with credentials in source.
 
 GitHub requires you to be signed in to download workflow artifacts. Workflows cannot run if Actions are disabled, the account has exhausted its Actions quota, or the repository’s policy blocks the actions used here. Enable Actions in repository Settings and rerun; never paste tokens or signing secrets into source files.
 
@@ -173,6 +175,14 @@ flutter build web --release --no-web-resources-cdn
 python3 scripts/create_web_cache.py
 python3 -m http.server 8080 --bind 0.0.0.0 --directory build/web
 ```
+
+The web packager also aliases bundled Inter as CanvasKit's default fallback face;
+Flutter otherwise requests Roboto from Google's CDN even with custom app fonts.
+The custom bootstrap keeps additional glyph fallbacks on the app's own origin.
+A small licensed Inter compatibility WOFF2 also supports Chrome development runs.
+Supported scripts are bundled; unbundled scripts/emoji may show a missing glyph
+rather than fetching a third-party font. Re-run the browser smoke check after
+changing Flutter, fonts or the web packaging script.
 
 Deploy `build/web` to an HTTPS static host. For a subdirectory add `--base-href /your-path/`. The included post-build script precaches **local app files only** (renderer, JS/Wasm, bundled fonts, icons); no runtime font or renderer CDN is needed. First visit must finish loading online before offline reload works. A browser’s HTTPS/localhost secure context is required for service workers. Financial data lives separately in Hive/IndexedDB per browser origin. Clearing site data, private browsing, storage eviction or changing hostnames can erase it. **A PWA cache is not a data backup.**
 

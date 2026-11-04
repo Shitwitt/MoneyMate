@@ -176,10 +176,12 @@ void main() {
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Save transaction'));
-    // Particle decoration has its own clock; assert outcomes, then dismiss it.
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.pump(const Duration(milliseconds: 200));
+    // Wait for this route, not for every decorative particle ticker to settle.
+    final formFinder = find.byType(TransactionForm);
+    for (var i = 0; i < 20 && formFinder.evaluate().isNotEmpty; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await tester.pump(const Duration(milliseconds: 300));
     expect(
       repo.persisted!.profiles.first.transactions.single.amountMinor,
       15000,

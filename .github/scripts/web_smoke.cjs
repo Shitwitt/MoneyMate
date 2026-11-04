@@ -41,7 +41,17 @@ const binary = chromiumModule.default || chromiumModule;
         if (jpg.length < 35000) break;
       }
     }
-    async function nav(label) { await page.getByText(label, {exact: true}).last().click(); }
+    async function nav(label) {
+      const target = page.getByRole('button', {name: new RegExp('^' + label)}).or(page.getByText(label, {exact: true})).last();
+      // Flutter only exposes painted semantics nodes; DOM scrollIntoView cannot
+      // materialize an offscreen SliverGrid item. Scroll its real canvas first.
+      for (let attempt = 0; attempt < 8 && !await target.isVisible(); attempt++) {
+        await page.mouse.move(200, 440);
+        await page.mouse.wheel(0, 400);
+        await page.waitForTimeout(180);
+      }
+      await target.click({timeout: 15000});
+    }
     await page.goto('http://127.0.0.1:8080', {waitUntil: 'domcontentloaded'});
     await ready();
     await page.getByRole('button', {name: 'Continue', exact: true}).waitFor();
@@ -57,7 +67,7 @@ const binary = chromiumModule.default || chromiumModule;
     await page.keyboard.type('Demo User', {delay: 45});
     await page.keyboard.press('Tab');
     await page.getByRole('button', {name: 'Continue', exact: true}).click();
-    await page.getByText('Show me around with sample data', {exact: true}).waitFor();
+    // SwitchListTile merges its text into its accessible name, not a DOM text node.
     await page.getByRole('switch').or(page.getByRole('checkbox')).first().click();
     await page.getByRole('button', {name: 'Start using Tink', exact: true}).click();
     const celebration = page.getByRole('button', {name: 'A little proud of myself', exact: true});
@@ -66,7 +76,7 @@ const binary = chromiumModule.default || chromiumModule;
     await page.waitForTimeout(800);
     await capture('web-dashboard.jpg');
     await nav('Accounts');
-    await page.getByText('Recorded balance', {exact: true}).first().waitFor();
+    await page.getByText('Your money, in one place', {exact: true}).waitFor();
     await capture('web-accounts.jpg');
     await nav('More');
     await nav('Reports');
@@ -76,7 +86,7 @@ const binary = chromiumModule.default || chromiumModule;
     await page.getByRole('button', {name: 'Back', exact: true}).click();
     await nav('Settings');
     await nav('Appearance');
-    await page.getByText('Dark', {exact: true}).click();
+    await nav('Dark');
     await page.getByRole('button', {name: 'Back', exact: true}).click();
     await page.getByRole('button', {name: 'Back', exact: true}).click();
     await nav('Home');

@@ -99,13 +99,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          cp build/app/outputs/flutter-apk/app-release.apk Tink-Android-release.apk
-          sha256sum Tink-Android-release.apk > Tink-Android-release.apk.sha256
-          git archive --format=zip --prefix=Tink/ HEAD -o Tink-source.zip
-          gh release create "apk-release-${GITHUB_RUN_ID}" --target "$GITHUB_SHA" --prerelease \
-            --title 'Tink 1.1 — redesigned Android app' \
-            --notes 'Release-mode Android APK for Android 7/API 24 or newer. Uses a debug signing key unless a persistent keystore was configured in Actions secrets. No Internet permission. Back up and verify data before uninstalling an older differently signed build. See README for privacy and real-device QA limits.' \
-            Tink-Android-release.apk Tink-Android-release.apk.sha256 Tink-source.zip Tink-APK-metadata.txt
+          python3 .github/scripts/checked_command.py python3 .github/scripts/publish_apk.py build/app/outputs/flutter-apk/app-release.apk "apk-release-${GITHUB_RUN_ID}" "$GITHUB_SHA"
 
   web:
     name: Self-hosted web + real-browser offline smoke test

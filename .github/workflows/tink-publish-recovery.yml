@@ -1,0 +1,33 @@
+name: Publish verified Tink artifact
+on:
+  push:
+jobs:
+  recover:
+    if: contains(github.event.head_commit.message, '[recover-apk]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Confirm application matches the tested binary source
+        run: git diff --exit-code ca5277b HEAD -- lib android ios assets web pubspec.yaml pubspec.lock
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/download-artifact@v5
+        with:
+          name: Tink-release-APK
+          run-id: 41887240793
+          github-token: ${{ github.token }}
+          path: recovered-apk
+      - name: Verify original signed APK again
+        run: python3 .github/scripts/checked_command.py python3 .github/scripts/verify_apk.py recovered-apk/app-release.apk
+      - name: Publish original signed APK without rebuilding or resigning
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 .github/scripts/checked_command.py python3 .github/scripts/publish_apk.py recovered-apk/app-release.apk apk-release-41887240793 ca5277b

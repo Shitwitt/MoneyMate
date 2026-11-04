@@ -286,6 +286,7 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
   }
 
   void _acceptLink(Uri uri) {
+    if (kIsWeb && !DeepLinkService.isWebFinanceLink(uri)) return;
     final now = DateTime.now();
     if (lastLink == uri.toString() &&
         lastLinkAt != null &&

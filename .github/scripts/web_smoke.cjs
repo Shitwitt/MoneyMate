@@ -77,6 +77,7 @@ const binary = chromiumModule.default || chromiumModule;
     if (await celebration.isVisible()) await celebration.click();
     await page.getByRole('button', {name: 'How safe to spend is calculated', exact: true}).waitFor({timeout: 30000});
     await page.waitForTimeout(800);
+    if (await page.getByText('Unsupported finance link', {exact: false}).isVisible()) throw new Error('Ordinary web startup was mistaken for a finance intent');
     await capture('web-dashboard.jpg');
     await nav('Accounts');
     await page.getByLabel(/Your money, in one place/).or(page.getByText('Your money, in one place', {exact: false})).first().waitFor();

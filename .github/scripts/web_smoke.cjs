@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const deps = createRequire(path.join(process.env.PAISA_SMOKE_DEPS || '/tmp/paisa-web-smoke', 'package.json'));
 const {chromium: playwright} = deps('playwright-core');
+const {PNG} = deps('pngjs');
 const chromiumModule = deps('@sparticuz/chromium');
 const binary = chromiumModule.default || chromiumModule;
 
@@ -43,6 +44,14 @@ const binary = chromiumModule.default || chromiumModule;
         if (jpg.length < 35000) break;
       }
     }
+    async function assertDarkPalette() {
+      const shot = PNG.sync.read(await page.screenshot({type: 'png'}));
+      const offset = (110 * shot.width + 4) * 4;
+      const rgb = [...shot.data.subarray(offset, offset + 3)];
+      if (rgb.some((value, i) => Math.abs(value - [18, 18, 24][i]) > 6)) {
+        throw new Error('Dark palette was not applied/persisted: ' + rgb.join(','));
+      }
+    }
     async function nav(label) {
       // Do not wheel a newly pushed route while Flutter's 300ms transition hides semantics.
       await page.waitForTimeout(350);
@@ -60,7 +69,9 @@ const binary = chromiumModule.default || chromiumModule;
         await page.mouse.wheel(0, 400);
         await page.waitForTimeout(180);
       }
-      await target.click({timeout: 15000});
+      // Generated Flutter grouping nodes can overlap semantic buttons in the DOM.
+      // A real canvas-coordinate click still exercises Flutter's pointer hit test.
+      await target.click({timeout: 15000, force: label === 'Dark'});
       await page.waitForTimeout(350);
     }
     await page.goto('http://127.0.0.1:8080', {waitUntil: 'domcontentloaded'});
@@ -104,6 +115,7 @@ const binary = chromiumModule.default || chromiumModule;
     await nav('Home');
     await page.getByRole('button', {name: 'How safe to spend is calculated', exact: true}).waitFor();
     await page.waitForTimeout(700);
+    await assertDarkPalette();
     await capture('web-dark.jpg');
     await page.reload({waitUntil: 'domcontentloaded'});
     await ready();
@@ -119,6 +131,7 @@ const binary = chromiumModule.default || chromiumModule;
     await page.reload({waitUntil: 'domcontentloaded'});
     await ready();
     await page.getByText('Demo User', {exact: false}).first().waitFor({timeout: 30000});
+    await assertDarkPalette();
     if (remoteRequests.size) throw new Error('Unexpected runtime network hosts: ' + [...remoteRequests].join(', '));
     if (errors.length) throw new Error('Browser/layout errors: ' + errors.join('\n'));
     console.log('::notice title=Tink web smoke::PASS: six intros, real demo onboarding, accounts, reports, dark theme, persisted reload, offline reload and zero external runtime requests.');

@@ -126,7 +126,7 @@ jobs:
           python3 .github/scripts/checked_command.py flutter build web --release --no-web-resources-cdn
           python3 scripts/create_web_cache.py
       - name: Install headless browser test tools
-        run: npm install --prefix /tmp/paisa-web-smoke playwright-core @sparticuz/chromium
+        run: npm install --prefix /tmp/paisa-web-smoke playwright-core @sparticuz/chromium pngjs
       - name: Browser onboarding, persistence and offline reload
         run: python3 .github/scripts/checked_command.py node .github/scripts/web_smoke.cjs
       - name: Diagnostic screenshot part 1

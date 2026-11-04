@@ -96,7 +96,11 @@ class AppController extends StateNotifier<AppData> {
     return app.copyWith(
       profiles: [...app.profiles, profile],
       activeProfileId: profile.profile.id,
-      settings:app.profiles.isEmpty?app.settings.copyWith(numberFormat:currency=='INR'?'indian':'international'):app.settings,
+      settings: app.profiles.isEmpty
+          ? app.settings.copyWith(
+              numberFormat: currency == 'INR' ? 'indian' : 'international',
+            )
+          : app.settings,
     );
   });
   Future<void> switchProfile(String id) => mutate((app) {

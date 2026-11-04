@@ -337,7 +337,7 @@ class LoadingSkeleton extends StatelessWidget {
   const LoadingSkeleton({super.key});
   @override
   Widget build(BuildContext context) => Shimmer.fromColors(
-    enabled:!MediaQuery.disableAnimationsOf(context),
+    enabled: !MediaQuery.disableAnimationsOf(context),
     baseColor: Colors.grey.withValues(alpha: .15),
     highlightColor: Colors.grey.withValues(alpha: .06),
     child: ListView(

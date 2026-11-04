@@ -3,9 +3,36 @@ import 'package:flutter/material.dart';
 import '../core/data/providers.dart';
 import '../features/settings/premium_screen.dart';
 
-void toast(BuildContext context, String text,{bool error=false,bool success=false}) {
+void toast(
+  BuildContext context,
+  String text, {
+  bool error = false,
+  bool success = false,
+}) {
   if (!context.mounted) return;
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Row(children:[Icon(error?Icons.error_outline_rounded:success?Icons.check_circle_outline_rounded:Icons.info_outline_rounded,color:error?const Color(0xffF87171):success?const Color(0xff34D399):const Color(0xffC4B5FD),size:22),const SizedBox(width:12),Expanded(child:Text(text))])));
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Row(
+        children: [
+          Icon(
+            error
+                ? Icons.error_outline_rounded
+                : success
+                ? Icons.check_circle_outline_rounded
+                : Icons.info_outline_rounded,
+            color: error
+                ? const Color(0xffF87171)
+                : success
+                ? const Color(0xff34D399)
+                : const Color(0xffC4B5FD),
+            size: 22,
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Text(text)),
+        ],
+      ),
+    ),
+  );
 }
 
 Future<bool> runSafe(
@@ -15,7 +42,8 @@ Future<bool> runSafe(
 }) async {
   try {
     await action();
-    if (context.mounted && success != null) toast(context, success,success:true);
+    if (context.mounted && success != null)
+      toast(context, success, success: true);
     return true;
   } on PremiumRequired {
     if (context.mounted) {
@@ -25,7 +53,11 @@ Future<bool> runSafe(
     return false;
   } catch (error) {
     if (context.mounted) {
-      toast(context, error.toString().replaceFirst('FormatException: ', ''),error:true);
+      toast(
+        context,
+        error.toString().replaceFirst('FormatException: ', ''),
+        error: true,
+      );
     }
     return false;
   }
@@ -48,7 +80,17 @@ Future<bool> confirm(
             child: const Text('Cancel'),
           ),
           FilledButton(
-            style: ['Delete','Remove','Reset'].any((word)=>confirmLabel.startsWith(word))?FilledButton.styleFrom(backgroundColor:Theme.of(context).colorScheme.error,foregroundColor:Colors.white):null,
+            style:
+                [
+                  'Delete',
+                  'Remove',
+                  'Reset',
+                ].any((word) => confirmLabel.startsWith(word))
+                ? FilledButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.error,
+                    foregroundColor: Colors.white,
+                  )
+                : null,
             onPressed: () => Navigator.pop(context, true),
             child: Text(confirmLabel),
           ),

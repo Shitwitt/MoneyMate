@@ -16,8 +16,7 @@ class PremiumScreen extends ConsumerWidget {
         () => ref
             .read(appProvider.notifier)
             .settings((settings) => settings.copyWith(isPro: true)),
-        success:
-            'Pro unlocked on this installation. No payment, ever.',
+        success: 'Pro unlocked on this installation. No payment, ever.',
       );
       if (done && context.mounted && Navigator.canPop(context)) {
         Navigator.pop(context);
@@ -29,11 +28,43 @@ class PremiumScreen extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.only(bottom: 36),
         children: [
-          AppCard(color:AppColors.darkSurface,padding:const EdgeInsets.all(24),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-            Row(children:[Text('Tink',style:Theme.of(context).textTheme.headlineMedium?.copyWith(color:Colors.white)),const SizedBox(width:10),const PremiumBadge(),const Spacer(),const Icon(Icons.auto_awesome_rounded,color:AppColors.darkAccent,size:28)]),
-            const SizedBox(height:32),Text('A little more\nroom to grow.',style:Theme.of(context).textTheme.displaySmall?.copyWith(color:Colors.white,height:1.2)),const SizedBox(height:16),
-            const Text('Same privacy. More possibilities.\nNo checkout, subscription or real payment.',style:TextStyle(color:AppColors.darkSecondary,height:1.5)),
-          ])),
+          AppCard(
+            color: AppColors.darkSurface,
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'Tink',
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(color: Colors.white),
+                    ),
+                    const SizedBox(width: 10),
+                    const PremiumBadge(),
+                    const Spacer(),
+                    const Icon(
+                      Icons.auto_awesome_rounded,
+                      color: AppColors.darkAccent,
+                      size: 28,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                Text(
+                  'A little more\nroom to grow.',
+                  style: Theme.of(context).textTheme.displaySmall
+                      ?.copyWith(color: Colors.white, height: 1.2),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Same privacy. More possibilities.\nNo checkout, subscription or real payment.',
+                  style: TextStyle(color: AppColors.darkSecondary, height: 1.5),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 24),
           for (final feature in [
             ('Budgets & goals', '3 each', 'Unlimited'),
@@ -70,7 +101,9 @@ class PremiumScreen extends ConsumerWidget {
                       child: Text(
                         feature.$3,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onPrimaryContainer,
                         ),
                       ),
                     ),

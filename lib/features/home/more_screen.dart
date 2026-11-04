@@ -91,7 +91,9 @@ class MoreScreen extends ConsumerWidget {
                   crossAxisCount: columns,
                   crossAxisSpacing: 14,
                   mainAxisSpacing: 14,
-                  childAspectRatio: 1.35/MediaQuery.textScalerOf(context).scale(1).clamp(1.0,2.0),
+                  childAspectRatio:
+                      1.35 /
+                      MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 2.0),
                 ),
                 itemCount: items.length,
                 itemBuilder: (context, index) {

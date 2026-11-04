@@ -216,12 +216,16 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
       }
     });
     if (!mounted) return;
-    if(saved){
-      setState(()=>_saved=true);
-      if(!MediaQuery.disableAnimationsOf(context)) await Future<void>.delayed(const Duration(milliseconds:150));
-      if(!mounted)return;
+    if (saved) {
+      setState(() => _saved = true);
+      if (!MediaQuery.disableAnimationsOf(context))
+        await Future<void>.delayed(const Duration(milliseconds: 150));
+      if (!mounted) return;
     }
-    setState((){_busy=false;_saved=false;});
+    setState(() {
+      _busy = false;
+      _saved = false;
+    });
     if (saved) {
       if (_sequential && widget.initial == null && !widget.templateOnly) {
         _amount.clear();
@@ -232,7 +236,11 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
           _date = DateTime.now();
           _template = false;
         });
-        toast(context, 'Saved on your device. Ready for the next one.',success:true);
+        toast(
+          context,
+          'Saved on your device. Ready for the next one.',
+          success: true,
+        );
       } else {
         Navigator.pop(context, true);
       }
@@ -649,8 +657,15 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
                 ),
             ],
             const SizedBox(height: 24),
-            PrimaryButton(label:widget.templateOnly?'Save template':'Save transaction',loading:_busy&&!_saved,success:_saved,
-              onPressed:_busy||(_type=='transfer'&&_toAccountId.isEmpty)?null:_save,icon:Icons.check_rounded),
+            PrimaryButton(
+              label: widget.templateOnly ? 'Save template' : 'Save transaction',
+              loading: _busy && !_saved,
+              success: _saved,
+              onPressed: _busy || (_type == 'transfer' && _toAccountId.isEmpty)
+                  ? null
+                  : _save,
+              icon: Icons.check_rounded,
+            ),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -746,7 +761,10 @@ Future<void> openTransactionSheet(
   String initialType = 'expense',
 }) => showModalBottomSheet<void>(
   context: context,
-  sheetAnimationStyle:const AnimationStyle(duration:Duration(milliseconds:260),reverseDuration:Duration(milliseconds:220)),
+  sheetAnimationStyle: const AnimationStyle(
+    duration: Duration(milliseconds: 260),
+    reverseDuration: Duration(milliseconds: 220),
+  ),
   isScrollControlled: true,
   useSafeArea: true,
   showDragHandle: false,

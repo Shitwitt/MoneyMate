@@ -1157,8 +1157,12 @@ class AppSettings {
 
   factory AppSettings.fromJson(Json json) => AppSettings(
     theme: readString(json['theme'], 'system'),
-    accent: readInt(json['accent'],0xff916cff)==0xff557c36 ? 0xff916cff : readInt(json['accent'],0xff916cff),
-    dynamicColors: readInt(json['accent'],0xff916cff)==0xff557c36 ? false : readBool(json['dynamicColors'],false),
+    accent: readInt(json['accent'], 0xff916cff) == 0xff557c36
+        ? 0xff916cff
+        : readInt(json['accent'], 0xff916cff),
+    dynamicColors: readInt(json['accent'], 0xff916cff) == 0xff557c36
+        ? false
+        : readBool(json['dynamicColors'], false),
     locale: readString(json['locale'], 'en'),
     hideAmounts: readBool(json['hideAmounts'], false),
     numberFormat: readString(json['numberFormat'], 'international'),

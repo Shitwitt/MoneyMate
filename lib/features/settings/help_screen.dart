@@ -22,8 +22,20 @@ class HelpScreen extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.only(bottom: 100),
         children: [
-          AppCard(padding:EdgeInsets.zero,child:ListTile(leading:const TinkLogo(size:44),title:const Text('Meet Tink again'),subtitle:const Text('Replay the six-page introduction'),trailing:const Icon(Icons.chevron_right_rounded),onTap:()=>openPage(context,IntroductionScreen(onFinish:()=>Navigator.pop(context))))),
-          const SizedBox(height:24),
+          AppCard(
+            padding: EdgeInsets.zero,
+            child: ListTile(
+              leading: const TinkLogo(size: 44),
+              title: const Text('Meet Tink again'),
+              subtitle: const Text('Replay the six-page introduction'),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => openPage(
+                context,
+                IntroductionScreen(onFinish: () => Navigator.pop(context)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
           const SectionHeader('Your home-screen companions'),
           const Text(
             'Android: long-press your launcher → Widgets → Tink, or request a widget below. iOS: long-press the Home Screen → + → Tink, after configuring the App Group with your signing team (see README). Widgets refresh after saved changes and use the active profile.',

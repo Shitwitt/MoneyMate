@@ -15,12 +15,25 @@ ThemeData tinkTheme(
 }) {
   GoogleFonts.config.allowRuntimeFetching = false;
   final dark = brightness == Brightness.dark;
-  final requested = settings.accent == 0xff557c36 ? AppColors.primary : Color(settings.accent);
-  final accent = settings.dynamicColors && settings.accent != 0xff557c36 && dynamicScheme != null ? dynamicScheme.primary : requested;
-  final onAccent = 1.05/(accent.computeLuminance()+.05) >= 3 ? Colors.white : AppColors.ink;
+  final requested = settings.accent == 0xff557c36
+      ? AppColors.primary
+      : Color(settings.accent);
+  final accent =
+      settings.dynamicColors &&
+          settings.accent != 0xff557c36 &&
+          dynamicScheme != null
+      ? dynamicScheme.primary
+      : requested;
+  final onAccent = 1.05 / (accent.computeLuminance() + .05) >= 3
+      ? Colors.white
+      : AppColors.ink;
   final brand = accent == AppColors.primary;
   final background = dark ? AppColors.darkSurface : AppColors.background;
-  final card = dark ? (settings.theme=='black'?const Color(0xff16161E):AppColors.darkCard) : AppColors.card;
+  final card = dark
+      ? (settings.theme == 'black'
+            ? const Color(0xff16161E)
+            : AppColors.darkCard)
+      : AppColors.card;
   final ink = dark ? Colors.white : AppColors.ink;
   final secondary = dark ? AppColors.darkSecondary : AppColors.secondary;
   final outline = dark ? AppColors.darkDivider : AppColors.outline;
@@ -28,7 +41,12 @@ ThemeData tinkTheme(
       .copyWith(
         primary: accent,
         onPrimary: onAccent,
-        primaryContainer: brand ? (dark ? const Color(0xff302544) : AppColors.primaryLight) : Color.alphaBlend(accent.withValues(alpha:dark ? .22 : .12),card),
+        primaryContainer: brand
+            ? (dark ? const Color(0xff302544) : AppColors.primaryLight)
+            : Color.alphaBlend(
+                accent.withValues(alpha: dark ? .22 : .12),
+                card,
+              ),
         onPrimaryContainer: dark
             ? const Color(0xffE4D8FF)
             : AppColors.primaryInk,
@@ -138,7 +156,9 @@ ThemeData tinkTheme(
           (states) => states.contains(WidgetState.disabled)
               ? scheme.surfaceContainerHighest
               : states.contains(WidgetState.pressed)
-              ? (brand ? AppColors.primaryPressed : Color.lerp(accent,AppColors.ink,.12)!)
+              ? (brand
+                    ? AppColors.primaryPressed
+                    : Color.lerp(accent, AppColors.ink, .12)!)
               : accent,
         ),
         foregroundColor: WidgetStateProperty.resolveWith(

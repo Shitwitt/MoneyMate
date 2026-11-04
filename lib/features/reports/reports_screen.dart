@@ -222,11 +222,31 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                       title: stat.$1,
                       value: AmountText(
                         stat.$2,
-                        style:TextStyle(color:AppColors.semantic(context,stat.$1=='Income'?'income':stat.$1=='Expenses'?'expense':stat.$2>=0?'income':'expense')),
+                        style: TextStyle(
+                          color: AppColors.semantic(
+                            context,
+                            stat.$1 == 'Income'
+                                ? 'income'
+                                : stat.$1 == 'Expenses'
+                                ? 'expense'
+                                : stat.$2 >= 0
+                                ? 'income'
+                                : 'expense',
+                          ),
+                        ),
                         compact: constraints.maxWidth < 650,
                       ),
                       icon: stat.$3,
-                      color:AppColors.semantic(context,stat.$1=='Income'?'income':stat.$1=='Expenses'?'expense':stat.$2>=0?'income':'expense'),
+                      color: AppColors.semantic(
+                        context,
+                        stat.$1 == 'Income'
+                            ? 'income'
+                            : stat.$1 == 'Expenses'
+                            ? 'expense'
+                            : stat.$2 >= 0
+                            ? 'income'
+                            : 'expense',
+                      ),
                       caption: stat.$1 == 'Net cash flow'
                           ? '${income > 0 ? ((income - expense) / income * 100).toStringAsFixed(1) : '0'}% savings rate'
                           : '${entries.where((entry) => entry.type == (stat.$1 == 'Income' ? 'income' : 'expense')).length} entries',
@@ -605,7 +625,13 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                     ),
                     child: Text(
                       '${day + 1}',
-                      style: TextStyle(fontSize:12,color:AppColors.dark(context)?Colors.white:AppColors.ink,fontFeatures:AppTextStyles.tabular),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.dark(context)
+                            ? Colors.white
+                            : AppColors.ink,
+                        fontFeatures: AppTextStyles.tabular,
+                      ),
                     ),
                   ),
                 );

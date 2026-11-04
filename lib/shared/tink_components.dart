@@ -22,7 +22,16 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => FilledButton(
     onPressed: loading || success ? null : onPressed,
-    style: success || loading ? FilledButton.styleFrom(disabledBackgroundColor:success?AppColors.incomeInk:Theme.of(context).colorScheme.primary,disabledForegroundColor:success?Colors.white:Theme.of(context).colorScheme.onPrimary) : null,
+    style: success || loading
+        ? FilledButton.styleFrom(
+            disabledBackgroundColor: success
+                ? AppColors.incomeInk
+                : Theme.of(context).colorScheme.primary,
+            disabledForegroundColor: success
+                ? Colors.white
+                : Theme.of(context).colorScheme.onPrimary,
+          )
+        : null,
     child: AnimatedSwitcher(
       duration: const Duration(milliseconds: 160),
       child: Row(

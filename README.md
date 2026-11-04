@@ -201,13 +201,13 @@ The project opts for CocoaPods; if your Flutter installation enables experimenta
 ## What works
 
 * **Local profiles and onboarding:** separate financial records, first account, currencies, default income/expense categories, deterministic six-month demo, restore preview.
-* **Customizable dashboard:** saved card order/visibility, reorder handles, net worth details, income/expense, account carousel, six-month chart, budgets/goals, daily-grouped recents, one-tap templates, subscriptions, assets, loans, reports, achievements and Plus.
+* **Customizable dashboard:** saved card order/visibility, reorder handles, net worth details, income/expense, account carousel, six-month chart, budgets/goals, daily-grouped recents, one-tap templates, subscriptions, assets, loans, reports, achievements and Pro.
 * **Activity:** expense/income/atomic two-account transfer, integer money, arithmetic keypad, history-name suggestions, account/category/date/time, notes, labels/people/place, goal/loan tags, up to five photo receipts, sequential entry, edit/delete swipes and bulk deletion. Search plus date/account/category/tag/person/place/type/min/max filters, sticky daily headers, paging, sorting, totals, filtered CSV.
 * **Accounts/catalog:** currency per account, signed opening balances, types/icons/photos/colors, exclusion/archiving, grouping, account detail/transfers, tablet list/detail; category CRUD/reorder/hide and charts; label/person/place CRUD, photos/notes, counts, linked activity and report breakdowns.
 * **Plans:** recurring/custom budgets, category scope, signed rollover, 50/80/100% alerts; goals with deadlines, allocations or linked-account progress, tagged income, milestones; earned badges and confetti.
 * **Debts/bills/assets:** lent/borrowed with optional flat interest, partial/full repayments, optional atomic disbursement/repayment account entries, due reminders; equal/percentage/exact/weighted bill splits with exact rounding, net settlement suggestions, settled history and optional loan creation; manual asset values/purchase information and full value history.
 * **Recurring entries:** daily/weekly/monthly/yearly/custom intervals, start/end, pause/resume/skip, auto-post vs remind-only, idempotent catch-up, monthly burn normalization.
-* **Reports:** touch-enabled bar/line/category donut, filters/custom dates, category/account/name/tag/person/place breakdowns; Plus daily pace/projection, preceding equal-duration and prior-year comparisons, weekday seasonality, daily heatmap; CSV, multi-page PDF and printing with bundled Noto font fallbacks.
+* **Reports:** touch-enabled bar/line/category donut, filters/custom dates, category/account/name/tag/person/place breakdowns; Pro daily pace/projection, preceding equal-duration and prior-year comparisons, weekday seasonality, daily heatmap; CSV, multi-page PDF and printing with bundled Noto font fallbacks.
 * **Preferences:** Material 3 system/light/dark/Midnight, dynamic Android colors/accent palettes, text size, 13 navigation/action language starters + RTL, international/Indian numbering, financial month and week starts, PBKDF2 PIN/biometrics, hidden amounts, notification preferences, JSON/ZIP export with embedded receipts/checksum/restore preview, CSV mapper/validation/deduplication, home/nav customization/live nav preview, rates, widgets, links, help and licenses.
 * **Pro simulation:** repository-enforced free creation limits (3 budgets, 3 goals, 3 bills, 10 of each tag/entity), advanced-report/PDF/theme gates, persisted free unlock/restore/test-free controls. Downgrading never deletes existing data.
 
@@ -267,7 +267,7 @@ Public app labels, icons, exports, web shell and widgets are Tink. To retain rec
 
 | Capability | Android | iOS | Web |
 |---|---|---|---|
-| Local finance CRUD / reports / backups / CSV / Plus | Yes | Yes | Yes |
+| Local finance CRUD / reports / backups / CSV / Pro | Yes | Yes | Yes |
 | Receipts via picker / camera | Yes | Yes, permission strings included | Browser-dependent |
 | PIN interface lock | Yes | Yes | Yes, not browser-storage encryption |
 | Biometrics | Device setup needed | Face ID / Touch ID setup needed | Not exposed |
@@ -283,7 +283,7 @@ Other deliberate boundaries:
 * Manual goal contributions do not move funds. Avoid counting the same allocation twice by manually contributing and tagging the same income; avoid double-counting an asset also represented in an included account.
 * Whole-state Hive snapshots intentionally make financial edits atomic and backups portable. Writes/filters/analytics are O(n), suitable for personal ledgers; a very large ledger or many photos increases memory/serialization cost. Lists page visible history in batches of 80. Import safety caps are 50 MB, 200,000 stored transactions per profile, 50,000 CSV rows, five receipts per entry and 2 MB per photo. This is not a benchmarked enterprise ledger.
 * PDF includes a summary, category bars/interpretation and paginated tables, not raster screenshots of Flutter charts. Noto fallback fonts are bundled; complex-script shaping/printing still needs platform/device QA.
-* Plus is intentionally bypassable local state, not purchase security. Forgotten PIN recovery requires a verified export and reinstall/reset; there is no secret backdoor.
+* Pro is intentionally bypassable local state, not purchase security. Forgotten PIN recovery requires a verified export and reinstall/reset; there is no secret backdoor.
 * Home dashboard is a responsive centered feed; accounts have a true tablet list/detail split. Not every feature is a two-pane editor. Native mobile features are not emulated on web.
 * No exhaustive original-app compatibility, imported Paisa backup compatibility, exact visual clone, security audit, store approval or production certification is claimed. Review [QA](docs/QA.md) and test signed upgrades, restoration and native integrations before entrusting important data to any release.
 

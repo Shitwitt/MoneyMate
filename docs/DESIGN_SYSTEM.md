@@ -61,7 +61,9 @@ violet ink `#5530B0`; that ink on pale violet is **7.17:1**. Secondary body text
 the main light canvas is **6.36:1**. Semantic light-card income/expense inks are
 **5.69:1** and **6.57:1** against white. Decorative tertiary gray is not the body
 caption color. Inputs use a stronger visible neutral outline than decorative
-dividers. A custom/personalized primary foreground is selected by contrast.
+dividers. Dark destructive confirmations use ink on coral (**7.10:1**), not
+white on coral; their light-mode white/dark-red pair is **6.57:1**. A
+custom/personalized primary foreground is selected by contrast.
 
 These are design-token checks, not an independent audit or blanket certification
 of every platform state. Continue the real-device accessibility checklist.

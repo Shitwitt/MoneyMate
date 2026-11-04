@@ -11,7 +11,8 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: release-${{ github.ref }}
+  # A stale older run must not hold a newer APK behind its concurrency lock.
+  group: release-${{ github.ref }}-${{ github.sha }}
   cancel-in-progress: true
 jobs:
   checks:

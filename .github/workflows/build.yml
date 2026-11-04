@@ -10,7 +10,8 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: debug-${{ github.ref }}
+  # A stale older run must not hold a newer APK behind its concurrency lock.
+  group: debug-${{ github.ref }}-${{ github.sha }}
   cancel-in-progress: true
 jobs:
   debug-apk:

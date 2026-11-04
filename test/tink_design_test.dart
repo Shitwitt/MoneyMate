@@ -159,7 +159,16 @@ void main() {
     await tester.enterText(find.byType(TextFormField).at(1), 'Evening chai');
     tester.testTextInput.hide();
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('Save transaction'),350,scrollable:find.descendant(of:find.byType(BottomSheet),matching:find.byType(Scrollable)).first);
+    await tester.scrollUntilVisible(
+      find.text('Save transaction'),
+      350,
+      scrollable: find
+          .descendant(
+            of: find.byType(BottomSheet),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Save transaction'));
     await tester.pumpAndSettle();
@@ -170,17 +179,54 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Narrow large-text navigation stays usable across primary screens',(tester)async{
-    tester.view.physicalSize=const Size(390,844);tester.view.devicePixelRatio=1;
-    addTearDown(tester.view.resetPhysicalSize);addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(ProviderScope(overrides:[repositoryProvider.overrideWithValue(MemoryRepository(appFor(fixture(),settings:const AppSettings(fontScale:1.6))))],child:const PaisaApp(enablePlatformServices:false)));
-    await tester.pumpAndSettle();expect(tester.takeException(),isNull);
-    for(final label in ['Accounts','Plans','More','Home']){
-      await tester.tap(find.text(label).last);await tester.pumpAndSettle();expect(tester.takeException(),isNull,reason:label);
-    }
-  });
-  testWidgets('Arabic starter locale retains RTL with bundled fallback fonts',(tester)async{
-    await tester.pumpWidget(ProviderScope(overrides:[repositoryProvider.overrideWithValue(MemoryRepository(appFor(fixture(),settings:const AppSettings(locale:'ar'))))],child:const PaisaApp(enablePlatformServices:false)));
-    await tester.pumpAndSettle();expect(Directionality.of(tester.element(find.byType(NavigationBar))),TextDirection.rtl);expect(tester.takeException(),isNull);
+  testWidgets(
+    'Narrow large-text navigation stays usable across primary screens',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            repositoryProvider.overrideWithValue(
+              MemoryRepository(
+                appFor(fixture(), settings: const AppSettings(fontScale: 1.6)),
+              ),
+            ),
+          ],
+          child: const PaisaApp(enablePlatformServices: false),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      for (final label in ['Accounts', 'Plans', 'More', 'Home']) {
+        await tester.tap(find.text(label).last);
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull, reason: label);
+      }
+    },
+  );
+  testWidgets('Arabic starter locale retains RTL with bundled fallback fonts', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          repositoryProvider.overrideWithValue(
+            MemoryRepository(
+              appFor(fixture(), settings: const AppSettings(locale: 'ar')),
+            ),
+          ),
+        ],
+        child: const PaisaApp(enablePlatformServices: false),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      Directionality.of(tester.element(find.byType(NavigationBar))),
+      TextDirection.rtl,
+    );
+    expect(tester.takeException(), isNull);
   });
 }

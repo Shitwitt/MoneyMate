@@ -69,6 +69,9 @@ void main() {
     await tester.tap(find.byTooltip('Add account'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Cash envelope');
+    // Close the keyboard before scrolling the modal's Save button into view.
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pumpAndSettle();
     await tester.ensureVisible(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));

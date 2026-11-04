@@ -4,7 +4,6 @@ allprojects {
 rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
-    project.evaluationDependsOn(':app')
     // Older plugins still default to Java 8, while recent AndroidX inline
     // functions require Java 11+. Keep BOTH compilers aligned with our JDK 17.
     if (project.name != 'app') {
@@ -23,4 +22,5 @@ subprojects {
         }
     }
 }
+subprojects { project.evaluationDependsOn(':app') }
 tasks.register('clean', Delete) { delete rootProject.buildDir }

@@ -2,8 +2,13 @@ name: Debug APK (Gradle)
 on:
   push:
   workflow_dispatch:
+    inputs:
+      publish_download:
+        description: 'Publish a prerelease with a direct installable APK download'
+        type: boolean
+        default: false
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: debug-${{ github.ref }}
   cancel-in-progress: true
@@ -41,3 +46,15 @@ jobs:
           path: build/app/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
+      - name: Publish direct APK download (explicit opt-in)
+        if: (github.event_name == 'workflow_dispatch' && inputs.publish_download) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[apk-download]'))
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          cp build/app/outputs/apk/debug/app-debug.apk PaisaClone-Android.apk
+          sha256sum PaisaClone-Android.apk > PaisaClone-Android.apk.sha256
+          gh release create "apk-${GITHUB_RUN_ID}" --target "$GITHUB_SHA" --prerelease \
+            --title 'PaisaClone — installable Android APK' \
+            --notes 'Install PaisaClone-Android.apk on Android 7/API 24 or newer. Debug-key-signed for sideload testing, not a Play Store release. Export a verified backup before uninstalling an older build to resolve a signing mismatch. See README for privacy, device QA and known limits.' \
+            PaisaClone-Android.apk PaisaClone-Android.apk.sha256

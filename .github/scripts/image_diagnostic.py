@@ -1,4 +1,4 @@
-"""Temporary tiny screenshot transport for API-only verification clients."""
+"""Emit bounded demo-only screenshot chunks for API-only verification clients."""
 import base64
 from pathlib import Path
 import sys

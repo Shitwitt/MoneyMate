@@ -5,7 +5,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const deps = createRequire(path.join(process.env.PAISA_SMOKE_DEPS || '/tmp/paisa-web-smoke', 'package.json'));
 const {chromium: playwright} = deps('playwright-core');
-const binary = deps('@sparticuz/chromium');
+const chromiumModule = deps('@sparticuz/chromium');
+const binary = chromiumModule.default || chromiumModule;
 
 (async () => {
   const server = spawn('python3', ['-m', 'http.server', '8080', '--bind', '0.0.0.0', '--directory', 'build/web'], {stdio: 'ignore'});

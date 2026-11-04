@@ -49,21 +49,26 @@ PaisaClone/
 ├── docs/                        # Architecture, feature matrix, QA and signing
 └── .github/workflows/
     ├── build.yml                # Gradle assembleDebug → downloadable debug APK
-    └── build-apk.yml            # Analyze/test → release APK + Web + source ZIP
+    ├── build-apk.yml            # Analyze/test → release APK + Web + source ZIP
+    └── build-ios.yml            # Optional unsigned Xcode/WidgetKit compile check
 ```
 
 ## GET YOUR APK NOW
+
+**Built APK available:** [Download the optimized Android APK (80.4 MB)](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-41853657467/PaisaClone-Android-release.apk). This is a release-mode, debug-key-signed sideload/test build for Android 7/API 24+. [Build evidence and remaining verification](docs/BUILD_STATUS.md).
 
 **Here is how you get the APK ready to download and install** — fastest methods first:
 
 ### 1. GitHub Actions — no local Flutter or Android SDK needed
 
 1. Put **the contents of this project at the root of a GitHub repository**, including the hidden `.github` folder. Do not put it inside another `app/` directory. In this checkout the actual connected repository is **Shitwitt/MoneyMate**, not the example `yourusername/moneymate-app`.
-2. Push the files, then open the repository’s **Actions** tab. Both workflows run on every push. If needed, choose a workflow → **Run workflow** → select your branch → Run.
+2. Push the files, then open the repository’s **Actions** tab. Both Android workflows run on every push. If needed, choose a workflow → **Run workflow** → select your branch → Run.
 3. For the quickest sideloadable build, open **Debug APK (Gradle)**. For optimized code choose **Release APK + Web + Tests**.
 4. Wait for a **green completed run**. Open the run and scroll to **Artifacts**.
 5. Download **PaisaClone-debug-APK** or **PaisaClone-release-APK**. GitHub wraps artifacts in a ZIP: **extract it** to get `app-debug.apk` / `app-release.apk`.
 6. Send that `.apk` to your Android device, tap it, allow **Install unknown apps** for your browser/files app, then tap **Install**.
+
+**Direct APK without an artifact ZIP:** manually run either Android workflow with **publish_download** enabled, or opt in by including `[apk-download]` in your push commit message. On success the workflow publishes a GitHub prerelease with the actual `.apk` and a SHA-256 checksum under **Releases**. Debug APKs use `PaisaClone-Android.apk`; optimized release-mode APKs use `PaisaClone-Android-release.apk`. Only explicitly opted-in runs publish a prerelease. Public release assets can be downloaded directly without extracting a workflow artifact ZIP.
 
 GitHub requires you to be signed in to download workflow artifacts. Workflows cannot run if Actions are disabled, the account has exhausted its Actions quota, or the repository’s policy blocks the actions used here. Enable Actions in repository Settings and rerun; never paste tokens or signing secrets into source files.
 
@@ -80,7 +85,7 @@ flutter doctor -v
 flutter doctor --android-licenses
 flutter pub get                  # resolves packages and generates project metadata
 flutter gen-l10n
-flutter analyze
+flutter analyze --no-fatal-infos
 flutter test
 flutter build apk --release
 ```
@@ -112,7 +117,7 @@ adb install -r build/app/outputs/flutter-apk/app-release.apk
 
 Do not uninstall an existing install to fix a signature mismatch until you have exported and verified its backup. An `.aab` is for store distribution; use an `.apk` to sideload.
 
-### 3. Android Studio — or a hosted Flutter builder
+### 3. Hosted Flutter builder (Codemagic)
 
 * Open **this project root** in Android Studio, install the Flutter/Dart plugins, choose your Flutter SDK, and run **Pub get**. Run on an Android device with the toolbar. The IDE terminal command `flutter build apk --release` is the simplest reliable way to get the same APK as CI. Android’s **Build → Generate Signed Bundle / APK** also works after opening the `android/` module and supplying your key.
 * **Codemagic:** connect your repository, select a Flutter workflow, set Flutter 3.47.9 / Java 17, run `flutter pub get`, `flutter gen-l10n`, `flutter test`, and `flutter build apk --release`, then publish `build/app/outputs/flutter-apk/*.apk`. Check its current pricing/quota before relying on a free tier; no free allowance is guaranteed here. Configure signing in the builder’s secret store, not Git.
@@ -188,6 +193,8 @@ flutter build ipa --release
 ```
 
 The runner includes camera/photo/Face ID usage descriptions, a custom URL scheme, privacy manifest, and a real **PaisaWidgets WidgetKit extension target** (balance, budget, quick add). In Xcode set **your development team for Runner AND PaisaWidgets**, use unique bundle IDs, and register the same **App Group** in both entitlements and `WidgetService` (`group.com.example.paisaclone` is the example). App Groups may require a paid Apple developer team. If you only want the iOS app without widgets, remove the PaisaWidgets target dependency/embed phase and App Group entitlements in Xcode. Actual distribution requires provisioning; no iOS signing identity is included or requested.
+
+The optional `build-ios.yml` workflow compiles the runner and WidgetKit extension on macOS with `--no-codesign`, then uploads an **unsigned app ZIP, not an installable IPA**. It can be run manually and is triggered by native iOS/workflow changes. macOS runner capacity can delay a check; this is not a substitute for your signing setup or real-device testing.
 
 The project opts for CocoaPods; if your Flutter installation enables experimental/default Swift Package Manager migration, disable it for this checkout with `flutter config --no-enable-swift-package-manager` before `pod install`.
 
@@ -267,7 +274,7 @@ Download **Code → Download ZIP** for your branch, or the **PaisaClone-source**
 
 ## Dependency compatibility
 
-The PDF/printing/image/archive versions are deliberately pinned as a coherent codec set. A newer image package can call archive APIs absent from an older PDF-constrained archive version even when the solver accepts both. Upgrade and test this group together, then commit the resolved `pubspec.lock`.
+The PDF/printing/image/archive versions are deliberately pinned as a coherent codec set. `home_widget` is pinned to 0.10.0 to avoid an older wildcard pulling API-37 alpha Glance dependencies into an API-36 app. Android plugin Java/Kotlin targets are aligned to JDK 17. A newer image package can call archive APIs absent from an older PDF-constrained archive version even when the solver accepts both. Upgrade and test this group together, then commit the resolved `pubspec.lock`.
 
 ## Checks
 
@@ -276,11 +283,12 @@ dart format lib test
 flutter gen-l10n
 flutter analyze --no-fatal-infos
 flutter test
+TZ=America/New_York flutter test test/regression_test.dart
 flutter build apk --release
 flutter build web --release --no-web-resources-cdn
 python3 scripts/create_web_cache.py
 ```
 
-Tests cover fixed-point currencies, expressions, serialized writes and failure rollback, transfers and reversal, profile isolation, free limits, calendar edges/rollover, recurring idempotency, debt/account consistency, exact bill allocation, currency rebasing, filters, backup/checksum/receipts, real Hive reopen persistence, CSV validation/deduplication, deep links, PBKDF2 verification and basic widget navigation. See Actions for the result of the specific commit you build; instructions are not a claim that an unrun workflow succeeded.
+Tests cover fixed-point currencies, expressions, serialized writes and failure rollback, transfers and reversal, profile isolation, free limits, calendar edges/rollover, recurring idempotency, debt/account consistency, exact bill allocation, currency rebasing, filters, backup/checksum/receipts, real Hive reopen persistence, CSV validation/deduplication, deep links, PBKDF2 verification, strict date/integer parsing, DST-safe calendar windows, settled-bill integrity, account-editor controller disposal, long profile lists and basic widget navigation. CI also runs a compiled-web Chromium smoke test for demo onboarding, persistence, offline reload and unexpected runtime network requests. See Actions for the result of the specific commit you build; instructions are not a claim that an unrun workflow succeeded.
 
 MIT licensed; package/font licenses remain their own. Improvements welcome: full-string translations, encrypted-at-rest migration with recoverable key design, larger-ledger indexing, Android background reconciliation with explicit battery/consent tradeoffs, optional verified-link hosting, and broader device integration tests.

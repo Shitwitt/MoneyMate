@@ -6,6 +6,7 @@ GitHub's separate Actions log-storage host. No credentials or finance files are
 read; only stdout/stderr from the explicitly supplied build/check command.
 """
 import collections
+import re
 import subprocess
 import sys
 
@@ -19,7 +20,16 @@ with subprocess.Popen(sys.argv[1:], stdout=subprocess.PIPE, stderr=subprocess.ST
         lines.append(line)
     code = process.wait()
 if code:
-    selected = [line for line in lines if not line.lstrip().startswith('info •')]
+    selected = []
+    for line in lines:
+        if line.lstrip().startswith('info •'):
+            continue
+        frame = re.match(r'^\s*#(\d+)\s', line)
+        if frame and int(frame[1]) > 12 and 'file://' not in line and 'package:paisaclone/' not in line:
+            continue
+        if line.lstrip().startswith(('at org.gradle.', 'at java.', 'at jdk.')):
+            continue
+        selected.append(line)
     text = ''.join(selected)[-27000:]
     for index in range(0, len(text), 3000):
         chunk = text[index:index + 3000].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')

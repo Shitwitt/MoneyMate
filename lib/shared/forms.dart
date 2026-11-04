@@ -181,11 +181,13 @@ Future<bool?> showEditor(
   required Future<void> Function() onSave,
   String saveLabel = 'Save',
   String? description,
-}) {
+}) async {
   final formKey = GlobalKey<FormState>();
   var busy = false;
-  return showModalBottomSheet<bool>(
-    context: context,
+  final navigator = Navigator.of(context);
+  final route = ModalBottomSheetRoute<bool>(
+    capturedThemes: InheritedTheme.capture(from: context, to: navigator.context),
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     isScrollControlled: true,
     useSafeArea: true,
     constraints: const BoxConstraints(maxWidth: 720),
@@ -255,6 +257,11 @@ Future<bool?> showEditor(
       ),
     ),
   );
+  final result = await navigator.push<bool>(route);
+  // The pop future resolves BEFORE the exit animation disposes the form.
+  // Callers own its controllers, so keep them alive until the route is removed.
+  await route.completed;
+  return result;
 }
 
 Future<String?> askText(

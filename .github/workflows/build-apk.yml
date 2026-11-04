@@ -3,6 +3,11 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      publish_download:
+        description: 'Publish a direct release-mode APK download'
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -53,6 +58,8 @@ jobs:
 
   release:
     name: Release Android APK
+    permissions:
+      contents: write
     needs: checks
     runs-on: ubuntu-latest
     timeout-minutes: 40
@@ -93,6 +100,18 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 30
+      - name: Publish direct release APK (explicit opt-in)
+        if: (github.event_name == 'workflow_dispatch' && inputs.publish_download) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[apk-download]'))
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          cp build/app/outputs/flutter-apk/app-release.apk PaisaClone-Android-release.apk
+          sha256sum PaisaClone-Android-release.apk > PaisaClone-Android-release.apk.sha256
+          gh release create "apk-release-${GITHUB_RUN_ID}" --target "$GITHUB_SHA" --prerelease \
+            --title 'PaisaClone — optimized installable Android APK' \
+            --notes 'Release-mode Android APK for Android 7/API 24 or newer. Uses a debug signing key unless a persistent keystore was configured in Actions secrets. No Internet permission. Back up and verify data before uninstalling an older differently signed build. See README for privacy and real-device QA limits.' \
+            PaisaClone-Android-release.apk PaisaClone-Android-release.apk.sha256
 
   web:
     name: Self-hosted web + real-browser offline smoke test

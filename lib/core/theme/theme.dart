@@ -68,6 +68,7 @@ ThemeData tinkTheme(
         outline: dark ? AppColors.darkSecondary : const Color(0xff777783),
         outlineVariant: outline,
         error: dark ? const Color(0xffF87171) : AppColors.expenseInk,
+        onError: dark ? AppColors.ink : Colors.white,
         errorContainer: dark
             ? const Color(0xff42202a)
             : AppColors.errorBackground,

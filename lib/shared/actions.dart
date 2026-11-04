@@ -88,7 +88,7 @@ Future<bool> confirm(
                 ].any((word) => confirmLabel.startsWith(word))
                 ? FilledButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.error,
-                    foregroundColor: Colors.white,
+                    foregroundColor: Theme.of(context).colorScheme.onError,
                   )
                 : null,
             onPressed: () => Navigator.pop(context, true),

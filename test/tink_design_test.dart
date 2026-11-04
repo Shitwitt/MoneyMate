@@ -98,6 +98,10 @@ void main() {
         contrast(theme.colorScheme.onSurfaceVariant, theme.colorScheme.surface),
         greaterThanOrEqualTo(4.5),
       );
+      expect(
+        contrast(theme.colorScheme.error, theme.colorScheme.onError),
+        greaterThanOrEqualTo(4.5),
+      );
       final label = theme.filledButtonTheme.style!.textStyle!.resolve({})!;
       expect(label.fontSize, 20);
       expect(label.fontWeight, FontWeight.w700);

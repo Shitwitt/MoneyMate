@@ -55,9 +55,9 @@ Tink/
 
 ## GET YOUR APK NOW
 
-**The 1.2.0 source is under verification; a fresh 1.2.0 APK is not published yet.** The following historical 1.1.0 APK does not contain the new editorial/glass UI.
+**[Download Tink 1.2.0, build 3 — installable Android APK](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42087198603/Tink-Android-release.apk)** · **82.3 MB**, Android 7+, ARM64/ARMv7/x86-64. This is a fresh optimized build of the editorial/glass redesign, **test/debug-key signed**, not store-signed. [Checksum, certificate and verified test evidence](docs/BUILD_STATUS.md). Older 1.1/1.0 APKs do **not** contain this redesign.
 
-**[Download historical Tink 1.1.0, build 2 — installable Android APK](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-41887240793/Tink-Android-release.apk)** · **82.6 MB**, Android 7+, ARM64/ARMv7/x86-64. This optimized APK is **test/debug-key signed**, not store-signed. [Checksum, certificate and verified test evidence](docs/BUILD_STATUS.md). Historical 1.0 PaisaClone releases are **not** the redesigned Tink binary. Back up and verify your data before uninstalling a differently signed older version.
+**Upgrade warning:** this certificate differs from the earlier delivered 1.1 APK. Android cannot update that install in place. **Export and verify your backup before uninstalling**; install the new APK and restore only when ready. Configure a persistent private release key for future signed upgrades.
 
 **Here is how you get the APK ready to download and install** — fastest methods first:
 

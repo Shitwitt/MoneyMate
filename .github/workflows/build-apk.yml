@@ -133,12 +133,12 @@ jobs:
       - name: Diagnostic screenshot part 2
         if: always()
         run: python3 .github/scripts/image_diagnostic.py 1
-      - name: Tink intro visual evidence 1
+      - name: Tink comparative cashflow visual evidence 1
         if: always()
-        run: python3 .github/scripts/image_diagnostic.py 0 web-intro.jpg tink-intro
-      - name: Tink intro visual evidence 2
+        run: python3 .github/scripts/image_diagnostic.py 0 web-flow.jpg tink-flow
+      - name: Tink comparative cashflow visual evidence 2
         if: always()
-        run: python3 .github/scripts/image_diagnostic.py 1 web-intro.jpg tink-intro
+        run: python3 .github/scripts/image_diagnostic.py 1 web-flow.jpg tink-flow
       - name: Tink accounts visual evidence 1
         if: always()
         run: python3 .github/scripts/image_diagnostic.py 0 web-accounts.jpg tink-accounts
@@ -151,12 +151,12 @@ jobs:
       - name: Tink reports visual evidence 2
         if: always()
         run: python3 .github/scripts/image_diagnostic.py 1 web-reports.jpg tink-reports
-      - name: Tink dark visual evidence 1
+      - name: Tink category allocation visual evidence 1
         if: always()
-        run: python3 .github/scripts/image_diagnostic.py 0 web-dark.jpg tink-dark
-      - name: Tink dark visual evidence 2
+        run: python3 .github/scripts/image_diagnostic.py 0 web-allocation.jpg tink-allocation
+      - name: Tink category allocation visual evidence 2
         if: always()
-        run: python3 .github/scripts/image_diagnostic.py 1 web-dark.jpg tink-dark
+        run: python3 .github/scripts/image_diagnostic.py 1 web-allocation.jpg tink-allocation
       - uses: actions/upload-artifact@v5
         if: always()
         with:

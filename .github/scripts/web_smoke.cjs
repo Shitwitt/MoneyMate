@@ -107,6 +107,14 @@ const binary = chromiumModule.default || chromiumModule;
     await page.getByLabel(/Your money, a little clearer/).or(page.getByText('Your money, a little clearer', {exact: false})).first().waitFor();
     await page.waitForTimeout(650);
     await capture('web-reports.jpg');
+    // Review lower charts using Flutter's actual scroll view.
+    await page.mouse.move(210, 590);
+    await page.mouse.wheel(0, 1250);
+    await page.waitForTimeout(850);
+    await capture('web-flow.jpg');
+    await page.mouse.wheel(0, 1000);
+    await page.waitForTimeout(850);
+    await capture('web-allocation.jpg');
     await page.getByRole('button', {name: 'Back', exact: true}).click({force: true});
     await page.waitForTimeout(350);
     await nav('Settings');

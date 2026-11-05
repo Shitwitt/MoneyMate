@@ -235,11 +235,48 @@ class GlassNavigationDock extends StatelessWidget {
     final hasMore = tabs.contains('more');
     final dark = AppColors.dark(context);
     final surface = dark ? const Color(0xff2B2B32) : const Color(0xffE7E6EA);
-    Widget item(String id, {bool more = false}) {
+    Widget item(String id, {bool more = false, bool horizontal = false}) {
       final active = id == selected;
       final ink = active
           ? Colors.white
           : Theme.of(context).colorScheme.onSurface;
+      final icon = Icon(
+        more ? Icons.more_vert_rounded : icons[id],
+        color: ink,
+        size: more ? 29 : 24,
+      );
+      final label = Text(
+        labels[id]!,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AppTextStyles.data(
+          12,
+          active ? FontWeight.w700 : FontWeight.w500,
+          ink,
+        ),
+      );
+      final content = SizedBox(
+        height: more ? 68 : 58,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: horizontal && showLabels
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    icon,
+                    const SizedBox(width: 6),
+                    Flexible(child: label),
+                  ],
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    icon,
+                    if (showLabels) ...[const SizedBox(height: 3), label],
+                  ],
+                ),
+        ),
+      );
       return Semantics(
         button: true,
         selected: active,
@@ -253,52 +290,33 @@ class GlassNavigationDock extends StatelessWidget {
               duration: MediaQuery.disableAnimationsOf(context)
                   ? Duration.zero
                   : const Duration(milliseconds: 160),
-              child: ShineSurface(
-                shineKey: active,
-                radius: 100,
-                padding: EdgeInsets.zero,
-                glow: active ? const Color(0xffFF7F45) : null,
-                colors: active
-                    ? const [
-                        Color(0xffB5421C),
-                        Color(0xff932811),
-                        Color(0xffAA3518),
-                      ]
-                    : [
-                        surface.withValues(alpha: .35),
-                        surface.withValues(alpha: .12),
-                      ],
-                onTap: () => onSelect(id),
-                child: SizedBox(
-                  height: 70,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 3),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          more ? Icons.more_vert_rounded : icons[id],
-                          color: ink,
-                          size: more ? 29 : 24,
-                        ),
-                        if (showLabels) ...[
-                          const SizedBox(height: 3),
-                          Text(
-                            labels[id]!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.data(
-                              12,
-                              active ? FontWeight.w700 : FontWeight.w500,
-                              ink,
-                            ),
-                          ),
-                        ],
-                      ],
+              child: active || more
+                  ? ShineSurface(
+                      shineKey: active,
+                      radius: 100,
+                      padding: EdgeInsets.zero,
+                      glow: active ? const Color(0xffFF9854) : null,
+                      colors: active
+                          ? const [
+                              Color(0xffC94A18),
+                              Color(0xffB53A10),
+                              Color(0xffC24413),
+                            ]
+                          : [
+                              surface.withValues(alpha: .35),
+                              surface.withValues(alpha: .12),
+                            ],
+                      onTap: () => onSelect(id),
+                      child: content,
+                    )
+                  : Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(100),
+                        onTap: () => onSelect(id),
+                        child: content,
+                      ),
                     ),
-                  ),
-                ),
-              ),
             ),
           ),
         ),
@@ -325,10 +343,26 @@ class GlassNavigationDock extends StatelessWidget {
                         color: Colors.white.withValues(alpha: dark ? .2 : .85),
                       ),
                     ),
-                    child: Row(
-                      children: [
-                        for (final id in main) Expanded(child: item(id)),
-                      ],
+                    child: LayoutBuilder(
+                      builder: (context, bounds) {
+                        // Widen only when every other target stays at least 48px.
+                        // Narrow layouts retain stacked labels and semantics.
+                        final wide =
+                            showLabels &&
+                            bounds.maxWidth >= (main.length + 1) * 48;
+                        return Row(
+                          children: [
+                            for (final id in main)
+                              Expanded(
+                                flex: wide && id == selected ? 2 : 1,
+                                child: item(
+                                  id,
+                                  horizontal: wide && id == selected,
+                                ),
+                              ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ),

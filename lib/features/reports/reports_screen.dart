@@ -15,6 +15,8 @@ import '../../core/utils/dates.dart';
 import '../../core/utils/money.dart';
 import '../../shared/actions.dart';
 import '../../shared/charts.dart';
+import '../../shared/cashflow_composition.dart';
+import '../../shared/pulse_charts.dart';
 import '../../shared/widgets.dart';
 import '../settings/premium_screen.dart';
 import '../transactions/filter_sheet.dart';
@@ -204,6 +206,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             ],
           ),
           const SizedBox(height: 20),
+          FinancialPulsePanel(ledger, expanded: true),
+          const SizedBox(height: 24),
+          ActivityHeatmap(entries, anchor: end),
+          const SizedBox(height: 24),
           LayoutBuilder(
             builder: (context, constraints) => Wrap(
               spacing: 12,
@@ -256,6 +262,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             ),
           ),
           const SizedBox(height: 24),
+          ShineSurface(
+            child: CashflowComposition(
+              chartLedger,
+              months: chartMonths,
+              anchor: end,
+            ),
+          ),
+          const SizedBox(height: 28),
           SectionHeader(
             'The bigger picture',
             trailing: SegmentedButton<bool>(
@@ -364,8 +378,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             ..._advanced(context, ledger, entries, window, expense)
           else
             Card(
-              color: Theme.of(context).colorScheme.tertiaryContainer
-                  .withValues(alpha: .5),
+              color: Theme.of(
+                context,
+              ).colorScheme.tertiaryContainer.withValues(alpha: .5),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(

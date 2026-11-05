@@ -110,6 +110,7 @@ class Account {
   final bool excluded;
   final bool archived;
   final String imageBase64;
+  final String cardStyle;
 
   const Account({
     required this.id,
@@ -123,6 +124,7 @@ class Account {
     this.excluded = false,
     this.archived = false,
     this.imageBase64 = '',
+    this.cardStyle = 'auto',
   });
 
   factory Account.fromJson(Json json) => Account(
@@ -137,6 +139,7 @@ class Account {
     excluded: readBool(json['excluded'], false),
     archived: readBool(json['archived'], false),
     imageBase64: readString(json['imageBase64'], ''),
+    cardStyle: readString(json['cardStyle'], 'auto'),
   );
 
   Json toJson() => {
@@ -151,6 +154,7 @@ class Account {
     'excluded': excluded,
     'archived': archived,
     'imageBase64': imageBase64,
+    'cardStyle': cardStyle,
   };
 
   Account copyWith({
@@ -165,6 +169,7 @@ class Account {
     bool? excluded,
     bool? archived,
     String? imageBase64,
+    String? cardStyle,
   }) => Account(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -177,6 +182,7 @@ class Account {
     excluded: excluded ?? this.excluded,
     archived: archived ?? this.archived,
     imageBase64: imageBase64 ?? this.imageBase64,
+    cardStyle: cardStyle ?? this.cardStyle,
   );
 }
 

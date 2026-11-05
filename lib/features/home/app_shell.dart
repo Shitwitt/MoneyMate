@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/data/providers.dart';
+import '../../shared/luxury_components.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../accounts/accounts_screen.dart';
 import '../budgets/budgets_screen.dart';
@@ -65,21 +66,13 @@ class _AppShellState extends ConsumerState<AppShell> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Image.asset(
-                      'assets/branding/mark.png',
-                      width: 40,
-                      height: 40,
-                    ),
                     if (extended)
-                      const Padding(
-                        padding: EdgeInsets.only(left: 12),
-                        child: Text(
-                          'Tink',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                      const LuxuryWordmark(size: 36)
+                    else
+                      Image.asset(
+                        'assets/branding/mark.png',
+                        width: 40,
+                        height: 40,
                       ),
                   ],
                 ),
@@ -110,24 +103,13 @@ class _AppShellState extends ConsumerState<AppShell> {
       ),
       bottomNavigationBar: wide
           ? null
-          : NavigationBar(
-              selectedIndex: index,
-              onDestinationSelected: (index) =>
-                  setState(() => selected = tabs[index]),
-              labelBehavior: settings.navLabels
-                  ? NavigationDestinationLabelBehavior.alwaysShow
-                  : NavigationDestinationLabelBehavior.alwaysHide,
-              destinations: [
-                for (final id in tabs)
-                  NavigationDestination(
-                    icon: AnimatedScale(
-                      scale: active == id ? 1.08 : 1,
-                      duration: const Duration(milliseconds: 150),
-                      child: Icon(tabIcons[id]),
-                    ),
-                    label: labels[id]!,
-                  ),
-              ],
+          : GlassNavigationDock(
+              tabs: tabs,
+              selected: active,
+              labels: labels,
+              icons: tabIcons,
+              showLabels: settings.navLabels,
+              onSelect: (id) => setState(() => selected = id),
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => openTransactionSheet(context),

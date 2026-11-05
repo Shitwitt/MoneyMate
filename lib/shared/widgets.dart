@@ -12,6 +12,8 @@ export '../core/theme/app_radius.dart';
 export '../core/theme/app_spacing.dart';
 export '../core/theme/app_text_styles.dart';
 export 'tink_components.dart';
+export 'luxury_components.dart';
+export 'account_artwork.dart';
 
 IconData iconFor(String key) => switch (key) {
   'food' => Icons.restaurant_rounded,
@@ -93,7 +95,7 @@ class AmountText extends ConsumerWidget {
     final effectiveStyle = DefaultTextStyle.of(context).style
         .merge(style)
         .copyWith(
-          fontFamily: 'Inter',
+          fontFamily: 'SourceSerif4',
           fontFeatures: const [FontFeature.tabularFigures()],
         );
     Widget render(int value) => Text(
@@ -175,8 +177,9 @@ class EmptyState extends StatelessWidget {
           width: 88,
           height: 88,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primaryContainer
-                .withValues(alpha: .45),
+            color: Theme.of(
+              context,
+            ).colorScheme.primaryContainer.withValues(alpha: .45),
             borderRadius: BorderRadius.circular(28),
           ),
           child: Icon(
@@ -228,6 +231,8 @@ class FeaturePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
+      toolbarHeight:
+          72 * MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.8),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -304,8 +309,9 @@ class StatCard extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             DefaultTextStyle(
-              style: Theme.of(context).textTheme.headlineSmall!
-                  .copyWith(fontWeight: FontWeight.w700),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w700),
               child: value,
             ),
             if (caption != null) ...[

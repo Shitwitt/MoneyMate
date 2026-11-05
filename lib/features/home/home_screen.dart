@@ -9,6 +9,7 @@ import '../../core/utils/constants.dart';
 import '../../core/utils/dates.dart';
 import '../../shared/actions.dart';
 import '../../shared/charts.dart';
+import '../../shared/pulse_charts.dart';
 import '../../shared/widgets.dart';
 import '../accounts/accounts_screen.dart';
 import '../achievements/achievements_screen.dart';
@@ -50,55 +51,34 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 76,
-        title: InkWell(
-          borderRadius: BorderRadius.circular(18),
-          onTap: () => _profiles(context, ref),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircleAvatar(
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                foregroundColor: Theme.of(context)
-                    .colorScheme
-                    .onPrimaryContainer,
-                child: Text(
-                  profile.profile.name.characters.first.toUpperCase(),
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Flexible(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      greeting,
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            profile.profile.name,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(Icons.expand_more_rounded, size: 18),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+        title: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : const Duration(milliseconds: 600),
+          curve: Curves.easeOutCubic,
+          builder: (context, value, child) => Opacity(
+            opacity: value,
+            child: Transform.translate(
+              offset: Offset(0, 6 * (1 - value)),
+              child: child,
+            ),
           ),
+          child: const LuxuryWordmark(size: 36),
         ),
         actions: [
+          IconButton(
+            tooltip: 'Profiles',
+            onPressed: () => _profiles(context, ref),
+            icon: CircleAvatar(
+              radius: 15,
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: Text(
+                profile.profile.name.characters.first.toUpperCase(),
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+            ),
+          ),
           IconButton(
             tooltip: app.settings.hideAmounts ? 'Show amounts' : 'Hide amounts',
             onPressed: () => runSafe(
@@ -136,21 +116,42 @@ class HomeScreen extends ConsumerWidget {
             child: ReorderableListView.builder(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
               header: Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: Row(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        'Your overview',
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => _profiles(context, ref),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              child: Text(
+                                '$greeting, ${profile.profile.name}',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          DateFormat(
+                            'MMM yyyy',
+                            app.settings.locale,
+                          ).format(DateTime.now()),
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                      ],
                     ),
                     Text(
-                      DateFormat(
-                        'MMM yyyy',
-                        app.settings.locale,
-                      ).format(DateTime.now()),
-                      style: Theme.of(context).textTheme.labelLarge,
+                      'Your money,\nbeautifully in focus.',
+                      style: Theme.of(context).textTheme.displayLarge,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'A quieter way to see the bigger picture.',
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
                 ),
@@ -260,6 +261,8 @@ class HomeScreen extends ConsumerWidget {
             SafeToSpendCard(ledger),
             const SizedBox(height: 16),
             const HomeQuickActions(),
+            const SizedBox(height: 20),
+            FinancialPulsePanel(ledger),
           ],
         );
       case 'cashflow':
@@ -267,7 +270,7 @@ class HomeScreen extends ConsumerWidget {
       case 'accounts':
         return SizedBox(
           height:
-              170 * MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.6),
+              276 * MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.6),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount:
@@ -296,42 +299,15 @@ class HomeScreen extends ConsumerWidget {
               }
               final account = accounts[index];
               return SizedBox(
-                width: 235,
-                child: Card(
-                  color: null,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(24),
+                width: 310,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: AccountArtwork(
+                    account: account,
+                    balance: ledger.accountBalance(account.id),
+                    hidden: ledger.settings.hideAmounts,
                     onTap: () =>
                         openPage(context, AccountDetailScreen(account.id)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(iconFor(account.icon), size: 24),
-                              const Spacer(),
-                              Text(
-                                account.currency,
-                                style: Theme.of(context).textTheme.labelSmall,
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Text(
-                            account.name,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          const SizedBox(height: 6),
-                          AmountText(
-                            ledger.accountBalance(account.id),
-                            currency: account.currency,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
                 ),
               );
@@ -514,9 +490,9 @@ class HomeScreen extends ConsumerWidget {
                                     children: [
                                       Text(
                                         template.name,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelLarge,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.labelLarge,
                                       ),
                                       const SizedBox(height: 6),
                                       AmountText(
@@ -524,9 +500,9 @@ class HomeScreen extends ConsumerWidget {
                                         currency: ledger
                                             .account(template.accountId)
                                             .currency,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelSmall,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.labelSmall,
                                       ),
                                     ],
                                   ),
@@ -619,8 +595,9 @@ class HomeScreen extends ConsumerWidget {
                 const SizedBox(height: 14),
                 Text(
                   'Dream a little bigger.',
-                  style: Theme.of(context).textTheme.headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 const Text(

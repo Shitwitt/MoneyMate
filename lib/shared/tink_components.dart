@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
+import 'luxury_components.dart';
 import '../core/theme/app_radius.dart';
 import '../core/theme/app_spacing.dart';
 
@@ -162,9 +163,9 @@ class ProgressBar extends StatelessWidget {
           value: progress,
           minHeight: height,
           color: color ?? Theme.of(context).colorScheme.primary,
-          backgroundColor: Theme.of(context)
-              .colorScheme
-              .surfaceContainerHighest,
+          backgroundColor: Theme.of(
+            context,
+          ).colorScheme.surfaceContainerHighest,
         ),
       ),
     ),
@@ -226,8 +227,17 @@ class _RingPainter extends CustomPainter {
       -math.pi / 2,
       math.pi * 2 * value,
       false,
-      p..color = color,
+      p
+        ..color = color.withValues(alpha: .28)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
     );
+    p.maskFilter = null;
+    p.shader = SweepGradient(
+      startAngle: -math.pi / 2,
+      endAngle: math.pi * 1.5,
+      colors: [Color.lerp(color, Colors.white, .35)!, color],
+    ).createShader(rect);
+    canvas.drawArc(rect, -math.pi / 2, math.pi * 2 * value, false, p);
   }
 
   @override
@@ -370,21 +380,7 @@ class TinkBrand extends StatelessWidget {
   final double size;
   const TinkBrand({super.key, this.size = 32});
   @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      TinkLogo(size: size),
-      const SizedBox(width: 10),
-      Text(
-        'Tink',
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontSize: size * .70,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -.9,
-        ),
-      ),
-    ],
-  );
+  Widget build(BuildContext context) => LuxuryWordmark(size: size);
 }
 
 /// An original scalable redraw of the head-and-spark icon supplied by the user.

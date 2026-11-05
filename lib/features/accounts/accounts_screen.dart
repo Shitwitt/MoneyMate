@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,7 +6,6 @@ import '../../core/data/ledger.dart';
 import '../../core/data/providers.dart';
 import '../../core/data/seed.dart';
 import '../../core/models/models.dart';
-import '../../core/theme/app_theme.dart';
 import '../../core/services/receipt_service.dart';
 import '../../core/utils/constants.dart';
 import '../../core/utils/dates.dart';
@@ -40,11 +37,39 @@ Future<void> editAccount(
   var excluded = initial?.excluded ?? false,
       archived = initial?.archived ?? false;
   var image = initial?.imageBase64 ?? '';
+  var cardStyle = initial?.cardStyle ?? 'auto';
   await showEditor(
     context,
     title: initial == null ? 'A home for your money' : 'Edit account',
-    description: 'Use a negative opening balance for credit card debt. Changing an opening balance adjusts the ledger without creating a transaction.',
+    description:
+        'Use a negative opening balance for credit card debt. Changing an opening balance adjusts the ledger without creating a transaction.',
     fields: (context, setLocal) => [
+      AnimatedBuilder(
+        animation: Listenable.merge([name, opening]),
+        builder: (context, _) {
+          final value = num.tryParse(opening.text.replaceAll(',', ''));
+          final amount = value != null && value.isFinite && value.abs() < 1e12
+              ? toMinor(value, currency)
+              : 0;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: AccountArtwork(
+              account: Account(
+                id: initial?.id ?? 'preview',
+                name: name.text,
+                currency: currency,
+                type: type,
+                color: color,
+                icon: icon,
+                cardStyle: cardStyle,
+                imageBase64: image,
+              ),
+              balance: amount,
+              preview: true,
+            ),
+          );
+        },
+      ),
       formText(name, 'Account name', required: true),
       formSelect(
         'Account type',
@@ -63,6 +88,20 @@ Future<void> editAccount(
       ),
       formText(opening, 'Opening balance', numeric: true, required: true),
       formText(notes, 'Notes', lines: 2),
+      const SectionHeader('The finishing touch'),
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          for (final finish in accountFinishes.entries)
+            ChoiceChip(
+              label: Text(finish.value),
+              selected: cardStyle == finish.key,
+              onSelected: (_) => setLocal(() => cardStyle = finish.key),
+            ),
+        ],
+      ),
+      const SizedBox(height: 16),
       formColors(color, (value) => setLocal(() => color = value)),
       ExpansionTile(
         title: const Text('Choose an icon'),
@@ -123,6 +162,7 @@ Future<void> editAccount(
               excluded: excluded,
               archived: archived,
               imageBase64: image,
+              cardStyle: cardStyle,
             ),
           );
     },
@@ -256,108 +296,53 @@ class AccountOverviewCard extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    final credit = account.type == 'credit card';
-    return Theme(
-      data: credit
-          ? buildTheme(
-              ledger.settings.copyWith(theme: 'dark', dynamicColors: false),
-              Brightness.dark,
-            )
-          : Theme.of(context),
-      child: Builder(
-        builder: (context) => AppCard(
-          color: credit ? AppColors.darkSurface : null,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AccountArtwork(
+          account: account,
+          balance: ledger.accountBalance(account.id),
+          hidden: ledger.settings.hideAmounts,
           onTap: onTap,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 14, 18, 6),
+          child: Wrap(
+            spacing: 20,
+            runSpacing: 8,
             children: [
-              Row(
-                children: [
-                  account.imageBase64.isEmpty
-                      ? ColorIcon(account.icon, account.color, size: 44)
-                      : CircleAvatar(
-                          backgroundImage: MemoryImage(
-                            base64Decode(account.imageBase64),
-                          ),
-                        ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          account.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${account.currency}${account.archived ? ' · Archived' : ''}${account.excluded ? ' · Excluded' : ''}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
+              for (final income in [true, false])
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      income
+                          ? Icons.south_west_rounded
+                          : Icons.north_east_rounded,
+                      size: 17,
+                      color: AppColors.semantic(
+                        context,
+                        income ? 'income' : 'expense',
+                      ),
                     ),
-                  ),
-                  const Icon(Icons.chevron_right_rounded, size: 20),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Recorded balance',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 6),
-              AmountText(
-                ledger.accountBalance(account.id),
-                currency: account.currency,
-                style: Theme.of(context).textTheme.headlineLarge,
-              ),
-              const SizedBox(height: 20),
-              Wrap(
-                spacing: 20,
-                runSpacing: 12,
-                children: [
-                  for (final income in [true, false])
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          income
-                              ? Icons.south_west_rounded
-                              : Icons.north_east_rounded,
-                          size: 16,
-                          color: AppColors.semantic(
-                            context,
-                            income ? 'income' : 'expense',
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        AmountText(
-                          _accountFlow(ledger.data, account.id, month, income),
-                          currency: account.currency,
-                          compact: true,
-                          style: Theme.of(context).textTheme.labelLarge
-                              ?.copyWith(
-                                color: AppColors.semantic(
-                                  context,
-                                  income ? 'income' : 'expense',
-                                ),
-                              ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          income ? 'in' : 'out',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
+                    const SizedBox(width: 7),
+                    AmountText(
+                      _accountFlow(ledger.data, account.id, month, income),
+                      currency: account.currency,
+                      compact: true,
+                      style: Theme.of(context).textTheme.labelLarge,
                     ),
-                ],
-              ),
+                    const SizedBox(width: 5),
+                    Text(
+                      income ? 'in this month' : 'out this month',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 }

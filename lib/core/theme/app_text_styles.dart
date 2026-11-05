@@ -1,7 +1,6 @@
 import 'dart:ui' show FontFeature;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 abstract final class AppTextStyles {
   static const fallback = [
@@ -15,29 +14,39 @@ abstract final class AppTextStyles {
     'NotoSansTelugu',
   ];
   static const tabular = [FontFeature.tabularFigures()];
-  static TextStyle ui(double size, FontWeight weight, Color color) =>
-      GoogleFonts.poppins(
-        fontSize: size,
-        fontWeight: weight,
-        color: color,
-        height: 1.35,
-        letterSpacing: size >= 24 ? -.8 : -.15,
-      ).copyWith(fontFamilyFallback: fallback);
+  static TextStyle ui(double size, FontWeight weight, Color color) => TextStyle(
+    fontFamily: 'SourceSerif4',
+    fontSize: size,
+    fontWeight: weight,
+    color: color,
+    height: 1.35,
+    letterSpacing: size >= 24 ? -.8 : -.15,
+  ).copyWith(fontFamilyFallback: fallback);
   static TextStyle data(double size, FontWeight weight, Color color) =>
-      GoogleFonts.inter(
+      TextStyle(
+        fontFamily: 'SourceSerif4',
         fontSize: size,
         fontWeight: weight,
         color: color,
         height: 1.45,
         fontFeatures: tabular,
       ).copyWith(fontFamilyFallback: fallback);
+  static TextStyle display(double size, Color color) => TextStyle(
+    fontFamily: 'InstrumentSerif',
+    fontFamilyFallback: fallback,
+    fontSize: size,
+    fontWeight: FontWeight.w400,
+    color: color,
+    height: 1.08,
+    letterSpacing: -.6,
+  );
   static TextTheme theme(Color ink, Color secondary) => TextTheme(
-    displayLarge: ui(36, FontWeight.w700, ink),
-    displayMedium: ui(32, FontWeight.w700, ink),
-    displaySmall: ui(32, FontWeight.w700, ink),
-    headlineLarge: ui(28, FontWeight.w700, ink),
-    headlineMedium: ui(24, FontWeight.w600, ink),
-    headlineSmall: ui(24, FontWeight.w600, ink),
+    displayLarge: display(48, ink),
+    displayMedium: display(40, ink),
+    displaySmall: display(40, ink),
+    headlineLarge: display(36, ink),
+    headlineMedium: display(30, ink),
+    headlineSmall: display(30, ink),
     titleLarge: ui(20, FontWeight.w600, ink),
     titleMedium: ui(18, FontWeight.w600, ink),
     titleSmall: ui(16, FontWeight.w600, ink),

@@ -240,7 +240,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(
-      Directionality.of(tester.element(find.byType(NavigationBar))),
+      Directionality.of(tester.element(find.byType(GlassNavigationDock))),
       TextDirection.rtl,
     );
     expect(tester.takeException(), isNull);

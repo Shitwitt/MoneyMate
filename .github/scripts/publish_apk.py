@@ -26,7 +26,7 @@ with apk.open('rb') as file:
         hash_value.update(block)
 Path(f'{apk}.sha256').write_text(f'{hash_value.hexdigest()}  {apk.name}\n')
 subprocess.run(['git', 'archive', '--format=zip', '--prefix=Tink/', 'HEAD', '-o', 'Tink-source.zip'], check=True)
-notes = ('Tink 1.1.0 build 2. Optimized, verified Android 7/API 24+ APK with ARM64, ARMv7 and x86-64 payloads and no Internet permission. '
+notes = ('Tink 1.2.0 build 3. Optimized, verified Android 7/API 24+ APK with ARM64, ARMv7 and x86-64 payloads and no Internet permission. '
          'Test/debug-key signed unless a persistent keystore was configured. Export and verify a backup before uninstalling an older differently signed build. '
          'Source and public certificate/checksum metadata included. See README for device QA and platform limits.')
 
@@ -42,7 +42,7 @@ def run(args):
 for attempt in range(5):
     if run(['gh', 'release', 'view', tag]):
         break
-    if run(['gh', 'release', 'create', tag, '--target', target, '--prerelease', '--title', 'Tink 1.1 — verified Android app', '--notes', notes]):
+    if run(['gh', 'release', 'create', tag, '--target', target, '--prerelease', '--title', 'Tink 1.2 — editorial luxury redesign', '--notes', notes]):
         break
     time.sleep(8 * (attempt + 1))
 else:

@@ -27,6 +27,28 @@ class SettingsScreen extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.only(bottom: 110),
         children: [
+          ShineSurface(
+            colors: Theme.of(context).brightness == Brightness.dark
+                ? const [Color(0xff30263F), Color(0xff1B1B23)]
+                : const [Color(0xffEDE7FF), Color(0xffF9F8FC)],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const LuxuryWordmark(size: 34),
+                const SizedBox(height: 20),
+                Text(
+                  'A space that feels\nlike you.',
+                  style: Theme.of(context).textTheme.displayMedium,
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Every preference. Entirely yours. Always on this device.',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 28),
+          const SectionHeader('Make it personal'),
           for (final item in [
             (
               l.appearance,
@@ -97,12 +119,12 @@ class SettingsScreen extends ConsumerWidget {
                     horizontal: 20,
                     vertical: 8,
                   ),
-                  leading: Icon(
-                    item.$3,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                  leading: CategoryIcon(icon: item.$3, size: 46),
                   title: Text(item.$1),
-                  subtitle: Text(item.$2, style: const TextStyle(fontSize: 11)),
+                  subtitle: Text(
+                    item.$2,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => openPage(context, item.$4),
                 ),

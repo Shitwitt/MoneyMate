@@ -56,7 +56,7 @@ class _FintechPainter extends CustomPainter {
       text: TextSpan(
         text: value,
         style: TextStyle(
-          fontFamily: numeric ? 'Inter' : 'Poppins',
+          fontFamily: numeric ? 'SourceSerif4' : 'InstrumentSerif',
           fontSize: size,
           fontWeight: weight,
           color: color,

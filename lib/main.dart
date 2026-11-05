@@ -37,7 +37,12 @@ Future<void> main() async {
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('assets/fonts/OFL.txt');
     yield LicenseEntryWithLineBreaks(['Noto fonts'], license);
-    for (final family in ['Poppins', 'Inter']) {
+    for (final family in [
+      'Poppins',
+      'Inter',
+      'instrumentserif',
+      'sourceserif4',
+    ]) {
       yield LicenseEntryWithLineBreaks([
         family,
       ], await rootBundle.loadString('assets/fonts/$family-OFL.txt'));
@@ -151,8 +156,9 @@ class _BootstrapState extends State<Bootstrap> {
                                 await FileService.save(
                                   Uint8List.fromList(
                                     utf8.encode(
-                                      Hive.box<String>('paisaclone_v1')
-                                              .get('state') ??
+                                      Hive.box<String>(
+                                            'paisaclone_v1',
+                                          ).get('state') ??
                                           '',
                                     ),
                                   ),
@@ -414,6 +420,8 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
       title: 'Tink',
       theme: buildTheme(app.settings, Brightness.light, dynamicScheme: light),
       darkTheme: buildTheme(app.settings, Brightness.dark, dynamicScheme: dark),
+      themeAnimationDuration: const Duration(milliseconds: 480),
+      themeAnimationCurve: Curves.easeInOutCubic,
       themeMode: switch (app.settings.theme) {
         'light' => ThemeMode.light,
         'dark' || 'black' => ThemeMode.dark,

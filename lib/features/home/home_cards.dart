@@ -18,8 +18,11 @@ class SafeToSpendCard extends ConsumerWidget {
     final dark = AppColors.dark(context);
     final ink = dark ? Colors.white : AppColors.ink;
     final secondary = dark ? const Color(0xffC5BDD8) : AppColors.secondary;
-    return AppCard(
-      color: dark ? const Color(0xff2D2341) : AppColors.primaryLight,
+    return ShineSurface(
+      colors: dark
+          ? const [Color(0xff30263F), Color(0xff1B1B23)]
+          : const [Color(0xffF1ECFC), Color(0xffFFFFFF)],
+      glow: Theme.of(context).colorScheme.primary,
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,8 +32,9 @@ class SafeToSpendCard extends ConsumerWidget {
               Expanded(
                 child: Text(
                   'Safe to spend',
-                  style: Theme.of(context).textTheme.titleSmall
-                      ?.copyWith(color: ink),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(color: ink),
                 ),
               ),
               IconButton(
@@ -47,16 +51,20 @@ class SafeToSpendCard extends ConsumerWidget {
           AmountText(
             summary.available,
             animate: true,
-            style: Theme.of(context).textTheme.displayLarge
-                ?.copyWith(color: ink, fontSize: 36, letterSpacing: -1.2),
+            style: Theme.of(context).textTheme.displayLarge?.copyWith(
+              color: ink,
+              fontSize: 43,
+              letterSpacing: -1.5,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             summary.complete
                 ? 'After planned outgoings · Estimate'
                 : 'Review old recurring entries for a reliable estimate.',
-            style: Theme.of(context).textTheme.bodySmall
-                ?.copyWith(color: secondary),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: secondary),
           ),
           const SizedBox(height: 24),
           Container(
@@ -76,14 +84,16 @@ class SafeToSpendCard extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         'Total net worth',
-                        style: Theme.of(context).textTheme.bodySmall
-                            ?.copyWith(color: secondary),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(color: secondary),
                       ),
                     ),
                     AmountText(
                       ledger.netWorth,
-                      style: Theme.of(context).textTheme.titleSmall
-                          ?.copyWith(color: ink),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleSmall?.copyWith(color: ink),
                     ),
                     const SizedBox(width: 8),
                     Icon(
@@ -217,8 +227,9 @@ class HomeQuickActions extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               label,
-              style: Theme.of(context).textTheme.labelLarge
-                  ?.copyWith(fontSize: 12),
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontSize: 12),
             ),
           ],
         ),

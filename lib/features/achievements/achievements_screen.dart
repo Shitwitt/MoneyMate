@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../core/data/achievements.dart';
 import '../../core/data/providers.dart';
 import '../../shared/widgets.dart';
+import '../../shared/pulse_charts.dart';
 
 class AchievementsScreen extends ConsumerWidget {
   const AchievementsScreen({super.key});
@@ -22,6 +23,8 @@ class AchievementsScreen extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.only(bottom: 110),
         children: [
+          ActivityHeatmap(profile.transactions),
+          const SizedBox(height: 24),
           Row(
             children: [
               Expanded(
@@ -64,9 +67,9 @@ class AchievementsScreen extends ConsumerWidget {
                               value: ((progress[badge.id] ?? 0) / badge.target)
                                   .clamp(0, 1),
                               strokeWidth: 3,
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
                             ),
                           ),
                           Icon(

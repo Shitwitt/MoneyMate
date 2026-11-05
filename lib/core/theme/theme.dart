@@ -78,7 +78,7 @@ ThemeData tinkTheme(
     useMaterial3: true,
     colorScheme: scheme,
     brightness: brightness,
-    fontFamily: 'Poppins',
+    fontFamily: 'SourceSerif4',
     fontFamilyFallback: AppTextStyles.fallback,
     textTheme: text,
   );
@@ -99,7 +99,8 @@ ThemeData tinkTheme(
     cardTheme: CardThemeData(
       color: card,
       surfaceTintColor: Colors.transparent,
-      elevation: 0,
+      elevation: dark ? 0 : 2,
+      shadowColor: const Color(0x120B0B0F),
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: AppRadius.cardBorder,

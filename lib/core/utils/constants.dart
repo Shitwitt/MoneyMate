@@ -1,5 +1,5 @@
 const appName = 'Tink';
-const appVersion = '1.1.0';
+const appVersion = '1.2.0';
 const freeBudgetLimit = 3;
 const freeGoalLimit = 3;
 const freeEntityLimit = 10;

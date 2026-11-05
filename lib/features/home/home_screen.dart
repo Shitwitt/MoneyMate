@@ -46,7 +46,6 @@ class HomeScreen extends ConsumerWidget {
         .where(
           (id) =>
               !settings.hiddenCards.contains(id) &&
-              !['balance', 'cashflow'].contains(id) &&
               !(id == 'premium' && settings.isPro),
         )
         .toList();
@@ -55,14 +54,29 @@ class HomeScreen extends ConsumerWidget {
             MediaQuery.sizeOf(context).width < 600
         ? 1
         : 2;
-    final sections = <Widget>[
-      _BalanceOverview(ledger: ledger, now: now),
-      const SizedBox(height: 22),
-      const SectionHeader('Overview'),
-    ];
+    final sections = <Widget>[];
     var index = 0;
+    var overviewAdded = false;
     while (index < ids.length) {
       final id = ids[index];
+      if (['balance', 'cashflow'].contains(id)) {
+        final together =
+            index + 1 < ids.length &&
+            ['balance', 'cashflow'].contains(ids[index + 1]);
+        sections.add(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 22),
+            child: _BalanceOverview(
+              ledger: ledger,
+              now: now,
+              showBalance: id == 'balance' || together,
+              showCashflow: id == 'cashflow' || together,
+            ),
+          ),
+        );
+        index += together ? 2 : 1;
+        continue;
+      }
       if (id == 'recent' || id == 'templates') {
         sections.add(
           Padding(
@@ -75,11 +89,15 @@ class HomeScreen extends ConsumerWidget {
         index++;
         continue;
       }
+      if (!overviewAdded) {
+        sections.add(const SectionHeader('Overview'));
+        overviewAdded = true;
+      }
       final row = [id];
       index++;
       if (columns == 2 &&
           index < ids.length &&
-          !['recent', 'templates'].contains(ids[index]))
+          !['recent', 'templates', 'balance', 'cashflow'].contains(ids[index]))
         row.add(ids[index++]);
       sections.add(
         Padding(
@@ -395,8 +413,9 @@ class _DashboardTile extends StatelessWidget {
     final valueInk = AppColors.dark(context)
         ? Theme.of(context).colorScheme.primary
         : AppColors.primaryInk;
-    final small = Theme.of(context).textTheme.bodySmall
-        ?.copyWith(color: ink.withValues(alpha: .80));
+    final small = Theme.of(
+      context,
+    ).textTheme.bodySmall?.copyWith(color: ink.withValues(alpha: .80));
     Widget money(int value, {double size = 27}) => FittedBox(
       fit: BoxFit.scaleDown,
       alignment: AlignmentDirectional.centerStart,
@@ -769,13 +788,21 @@ Future<void> showProfileMenu(BuildContext context, WidgetRef ref) =>
 class _BalanceOverview extends ConsumerWidget {
   final Ledger ledger;
   final DateTime now;
-  const _BalanceOverview({required this.ledger, required this.now});
+  final bool showBalance, showCashflow;
+  const _BalanceOverview({
+    required this.ledger,
+    required this.now,
+    this.showBalance = true,
+    this.showCashflow = true,
+  });
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(appProvider).settings;
     final l = AppLocalizations.of(context);
-    final balanceVisible = !settings.hiddenCards.contains('balance'),
-        flowVisible = !settings.hiddenCards.contains('cashflow');
+    final balanceVisible =
+            showBalance && !settings.hiddenCards.contains('balance'),
+        flowVisible =
+            showCashflow && !settings.hiddenCards.contains('cashflow');
     if (!balanceVisible && !flowVisible) return const SizedBox.shrink();
     final current = financialMonth(now, settings.monthStart),
         previous = previousMonth(now, settings.monthStart);
@@ -990,8 +1017,9 @@ class _SpendingComparison extends StatelessWidget {
           : change == null
           ? 'No previous period amount'
           : '${change >= 0 ? '↗' : '↘'} ${change.abs().toStringAsFixed(1)}% vs previous period',
-      style: Theme.of(context).textTheme.bodySmall
-          ?.copyWith(color: AppColors.semantic(context, 'expense')),
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+        color: AppColors.semantic(context, 'expense'),
+      ),
     );
   }
 }
@@ -1063,8 +1091,9 @@ class _BudgetPeekState extends State<_BudgetPeek> {
                 margin: const EdgeInsets.symmetric(horizontal: 3),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(context).colorScheme.primary
-                      .withValues(alpha: i == page ? 1 : .25),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: i == page ? 1 : .25),
                 ),
               ),
           ],

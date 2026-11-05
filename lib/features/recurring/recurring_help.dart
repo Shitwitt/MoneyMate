@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../shared/widgets.dart';
 
 const recurringHelpSections = [
   (
@@ -106,14 +105,14 @@ Future<void> showRecurringHelp(BuildContext context) =>
                       children: [
                         CircleAvatar(
                           radius: 23,
-                          backgroundColor: Theme.of(
-                            context,
-                          ).colorScheme.primaryContainer,
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .primaryContainer,
                           child: Icon(
                             section.$1,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onPrimaryContainer,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
                             size: 22,
                           ),
                         ),
@@ -129,9 +128,8 @@ Future<void> showRecurringHelp(BuildContext context) =>
                               const SizedBox(height: 5),
                               Text(
                                 section.$3,
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.copyWith(height: 1.5),
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(height: 1.5),
                               ),
                             ],
                           ),

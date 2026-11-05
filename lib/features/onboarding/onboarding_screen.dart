@@ -155,18 +155,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 children: [
                                   Text(
                                     'Let’s make it yours.',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.headlineLarge,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineLarge,
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
                                     'No sign-up. Just a name for your private space.',
                                     style: Theme.of(context).textTheme.bodyLarge
                                         ?.copyWith(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
                                         ),
                                   ),
                                   const SizedBox(height: 32),
@@ -220,9 +220,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 const SizedBox(height: 24),
                                 Text(
                                   'A fresh start.\nOn your terms.',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.headlineLarge,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineLarge,
                                 ),
                                 const SizedBox(height: 24),
                                 AppCard(

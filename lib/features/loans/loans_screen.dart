@@ -65,9 +65,8 @@ class _LoansScreenState extends ConsumerState<LoansScreen> {
         padding: const EdgeInsets.only(bottom: 100),
         children: [
           TonalCard(
-            color: Theme.of(
-              context,
-            ).colorScheme.primaryContainer.withValues(alpha: .55),
+            color: Theme.of(context).colorScheme.primaryContainer
+                .withValues(alpha: .55),
             child: Column(
               children: [
                 Row(
@@ -179,8 +178,7 @@ class _LoansScreenState extends ConsumerState<LoansScreen> {
               title: direction == 0
                   ? 'Nothing lent yet'
                   : 'Nothing borrowed yet',
-              message:
-                  'Keep a private record of money and repayments between people.',
+              message: 'Keep a private record of money and repayments between people.',
               icon: Icons.handshake_outlined,
               action: 'Add a loan',
               onAction: () => editLoan(context, ref),
@@ -267,9 +265,8 @@ class _LoanCard extends ConsumerWidget {
             children: [
               AmountText(
                 total - remaining,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(color: color),
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(color: color),
               ),
               const Text('/'),
               AmountText(total, style: Theme.of(context).textTheme.bodyMedium),
@@ -325,8 +322,7 @@ Future<void> editLoan(
   await showEditor(
     context,
     title: initial == null ? 'Keep things clear' : 'Edit loan',
-    description:
-        'Interest is a flat lifetime percentage, not APR. For a new disbursement, optionally create a matching account entry to keep net worth balanced.',
+    description: 'Interest is a flat lifetime percentage, not APR. For a new disbursement, optionally create a matching account entry to keep net worth balanced.',
     fields: (context, setLocal) => [
       formSelect('You…', direction, [
         'lent',

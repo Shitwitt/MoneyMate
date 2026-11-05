@@ -41,98 +41,82 @@ Recurring schedule(
 }
 
 void main() {
-  test(
-    'Demo isolates edits, settings, restore and exits without any durable write',
-    () async {
-      final original = appFor(fixture());
-      final repo = MemoryRepository(original),
-          controller = AppController(MemoryRepository(original));
-      controller.dispose();
-      final app = AppController(repo);
-      await app.startDemo(clock: DateTime(2026, 11, 6));
-      expect(app.snapshot.isDemo, true);
-      validateData(app.snapshot);
-      expect(app.snapshot.profiles.single.recurrings.length, 2);
-      expect(app.snapshot.profiles.single.bills.length, 2);
-      expect(repo.writes, 0);
-      await app.renameProfile('Edited demo');
-      await app.settings((s) => s.copyWith(locale: 'fa'));
-      await app.restore(
-        original,
-      ); // May replace the demo, never the real repository.
-      expect(app.snapshot.isDemo, true);
-      expect(repo.writes, 0);
-      await app.exitDemo();
-      expect(app.snapshot.isDemo, false);
-      expect(app.snapshot.toJson(), original.toJson());
-      expect(repo.writes, 0);
-      app.dispose();
-    },
-  );
-  test(
-    'Demo is never restored from a serialized flag; the real queue continues after exit',
-    () async {
-      final original = appFor(fixture());
-      expect(
-        AppData.fromJson({...original.toJson(), 'isDemo': true}).isDemo,
-        false,
-      );
-      final repo = MemoryRepository(original),
-          app = AppController(MemoryRepository(original));
-      app.dispose();
-      final controller = AppController(repo);
-      await controller.renameProfile('Real change');
-      await controller.startDemo(clock: DateTime(2026, 11, 6));
-      await controller.renameProfile('Not real');
-      await controller.exitDemo();
-      expect(controller.snapshot.profiles.single.profile.name, 'Real change');
-      expect(repo.persisted!.profiles.single.profile.name, 'Real change');
-      expect(repo.writes, 1);
-      await controller.renameProfile('Real again');
-      expect(repo.writes, 2);
-      controller.dispose();
-    },
-  );
-  test(
-    'Process records one exact due occurrence; stale concurrent taps cannot double debit',
-    () async {
-      final profile = fixture();
-      final rule = schedule(profile);
-      final repo = MemoryRepository(
-        appFor(profile.copyWith(recurrings: [rule])),
-      );
-      final controller = AppController(repo);
-      final first = controller.processRecurringOccurrence(
-        rule.id,
-        expectedDue: rule.nextDue,
-        clock: DateTime(2026, 4, 1),
-      );
-      final stale = controller.processRecurringOccurrence(
-        rule.id,
-        expectedDue: rule.nextDue,
-        clock: DateTime(2026, 4, 1),
-      );
-      final rejected = expectLater(stale, throwsFormatException);
-      await first;
-      await rejected;
-      final next = controller.snapshot.profiles.single;
-      expect(next.transactions.length, 1);
-      expect(
-        next.transactions.single.id,
-        '${rule.id}@${rule.nextDue.toIso8601String()}',
-      );
-      expect(next.recurrings.single.nextDue, DateTime(2026, 2, 28, 9));
-      expect(repo.writes, 1);
-      controller.dispose();
-    },
-  );
+  test('Demo isolates edits, settings, restore and exits without any durable write', () async {
+    final original = appFor(fixture());
+    final repo = MemoryRepository(original);
+    final app = AppController(repo);
+    await app.startDemo(clock: DateTime(2026, 11, 6));
+    expect(app.snapshot.isDemo, true);
+    validateData(app.snapshot);
+    expect(app.snapshot.profiles.single.recurrings.length, 2);
+    expect(app.snapshot.profiles.single.bills.length, 2);
+    expect(repo.writes, 0);
+    await app.renameProfile('Edited demo');
+    await app.settings((s) => s.copyWith(locale: 'fa'));
+    await app.restore(
+      original,
+    ); // May replace the demo, never the real repository.
+    expect(app.snapshot.isDemo, true);
+    expect(repo.writes, 0);
+    await app.exitDemo();
+    expect(app.snapshot.isDemo, false);
+    expect(app.snapshot.toJson(), original.toJson());
+    expect(repo.writes, 0);
+    app.dispose();
+  });
+  test('Demo is never restored from a serialized flag; the real queue continues after exit', () async {
+    final original = appFor(fixture());
+    expect(
+      AppData.fromJson({...original.toJson(), 'isDemo': true}).isDemo,
+      false,
+    );
+    final repo = MemoryRepository(original);
+    final controller = AppController(repo);
+    await controller.renameProfile('Real change');
+    await controller.startDemo(clock: DateTime(2026, 11, 6));
+    await controller.renameProfile('Not real');
+    await controller.exitDemo();
+    expect(controller.snapshot.profiles.single.profile.name, 'Real change');
+    expect(repo.persisted!.profiles.single.profile.name, 'Real change');
+    expect(repo.writes, 1);
+    await controller.renameProfile('Real again');
+    expect(repo.writes, 2);
+    controller.dispose();
+  });
+  test('Process records one exact due occurrence; stale concurrent taps cannot double debit', () async {
+    final profile = fixture();
+    final rule = schedule(profile);
+    final repo = MemoryRepository(appFor(profile.copyWith(recurrings: [rule])));
+    final controller = AppController(repo);
+    final first = controller.processRecurringOccurrence(
+      rule.id,
+      expectedDue: rule.nextDue,
+      clock: DateTime(2026, 4, 1),
+    );
+    final stale = controller.processRecurringOccurrence(
+      rule.id,
+      expectedDue: rule.nextDue,
+      clock: DateTime(2026, 4, 1),
+    );
+    final rejected = expectLater(stale, throwsFormatException);
+    await first;
+    await rejected;
+    final next = controller.snapshot.profiles.single;
+    expect(next.transactions.length, 1);
+    expect(
+      next.transactions.single.id,
+      '${rule.id}@${rule.nextDue.toIso8601String()}',
+    );
+    expect(next.recurrings.single.nextDue, DateTime(2026, 2, 28, 9));
+    expect(repo.writes, 1);
+    controller.dispose();
+  });
   test(
     'Skip is atomic, never touches money and honors an inclusive end',
     () async {
       final profile = fixture();
-      final rule = schedule(
-        profile,
-      ).copyWith(end: DateTime(2026, 1, 31, 23, 59));
+      final rule = schedule(profile)
+          .copyWith(end: DateTime(2026, 1, 31, 23, 59));
       final repo = MemoryRepository(
         appFor(profile.copyWith(recurrings: [rule])),
       );
@@ -160,95 +144,87 @@ void main() {
       controller.dispose();
     },
   );
-  test(
-    'Future processing fails safely; archived auto rules cannot catch up or affect projections',
-    () async {
-      final profile = fixture();
-      final rule = schedule(profile, date: DateTime(2027, 1, 31));
-      final repo = MemoryRepository(
-        appFor(profile.copyWith(recurrings: [rule])),
-      );
-      final controller = AppController(repo);
-      await expectLater(
-        controller.processRecurringOccurrence(
-          rule.id,
-          expectedDue: rule.nextDue,
-          clock: DateTime(2026, 1, 1),
-        ),
-        throwsFormatException,
-      );
-      await controller.upsertRecurring(
-        rule.copyWith(archived: true, autoPost: true),
-      );
-      await controller.processRecurring(clock: DateTime(2028, 1, 1));
-      final next = controller.snapshot.profiles.single;
-      expect(next.transactions, isEmpty);
-      expect(Ledger(next, const AppSettings()).monthlyBurn, 0);
-      controller.dispose();
-    },
-  );
-  test(
-    'Linked metadata is recorded and included in its budget; deleting links preserves history',
-    () async {
-      var profile = fixture();
-      final rule = schedule(profile).copyWith(
-        budgetId: 'budget',
-        labelIds: ['label'],
-        personIds: ['person'],
-        placeId: 'place',
-        reminderDays: 7,
-      );
-      profile = profile.copyWith(
-        recurrings: [rule],
-        budgets: [
-          Budget(
-            id: 'budget',
-            name: 'Linked plan',
-            limitMinor: 5000,
-            start: DateTime(2026, 1, 1),
-            categoryIds: [
-              profile.categories.lastWhere((c) => c.type == 'expense').id,
-            ],
-          ),
-        ],
-        entities: const [
-          NamedEntity(id: 'label', name: 'Home', kind: 'label'),
-          NamedEntity(id: 'person', name: 'Friend', kind: 'person'),
-          NamedEntity(id: 'place', name: 'Nearby', kind: 'place'),
-        ],
-      );
-      final controller = AppController(MemoryRepository(appFor(profile)));
-      await controller.processRecurringOccurrence(
+  test('Future processing fails safely; archived auto rules cannot catch up or affect projections', () async {
+    final profile = fixture();
+    final rule = schedule(profile, date: DateTime(2027, 1, 31));
+    final repo = MemoryRepository(appFor(profile.copyWith(recurrings: [rule])));
+    final controller = AppController(repo);
+    await expectLater(
+      controller.processRecurringOccurrence(
         rule.id,
         expectedDue: rule.nextDue,
-        clock: DateTime(2026, 1, 31, 10),
-      );
-      var next = controller.snapshot.profiles.single;
-      final entry = next.transactions.single;
-      expect(entry.labelIds, ['label']);
-      expect(entry.personIds, ['person']);
-      expect(entry.placeId, 'place');
-      expect(entry.budgetId, 'budget');
-      expect(
-        Ledger(
-          next,
-          const AppSettings(),
-        ).budgetStatus(next.budgets.single, DateTime(2026, 1, 31)).spent,
-        1250,
-      );
-      await controller.deleteBudget('budget');
-      await controller.deleteEntity('label');
-      next = controller.snapshot.profiles.single;
-      expect(next.transactions.single.amountMinor, 1250);
-      expect(next.transactions.single.budgetId, '');
-      expect(next.recurrings.single.budgetId, '');
-      expect(next.transactions.single.labelIds, isEmpty);
-      expect(next.recurrings.single.labelIds, isEmpty);
-      await controller.deleteRecurring(rule.id);
-      expect(controller.snapshot.profiles.single.transactions.length, 1);
-      controller.dispose();
-    },
-  );
+        clock: DateTime(2026, 1, 1),
+      ),
+      throwsFormatException,
+    );
+    await controller.upsertRecurring(
+      rule.copyWith(archived: true, autoPost: true),
+    );
+    await controller.processRecurring(clock: DateTime(2028, 1, 1));
+    final next = controller.snapshot.profiles.single;
+    expect(next.transactions, isEmpty);
+    expect(Ledger(next, const AppSettings()).monthlyBurn, 0);
+    controller.dispose();
+  });
+  test('Linked metadata is recorded and included in its budget; deleting links preserves history', () async {
+    var profile = fixture();
+    final rule = schedule(profile).copyWith(
+      budgetId: 'budget',
+      labelIds: ['label'],
+      personIds: ['person'],
+      placeId: 'place',
+      reminderDays: 7,
+    );
+    profile = profile.copyWith(
+      recurrings: [rule],
+      budgets: [
+        Budget(
+          id: 'budget',
+          name: 'Linked plan',
+          limitMinor: 5000,
+          start: DateTime(2026, 1, 1),
+          categoryIds: [
+            profile.categories.lastWhere((c) => c.type == 'expense').id,
+          ],
+        ),
+      ],
+      entities: const [
+        NamedEntity(id: 'label', name: 'Home', kind: 'label'),
+        NamedEntity(id: 'person', name: 'Friend', kind: 'person'),
+        NamedEntity(id: 'place', name: 'Nearby', kind: 'place'),
+      ],
+    );
+    final controller = AppController(MemoryRepository(appFor(profile)));
+    await controller.processRecurringOccurrence(
+      rule.id,
+      expectedDue: rule.nextDue,
+      clock: DateTime(2026, 1, 31, 10),
+    );
+    var next = controller.snapshot.profiles.single;
+    final entry = next.transactions.single;
+    expect(entry.labelIds, ['label']);
+    expect(entry.personIds, ['person']);
+    expect(entry.placeId, 'place');
+    expect(entry.budgetId, 'budget');
+    expect(
+      Ledger(
+        next,
+        const AppSettings(),
+      ).budgetStatus(next.budgets.single, DateTime(2026, 1, 31)).spent,
+      1250,
+    );
+    await controller.deleteBudget('budget');
+    await controller.deleteEntity('label');
+    next = controller.snapshot.profiles.single;
+    expect(next.transactions.single.amountMinor, 1250);
+    expect(next.transactions.single.budgetId, '');
+    expect(next.recurrings.single.budgetId, '');
+    expect(next.transactions.single.labelIds, isEmpty);
+    expect(next.recurrings.single.labelIds, isEmpty);
+    await controller.deleteRecurring(rule.id);
+    expect(controller.snapshot.profiles.single.transactions.length, 1);
+    controller.dispose();
+  });
   test(
     'Old rule JSON defaults remain compatible and all new fields round trip',
     () {
@@ -278,86 +254,77 @@ void main() {
       );
     },
   );
-  test(
-    'Calendar projections retain month-end anchors, end limits and future/handled separation',
-    () {
-      final rule = schedule(fixture());
-      final dates = projectedOccurrences(
-        rule,
-        DateWindow(DateTime(2026, 1, 1), DateTime(2026, 4, 1)),
-      );
-      expect(dates, [
-        DateTime(2026, 1, 31, 9),
-        DateTime(2026, 2, 28, 9),
-        DateTime(2026, 3, 31, 9),
-      ]);
+  test('Calendar projections retain month-end anchors, end limits and future/handled separation', () {
+    final rule = schedule(fixture());
+    final dates = projectedOccurrences(
+      rule,
+      DateWindow(DateTime(2026, 1, 1), DateTime(2026, 4, 1)),
+    );
+    expect(dates, [
+      DateTime(2026, 1, 31, 9),
+      DateTime(2026, 2, 28, 9),
+      DateTime(2026, 3, 31, 9),
+    ]);
+    expect(
+      projectedOccurrences(
+        rule.copyWith(nextDue: DateTime(2026, 3, 31, 9)),
+        DateWindow(DateTime(2026, 2), DateTime(2026, 3)),
+      ),
+      isEmpty,
+    );
+    expect(
+      projectedOccurrences(
+        rule.copyWith(end: DateTime(2026, 2, 28, 23, 59)),
+        DateWindow(DateTime(2026), DateTime(2027)),
+      ).length,
+      2,
+    );
+  });
+  test('Old daily rules jump to a distant month without unbounded loops; every frequency advances', () {
+    final profile = fixture();
+    final rule = schedule(
+      profile,
+      date: DateTime(1970, 1, 1, 9),
+      frequency: 'daily',
+    );
+    final dates = projectedOccurrences(
+      rule,
+      DateWindow(DateTime(2199, 3), DateTime(2199, 4)),
+    );
+    expect(dates.length, 31);
+    expect(dates.first, DateTime(2199, 3, 1, 9));
+    for (final frequency in frequencies) {
+      final item = rule.copyWith(frequency: frequency);
       expect(
-        projectedOccurrences(
-          rule.copyWith(nextDue: DateTime(2026, 3, 31, 9)),
-          DateWindow(DateTime(2026, 2), DateTime(2026, 3)),
+        nextOccurrence(item, item.nextDue).isAfter(item.nextDue),
+        true,
+        reason: frequency,
+      );
+      expect(recurrenceLabel(item), isNotEmpty);
+    }
+  });
+  test('36 starter locales are real, complete key sets and generated; no fake count', () {
+    final en =
+        jsonDecode(File('lib/l10n/app_en.arb').readAsStringSync()) as Map;
+    expect(languageNames.length, 36);
+    expect(
+      AppLocalizations.supportedLocales.map((l) => l.languageCode).toSet(),
+      languageNames.keys.toSet(),
+    );
+    for (final locale in languageNames.keys) {
+      final messages = jsonDecode(
+        File('lib/l10n/app_$locale.arb').readAsStringSync(),
+      ) as Map;
+      expect(messages.keys.toSet(), en.keys.toSet(), reason: locale);
+      expect(
+        messages.values.every(
+          (value) => value is String && value.trim().isNotEmpty,
         ),
-        isEmpty,
+        true,
+        reason: locale,
       );
-      expect(
-        projectedOccurrences(
-          rule.copyWith(end: DateTime(2026, 2, 28, 23, 59)),
-          DateWindow(DateTime(2026), DateTime(2027)),
-        ).length,
-        2,
-      );
-    },
-  );
-  test(
-    'Old daily rules jump to a distant month without unbounded loops; every frequency advances',
-    () {
-      final profile = fixture();
-      final rule = schedule(
-        profile,
-        date: DateTime(1970, 1, 1, 9),
-        frequency: 'daily',
-      );
-      final dates = projectedOccurrences(
-        rule,
-        DateWindow(DateTime(2199, 3), DateTime(2199, 4)),
-      );
-      expect(dates.length, 31);
-      expect(dates.first, DateTime(2199, 3, 1, 9));
-      for (final frequency in frequencies) {
-        final item = rule.copyWith(frequency: frequency);
-        expect(
-          nextOccurrence(item, item.nextDue).isAfter(item.nextDue),
-          true,
-          reason: frequency,
-        );
-        expect(recurrenceLabel(item), isNotEmpty);
-      }
-    },
-  );
-  test(
-    '36 starter locales are real, complete key sets and generated; no fake count',
-    () {
-      final en =
-          jsonDecode(File('lib/l10n/app_en.arb').readAsStringSync()) as Map;
-      expect(languageNames.length, 36);
-      expect(
-        AppLocalizations.supportedLocales.map((l) => l.languageCode).toSet(),
-        languageNames.keys.toSet(),
-      );
-      for (final locale in languageNames.keys) {
-        final messages =
-            jsonDecode(File('lib/l10n/app_$locale.arb').readAsStringSync())
-                as Map;
-        expect(messages.keys.toSet(), en.keys.toSet(), reason: locale);
-        expect(
-          messages.values.every(
-            (value) => value is String && value.trim().isNotEmpty,
-          ),
-          true,
-          reason: locale,
-        );
-      }
-    },
-  );
+    }
+  });
   testWidgets(
     'Calendar navigates months and detail processing publishes real history',
     (tester) async {

@@ -45,8 +45,7 @@ Future<void> editRecurring(
   await showEditor(
     context,
     title: initial == null ? 'New recurring' : 'Edit recurring',
-    description:
-        'All amounts use the selected account currency. Automatic entries are created only when Tink opens or resumes, never by a payment provider.',
+    description: 'All amounts use the selected account currency. Automatic entries are created only when Tink opens or resumes, never by a payment provider.',
     fields: (context, setLocal) => [
       formText(name, 'Name', required: true),
       formSelect(

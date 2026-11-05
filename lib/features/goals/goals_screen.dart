@@ -119,9 +119,8 @@ class GoalCard extends ConsumerWidget {
     final ink = readableTint(context, Color(goal.color));
     return TonalCard(
       color: Color.alphaBlend(
-        Color(
-          goal.color,
-        ).withValues(alpha: AppColors.dark(context) ? .17 : .27),
+        Color(goal.color)
+            .withValues(alpha: AppColors.dark(context) ? .17 : .27),
         Theme.of(context).colorScheme.surface,
       ),
       padding: const EdgeInsets.all(18),
@@ -217,8 +216,7 @@ Future<void> editGoal(
   await showEditor(
     context,
     title: initial == null ? 'Give your dream a name' : 'Edit goal',
-    description:
-        'Manual contributions reserve money in your plan, not your accounts. Linking an account tracks its whole balance instead (do not link the same account to multiple goals unless intentional).',
+    description: 'Manual contributions reserve money in your plan, not your accounts. Linking an account tracks its whole balance instead (do not link the same account to multiple goals unless intentional).',
     fields: (context, setLocal) => [
       formText(name, 'Goal name', required: true),
       formText(
@@ -362,8 +360,7 @@ class GoalDetailScreen extends ConsumerWidget {
                 await showEditor(
                   context,
                   title: 'One step closer',
-                  description:
-                      'This is a savings allocation, not an account withdrawal.',
+                  description: 'This is a savings allocation, not an account withdrawal.',
                   fields: (_, __) => [
                     formText(
                       amount,

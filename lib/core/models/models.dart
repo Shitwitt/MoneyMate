@@ -1,5 +1,7 @@
 // Explicit JSON models: no generated adapters, platform types, or floating-point money.
 // Monetary values are integer minor units in the associated account/profile currency.
+import '../utils/constants.dart' show defaultHomeCards;
+
 typedef Json = Map<String, dynamic>;
 
 Json readMap(Object? value) {
@@ -1126,6 +1128,43 @@ class ExchangeRate {
       );
 }
 
+List<String> _restoreHomeLayout(Json json) {
+  final saved = readStrings(json['homeCards'], defaultHomeCards);
+  if (readInt(json['uiRevision']) >= 2) return saved;
+  const oldDefault = [
+    'balance',
+    'cashflow',
+    'accounts',
+    'trend',
+    'budgets',
+    'goals',
+    'recent',
+    'templates',
+    'recurring',
+    'assets',
+    'loans',
+    'reports',
+    'achievements',
+    'premium',
+  ];
+  if (saved.join('|') == oldDefault.join('|')) return List.of(defaultHomeCards);
+  return [...saved, ...defaultHomeCards.where((id) => !saved.contains(id))];
+}
+
+List<String> _restoreNavigation(Json json) {
+  final saved = readStrings(json['navTabs'], const [
+    'home',
+    'accounts',
+    'reports',
+    'search',
+  ]);
+  if (readInt(json['uiRevision']) < 2 &&
+      saved.join('|') == 'home|accounts|transactions|plans|more') {
+    return ['home', 'accounts', 'reports', 'search'];
+  }
+  return saved;
+}
+
 class AppSettings {
   final String theme;
   final int accent;
@@ -1217,30 +1256,9 @@ class AppSettings {
     monthStart: readInt(json['monthStart'], 1),
     fontScale: readDouble(json['fontScale'], 1),
     isPro: readBool(json['isPro'], false),
-    homeCards: readStrings(json['homeCards'], const [
-      'balance',
-      'cashflow',
-      'accounts',
-      'trend',
-      'budgets',
-      'goals',
-      'recent',
-      'templates',
-      'recurring',
-      'assets',
-      'loans',
-      'reports',
-      'achievements',
-      'premium',
-    ]),
+    homeCards: _restoreHomeLayout(json),
     hiddenCards: readStrings(json['hiddenCards'], const []),
-    navTabs: readStrings(json['navTabs'], const [
-      'home',
-      'accounts',
-      'transactions',
-      'plans',
-      'more',
-    ]),
+    navTabs: _restoreNavigation(json),
     navLabels: readBool(json['navLabels'], true),
     lockMode: readString(json['lockMode'], 'none'),
     pinHash: readString(json['pinHash'], ''),
@@ -1255,6 +1273,7 @@ class AppSettings {
   );
 
   Json toJson() => {
+    'uiRevision': 2,
     'theme': theme,
     'accent': accent,
     'dynamicColors': dynamicColors,

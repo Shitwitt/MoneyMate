@@ -105,9 +105,9 @@ class _RecurringCalendarState extends State<RecurringCalendar> {
                                   child: Text(
                                     day,
                                     textAlign: TextAlign.center,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.labelSmall,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall,
                                   ),
                                 ),
                               ),
@@ -149,16 +149,16 @@ class _RecurringCalendarState extends State<RecurringCalendar> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(16),
                                     color: isSelected
-                                        ? Theme.of(
-                                            context,
-                                          ).colorScheme.primaryContainer
+                                        ? Theme.of(context)
+                                              .colorScheme
+                                              .primaryContainer
                                         : Colors.transparent,
                                     border: Border.all(
                                       width: date == today ? 1.5 : 1,
                                       color: date == today
-                                          ? Theme.of(
-                                              context,
-                                            ).colorScheme.primary
+                                          ? Theme.of(context)
+                                                .colorScheme
+                                                .primary
                                           : Colors.transparent,
                                     ),
                                   ),

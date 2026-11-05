@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/data/providers.dart';
+import '../../core/data/ledger.dart';
 import '../../core/models/models.dart';
 import '../../shared/actions.dart';
 import '../../shared/widgets.dart';
@@ -160,9 +161,9 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                                     alignment: AlignmentDirectional.centerEnd,
                                     child: AmountText(
                                       total(category.id),
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyLarge,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge,
                                     ),
                                   ),
                                 ),

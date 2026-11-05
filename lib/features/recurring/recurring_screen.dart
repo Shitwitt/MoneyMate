@@ -426,9 +426,8 @@ class _RecurringRuleCardState extends ConsumerState<RecurringRuleCard> {
                   child: AmountText(
                     rule.amountMinor,
                     currency: account.currency,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleMedium?.copyWith(color: tint),
+                    style: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(color: tint),
                   ),
                 ),
               ),

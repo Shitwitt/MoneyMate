@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -13,6 +11,7 @@ import '../../core/utils/constants.dart';
 import '../../core/utils/dates.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../shared/actions.dart';
+import '../../shared/daily_spend_chart.dart';
 import '../../shared/widgets.dart';
 import '../accounts/accounts_screen.dart';
 import '../achievements/achievements_screen.dart';
@@ -39,19 +38,80 @@ class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final app = ref.watch(appProvider);
-    final ledger = ref.watch(ledgerProvider)!;
-    final profile = ledger.data;
-    final settings = app.settings;
+    final app = ref.watch(appProvider), ledger = ref.watch(ledgerProvider)!;
+    final profile = ledger.data, settings = app.settings;
     final now = DateTime.now();
     final ids = settings.homeCards
         .where(
           (id) =>
               !settings.hiddenCards.contains(id) &&
-              !['balance', 'cashflow', 'recent', 'templates'].contains(id) &&
+              !['balance', 'cashflow'].contains(id) &&
               !(id == 'premium' && settings.isPro),
         )
         .toList();
+    final columns =
+        MediaQuery.textScalerOf(context).scale(1) > 1.3 &&
+            MediaQuery.sizeOf(context).width < 600
+        ? 1
+        : 2;
+    final sections = <Widget>[
+      _BalanceOverview(ledger: ledger, now: now),
+      const SizedBox(height: 22),
+      const SectionHeader('Overview'),
+    ];
+    var index = 0;
+    while (index < ids.length) {
+      final id = ids[index];
+      if (id == 'recent' || id == 'templates') {
+        sections.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: id == 'recent'
+                ? _LastEarned(ledger: ledger)
+                : _TemplatesStrip(ledger: ledger),
+          ),
+        );
+        index++;
+        continue;
+      }
+      final row = [id];
+      index++;
+      if (columns == 2 &&
+          index < ids.length &&
+          !['recent', 'templates'].contains(ids[index]))
+        row.add(ids[index++]);
+      sections.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: columns == 1
+              ? _DashboardTile(id: id, ledger: ledger, now: now)
+              : IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: _DashboardTile(
+                          id: row[0],
+                          ledger: ledger,
+                          now: now,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: row.length == 2
+                            ? _DashboardTile(
+                                id: row[1],
+                                ledger: ledger,
+                                now: now,
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                    ],
+                  ),
+                ),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 82,
@@ -114,125 +174,99 @@ class HomeScreen extends ConsumerWidget {
             ).then((_) {}),
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 104),
-              children: [
-                _BalanceOverview(ledger: ledger, now: now),
-                const SizedBox(height: 22),
-                const SectionHeader('Overview'),
-                for (var row = 0; row < ids.length; row += 2)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: _DashboardTile(
-                              id: ids[row],
-                              ledger: ledger,
-                              now: now,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: row + 1 < ids.length
-                                ? _DashboardTile(
-                                    id: ids[row + 1],
-                                    ledger: ledger,
-                                    now: now,
-                                  )
-                                : const SizedBox.shrink(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                if (settings.homeCards.contains('recent') &&
-                    !settings.hiddenCards.contains('recent')) ...[
-                  const SizedBox(height: 8),
-                  _LastEarned(ledger: ledger),
-                ],
-                if (settings.homeCards.contains('templates') &&
-                    !settings.hiddenCards.contains('templates')) ...[
-                  const SizedBox(height: 24),
-                  SectionHeader(
-                    'Templates',
-                    action: 'View all',
-                    onTap: () => openPage(context, const TemplatesScreen()),
-                  ),
-                  if (profile.templates.isEmpty)
-                    TonalCard(
-                      onTap: () => openPage(context, const TemplatesScreen()),
-                      child: const Text(
-                        'Create a template for those everyday little payments.',
-                      ),
-                    ),
-                  if (profile.templates.isNotEmpty)
-                    SizedBox(
-                      height:
-                          134 *
-                          MediaQuery.textScalerOf(
-                            context,
-                          ).scale(1).clamp(1, 1.6),
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: profile.templates.length,
-                        separatorBuilder: (_, _) => const SizedBox(width: 12),
-                        itemBuilder: (context, index) {
-                          final template = profile.templates[index];
-                          final category = ledger.category(template.categoryId);
-                          return SizedBox(
-                            width: 176,
-                            child: TonalCard(
-                              onTap: () => openTransactionSheet(
-                                context,
-                                template: template,
-                              ),
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ColorIcon(
-                                    category?.icon ?? 'bills',
-                                    category?.color ?? 0xfff6bb96,
-                                    size: 32,
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    template.name,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleSmall,
-                                  ),
-                                  const SizedBox(height: 6),
-                                  FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: AmountText(
-                                      template.amountMinor,
-                                      currency: ledger
-                                          .account(template.accountId)
-                                          .currency,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                ],
-              ],
+              children: sections,
             ),
           ),
         ),
       ),
     );
   }
+}
+
+class _TemplatesStrip extends StatelessWidget {
+  final Ledger ledger;
+  const _TemplatesStrip({required this.ledger});
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      SectionHeader(
+        'Templates',
+        action: 'See all',
+        onTap: () => openPage(context, const TemplatesScreen()),
+      ),
+      if (ledger.data.templates.isEmpty)
+        TonalCard(
+          onTap: () => openPage(context, const TemplatesScreen()),
+          child: const Text(
+            'Create a template for those everyday little payments.',
+          ),
+        ),
+      if (ledger.data.templates.isNotEmpty)
+        SizedBox(
+          height: 140 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 1.6),
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: ledger.data.templates.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final template = ledger.data.templates[index],
+                  category = ledger.category(
+                    ledger.data.templates[index].categoryId,
+                  );
+              return SizedBox(
+                width: 186,
+                child: TonalCard(
+                  onTap: () =>
+                      openTransactionSheet(context, template: template),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          ColorIcon(
+                            category?.icon ?? 'bills',
+                            category?.color ?? 0xffffb59a,
+                            size: 36,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: AlignmentDirectional.centerEnd,
+                              child: AmountText(
+                                template.amountMinor,
+                                currency: ledger
+                                    .account(template.accountId)
+                                    .currency,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        template.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        titleCase(template.type),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+    ],
+  );
 }
 
 class _DashboardTile extends StatelessWidget {
@@ -253,17 +287,28 @@ class _DashboardTile extends StatelessWidget {
         .toList();
     final activeRules = data.recurrings.where(recurringActive).toList();
     final pulse = FinancialPulse.fromLedger(ledger, now);
-    final statuses = data.budgets
-        .map((b) => ledger.budgetStatus(b, now))
-        .toList();
-    final goalSaved = data.goals.fold<int>(
+    final activeGoals = data.goals.where((goal) => !goal.archived).toList();
+    final goalSaved = activeGoals.fold<int>(
       0,
       (sum, g) => sum + ledger.goalSaved(g),
     );
-    final goalTarget = data.goals.fold<int>(0, (sum, g) => sum + g.targetMinor);
+    final goalTarget = activeGoals.fold<int>(
+      0,
+      (sum, g) => sum + g.targetMinor,
+    );
+    final today = dayOnly(now);
+    final weekStart = DateTime(
+      today.year,
+      today.month,
+      today.day - (today.weekday - ledger.settings.weekStart + 7) % 7,
+    );
     final week = DateWindow(
-      DateTime(now.year, now.month, now.day - 6),
-      nextDay(now),
+      weekStart,
+      DateTime(weekStart.year, weekStart.month, weekStart.day + 7),
+    );
+    final lastWeek = DateWindow(
+      DateTime(weekStart.year, weekStart.month, weekStart.day - 7),
+      weekStart,
     );
     final month = DateWindow(
       DateTime(now.year, now.month, now.day - 29),
@@ -389,27 +434,14 @@ class _DashboardTile extends StatelessWidget {
         money(ledger.accountsTotal, size: 21),
       ],
       'reports' => [
+        number(records.length, 'Transactions'),
+        const SizedBox(height: 12),
         money(expense(month)),
-        const SizedBox(height: 10),
-        Text('Expenses · last 30 days', style: small),
-        const SizedBox(height: 14),
-        _MiniBars(ledger: ledger, now: now, color: ink),
       ],
       'budgets' => [
-        number(data.budgets.length, 'Spending plans'),
-        const SizedBox(height: 14),
-        WavyProgress(
-          statuses.isEmpty
-              ? 0
-              : statuses.fold<int>(0, (s, b) => s + b.spent) /
-                    math.max(1, statuses.fold<int>(0, (s, b) => s + b.limit)),
-          color: ink,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          '${statuses.where((b) => b.remaining < 0).length} over allowance',
-          style: small,
-        ),
+        number(data.budgets.length, 'Budgets'),
+        const SizedBox(height: 12),
+        _BudgetPeek(ledger: ledger),
       ],
       'assets' => [
         money(ledger.assetsTotal),
@@ -442,7 +474,7 @@ class _DashboardTile extends StatelessWidget {
               child: Icon(Icons.flag_outlined, color: ink, size: 24),
             ),
             const SizedBox(width: 12),
-            Expanded(child: number(data.goals.length, 'Goals')),
+            Expanded(child: number(activeGoals.length, 'Goals')),
           ],
         ),
         const SizedBox(height: 10),
@@ -484,12 +516,15 @@ class _DashboardTile extends StatelessWidget {
         ),
       ],
       'analytics' || 'trend' => [
-        number(
-          records.where((e) => month.contains(e.date)).length,
-          'Entries · last 30 days',
-        ),
+        Text('This month spending', style: small),
+        const SizedBox(height: 7),
+        money(expense(financialMonth(now, ledger.settings.monthStart))),
         const SizedBox(height: 12),
-        _MiniBars(ledger: ledger, now: now, color: ink),
+        _SpendingComparison(
+          current: expense(financialMonth(now, ledger.settings.monthStart)),
+          previous: expense(previousMonth(now, ledger.settings.monthStart)),
+          hidden: ledger.settings.hideAmounts,
+        ),
       ],
       'recurring' => [
         number(activeRules.length, 'Active schedules'),
@@ -507,19 +542,58 @@ class _DashboardTile extends StatelessWidget {
         const SizedBox(height: 8),
         Text('Income, expense & transfer', style: small),
       ],
-      'weekly' || 'last30' => [
-        money(expense(id == 'weekly' ? week : month)),
-        const SizedBox(height: 8),
-        Text(
-          id == 'weekly' ? 'Expenses · past 7 days' : 'Expenses · past 30 days',
-          style: small,
+      'weekly' => [
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('This week', style: small),
+                  money(expense(week), size: 15),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('Last week', style: small),
+                  money(expense(lastWeek), size: 15),
+                ],
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
-        _MiniBars(
+        const SizedBox(height: 14),
+        DailySpendChart(
           ledger: ledger,
+          window: week,
           now: now,
-          color: ink,
-          days: id == 'weekly' ? 7 : 30,
+          color: valueInk,
+        ),
+      ],
+      'last30' => [
+        money(expense(month)),
+        const SizedBox(height: 8),
+        _SpendingComparison(
+          current: expense(month),
+          previous: expense(
+            DateWindow(
+              DateTime(now.year, now.month, now.day - 59),
+              month.start,
+            ),
+          ),
+          hidden: ledger.settings.hideAmounts,
+        ),
+        const SizedBox(height: 14),
+        DailySpendChart(
+          ledger: ledger,
+          window: month,
+          now: now,
+          color: AppColors.semantic(context, 'expense'),
+          cumulative: true,
         ),
       ],
       'score' => [
@@ -603,64 +677,6 @@ class _DashboardTile extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MiniBars extends StatelessWidget {
-  final Ledger ledger;
-  final DateTime now;
-  final Color color;
-  final int days;
-  const _MiniBars({
-    required this.ledger,
-    required this.now,
-    required this.color,
-    this.days = 7,
-  });
-  @override
-  Widget build(BuildContext context) {
-    final bucketCount = days == 7 ? 7 : 10;
-    final values = List<int>.filled(bucketCount, 0);
-    final start = DateTime(now.year, now.month, now.day - days + 1);
-    for (final entry in ledger.data.transactions.where(
-      (e) =>
-          e.type == 'expense' &&
-          !e.date.isBefore(start) &&
-          !e.date.isAfter(now),
-    )) {
-      final index =
-          (calendarDaysBetween(start, entry.date) * bucketCount ~/ days).clamp(
-            0,
-            bucketCount - 1,
-          );
-      values[index] += ledger.entryValue(entry);
-    }
-    final maxValue = values.fold<int>(1, math.max);
-    return Semantics(
-      label:
-          'Recorded daily expenses over the past $days days. ${values.where((v) => v > 0).length} nonzero chart buckets.',
-      child: SizedBox(
-        height: 32,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            for (final value in values)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                  child: Container(
-                    height: value == 0 ? 2 : 5 + value / maxValue * 27,
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: value == 0 ? .15 : .65),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-              ),
-          ],
         ),
       ),
     );
@@ -953,6 +969,109 @@ class _LastEarned extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SpendingComparison extends StatelessWidget {
+  final int current, previous;
+  final bool hidden;
+  const _SpendingComparison({
+    required this.current,
+    required this.previous,
+    required this.hidden,
+  });
+  @override
+  Widget build(BuildContext context) {
+    final change = previous == 0 ? null : (current - previous) / previous * 100;
+    return Text(
+      hidden
+          ? '••••'
+          : change == null
+          ? 'No previous period amount'
+          : '${change >= 0 ? '↗' : '↘'} ${change.abs().toStringAsFixed(1)}% vs previous period',
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+        color: AppColors.semantic(context, 'expense'),
+      ),
+    );
+  }
+}
+
+class _BudgetPeek extends StatefulWidget {
+  final Ledger ledger;
+  const _BudgetPeek({required this.ledger});
+  @override
+  State<_BudgetPeek> createState() => _BudgetPeekState();
+}
+
+class _BudgetPeekState extends State<_BudgetPeek> {
+  int page = 0;
+  @override
+  Widget build(BuildContext context) {
+    final budgets = widget.ledger.data.budgets;
+    if (budgets.isEmpty) return const Text('Create your first spending plan.');
+    return Column(
+      children: [
+        SizedBox(
+          height: 132 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 1.6),
+          child: PageView.builder(
+            key: ValueKey(budgets.map((b) => b.id).join()),
+            itemCount: budgets.length,
+            onPageChanged: (value) => setState(() => page = value),
+            itemBuilder: (context, index) {
+              final budget = budgets[index],
+                  status = widget.ledger.budgetStatus(
+                    budgets[index],
+                    DateTime.now(),
+                  );
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    budget.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 10),
+                  WavyProgress(status.progress),
+                  const SizedBox(height: 10),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: AmountText(
+                      status.spent,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${(status.progress * 100).round()}% of budget spent',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 6),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var i = 0; i < budgets.length.clamp(0, 7); i++)
+              Container(
+                width: 6,
+                height: 6,
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: i == page ? 1 : .25),
+                ),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }

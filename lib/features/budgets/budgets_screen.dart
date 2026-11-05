@@ -114,9 +114,8 @@ class BudgetCard extends ConsumerWidget {
         .where((c) => budget.categoryIds.contains(c.id))
         .firstOrNull;
     final background = Color.alphaBlend(
-      Color(
-        budget.color,
-      ).withValues(alpha: AppColors.dark(context) ? .16 : .22),
+      Color(budget.color)
+          .withValues(alpha: AppColors.dark(context) ? .16 : .22),
       Theme.of(context).colorScheme.surface,
     );
     return BudgetWarningFrame(
@@ -227,8 +226,7 @@ Future<void> editBudget(
   await showEditor(
     context,
     title: initial == null ? 'A little plan for your money' : 'Edit budget',
-    description:
-        'An empty category selection includes all expenses. Rollover carries unused allowance AND deducts overspending from the next period.',
+    description: 'An empty category selection includes all expenses. Rollover carries unused allowance AND deducts overspending from the next period.',
     fields: (context, setLocal) => [
       formText(name, 'Budget name', required: true),
       formText(

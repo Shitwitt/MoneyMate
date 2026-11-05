@@ -1,0 +1,57 @@
+name: Refresh verified release source ZIP
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-source.yml'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Existing release whose APK is already verified'
+        required: true
+        default: 'apk-release-42087198603'
+        type: string
+      apk_source_sha:
+        description: 'Full application revision used to build that APK'
+        required: true
+        default: 'f8cc6c86a745bc3ff7df727dd45c5351d754c6c8'
+        type: string
+permissions:
+  contents: read
+jobs:
+  source:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[source-download]')
+    name: Publish documentation-updated source without rebuilding the APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Verify source identity and upload only the source ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag || 'apk-release-42087198603' }}
+          APK_SOURCE_SHA: ${{ inputs.apk_source_sha || 'f8cc6c86a745bc3ff7df727dd45c5351d754c6c8' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # An existing APK/tag is mandatory; never publish source for different
+          # application code or silently replace/re-sign a working binary.
+          test "$(git rev-parse "${RELEASE_TAG}^{commit}")" = "$APK_SOURCE_SHA"
+          gh release view "$RELEASE_TAG"
+          git diff --exit-code "$APK_SOURCE_SHA" HEAD -- \
+            lib android ios web assets test scripts pubspec.yaml pubspec.lock l10n.yaml
+          git archive --format=zip --prefix=Tink/ HEAD -o Tink-source.zip
+          sha256sum Tink-source.zip > Tink-source.zip.sha256
+          gh release upload "$RELEASE_TAG" Tink-source.zip Tink-source.zip.sha256 --clobber
+          echo "::notice title=Tink source refreshed::Published source revision $(git rev-parse HEAD) for unchanged APK source $APK_SOURCE_SHA"
+      - uses: actions/upload-artifact@v5
+        with:
+          name: Tink-verified-source
+          path: |
+            Tink-source.zip
+            Tink-source.zip.sha256
+          if-no-files-found: error
+          retention-days: 30

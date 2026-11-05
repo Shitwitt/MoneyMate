@@ -18,7 +18,7 @@ transparent planning estimate, not a credit score or bank assessment.
 
 The Android binary was built from full revision
 `f8cc6c86a745bc3ff7df727dd45c5351d754c6c8`. Subsequent source-archive updates are
-release documentation only: application, platform, assets, dependencies and tests
+release documentation/publication tooling only: application, platform, assets, dependencies and tests
 remain identical to that tested native revision. The ZIP's Git archive comment
 records its own revision. Source code identity is separate from a ZIP file hash.
 

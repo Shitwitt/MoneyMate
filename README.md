@@ -50,7 +50,8 @@ Tink/
 └── .github/workflows/
     ├── build.yml                # Gradle assembleDebug → downloadable debug APK
     ├── build-apk.yml            # Analyze/test → release APK + Web + source ZIP
-    └── build-ios.yml            # Optional unsigned Xcode/WidgetKit compile check
+    ├── build-ios.yml            # Optional unsigned Xcode/WidgetKit compile check
+    └── publish-source.yml       # Refresh docs/source ZIP; enforces same app revision
 ```
 
 ## GET YOUR APK NOW

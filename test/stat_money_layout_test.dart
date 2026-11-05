@@ -3,6 +3,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:paisaclone/core/data/providers.dart';
+import 'package:paisaclone/core/data/ledger.dart';
+import 'package:paisaclone/shared/charts.dart';
 import 'package:paisaclone/core/models/models.dart';
 import 'package:paisaclone/core/theme/theme.dart';
 import 'package:paisaclone/shared/widgets.dart';
@@ -52,4 +54,41 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+  testWidgets('Petal center fits its complete aggregate monetary value', (
+    tester,
+  ) async {
+    final data = fixture();
+    final entries = [expense(data, amount: 5882600)];
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          repositoryProvider.overrideWithValue(MemoryRepository(appFor(data))),
+        ],
+        child: MaterialApp(
+          theme: tinkTheme(const AppSettings(), Brightness.light),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: SizedBox(
+                width: 350,
+                child: CategoryChart(
+                  Ledger(data, const AppSettings()),
+                  entries,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final text = find.descendant(
+      of: find.byType(AmountText).first,
+      matching: find.byType(RichText),
+    );
+    expect(
+      tester.renderObject<RenderParagraph>(text).didExceedMaxLines,
+      isFalse,
+    );
+    expect(tester.takeException(), isNull);
+  });
 }

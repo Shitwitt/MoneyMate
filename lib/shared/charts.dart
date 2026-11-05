@@ -260,6 +260,7 @@ class _CategoryChartState extends State<CategoryChart> {
         icon: Icons.filter_vintage_outlined,
       );
     final total = breakdown.fold<int>(0, (sum, e) => sum + e.value);
+    final centerStyle = Theme.of(context).textTheme.titleMedium;
     final values = breakdown.take(6).toList();
     if (breakdown.length > 6)
       values.add(
@@ -368,12 +369,13 @@ class _CategoryChartState extends State<CategoryChart> {
                                   style: Theme.of(context).textTheme.labelSmall,
                                 ),
                                 const SizedBox(height: 4),
-                                AmountText(
-                                  active < 0 ? total : values[active].value,
-                                  compact: true,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium,
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: AmountText(
+                                    active < 0 ? total : values[active].value,
+                                    compact: true,
+                                    style: centerStyle,
+                                  ),
                                 ),
                               ],
                             ),

@@ -35,7 +35,11 @@ void main() {
     expect(migrated.navTabs, ['home', 'accounts', 'reports', 'search']);
     expect(migrated.hiddenCards, ['balance']);
     expect(migrated.locale, 'fa');
-    expect(AppSettings.fromJson(const AppSettings(accent: 0xff916cff).toJson()).accent, 0xff916cff);
+    expect(
+      AppSettings.fromJson(const AppSettings(accent: 0xff916cff).toJson())
+          .accent,
+      0xff916cff,
+    );
     expect(migrated.theme, 'black');
     final custom = AppSettings.fromJson({
       'homeCards': ['templates', 'goals', 'accounts'],

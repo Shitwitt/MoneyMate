@@ -1,6 +1,6 @@
 # Tink
 
-**Your money. A clearer mind.** A privacy-first Material 3 Flutter finance companion with a editorial-serif typography, glass navigation, animated account artwork and a premium neutral/violet interface. Tink is an independent local tracker, not a bank, card issuer, payment service, trading platform, or an integration with the Tink banking API. Interface references inspired the visual direction; no Stable Money logos, proprietary screens or illustrations are bundled.
+**Your money. A clearer mind.** A privacy-first Material 3 Flutter finance companion with rounded offline typography, a warm coffee/peach interface and real-record financial tools. Tink is an independent local tracker, not a bank, card issuer, payment service, trading platform, or an integration with the Tink banking API. Interface references inspired the visual direction; no Stable Money logos, proprietary screens or illustrations are bundled.
 
 No accounts, backend, ads, analytics, payment service, or automatic network calls. The Android release deliberately has **no Internet permission**. All finance data and receipt images are local. Pro is a free, persisted simulation.
 
@@ -18,7 +18,7 @@ Tink/
 │   │   ├── models/models.dart   # Explicit typed JSON models; no build_runner
 │   │   ├── data/                # Hive repository, atomic controller, ledger, seeds
 │   │   ├── services/            # Backups, CSV/PDF, receipts, notifications, widgets
-│   │   ├── theme/               # Material 3 light/dark/Midnight/dynamic color
+│   │   ├── theme/               # Material 3 light/dark/Just Black/dynamic color
 │   │   └── utils/               # Fixed-point money, arithmetic, calendar rules
 │   ├── features/
 │   │   ├── onboarding/          # Wizard, first account, demo/restore
@@ -30,7 +30,7 @@ Tink/
 │   │   ├── reports/ achievements/
 │   │   └── settings/            # Preferences, PIN/biometrics, layouts, import, help
 │   ├── shared/                 # Reusable forms, charts, progress painter, states
-│   └── l10n/                   # 13 ARB starter translations + generated output
+│   └── l10n/                   # 36 ARB starter translations + generated output
 ├── android/
 │   ├── gradlew / gradlew.bat / gradle/wrapper/   # Actual Gradle wrapper included
 │   ├── settings.gradle / build.gradle / gradle.properties
@@ -56,9 +56,9 @@ Tink/
 
 ## GET YOUR APK NOW
 
-**[Download Tink 1.2.0, build 3 — installable Android APK](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42087198603/Tink-Android-release.apk)** · **82.3 MB**, Android 7+, ARM64/ARMv7/x86-64. This is a fresh optimized build of the editorial/glass redesign, **test/debug-key signed**, not store-signed. [Checksum, certificate and verified test evidence](docs/BUILD_STATUS.md). Older 1.1/1.0 APKs do **not** contain this redesign.
+**Version 1.3.0, build 4 — reference batch 1 is being verified.** A new direct APK/source link will replace this notice only after the current code passes checks and is rebuilt. The [historical 1.2 build](docs/HISTORICAL_1_2_BUILD.md) does **not** contain this reference batch.
 
-**Upgrade warning:** this certificate differs from the earlier delivered 1.1 APK. Android cannot update that install in place. **Export and verify your backup before uninstalling**; install the new APK and restore only when ready. Configure a persistent private release key for future signed upgrades.
+**Upgrade warning:** without a persistent signing key, a new CI runner can generate a different certificate. Android cannot update a differently signed install in place. **Export and verify a backup before uninstalling.** See signing and device-QA limits below.
 
 **Here is how you get the APK ready to download and install** — fastest methods first:
 
@@ -138,7 +138,7 @@ flutter run -d chrome            # development web build
 flutter run -d web-server --web-hostname 0.0.0.0 --web-port 8080
 ```
 
-No `.env`, API keys, Firebase project, backend, schema generator, or login is required. On first launch, swipe through six original illustrated introduction pages (or Skip), then choose a name, currency and first account. The first INR profile defaults to Indian number grouping. Enable sample data to seed fictional activity in that new profile, or restore a JSON/ZIP backup. More → Settings → Profiles can create separate personal/business/demo spaces without touching your existing records.
+No `.env`, API keys, Firebase project, backend, schema generator, or login is required. First launch has **12 introduction/setup panels plus profile/account entry and review (14 steps)**. Start fresh, use the language selector, restore an existing local/provider file, or try the **isolated editable in-memory demo**. Exit Demo or relaunch to return to real data; demo edits/settings never save into the real repository. Restoring a provider backup uses the OS file picker, **not a Google account connection or cloud upload**. Profile/account setup creates a real **empty** ledger; it never silently saves demo transactions. The first INR profile defaults to Indian number grouping. Profiles & settings → Settings → Profiles creates independent personal/business ledgers.
 
 ## Release signing (recommended before your first long-term install)
 
@@ -213,16 +213,16 @@ The project opts for CocoaPods; if your Flutter installation enables experimenta
 
 ## What works
 
-* **Local profiles and onboarding:** separate financial records, first account, currencies, default income/expense categories, deterministic six-month demo, restore preview.
-* **Customizable dashboard:** saved card order/visibility, reorder handles, net worth details, income/expense, account carousel, six-month chart, budgets/goals, daily-grouped recents, one-tap templates, subscriptions, assets, loans, reports, achievements and Pro.
+* **Local profiles and onboarding:** separate financial records, first account, currencies, default income/expense categories, isolated editable in-memory demo, local/provider restore picker and validation preview.
+* **Customizable dashboard:** saved card order/visibility (including last-earned and templates), hideable balance/income/expense and comparisons, Home/Accounts/Reports/Search defaults, two-column tool cards, swipeable budget preview, actual weekly expense bars and a cumulative last-30-days expense chart. At larger text sizes narrow phones use a readable single column. Upgrades migrate the previous default layout once and retain custom orders/hidden cards/navigation. Safe to spend remains in Net worth details, not mislabeled as total balance.
 * **Activity:** expense/income/atomic two-account transfer, integer money, arithmetic keypad, history-name suggestions, account/category/date/time, notes, labels/people/place, goal/loan tags, up to five photo receipts, sequential entry, edit/delete swipes and bulk deletion. Search plus date/account/category/tag/person/place/type/min/max filters, sticky daily headers, paging, sorting, totals, filtered CSV.
 * **Accounts/catalog:** currency per account, signed opening balances, types/icons/photos/colors, exclusion/archiving, grouping, account detail/transfers, tablet list/detail; category CRUD/reorder/hide and charts; label/person/place CRUD, photos/notes, counts, linked activity and report breakdowns.
-* **Plans:** recurring/custom budgets, category scope, signed rollover, 50/80/100% alerts; goals with deadlines, allocations or linked-account progress, tagged income, milestones; earned badges and confetti.
+* **Plans:** recurring/custom budgets, category scope, signed rollover, 50/80/100% alerts; goals with start/deadline, reversible archive, allocations or linked-account progress, tagged income, milestones; earned badges and confetti.
 * **Debts/bills/assets:** lent/borrowed with optional flat interest, partial/full repayments, optional atomic disbursement/repayment account entries, due reminders; equal/percentage/exact/weighted bill splits with exact rounding, net settlement suggestions, settled history and optional loan creation; manual asset values/purchase information and full value history.
-* **Recurring entries:** daily/weekly/monthly/yearly/custom intervals, start/end, pause/resume/skip, auto-post vs remind-only, idempotent catch-up, monthly burn normalization.
+* **Recurring entries:** daily/weekly/fortnightly/monthly/quarterly/half-yearly/yearly/custom intervals; anchored dates and inclusive end; active/due/archived filters; Monday-first month calendar; detail/history/statistics/help; atomic stale-tap-safe process/skip; archive/restore; auto-post vs confirm-only; reminders 0–30 days ahead; budget/labels/people/place links and monthly/yearly estimates.
 * **Reports:** touch-enabled bar/line/category donut, filters/custom dates, category/account/name/tag/person/place breakdowns; Pro daily pace/projection, preceding equal-duration and prior-year comparisons, weekday seasonality, daily heatmap; CSV, multi-page PDF and printing with bundled Noto font fallbacks.
-* **Preferences:** Material 3 system/light/dark/Midnight, dynamic Android colors/accent palettes, text size, 13 navigation/action language starters + RTL, international/Indian numbering, financial month and week starts, PBKDF2 PIN/biometrics, hidden amounts, notification preferences, JSON/ZIP export with embedded receipts/checksum/restore preview, CSV mapper/validation/deduplication, home/nav customization/live nav preview, rates, widgets, links, help and licenses.
-* **Pro simulation:** repository-enforced free creation limits (3 budgets, 3 goals, 3 bills, 10 of each tag/entity), advanced-report/PDF/theme gates, persisted free unlock/restore/test-free controls. Downgrading never deletes existing data.
+* **Preferences:** Material 3 system/light/dark/Just Black, dynamic Android colors/accent palettes, text size, 36 navigation/action language starters + RTL, international/Indian numbering, financial month and week starts, PBKDF2 PIN/biometrics, hidden amounts, notification preferences, JSON/ZIP export with embedded receipts/checksum/restore preview, CSV mapper/validation/deduplication, home/nav customization/live nav preview, rates, widgets, links, help and licenses.
+* **Pro simulation:** repository-enforced free creation limits (3 budgets, 3 goals, 3 bills, 10 of each tag/entity), advanced-report/PDF/premium-customization gates (Just Black is free), persisted free unlock/restore/test-free controls. Downgrading never deletes existing data.
 
 ## Privacy & backup details
 
@@ -251,18 +251,18 @@ adb shell am start -a android.intent.action.VIEW \
 
 ## Tink design system
 
-Version **1.2.0+3** adds the November editorial/glass redesign across all existing screens. See [the luxury redesign details](docs/LUXURY_REDESIGN.md). The six-page introduction is also replayable from **More → Widgets, automation & FAQ / Help**. Functionality, finance records and schema identities are retained.
+Version **1.3.0+4** implements the first supplied reference batch. See [scope, genuine deviations and verification](docs/REFERENCE_BATCH_01.md), [design tokens/accessibility](docs/DESIGN_SYSTEM.md) and [build status](docs/BUILD_STATUS.md). Unseen steps 9/11–14 are original Tink layouts, not a claim to know missing screenshots. The earlier [1.2 design](docs/LUXURY_REDESIGN.md) is historical.
 
-- **Color:** violet `#916CFF`, pressed `#7A55F0`, pale violet `#EDE7FF`; neutral light surfaces `#F7F7FB` / white; dark surfaces `#121218` / `#1B1B23`. No pure-black main background. Midnight is the darker-card treatment of the legacy `black` preference.
-- **Type:** bundled **Instrument Serif** display titles and **Source Serif 4** 400–700 for every body/control/data style, including tabular amounts. These licensed Google Fonts are packaged locally; runtime fetching is disabled. Existing Inter/Poppins assets remain for compatibility, not as the UI font. All eight existing Noto language fallback families and OFL licenses remain bundled. Circular Std is not included or represented as licensed.
-- **Components:** named color/type/spacing/radius/theme tokens; glass capsule navigation with a separate More control, metallic/paper bank/cash/debit/credit artwork, rounded cards, semantic transaction tiles, category icons, buttons, progress bars/rings, chart cards, premium badges and empty/loading states. Shared theming applies to every screen, editor, sheet, picker and dialog.
-- **Interaction:** fade/scale splash, swipeable vector-art introduction, finite home entrances/count-up, clean circular add-entry FAB and rounded entry sheet, save check, warm glowing selected-nav pill, finite foil sweeps, animated theme shifts, budget warning outline pulse, luminous goal rings, radar/gauge/petal/cashflow charts, 13-week calendar and subtle Pro badge shimmer. Primary motion respects reduced-motion preferences. No continuous celebratory animation is required to use a form.
-- **Contrast:** white on exact brand violet is **3.63:1**, not 4.5:1. Primary labels are therefore **20sp bold**, satisfying the WCAG AA large-text threshold of 3:1. Normal-size text uses neutral/semantic ink variants (at least 4.5:1 on their intended card backgrounds), not pale brand violet. See [the full rationale and tokens](docs/DESIGN_SYSTEM.md). This is not a claim of independent accessibility certification.
-- **Personalization:** new installs start violet. The legacy default green migrates to violet; explicitly customized accents, profile data, layouts and manual rates remain. Material You remains opt-in and functional. User-selected accents get a contrast-aware primary foreground.
+- **Color:** coffee `#1A100E`, dark Home `#231A15`, peach `#FFB59A`, muted ink `#D9C4BA`; warm-white light surfaces and tinted cards. Just Black is selectable without Pro. Material You and custom accents remain functional.
+- **Type:** licensed bundled **Quicksand 400–700**, tabular money and Noto Latin/Arabic/Indic/Thai/CJK fallbacks. This is an approximation: the exact reference font has not been identified. [Font licenses and sources](assets/fonts/README.md). No runtime font CDN.
+- **Components:** flat tonal rounded cards, pills, coffee navigation and brown add FAB, wavy progress, shared feature cards/forms/sheets/dialogs and empty/loading states. Real isolated light feature screens appear inside decorative tour phones, not screenshot backdrops. Tink head/sparkle identity is retained; no copied OS bars, chat heads, proprietary logos or sample user photos.
+- **Motion:** finite ease-out transitions, 280ms theme changes and 500ms chart entrances; reduced-motion-aware reference transitions/progress/charts. Static references do not establish original animation timing. No blanket certification of every native/third-party transition.
+- **Contrast:** new fixed palette pairs are measured in the design document. Foreground variants and text summaries supplement colored financial indicators. Custom/dynamic colors, screen readers, largest text settings and native integrations still need device QA; no blanket AA claim.
+- **Personalization:** old default layouts migrate once; explicit customized order/navigation/hidden cards remain. New tools append to legacy custom Home orders. Revisioned settings preserve newly selected violet/green/custom colors across relaunch. Detailed finance tools remain mostly English despite the 36 core locale starters.
 
-### What “Safe to spend” means
+### What “Safe to spend” means (Net worth details)
 
-The hero is a **calculated planning estimate**, not net worth relabeled and not a live bank balance. It starts with included, active, non-savings/non-investment account balances as of now. It deducts scheduled expense occurrences and recorded future outgoing transactions through the financial-period end, borrowed loan balances due in that period, and manual goal allocations. Internal transfers between spendable accounts are not deducted twice. Savings-linked goals are already outside spendable balances. Budget limits are **not** an additional deduction. Overlapping commitments can make the result conservative; exceptionally old schedules return a zero estimate and ask for review. Tap the information icon for the calculation. New regression tests cover this separately from net worth.
+Safe to spend is a **calculated planning estimate**, not net worth relabeled and not a live bank balance. It starts with included, active, non-savings/non-investment account balances as of now. It deducts scheduled expense occurrences and recorded future outgoing transactions through the financial-period end, borrowed loan balances due in that period, and manual goal allocations. Internal transfers between spendable accounts are not deducted twice. Savings-linked goals are already outside spendable balances. Budget limits are **not** an additional deduction. Overlapping commitments can make the result conservative; exceptionally old schedules return a zero estimate and ask for review. Tap the information icon for the calculation. New regression tests cover this separately from net worth.
 
 ### Upgrade compatibility
 
@@ -273,8 +273,8 @@ Public app labels, icons, exports, web shell and widgets are Tink. To retain rec
 * App identity: `pubspec.yaml`, `constants.dart`, Android namespace/application ID and Kotlin package/path, iOS bundle IDs, widget App Group/entitlements, display names and web manifest. Change them consistently.
 * App art/icons: replace bundled original PNGs in `assets/branding`, Android mipmaps, iOS `AppIcon.appiconset`, and `web/icons`. No remote fonts are loaded. The editable icon source and generator are in `assets/branding/tink-mark.svg` and `tools/generate_branding.py`.
 * Categories/demo: `lib/core/data/seed.dart`. Rates there are illustrative **2026-01-01 reference values**, not quotes. Manual edits update their own timestamps; there is deliberately no fake “live refresh”.
-* Add a language: copy `lib/l10n/app_en.arb`, translate keys, add its label to `languageNames`, run `flutter gen-l10n`. Generated Dart is intentionally not committed; `flutter pub get`/gen-l10n produces it. The 13 included ARBs cover the app shell and primary actions; detailed form/help text remains English.
-* Version: increment `version: 1.0.0+1` in `pubspec.yaml` before shipping an update; change the iOS extension version too. Commit `pubspec.lock` after resolving to keep application dependencies reproducible.
+* Add a language: copy `lib/l10n/app_en.arb`, translate keys, add its label to `languageNames`, run `flutter gen-l10n`. Generated Dart is intentionally not committed; `flutter pub get`/gen-l10n produces it. The 36 included ARBs cover the app shell and primary actions; detailed form/help text remains English.
+* Version: increment `version: 1.3.0+4` in `pubspec.yaml` before shipping an update; change the iOS extension version too. Commit `pubspec.lock` after resolving to keep application dependencies reproducible.
 
 ## Platform support and known limits
 

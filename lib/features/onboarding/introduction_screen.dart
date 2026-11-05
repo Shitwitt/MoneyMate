@@ -325,6 +325,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                                   const SizedBox(height: 14),
                                   Text(
                                     page.$1,
+                                    key: ValueKey('tour-title-$index'),
                                     textAlign: TextAlign.center,
                                     style: Theme.of(context)
                                         .textTheme

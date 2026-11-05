@@ -159,9 +159,9 @@ class _FinancialPulsePanelState extends State<FinancialPulsePanel> {
                   builder: (context, progress, _) => SizedBox(
                     height:
                         320 *
-                        MediaQuery.textScalerOf(context)
-                            .scale(1)
-                            .clamp(1.0, 1.4),
+                        MediaQuery.textScalerOf(
+                          context,
+                        ).scale(1).clamp(1.0, 1.4),
                     width: double.infinity,
                     child: CustomPaint(
                       painter: _RadarPainter(
@@ -182,11 +182,15 @@ class _FinancialPulsePanelState extends State<FinancialPulsePanel> {
                 child: Row(
                   children: [
                     Expanded(child: Text(m.label)),
-                    Text(
-                      m.value == null
-                          ? 'Not enough records'
-                          : '${m.value!.round()} / 100',
-                      style: Theme.of(context).textTheme.labelLarge,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        m.value == null
+                            ? 'Not enough records'
+                            : '${m.value!.round()} / 100',
+                        textAlign: TextAlign.end,
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
                     ),
                   ],
                 ),

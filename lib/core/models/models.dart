@@ -1244,10 +1244,15 @@ class AppSettings {
     theme: readString(json['theme'], 'dark'),
     accent:
         readInt(json['uiRevision']) < 2 &&
-            [0xff557c36, 0xff916cff].contains(readInt(json['accent'], 0xffffb59a))
+            [
+              0xff557c36,
+              0xff916cff,
+            ].contains(readInt(json['accent'], 0xffffb59a))
         ? 0xffffb59a
         : readInt(json['accent'], 0xffffb59a),
-    dynamicColors: readInt(json['accent'], 0xff916cff) == 0xff557c36
+    dynamicColors:
+        readInt(json['uiRevision']) < 2 &&
+            readInt(json['accent'], 0xff916cff) == 0xff557c36
         ? false
         : readBool(json['dynamicColors'], false),
     locale: readString(json['locale'], 'en'),

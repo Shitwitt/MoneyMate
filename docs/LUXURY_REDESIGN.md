@@ -1,3 +1,5 @@
+> Historical 1.2 visual design. Superseded by [reference batch 1](REFERENCE_BATCH_01.md) for the current 1.3 coffee/peach interface.
+
 # Tink 1.2 — editorial / glass design
 
 This redesign interprets the user's November 2026 references with original artwork. It does not reproduce the referenced designers' logos, credit-card networks, banking products, crypto wallets, illustrated mascots or medical/fitness claims.

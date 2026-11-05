@@ -1,110 +1,45 @@
-# Tink 1.2 design system
+# Tink 1.3 design system — reference batch 1
 
-## Direction and provenance
-An original editorial/glass finance interface: neutral canvas, large serif tabular
-amounts, engraved bank/cash/card artwork and a luminous warm navigation pill. Stable Money and the supplied
-screens are references for clarity and polish, not copied products or promised
-banking capabilities. The head/yellow-spark icon is an original scalable redraw
-of the user's first reference. Six introductory compositions are original Flutter
-vector drawings; there are no photos, realistic 3D characters or proprietary bank
-logos. The yellow spark stays in the mark; data visualizations may also use labelled warm/lime accents. See [the reference interpretation and chart rules](LUXURY_REDESIGN.md).
+The current coffee/peach direction supersedes [the 1.2 editorial/glass design](LUXURY_REDESIGN.md). [Batch scope and deliberate differences](REFERENCE_BATCH_01.md).
 
-## Source of truth
+## Shared foundations
 
-| File | Responsibility |
-|---|---|
-| `lib/core/theme/app_colors.dart` | Brand, neutral, semantic and chart palettes |
-| `lib/core/theme/app_text_styles.dart` | Instrument Serif display, Source Serif 4 UI/data, tabular figures and locale fallbacks |
-| `lib/core/theme/app_spacing.dart` | 4/8/12/16/20/24/32/40/48 spacing, 56 buttons, 72 navigation |
-| `lib/core/theme/app_radius.dart` | 12 small, 16 buttons/inputs, 28 cards, 32 sheets |
-| `lib/core/theme/theme.dart` | Light/dark/Midnight Material 3 themes and route motion |
-| `lib/core/theme/app_theme.dart` | Compatibility entry point for existing screen callers |
-| `lib/shared/tink_components.dart` | Buttons, cards, icons, progress, chart frame, badge, mark and finite motion |
-| `lib/shared/widgets.dart` | AmountText, SectionHeader, StatCard, EmptyState, FeaturePage, skeleton and exports |
-| `lib/features/transactions/transaction_tile.dart` | Adaptive semantic transaction row and receipt/edit actions |
-| `lib/shared/luxury_components.dart` | Foil shine, editorial wordmark, glass configurable navigation |
-| `lib/shared/account_artwork.dart` | Seven account types, six original bank/card/cash finishes |
-| `lib/shared/pulse_charts.dart` | Transparent pulse gauge/radar and 13-week record calendar |
-| `lib/shared/cashflow_composition.dart` | Linked cumulative-net and monthly-expense panels |
-| `lib/shared/charts.dart` | Accessible trends and selectable petal/segmented category allocations |
+- Coffee canvas `#1A100E`, Home/card `#231A15`, tool tiles `#271E19`, balance/FAB brown `#72361E`, primary peach `#FFB59A`, muted dark ink `#D9C4BA`.
+- Light canvas `#FFF8F2`, cards `#FFFDF9`, body ink `#2D211A`; semantic income/expense/transfer have separate light ink and dark pastel variants.
+- System/light/dark/**Just Black** plus opt-in Android dynamic color and saved custom accents. Just Black is not premium-gated. A UI-revision migration changes old defaults once, not newly selected custom accents on every launch.
+- Offline licensed Quicksand 400–700; Noto Latin, Arabic, Indic, Thai and CJK fallback. Exact reference font is unknown; this is a deliberate licensed approximation. Tabular amount style, actual-record figures, full-value money semantics and text-scale/RTL-aware layouts. See [font sources/licenses](../assets/fonts/README.md).
+- Shared `core/theme/` tokens; `shared/reference_components.dart`, `widgets.dart`, `forms.dart`, `wavy_ring.dart` and `daily_spend_chart.dart`. Rounded tonal cards, pills/segments, wavy progress, summary columns, form/editor/picker/empty/loading components apply throughout, not just Home.
 
-`FeaturePage`, global component themes, shared money/transaction components and
-cards apply the system to every existing finance/settings screen, rather than
-limiting the redesign to the introduction and dashboard.
+## Home and preview rules
 
-## Color tokens
+Default Home/Accounts/Reports/Search navigation, brown add FAB, profile/menu/grid controls, hideable balance/cashflow comparisons, ordered two-column tool cards, swipeable budgets, weekly bars, cumulative 30-day expenses, actual earned badge and usable templates. Narrow phones switch to one column above 130% text; saved order also applies to templates and last-earned cards. Missing historical comparison is labeled, not treated as a fabricated percentage. Future dates are not included in recorded charts; unknown future week days are outlined, not predictions.
 
-| Role | Light | Dark |
+Tour phone previews mount the real feature widgets in independent in-memory providers, using decorative fixed-scale light English previews and excluding their semantics. They cannot save into user data. Interactive real screens honor user locale, theme and text scale. No fake OS/status bar, copied screenshot backdrop, private chat-head photo or proprietary reference logo is bundled.
+
+## Motion
+
+Finite ease-out transitions; reference helpers default 240ms, app theme 280ms, charts 500ms. Reduced-motion disables reference/theme/chart animations. There is no continuous celebration blocking forms. Static references do not determine the original app's animation timings. Platform/third-party animations and every individual transition are not independently certified.
+
+## Measured fixed-palette contrast
+
+WCAG relative-luminance formula, sRGB components. These are **specific solid color pairs**, not a blanket AA certification. Text on alpha-tinted, custom or dynamic surfaces must be checked in context. Color is supplemented with labels, percentages and descriptions.
+
+| Pair | Foreground / background | Ratio |
 |---|---|---|
-| Brand / pressed / pale | `#916CFF` / `#7A55F0` / `#EDE7FF` | Brand retained; optional highlight `#A78BFF` |
-| Main background | `#F7F7FB` | `#121218` |
-| Card | `#FFFFFF` | `#1B1B23` |
-| Divider | `#ECECF2` | `#2A2A33` |
-| Primary text | `#0B0B0F` | White |
-| Secondary text | `#5A5A66` | `#A5A5B2` |
-| Decorative tertiary | `#8A8A96` | `#8A8A96` |
-| Income accent / readable ink | `#12B76A` / `#067647` | `#34D399` |
-| Expense accent / readable ink | `#F04438` / `#B42318` | `#F87171` |
-| Transfer accent / readable ink | `#2E90FA` / `#175CD3` | `#60A5FA` |
-| Warning accent / readable ink | `#F79009` / `#93370D` | Warm yellow/orange |
-| Semantic backgrounds | `#E8F8F0`, `#FEECEB`, `#FFF6E6`, `#EAF3FF` | Tinted neutral surfaces |
+| Peach on coffee | `#FFB59A` / `#1A100E` | 10.96:1 |
+| Light ink on Home tile | `#F8E8DD` / `#271E19` | 13.67:1 |
+| Muted ink on coffee | `#D9C4BA` / `#1A100E` | 11.17:1 |
+| Hero light ink on brown | `#F8E8DD` / `#72361E` | 7.77:1 |
+| Light body ink on warm-white | `#2D211A` / `#FFF8F2` | 14.85:1 |
+| Light muted ink on warm-white | `#705C4F` / `#FFF8F2` | 5.99:1 |
+| Income ink on light card | `#36582B` / `#FFFDF9` | 7.99:1 |
+| Expense ink on light card | `#8D343F` / `#FFFDF9` | 7.67:1 |
+| Dark income on tile | `#A7C994` / `#271E19` | 8.88:1 |
+| Dark expense on tile | `#EEB5B8` / `#271E19` | 9.28:1 |
+| Brown on peach | `#2D211A` / `#FFB59A` | 9.17:1 |
 
-Violet denotes primary actions, selection, progress, links and highlights, never
-income/expense semantics. Categories retain meaningful/user-chosen colors. New
-food, transport and shopping categories use orange, blue and pink respectively.
-Credit-account overview cards use dark surfaces with readable white text and
-recorded balances; they do not represent a real issued card.
+Prior violet/white 3.63:1 was a historical 1.2 large-text-only pair; it is not evidence for the new palette. Tinted feature cards use `readableTint` for an appropriate foreground. Screen-reader navigation, native pickers, complex scripts, actual devices and extreme display/font settings still need the documented QA checks.
 
-### The exact-violet/white contrast conflict
+## Safety and truthful numbers
 
-White on `#916CFF` is **3.63:1**: sufficient for WCAG AA **large text**, not normal
-body text. The primary-button label is deliberately **20sp / weight 700** (above
-18.67px bold) so exact violet + white remains AA at its intended size. Pressed
-`#7A55F0` on white is **4.79:1**. Normal-size links and selected text use readable
-violet ink `#5530B0`; that ink on pale violet is **7.17:1**. Secondary body text on
-the main light canvas is **6.36:1**. Semantic light-card income/expense inks are
-**5.69:1** and **6.57:1** against white. Decorative tertiary gray is not the body
-caption color. Inputs use a stronger visible neutral outline than decorative
-dividers. Dark destructive confirmations use ink on coral (**7.10:1**), not
-white on coral; their light-mode white/dark-red pair is **6.57:1**. A
-custom/personalized primary foreground is selected by contrast.
-
-These are design-token checks, not an independent audit or blanket certification
-of every platform state. Continue the real-device accessibility checklist.
-
-## Typography
-
-- Instrument Serif Regular: large editorial display and Tink branding, an original licensed interpretation of the supplied serif reference, not a claim of exact font identification.
-- Source Serif 4 400/500/600/700: every body, caption, control and data style. Display 36/32, page 28, H1 24, H2 20, H3 18, body 16/14, labels 13, captions 12, metadata 11.
-- Monetary values explicitly use Source Serif 4 with tabular figures. Currency precision, Indian/international grouping and amount hiding still come from existing settings.
-- Comfortable 1.35–1.45 body line heights; high-contrast display serif uses tighter title line heights. The wordmark is a fixed-size graphic-like brand label with full semantics, not financial content.
-- Fonts are licensed local assets; Google Fonts runtime fetching is disabled. Eight Noto fallback families preserve the 13 starter locales/RTL. Old Poppins/Inter assets and CanvasKit's local Inter compatibility alias remain for compatibility, not as the main UI type. Native launcher widgets use platform serif fonts.
-- Existing starter translations cover shell/actions; many feature-specific and
-  introductory sentences remain English. This is not full translated-copy coverage.
-
-## Components and motion
-
-`PrimaryButton`, `SecondaryButton`, `AppCard`, `AmountText`, `TransactionTile`,
-`CategoryIcon`, `ProgressBar`, `ProgressRing`, `SectionHeader`, `EmptyState`,
-`StatCard`, `ChartCard`, `PremiumBadge` are reusable, not screen-only sketches.
-Sheets, dialogs, chips, selectors, form fields and calculator controls inherit
-the same Material 3 theme. Minimum actionable targets are 48 logical pixels.
-
-Animations use ease-out-cubic/ease-in-out, finite 150–280ms micro/navigation
-transitions and 380–700ms chart/amount/progress entrances. Splash fades/scales
-0.95 → 1; intro illustration motion is a small one-shot float. Home cards enter
-subtly; money counts up. The entry sheet slides, its Save state briefly checks,
-and selection changes animate. Budget overrun gets one outline pulse. Goal rings,
-gradient bars/rings, petal reveal, radar/gauge reveals, comparative cashflow, calendar entrances and the Pro badge
-have restrained animations. Glass pills transition over 160ms, theme shifts blend over 480ms and foil sweeps finish after 1.1 seconds. Reduced-motion preferences remove primary entrances;
-forms never depend on waiting for looping animation. Preserve the shared editor's
-`route.completed` await before caller-owned controller disposal.
-
-## Compatibility and scope
-
-Version is `1.2.0+3`; Android minimum remains 24. Internal package/database/archive/
-URI IDs intentionally stay compatible with the original app. No financial API,
-banking connection, investment order, money transfer, card issuance or real
-purchase is added by the design references. All financial actions are local
-bookkeeping/planning; Pro is still a free persisted simulation. Storage/backups
-are not encrypted, and an app PIN is not at-rest database encryption.
+Charts and previews use ledger calculations or explicitly fictional isolated demo records. The record indicator is not a credit/health/AI score. Safe to spend remains a conservative planning estimate in Net worth details. Account finishes are bookkeeping artwork, not issued payment cards, bank connections, crypto custody or realistic bank logos. Data/backups are unencrypted; interface PIN is not database encryption.

@@ -133,13 +133,71 @@ jobs:
         run: npm install --prefix /tmp/paisa-web-smoke playwright-core @sparticuz/chromium pngjs
       - name: Browser onboarding, persistence and offline reload
         run: python3 .github/scripts/checked_command.py node .github/scripts/web_smoke.cjs
-      - name: Reference batch visual evidence (fictional records only)
+      - name: Visual evidence — failure (fictional data)
         if: always()
         run: |
-          for image in intro budget-tour languages dashboard home-lower recurring calendar detail history help help-bottom archived; do
-            python3 .github/scripts/image_diagnostic.py 0 "web-${image}.jpg" "batch1-${image}"
-            python3 .github/scripts/image_diagnostic.py 1 "web-${image}.jpg" "batch1-${image}"
-          done
+          python3 .github/scripts/image_diagnostic.py 0 "web-failure.jpg" "batch1-failure"
+          python3 .github/scripts/image_diagnostic.py 1 "web-failure.jpg" "batch1-failure"
+      - name: Visual evidence — intro (fictional data)
+        if: always()
+        run: |
+          python3 .github/scripts/image_diagnostic.py 0 "web-intro.jpg" "batch1-intro"
+          python3 .github/scripts/image_diagnostic.py 1 "web-intro.jpg" "batch1-intro"
+      - name: Visual evidence — budget-tour (fictional data)
+        if: always()
+        run: |
+          python3 .github/scripts/image_diagnostic.py 0 "web-budget-tour.jpg" "batch1-budget-tour"
+          python3 .github/scripts/image_diagnostic.py 1 "web-budget-tour.jpg" "batch1-budget-tour"
+      - name: Visual evidence — languages (fictional data)
+        if: always()
+        run: |
+          python3 .github/scripts/image_diagnostic.py 0 "web-languages.jpg" "batch1-languages"
+          python3 .github/scripts/image_diagnostic.py 1 "web-languages.jpg" "batch1-languages"
+      - name: Visual evidence — dashboard (fictional data)
+        if: always()
+        run: |
+          python3 .github/scripts/image_diagnostic.py 0 "web-dashboard.jpg" "batch1-dashboard"
+          python3 .github/scripts/image_diagnostic.py 1 "web-dashboard.jpg" "batch1-dashboard"
+      - name: Visual evidence — home-lower (fictional data)
+        if: always()
+        run: |
+          python3 .github/scripts/image_diagnostic.py 0 "web-home-lower.jpg" "batch1-home-lower"
+          python3 .github/scripts/image_diagnostic.py 1 "web-home-lower.jpg" "batch1-home-lower"
+      - name: Visual evidence — recurring (fictional data)
+        if: always()
+        run: |
+          python3 .github/scripts/image_diagnostic.py 0 "web-recurring.jpg" "batch1-recurring"
+          python3 .github/scripts/image_diagnostic.py 1 "web-recurring.jpg" "batch1-recurring"
+      - name: Visual evidence — calendar (fictional data)
+        if: always()
+        run: |
+          python3 .github/scripts/image_diagnostic.py 0 "web-calendar.jpg" "batch1-calendar"
+          python3 .github/scripts/image_diagnostic.py 1 "web-calendar.jpg" "batch1-calendar"
+      - name: Visual evidence — detail (fictional data)
+        if: always()
+        run: |
+          python3 .github/scripts/image_diagnostic.py 0 "web-detail.jpg" "batch1-detail"
+          python3 .github/scripts/image_diagnostic.py 1 "web-detail.jpg" "batch1-detail"
+      - name: Visual evidence — history (fictional data)
+        if: always()
+        run: |
+          python3 .github/scripts/image_diagnostic.py 0 "web-history.jpg" "batch1-history"
+          python3 .github/scripts/image_diagnostic.py 1 "web-history.jpg" "batch1-history"
+      - name: Visual evidence — help (fictional data)
+        if: always()
+        run: |
+          python3 .github/scripts/image_diagnostic.py 0 "web-help.jpg" "batch1-help"
+          python3 .github/scripts/image_diagnostic.py 1 "web-help.jpg" "batch1-help"
+      - name: Visual evidence — help-bottom (fictional data)
+        if: always()
+        run: |
+          python3 .github/scripts/image_diagnostic.py 0 "web-help-bottom.jpg" "batch1-help-bottom"
+          python3 .github/scripts/image_diagnostic.py 1 "web-help-bottom.jpg" "batch1-help-bottom"
+      - name: Visual evidence — archived (fictional data)
+        if: always()
+        run: |
+          python3 .github/scripts/image_diagnostic.py 0 "web-archived.jpg" "batch1-archived"
+          python3 .github/scripts/image_diagnostic.py 1 "web-archived.jpg" "batch1-archived"
       - uses: actions/upload-artifact@v5
         if: always()
         with:

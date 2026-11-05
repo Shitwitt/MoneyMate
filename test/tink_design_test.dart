@@ -33,7 +33,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       for (var i = 0; i < introductionPages.length; i++) {
-        expect(find.text(introductionPages[i].$1), findsOneWidget);
+        expect(find.byKey(ValueKey('tour-title-$i')), findsOneWidget);
         await tester.tap(
           find.text(
             i == 0

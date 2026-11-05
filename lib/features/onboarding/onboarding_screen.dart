@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/data/providers.dart';
+import '../../core/services/service_providers.dart';
 import '../../core/utils/money.dart';
 import '../../shared/actions.dart';
 import '../../shared/forms.dart';
@@ -24,7 +26,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   late bool introduction = !widget.addingProfile;
   int step = 0;
   String currency = 'INR';
-  bool demo = false, busy = false;
+  bool busy = false;
   @override
   void dispose() {
     name.dispose();
@@ -55,7 +57,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             currency: currency,
             accountName: account.text,
             openingMinor: toMinor(value, currency),
-            demo: demo,
+            demo: false,
           );
     });
     if (!mounted) return;
@@ -69,6 +71,38 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       return IntroductionScreen(
         onFinish: () => setState(() => introduction = false),
         onRestore: restore,
+        onDemo: () =>
+            runSafe(context, () => ref.read(appProvider.notifier).startDemo()),
+        language: ref.watch(appProvider).settings.locale,
+        currency: currency,
+        onCurrency: (value) => setState(() => currency = value),
+        onLanguage: (value) => ref
+            .read(appProvider.notifier)
+            .settings((s) => s.copyWith(locale: value)),
+        onTheme: (value) => runSafe(
+          context,
+          () => ref
+              .read(appProvider.notifier)
+              .settings((s) => s.copyWith(theme: value)),
+        ),
+        onNotifications: () async {
+          if (kIsWeb) {
+            toast(context, 'Local notifications need the Android or iOS app.');
+            return;
+          }
+          await runSafe(context, () async {
+            final granted = await ref
+                .read(notificationServiceProvider)
+                .requestPermission();
+            if (!granted)
+              throw const FormatException(
+                'Notification permission was not granted. You can enable it later in Settings.',
+              );
+            await ref
+                .read(appProvider.notifier)
+                .settings((s) => s.copyWith(notificationsEnabled: true));
+          }, success: 'Local reminders enabled');
+        },
       );
     return Scaffold(
       appBar: AppBar(
@@ -93,7 +127,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             child: Padding(
               padding: const EdgeInsets.only(right: 20),
               child: Text(
-                'Setup ${step + 1} of 2',
+                widget.addingProfile
+                    ? 'Setup ${step + 1} of 2'
+                    : '${step + 13}/14',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
@@ -119,18 +155,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 children: [
                                   Text(
                                     'Let’s make it yours.',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineLarge,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.headlineLarge,
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
                                     'No sign-up. Just a name for your private space.',
                                     style: Theme.of(context).textTheme.bodyLarge
                                         ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                   ),
                                   const SizedBox(height: 32),
@@ -184,9 +220,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 const SizedBox(height: 24),
                                 Text(
                                   'A fresh start.\nOn your terms.',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineLarge,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.headlineLarge,
                                 ),
                                 const SizedBox(height: 24),
                                 AppCard(
@@ -217,18 +253,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                 const SizedBox(height: 16),
                                 AppCard(
                                   padding: EdgeInsets.zero,
-                                  child: SwitchListTile.adaptive(
+                                  child: ListTile(
+                                    leading: const Icon(Icons.science_outlined),
                                     title: const Text(
-                                      'Show me around with sample data',
+                                      'Try a separate demo first',
                                     ),
                                     subtitle: const Text(
-                                      'Six months of fictional activity in this new profile',
+                                      'Sample records stay in memory, never in this profile.',
                                     ),
-                                    value: demo,
-                                    onChanged: busy
-                                        ? null
-                                        : (value) =>
-                                              setState(() => demo = value),
+                                    onTap: () => runSafe(
+                                      context,
+                                      () => ref
+                                          .read(appProvider.notifier)
+                                          .startDemo(),
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 24),

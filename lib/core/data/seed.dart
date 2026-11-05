@@ -216,7 +216,17 @@ ProfileData seedProfile({
   data = data.copyWith(
     accounts: accounts,
     transactions: entries,
-    entities: [label, person, place],
+    entities: [
+      label,
+      person,
+      place,
+      NamedEntity(
+        id: uuid.v4(),
+        name: 'Work',
+        kind: 'label',
+        color: 0xffb7c9e5,
+      ),
+    ],
     budgets: [
       Budget(
         id: uuid.v4(),
@@ -234,8 +244,31 @@ ProfileData seedProfile({
         color: 0xff2E90FA,
       ),
     ],
-    goals: [goal],
+    goals: [
+      goal.copyWith(start: DateTime(now.year, now.month - 3, now.day)),
+      Goal(
+        id: uuid.v4(),
+        name: 'Emergency fund',
+        targetMinor: amount(30000),
+        start: DateTime(now.year, now.month - 2, now.day),
+        deadline: DateTime(now.year + 1, now.month, now.day),
+        icon: 'bank',
+        color: 0xffE9B986,
+        contributions: [
+          MoneyEvent(id: uuid.v4(), amountMinor: amount(4500), date: now),
+        ],
+      ),
+    ],
     assets: [
+      Asset(
+        id: uuid.v4(),
+        name: 'Gold savings',
+        type: 'gold',
+        valueMinor: amount(18000),
+        purchaseMinor: amount(15000),
+        icon: 'asset',
+        color: 0xffE9B986,
+      ),
       Asset(
         id: uuid.v4(),
         name: 'Index fund',
@@ -251,6 +284,14 @@ ProfileData seedProfile({
     loans: [
       Loan(
         id: uuid.v4(),
+        personName: 'Sam',
+        principalMinor: amount(2500),
+        direction: 'borrowed',
+        due: now.add(const Duration(days: 45)),
+        notes: 'Shared travel booking',
+      ),
+      Loan(
+        id: uuid.v4(),
         personName: person.name,
         personId: person.id,
         principalMinor: amount(3000),
@@ -258,25 +299,30 @@ ProfileData seedProfile({
         notes: 'Weekend trip',
       ),
     ],
-    recurrings: [
-      Recurring(
-        id: uuid.v4(),
-        name: 'Music subscription',
-        amountMinor: amount(119),
-        accountId: everyday.id,
-        categoryId: entertainment.id,
-        start: safeMonth(now.year, now.month + 1, 8),
-        nextDue: safeMonth(now.year, now.month + 1, 8),
-      ),
-      Recurring(
-        id: uuid.v4(),
-        name: 'Internet',
-        amountMinor: amount(799),
-        accountId: everyday.id,
-        categoryId: categories.firstWhere((item) => item.icon == 'bills').id,
-        start: safeMonth(now.year, now.month + 1, 5),
-        nextDue: safeMonth(now.year, now.month + 1, 5),
-      ),
+    bills: [
+      for (var index = 0; index < 2; index++)
+        Bill(
+          id: uuid.v4(),
+          title: index == 0 ? 'Dinner with Alex' : 'Weekend tickets',
+          totalMinor: amount(1200),
+          date: DateTime(now.year, now.month, now.day - index - 1),
+          paidById: 'me',
+          paidByName: 'You',
+          shares: [
+            BillShare(
+              personId: 'me',
+              name: 'You',
+              amountMinor: amount(600),
+              settled: true,
+            ),
+            BillShare(
+              personId: person.id,
+              name: person.name,
+              amountMinor: amount(1200) - amount(600),
+              settled: index == 1,
+            ),
+          ],
+        ),
     ],
     templates: [
       TransactionTemplate(
@@ -297,5 +343,62 @@ ProfileData seedProfile({
       ),
     ],
   );
-  return data;
+  final overdue = DateTime(now.year, now.month, now.day - 1, 9);
+  final upcoming = DateTime(now.year, now.month, now.day + 8, 9);
+  final rules = [
+    Recurring(
+      id: uuid.v4(),
+      name: 'Netflix',
+      amountMinor: amount(499),
+      accountId: everyday.id,
+      categoryId: entertainment.id,
+      start: safeMonth(overdue.year, overdue.month - 4, overdue.day),
+      nextDue: overdue,
+      autoPost: false,
+      labelIds: [label.id],
+      placeId: place.id,
+      notes: 'Fictional demo subscription · manual confirmation',
+    ),
+    Recurring(
+      id: uuid.v4(),
+      name: 'Spotify',
+      amountMinor: amount(119),
+      accountId: cash.id,
+      categoryId: categories.firstWhere((c) => c.icon == 'bills').id,
+      start: safeMonth(upcoming.year, upcoming.month - 4, upcoming.day),
+      nextDue: upcoming,
+      autoPost: false,
+      reminderDays: 1,
+      notes: 'Fictional demo subscription · no payment service is connected',
+    ),
+  ];
+  final history = <MoneyTransaction>[];
+  for (final rule in rules) {
+    for (var i = 4; i > 0; i--) {
+      final date = safeMonth(
+        rule.nextDue.year,
+        rule.nextDue.month - i,
+        rule.start.day,
+      );
+      history.add(
+        MoneyTransaction(
+          id: '${rule.id}@${date.toIso8601String()}',
+          name: rule.name,
+          type: rule.type,
+          amountMinor: rule.amountMinor,
+          accountId: rule.accountId,
+          categoryId: rule.categoryId,
+          date: date,
+          recurringId: rule.id,
+          labelIds: rule.labelIds,
+          placeId: rule.placeId,
+          notes: 'Fictional demo history',
+        ),
+      );
+    }
+  }
+  return data.copyWith(
+    recurrings: rules,
+    transactions: [...data.transactions, ...history],
+  );
 }

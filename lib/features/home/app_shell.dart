@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/data/providers.dart';
-import '../../shared/luxury_components.dart';
+import '../../shared/widgets.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../accounts/accounts_screen.dart';
 import '../budgets/budgets_screen.dart';
@@ -35,11 +35,13 @@ class _AppShellState extends ConsumerState<AppShell> {
       'plans': l.plans,
       'reports': l.reports,
       'more': l.more,
+      'search': l.search,
     };
     Widget page(String id) => switch (id) {
       'home' => const HomeScreen(),
       'accounts' => const AccountsScreen(),
       'transactions' => const TransactionsScreen(),
+      'search' => const TransactionsScreen(title: 'Search'),
       'plans' => const PlansScreen(),
       'reports' => const ReportsScreen(),
       _ => const MoreScreen(),
@@ -103,7 +105,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       ),
       bottomNavigationBar: wide
           ? null
-          : GlassNavigationDock(
+          : ReferenceNavigationDock(
               tabs: tabs,
               selected: active,
               labels: labels,

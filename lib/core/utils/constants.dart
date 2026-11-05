@@ -1,25 +1,57 @@
 const appName = 'Tink';
-const appVersion = '1.2.0';
+const appVersion = '1.3.0';
 const freeBudgetLimit = 3;
 const freeGoalLimit = 3;
 const freeEntityLimit = 10;
 const freeBillLimit = 3;
 const maxReceiptBytes = 2 * 1024 * 1024;
 const maxBackupBytes = 50 * 1024 * 1024;
+const defaultHomeCards = [
+  'balance',
+  'cashflow',
+  'accounts',
+  'reports',
+  'budgets',
+  'assets',
+  'splits',
+  'loans',
+  'goals',
+  'labels',
+  'analytics',
+  'recurring',
+  'categories',
+  'weekly',
+  'last30',
+  'places',
+  'people',
+  'score',
+  'achievements',
+  'recent',
+  'templates',
+];
 const homeCardNames = <String, String>{
-  'balance': 'At a glance',
-  'cashflow': 'This month',
-  'accounts': 'Your accounts',
-  'trend': 'Cash flow',
+  'balance': 'Total balance',
+  'cashflow': 'Income & expenses',
+  'accounts': 'Accounts',
+  'reports': 'Reports',
   'budgets': 'Budgets',
-  'goals': 'Dreams in progress',
-  'recent': 'Transactions',
-  'templates': 'Quick templates',
-  'recurring': 'Subscriptions',
   'assets': 'Assets',
+  'splits': 'Splits',
   'loans': 'Loans',
-  'reports': 'Reports & insights',
-  'achievements': 'Little wins',
+  'goals': 'Goals',
+  'labels': 'Labels',
+  'analytics': 'Analytics',
+  'recurring': 'Recurring',
+  'categories': 'Categories',
+  'weekly': 'Weekly',
+  'last30': 'Last 30 days',
+  'places': 'Places',
+  'people': 'People',
+  'score': 'Record indicators',
+  'achievements': 'Achievements',
+  'recent': 'Last earned',
+  'templates': 'Templates',
+  'trend': 'Cash flow',
   'premium': 'Tink Pro',
 };
 const accountTypes = [
@@ -41,8 +73,21 @@ const assetTypes = [
   'other',
 ];
 const periods = ['weekly', 'monthly', 'yearly', 'custom'];
-const frequencies = ['daily', 'weekly', 'monthly', 'yearly', 'custom'];
+const frequencies = [
+  'daily',
+  'weekly',
+  'fortnightly',
+  'monthly',
+  'quarterly',
+  'half-yearly',
+  'yearly',
+  'custom',
+];
 const palette = [
+  0xfff6bb96,
+  0xffb9d6a2,
+  0xffe6bdc6,
+  0xffd4c2ed,
   0xff916cff,
   0xff2E90FA,
   0xffF79009,
@@ -69,4 +114,27 @@ const languageNames = {
   'de': 'Deutsch',
   'ar': 'العربية',
   'pt': 'Português',
+  'zh': '中文',
+  'ja': '日本語',
+  'ko': '한국어',
+  'ru': 'Русский',
+  'it': 'Italiano',
+  'nl': 'Nederlands',
+  'tr': 'Türkçe',
+  'pl': 'Polski',
+  'uk': 'Українська',
+  'ro': 'Română',
+  'el': 'Ελληνικά',
+  'cs': 'Čeština',
+  'hu': 'Magyar',
+  'sv': 'Svenska',
+  'da': 'Dansk',
+  'fi': 'Suomi',
+  'nb': 'Norsk bokmål',
+  'id': 'Bahasa Indonesia',
+  'ms': 'Bahasa Melayu',
+  'vi': 'Tiếng Việt',
+  'th': 'ไทย',
+  'fa': 'فارسی',
+  'ur': 'اردو',
 };

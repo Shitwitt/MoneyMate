@@ -63,11 +63,11 @@ void validateData(AppData app) {
             'transactions',
             'plans',
             'reports',
+            'search',
             'more',
           ].contains,
-        ) &&
-        settings.navTabs.contains('more'),
-    'Navigation must have 3–5 unique tabs, including More',
+        ),
+    'Navigation must have 3–5 unique tabs',
   );
   require(
     settings.homeCards.toSet().length == settings.homeCards.length &&
@@ -153,12 +153,16 @@ void validateProfile(ProfileData data) {
   for (final category in data.categories) {
     require(
       category.name.trim().isNotEmpty &&
-          ['expense', 'income'].contains(category.type),
+          ['expense', 'income', 'transfer'].contains(category.type),
       'Invalid category',
     );
   }
   final entityKinds = {for (final item in data.entities) item.id: item.kind};
   for (final entry in data.transactions) {
+    require(
+      entry.budgetId.isEmpty || data.budgets.any((b) => b.id == entry.budgetId),
+      'Linked budget is missing',
+    );
     require(
       ['income', 'expense', 'transfer'].contains(entry.type),
       'Invalid transaction type',
@@ -298,6 +302,8 @@ void validateProfile(ProfileData data) {
   for (final rule in data.recurrings) {
     require(
       rule.name.trim().isNotEmpty &&
+          rule.name.length <= 200 &&
+          ['expense', 'income'].contains(rule.type) &&
           rule.amountMinor > 0 &&
           validMoney(rule.amountMinor) &&
           accounts.containsKey(rule.accountId) &&
@@ -308,6 +314,33 @@ void validateProfile(ProfileData data) {
           validDate(rule.start) &&
           validDate(rule.nextDue),
       'Invalid recurring transaction',
+    );
+    require(
+      rule.reminderDays >= 0 && rule.reminderDays <= 30,
+      'Reminder must be 0–30 days before',
+    );
+    require(
+      rule.budgetId.isEmpty || data.budgets.any((b) => b.id == rule.budgetId),
+      'Recurring budget is missing',
+    );
+    require(
+      rule.labelIds.toSet().length == rule.labelIds.length &&
+          rule.labelIds.every(
+            (id) => data.entities.any((e) => e.id == id && e.kind == 'label'),
+          ),
+      'Recurring label is missing',
+    );
+    require(
+      rule.personIds.toSet().length == rule.personIds.length &&
+          rule.personIds.every(
+            (id) => data.entities.any((e) => e.id == id && e.kind == 'person'),
+          ),
+      'Recurring person is missing',
+    );
+    require(
+      rule.placeId.isEmpty ||
+          data.entities.any((e) => e.id == rule.placeId && e.kind == 'place'),
+      'Recurring place is missing',
     );
     require(
       rule.end == null ||

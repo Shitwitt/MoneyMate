@@ -29,7 +29,12 @@ jobs:
       - run: python3 .github/scripts/checked_command.py flutter pub get
       - run: flutter gen-l10n
       - name: Check Dart formatting without modifying source
+        id: dart-format
+        continue-on-error: true
         run: python3 .github/scripts/checked_command.py dart format --output=none --set-exit-if-changed lib test
+      - name: SDK formatting diagnostics (temporary copy only)
+        if: ${{ steps.dart-format.outcome == 'failure' }}
+        run: python3 .github/scripts/dart_format_diagnostic.py
       - run: python3 .github/scripts/checked_command.py flutter analyze --no-fatal-infos
       - run: python3 .github/scripts/checked_command.py flutter test
       - name: Calendar regressions across a DST boundary
@@ -38,6 +43,9 @@ jobs:
         run: python3 .github/scripts/checked_command.py flutter test test/regression_test.dart test/financial_pulse_calendar_test.dart
       - name: Offline web packaging regression tests
         run: python3 -m unittest discover -s scripts/tests
+      - name: Enforce the strict non-mutating format gate
+        if: ${{ always() && steps.dart-format.outcome != 'success' }}
+        run: exit 1
       - name: Package source for download
         run: git archive --format=zip --prefix=Tink/ HEAD -o Tink-source.zip
       - uses: actions/upload-artifact@v5
@@ -125,36 +133,13 @@ jobs:
         run: npm install --prefix /tmp/paisa-web-smoke playwright-core @sparticuz/chromium pngjs
       - name: Browser onboarding, persistence and offline reload
         run: python3 .github/scripts/checked_command.py node .github/scripts/web_smoke.cjs
-      - name: Diagnostic screenshot part 1
+      - name: Reference batch visual evidence (fictional records only)
         if: always()
-        run: python3 .github/scripts/image_diagnostic.py 0
-      - name: Diagnostic screenshot part 2
-        if: always()
-        run: python3 .github/scripts/image_diagnostic.py 1
-      - name: Tink comparative cashflow visual evidence 1
-        if: always()
-        run: python3 .github/scripts/image_diagnostic.py 0 web-flow.jpg tink-flow
-      - name: Tink comparative cashflow visual evidence 2
-        if: always()
-        run: python3 .github/scripts/image_diagnostic.py 1 web-flow.jpg tink-flow
-      - name: Tink accounts visual evidence 1
-        if: always()
-        run: python3 .github/scripts/image_diagnostic.py 0 web-accounts.jpg tink-accounts
-      - name: Tink accounts visual evidence 2
-        if: always()
-        run: python3 .github/scripts/image_diagnostic.py 1 web-accounts.jpg tink-accounts
-      - name: Tink reports visual evidence 1
-        if: always()
-        run: python3 .github/scripts/image_diagnostic.py 0 web-reports.jpg tink-reports
-      - name: Tink reports visual evidence 2
-        if: always()
-        run: python3 .github/scripts/image_diagnostic.py 1 web-reports.jpg tink-reports
-      - name: Tink category allocation visual evidence 1
-        if: always()
-        run: python3 .github/scripts/image_diagnostic.py 0 web-allocation.jpg tink-allocation
-      - name: Tink category allocation visual evidence 2
-        if: always()
-        run: python3 .github/scripts/image_diagnostic.py 1 web-allocation.jpg tink-allocation
+        run: |
+          for image in intro budget-tour languages dashboard home-lower recurring calendar detail history help help-bottom archived; do
+            python3 .github/scripts/image_diagnostic.py 0 "web-${image}.jpg" "batch1-${image}"
+            python3 .github/scripts/image_diagnostic.py 1 "web-${image}.jpg" "batch1-${image}"
+          done
       - uses: actions/upload-artifact@v5
         if: always()
         with:

@@ -15,6 +15,7 @@ import '../../shared/charts.dart';
 import '../../shared/forms.dart';
 import '../../shared/widgets.dart';
 import '../transactions/transactions_screen.dart';
+import 'categories_screen.dart';
 
 class CatalogScreen extends ConsumerWidget {
   final String kind;
@@ -29,91 +30,9 @@ class CatalogScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(profileProvider)!;
     if (kind == 'category') {
-      final categories = [...profile.categories]
-        ..sort((a, b) => a.order.compareTo(b.order));
-      return FeaturePage(
-        title: title,
-        subtitle: 'Drag to reorder · tap for category insights',
-        actions: [
-          IconButton(
-            tooltip: 'Add category',
-            onPressed: () => _editCategory(context, ref),
-            icon: const Icon(Icons.add_rounded),
-          ),
-        ],
-        child: ReorderableListView.builder(
-          padding: const EdgeInsets.only(bottom: 100),
-          itemCount: categories.length,
-          onReorder: (oldIndex, newIndex) async {
-            if (newIndex > oldIndex) newIndex--;
-            final reordered = [...categories];
-            final item = reordered.removeAt(oldIndex);
-            reordered.insert(newIndex, item);
-            await runSafe(
-              context,
-              () => ref.read(appProvider.notifier).reorderCategories(reordered),
-            );
-          },
-          itemBuilder: (context, index) {
-            final item = categories[index];
-            return Padding(
-              key: ValueKey(item.id),
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Card(
-                child: ListTile(
-                  leading: ColorIcon(item.icon, item.color),
-                  title: Text(item.name),
-                  subtitle: Text(
-                    '${item.type}${item.hidden ? ' · Hidden' : ''}',
-                  ),
-                  onTap: () => openPage(context, _CategoryDetail(item.id)),
-                  trailing: Padding(
-                    padding: const EdgeInsets.only(right: 26),
-                    child: PopupMenuButton<String>(
-                      onSelected: (action) async {
-                        if (action == 'edit') {
-                          _editCategory(context, ref, item);
-                        } else if (action == 'hide') {
-                          await runSafe(
-                            context,
-                            () => ref
-                                .read(appProvider.notifier)
-                                .upsertCategory(
-                                  item.copyWith(hidden: !item.hidden),
-                                ),
-                          );
-                        } else if (await confirm(
-                              context,
-                              'Delete category?',
-                              'Only unused categories can be deleted. Hide categories to preserve history.',
-                            ) &&
-                            context.mounted) {
-                          await runSafe(
-                            context,
-                            () => ref
-                                .read(appProvider.notifier)
-                                .deleteCategory(item.id),
-                          );
-                        }
-                      },
-                      itemBuilder: (_) => [
-                        const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                        PopupMenuItem(
-                          value: 'hide',
-                          child: Text(item.hidden ? 'Show' : 'Hide'),
-                        ),
-                        const PopupMenuItem(
-                          value: 'delete',
-                          child: Text('Delete'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
+      return CategoriesScreen(
+        onEdit: (initial, type) => _editCategory(context, ref, initial, type),
+        onOpen: (category) => openPage(context, _CategoryDetail(category.id)),
       );
     }
     final entities = profile.entities
@@ -142,8 +61,9 @@ class CatalogScreen extends ConsumerWidget {
               itemCount: entities.length,
               itemBuilder: (context, index) {
                 final entity = entities[index];
-                final entries = _filterFor(entity)
-                    .apply(ref.read(ledgerProvider)!);
+                final entries = _filterFor(
+                  entity,
+                ).apply(ref.read(ledgerProvider)!);
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Card(
@@ -269,9 +189,10 @@ Future<void> _editCategory(
   BuildContext context,
   WidgetRef ref, [
   Category? initial,
+  String initialType = 'expense',
 ]) async {
   final name = TextEditingController(text: initial?.name ?? '');
-  var type = initial?.type ?? 'expense', icon = initial?.icon ?? 'category';
+  var type = initial?.type ?? initialType, icon = initial?.icon ?? 'category';
   var color = initial?.color ?? palette.first;
   await showEditor(
     context,
@@ -281,6 +202,7 @@ Future<void> _editCategory(
       formSelect('Type', type, [
         'expense',
         'income',
+        'transfer',
       ], (value) => setLocal(() => type = value)),
       formColors(color, (value) => setLocal(() => color = value)),
       formIcons(icon, (value) => setLocal(() => icon = value)),

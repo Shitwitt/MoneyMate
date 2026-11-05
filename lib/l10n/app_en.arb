@@ -25,7 +25,7 @@
   "categories": "Categories",
   "loans": "Loans",
   "assets": "Assets",
-  "subscriptions": "Subscriptions",
+  "subscriptions": "Recurring",
   "labels": "Labels",
   "people": "People",
   "places": "Places",
@@ -35,5 +35,6 @@
   "backup": "Backup & restore",
   "security": "Privacy & security",
   "unlockPlus": "Unlock Pro",
-  "privacyPromise": "No account. No cloud. No worries."
+  "privacyPromise": "No account. No cloud. No worries.",
+  "search": "Search"
 }

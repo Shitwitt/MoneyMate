@@ -293,6 +293,7 @@ class MoneyTransaction {
   final String loanId;
   final List<Receipt> receipts;
   final String recurringId;
+  final String budgetId;
   final DateTime? createdAt;
 
   const MoneyTransaction({
@@ -313,6 +314,7 @@ class MoneyTransaction {
     this.loanId = '',
     this.receipts = const [],
     this.recurringId = '',
+    this.budgetId = '',
     this.createdAt,
   });
 
@@ -334,6 +336,7 @@ class MoneyTransaction {
     loanId: readString(json['loanId'], ''),
     receipts: readModels(json['receipts'], Receipt.fromJson),
     recurringId: readString(json['recurringId'], ''),
+    budgetId: readString(json['budgetId'], ''),
     createdAt: readOptionalDate(json['createdAt']),
   );
 
@@ -355,6 +358,7 @@ class MoneyTransaction {
     'loanId': loanId,
     'receipts': receipts.map((item) => item.toJson()).toList(),
     'recurringId': recurringId,
+    'budgetId': budgetId,
     'createdAt': createdAt?.toIso8601String(),
   };
 
@@ -376,6 +380,7 @@ class MoneyTransaction {
     String? loanId,
     List<Receipt>? receipts,
     String? recurringId,
+    String? budgetId,
     DateTime? createdAt,
   }) => MoneyTransaction(
     id: id ?? this.id,
@@ -395,6 +400,7 @@ class MoneyTransaction {
     loanId: loanId ?? this.loanId,
     receipts: receipts ?? this.receipts,
     recurringId: recurringId ?? this.recurringId,
+    budgetId: budgetId ?? this.budgetId,
     createdAt: createdAt ?? this.createdAt,
   );
 }
@@ -514,6 +520,8 @@ class Goal {
   final String name;
   final int targetMinor;
   final DateTime deadline;
+  final DateTime? start;
+  final bool archived;
   final String accountId;
   final String icon;
   final int color;
@@ -524,6 +532,8 @@ class Goal {
     required this.name,
     required this.targetMinor,
     required this.deadline,
+    this.start,
+    this.archived = false,
     this.accountId = '',
     this.icon = 'goal',
     this.color = 0xffb2a4e7,
@@ -535,6 +545,8 @@ class Goal {
     name: readString(json['name']),
     targetMinor: readInt(json['targetMinor']),
     deadline: readDate(json['deadline']),
+    start: readOptionalDate(json['start']),
+    archived: readBool(json['archived']),
     accountId: readString(json['accountId'], ''),
     icon: readString(json['icon'], 'goal'),
     color: readInt(json['color'], 0xffb2a4e7),
@@ -546,6 +558,8 @@ class Goal {
     'name': name,
     'targetMinor': targetMinor,
     'deadline': deadline.toIso8601String(),
+    'start': start?.toIso8601String(),
+    'archived': archived,
     'accountId': accountId,
     'icon': icon,
     'color': color,
@@ -557,6 +571,8 @@ class Goal {
     String? name,
     int? targetMinor,
     DateTime? deadline,
+    DateTime? start,
+    bool? archived,
     String? accountId,
     String? icon,
     int? color,
@@ -566,6 +582,8 @@ class Goal {
     name: name ?? this.name,
     targetMinor: targetMinor ?? this.targetMinor,
     deadline: deadline ?? this.deadline,
+    start: start ?? this.start,
+    archived: archived ?? this.archived,
     accountId: accountId ?? this.accountId,
     icon: icon ?? this.icon,
     color: color ?? this.color,
@@ -644,20 +662,13 @@ class Loan {
 }
 
 class Recurring {
-  final String id;
-  final String name;
-  final int amountMinor;
-  final String accountId;
-  final String categoryId;
-  final DateTime start;
-  final DateTime nextDue;
-  final String type;
-  final String frequency;
-  final int interval;
+  final String id, name, accountId, categoryId, type, frequency, notes;
+  final int amountMinor, interval, reminderDays;
+  final DateTime start, nextDue;
   final DateTime? end;
-  final bool autoPost;
-  final bool enabled;
-  final String notes;
+  final bool autoPost, enabled, archived;
+  final String budgetId, placeId;
+  final List<String> labelIds, personIds;
 
   const Recurring({
     required this.id,
@@ -673,9 +684,14 @@ class Recurring {
     this.end,
     this.autoPost = true,
     this.enabled = true,
+    this.archived = false,
     this.notes = '',
+    this.reminderDays = 0,
+    this.budgetId = '',
+    this.placeId = '',
+    this.labelIds = const [],
+    this.personIds = const [],
   });
-
   factory Recurring.fromJson(Json json) => Recurring(
     id: readString(json['id']),
     name: readString(json['name']),
@@ -690,9 +706,14 @@ class Recurring {
     end: readOptionalDate(json['end']),
     autoPost: readBool(json['autoPost'], true),
     enabled: readBool(json['enabled'], true),
+    archived: readBool(json['archived'], false),
     notes: readString(json['notes'], ''),
+    reminderDays: readInt(json['reminderDays']),
+    budgetId: readString(json['budgetId'], ''),
+    placeId: readString(json['placeId'], ''),
+    labelIds: readStrings(json['labelIds'], const []),
+    personIds: readStrings(json['personIds'], const []),
   );
-
   Json toJson() => {
     'id': id,
     'name': name,
@@ -707,9 +728,14 @@ class Recurring {
     'end': end?.toIso8601String(),
     'autoPost': autoPost,
     'enabled': enabled,
+    'archived': archived,
     'notes': notes,
+    'reminderDays': reminderDays,
+    'budgetId': budgetId,
+    'placeId': placeId,
+    'labelIds': labelIds,
+    'personIds': personIds,
   };
-
   Recurring copyWith({
     String? id,
     String? name,
@@ -722,9 +748,16 @@ class Recurring {
     String? frequency,
     int? interval,
     DateTime? end,
+    bool clearEnd = false,
     bool? autoPost,
     bool? enabled,
+    bool? archived,
     String? notes,
+    int? reminderDays,
+    String? budgetId,
+    String? placeId,
+    List<String>? labelIds,
+    List<String>? personIds,
   }) => Recurring(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -736,10 +769,16 @@ class Recurring {
     type: type ?? this.type,
     frequency: frequency ?? this.frequency,
     interval: interval ?? this.interval,
-    end: end ?? this.end,
+    end: clearEnd ? null : end ?? this.end,
     autoPost: autoPost ?? this.autoPost,
     enabled: enabled ?? this.enabled,
+    archived: archived ?? this.archived,
     notes: notes ?? this.notes,
+    reminderDays: reminderDays ?? this.reminderDays,
+    budgetId: budgetId ?? this.budgetId,
+    placeId: placeId ?? this.placeId,
+    labelIds: labelIds ?? this.labelIds,
+    personIds: personIds ?? this.personIds,
   );
 }
 
@@ -1114,8 +1153,8 @@ class AppSettings {
   final DateTime? lastBackup;
 
   const AppSettings({
-    this.theme = 'system',
-    this.accent = 0xff916cff,
+    this.theme = 'dark',
+    this.accent = 0xffffb59a,
     this.dynamicColors = false,
     this.locale = 'en',
     this.hideAmounts = false,
@@ -1128,26 +1167,27 @@ class AppSettings {
       'balance',
       'cashflow',
       'accounts',
-      'trend',
+      'reports',
       'budgets',
+      'assets',
+      'splits',
+      'loans',
       'goals',
+      'labels',
+      'analytics',
+      'recurring',
+      'categories',
+      'weekly',
+      'last30',
+      'places',
+      'people',
+      'score',
+      'achievements',
       'recent',
       'templates',
-      'recurring',
-      'assets',
-      'loans',
-      'reports',
-      'achievements',
-      'premium',
     ],
-    this.hiddenCards = const [
-      'templates',
-      'assets',
-      'loans',
-      'achievements',
-      'premium',
-    ],
-    this.navTabs = const ['home', 'accounts', 'transactions', 'plans', 'more'],
+    this.hiddenCards = const [],
+    this.navTabs = const ['home', 'accounts', 'reports', 'search'],
     this.navLabels = true,
     this.lockMode = 'none',
     this.pinHash = '',
@@ -1162,10 +1202,11 @@ class AppSettings {
   });
 
   factory AppSettings.fromJson(Json json) => AppSettings(
-    theme: readString(json['theme'], 'system'),
-    accent: readInt(json['accent'], 0xff916cff) == 0xff557c36
-        ? 0xff916cff
-        : readInt(json['accent'], 0xff916cff),
+    theme: readString(json['theme'], 'dark'),
+    accent:
+        [0xff557c36, 0xff916cff].contains(readInt(json['accent'], 0xffffb59a))
+        ? 0xffffb59a
+        : readInt(json['accent'], 0xffffb59a),
     dynamicColors: readInt(json['accent'], 0xff916cff) == 0xff557c36
         ? false
         : readBool(json['dynamicColors'], false),
@@ -1401,12 +1442,14 @@ class ProfileData {
 }
 
 class AppData {
+  final bool isDemo;
   final List<ProfileData> profiles;
   final String activeProfileId;
   final AppSettings settings;
   final int schemaVersion;
 
   const AppData({
+    this.isDemo = false,
     this.profiles = const [],
     this.activeProfileId = '',
     this.settings = const AppSettings(),
@@ -1430,11 +1473,13 @@ class AppData {
   };
 
   AppData copyWith({
+    bool? isDemo,
     List<ProfileData>? profiles,
     String? activeProfileId,
     AppSettings? settings,
     int? schemaVersion,
   }) => AppData(
+    isDemo: isDemo ?? this.isDemo,
     profiles: profiles ?? this.profiles,
     activeProfileId: activeProfileId ?? this.activeProfileId,
     settings: settings ?? this.settings,

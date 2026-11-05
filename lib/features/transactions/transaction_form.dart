@@ -42,6 +42,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
   final _nameFocus = FocusNode();
   late String _type, _accountId, _categoryId;
   String _toAccountId = '', _placeId = '', _goalId = '', _loanId = '';
+  String _transferCategoryId = '';
   DateTime _date = DateTime.now();
   Set<String> _labels = {}, _people = {};
   List<Receipt> _receipts = [];
@@ -57,6 +58,12 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
     final entry = widget.initial;
     final template = widget.template;
     _type = entry?.type ?? template?.type ?? widget.initialType;
+    if (entry?.type == 'transfer' &&
+        profile.categories.any(
+          (c) => c.id == entry!.categoryId && c.type == 'transfer',
+        )) {
+      _transferCategoryId = entry!.categoryId;
+    }
     _accountId =
         entry?.accountId ??
         template?.accountId ??
@@ -195,7 +202,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
           type: _type,
           amountMinor: amount,
           accountId: _accountId,
-          categoryId: _type == 'transfer' ? '' : _categoryId,
+          categoryId: _type == 'transfer' ? _transferCategoryId : _categoryId,
           date: _date,
           toAccountId: _type == 'transfer' ? _toAccountId : '',
           toAmountMinor: receiving,
@@ -207,6 +214,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
           loanId: _loanId,
           receipts: _receipts,
           recurringId: widget.initial?.recurringId ?? '',
+          budgetId: widget.initial?.budgetId ?? '',
           createdAt: widget.initial?.createdAt ?? DateTime.now(),
         );
         await controller.saveTransaction(
@@ -483,6 +491,28 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
                 numeric: true,
               ),
             ],
+            if (_type == 'transfer' &&
+                profile.categories.any((c) => c.type == 'transfer')) ...[
+              const SizedBox(height: 16),
+              formSelect(
+                'Transfer category (optional)',
+                _transferCategoryId,
+                [
+                  '',
+                  ...profile.categories
+                      .where(
+                        (c) =>
+                            c.type == 'transfer' &&
+                            (!c.hidden || c.id == _transferCategoryId),
+                      )
+                      .map((c) => c.id),
+                ],
+                (value) => setState(() => _transferCategoryId = value),
+                display: (id) => id.isEmpty
+                    ? 'Uncategorized transfer'
+                    : profile.categories.firstWhere((c) => c.id == id).name,
+              ),
+            ],
             if (_type != 'transfer') ...[
               const SizedBox(height: 20),
               Text('Category', style: Theme.of(context).textTheme.titleMedium),
@@ -745,8 +775,9 @@ class _Calculator extends StatelessWidget {
                     }
                   } else if (key == '=') {
                     try {
-                      controller.text = evaluateAmount(controller.text)
-                          .toString();
+                      controller.text = evaluateAmount(
+                        controller.text,
+                      ).toString();
                     } catch (_) {
                       toast(context, 'Finish the expression first');
                     }
@@ -767,6 +798,7 @@ class _Calculator extends StatelessWidget {
 Future<void> openTransactionSheet(
   BuildContext context, {
   String initialType = 'expense',
+  TransactionTemplate? template,
 }) => showModalBottomSheet<void>(
   context: context,
   sheetAnimationStyle: const AnimationStyle(
@@ -781,7 +813,7 @@ Future<void> openTransactionSheet(
     borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
     child: SizedBox(
       height: MediaQuery.sizeOf(context).height * .94,
-      child: TransactionForm(initialType: initialType),
+      child: TransactionForm(initialType: initialType, template: template),
     ),
   ),
 );

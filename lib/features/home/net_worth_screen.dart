@@ -5,6 +5,7 @@ import '../../core/data/providers.dart';
 import '../../core/utils/dates.dart';
 import '../../shared/widgets.dart';
 import '../settings/exchange_rates_screen.dart';
+import 'home_cards.dart';
 
 class NetWorthScreen extends ConsumerWidget {
   const NetWorthScreen({super.key});
@@ -34,6 +35,8 @@ class NetWorthScreen extends ConsumerWidget {
             icon: Icons.spa_outlined,
             caption: 'Included accounts + assets + to receive − to pay',
           ),
+          const SizedBox(height: 22),
+          SafeToSpendCard(ledger),
           const SizedBox(height: 22),
           const SectionHeader('A world of currencies'),
           for (final entry in currencies.entries)

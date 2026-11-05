@@ -15,26 +15,28 @@ ThemeData tinkTheme(
 }) {
   GoogleFonts.config.allowRuntimeFetching = false;
   final dark = brightness == Brightness.dark;
-  final requested = settings.accent == 0xff557c36
+  final requested = [0xff557c36, 0xff916cff].contains(settings.accent)
       ? AppColors.primary
       : Color(settings.accent);
   final accent =
       settings.dynamicColors &&
-          settings.accent != 0xff557c36 &&
+          ![0xff557c36, 0xff916cff].contains(settings.accent) &&
           dynamicScheme != null
       ? dynamicScheme.primary
       : requested;
-  final onAccent = 1.05 / (accent.computeLuminance() + .05) >= 3
+  final onAccent = 1.05 / (accent.computeLuminance() + .05) >= 4.5
       ? Colors.white
       : AppColors.ink;
   final brand = accent == AppColors.primary;
-  final background = dark ? AppColors.darkSurface : AppColors.background;
+  final background = dark
+      ? (settings.theme == 'black' ? Colors.black : AppColors.darkSurface)
+      : AppColors.background;
   final card = dark
       ? (settings.theme == 'black'
-            ? const Color(0xff16161E)
+            ? const Color(0xff161210)
             : AppColors.darkCard)
       : AppColors.card;
-  final ink = dark ? Colors.white : AppColors.ink;
+  final ink = dark ? const Color(0xffF8E8DD) : AppColors.ink;
   final secondary = dark ? AppColors.darkSecondary : AppColors.secondary;
   final outline = dark ? AppColors.darkDivider : AppColors.outline;
   final scheme = ColorScheme.fromSeed(seedColor: accent, brightness: brightness)
@@ -42,14 +44,12 @@ ThemeData tinkTheme(
         primary: accent,
         onPrimary: onAccent,
         primaryContainer: brand
-            ? (dark ? const Color(0xff302544) : AppColors.primaryLight)
+            ? (dark ? const Color(0xff5F4035) : AppColors.primaryLight)
             : Color.alphaBlend(
                 accent.withValues(alpha: dark ? .22 : .12),
                 card,
               ),
-        onPrimaryContainer: dark
-            ? const Color(0xffE4D8FF)
-            : AppColors.primaryInk,
+        onPrimaryContainer: dark ? AppColors.primary : AppColors.primaryInk,
         secondary: dark ? AppColors.darkAccent : AppColors.primaryInk,
         surface: card,
         onSurface: ink,
@@ -57,20 +57,20 @@ ThemeData tinkTheme(
         surfaceContainerLowest: background,
         surfaceContainerLow: card,
         surfaceContainer: dark
-            ? const Color(0xff24242e)
-            : const Color(0xffF0F0F6),
+            ? const Color(0xff382D26)
+            : const Color(0xffF8EBE0),
         surfaceContainerHigh: dark
-            ? const Color(0xff262630)
-            : const Color(0xffF1F1F7),
+            ? const Color(0xff3D3028)
+            : const Color(0xffF4E5D8),
         surfaceContainerHighest: dark
-            ? const Color(0xff2B2B36)
-            : const Color(0xffECECF4),
-        outline: dark ? AppColors.darkSecondary : const Color(0xff777783),
+            ? const Color(0xff46362C)
+            : const Color(0xffEFDDCF),
+        outline: dark ? AppColors.darkSecondary : const Color(0xff8C7260),
         outlineVariant: outline,
-        error: dark ? const Color(0xffF87171) : AppColors.expenseInk,
+        error: dark ? const Color(0xffEEB5B8) : AppColors.expenseInk,
         onError: dark ? AppColors.ink : Colors.white,
         errorContainer: dark
-            ? const Color(0xff42202a)
+            ? const Color(0xff512D30)
             : AppColors.errorBackground,
       );
   final text = AppTextStyles.theme(ink, secondary);
@@ -78,7 +78,7 @@ ThemeData tinkTheme(
     useMaterial3: true,
     colorScheme: scheme,
     brightness: brightness,
-    fontFamily: 'SourceSerif4',
+    fontFamily: 'Quicksand',
     fontFamilyFallback: AppTextStyles.fallback,
     textTheme: text,
   );
@@ -99,12 +99,12 @@ ThemeData tinkTheme(
     cardTheme: CardThemeData(
       color: card,
       surfaceTintColor: Colors.transparent,
-      elevation: dark ? 0 : 2,
+      elevation: 0,
       shadowColor: const Color(0x120B0B0F),
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: AppRadius.cardBorder,
-        side: BorderSide(color: outline.withValues(alpha: dark ? .8 : .65)),
+        side: BorderSide.none,
       ),
     ),
     appBarTheme: AppBarTheme(
@@ -123,21 +123,21 @@ ThemeData tinkTheme(
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: dark ? const Color(0xff23232d) : Colors.white,
+      fillColor: dark ? const Color(0xff382D26) : Colors.white,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       labelStyle: text.bodyMedium?.copyWith(color: secondary),
       hintStyle: text.bodyMedium?.copyWith(color: secondary),
-      border: const OutlineInputBorder(borderRadius: AppRadius.buttonBorder),
+      border: const OutlineInputBorder(borderRadius: AppRadius.cardBorder),
       enabledBorder: OutlineInputBorder(
-        borderRadius: AppRadius.buttonBorder,
+        borderRadius: AppRadius.cardBorder,
         borderSide: BorderSide(color: scheme.outline),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: AppRadius.buttonBorder,
+        borderRadius: AppRadius.cardBorder,
         borderSide: BorderSide(color: accent, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: AppRadius.buttonBorder,
+        borderRadius: AppRadius.cardBorder,
         borderSide: BorderSide(color: scheme.error),
       ),
     ),
@@ -150,7 +150,7 @@ ThemeData tinkTheme(
         shape: const WidgetStatePropertyAll(
           RoundedRectangleBorder(borderRadius: AppRadius.buttonBorder),
         ),
-        // 20sp bold is large text: white/violet exceeds WCAG AA's 3:1 threshold.
+        // The peach default uses dark ink, including at ordinary text sizes.
         textStyle: WidgetStatePropertyAll(
           AppTextStyles.ui(20, FontWeight.w700, Colors.white),
         ),
@@ -175,7 +175,7 @@ ThemeData tinkTheme(
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(48, 54),
         foregroundColor: ink,
-        backgroundColor: card,
+        backgroundColor: Colors.transparent,
         side: BorderSide(color: scheme.outline),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         textStyle: text.titleSmall,
@@ -198,9 +198,9 @@ ThemeData tinkTheme(
       ),
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: accent,
-      foregroundColor: onAccent,
-      elevation: 2,
+      backgroundColor: dark ? const Color(0xff72361E) : scheme.primaryContainer,
+      foregroundColor: dark ? AppColors.primary : AppColors.primaryInk,
+      elevation: 0,
       shape: const CircleBorder(),
       sizeConstraints: const BoxConstraints.tightFor(width: 60, height: 60),
     ),

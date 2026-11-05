@@ -6,7 +6,6 @@ import 'package:paisaclone/core/data/providers.dart';
 import 'package:paisaclone/core/models/models.dart';
 import 'package:paisaclone/core/theme/theme.dart';
 import 'package:paisaclone/features/onboarding/introduction_screen.dart';
-import 'package:paisaclone/features/onboarding/tink_illustration.dart';
 import 'package:paisaclone/features/transactions/transaction_form.dart';
 import 'package:paisaclone/main.dart';
 import 'package:paisaclone/shared/widgets.dart';
@@ -20,7 +19,7 @@ double contrast(Color a, Color b) {
 
 void main() {
   testWidgets(
-    'All six original introduction pages lead to real account setup',
+    'Twelve reference/original tour steps lead to real account setup',
     (tester) async {
       await tester.pumpWidget(
         ProviderScope(
@@ -33,10 +32,19 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      for (var i = 0; i < 6; i++) {
+      for (var i = 0; i < introductionPages.length; i++) {
         expect(find.text(introductionPages[i].$1), findsOneWidget);
-        expect(find.byType(TinkIllustration), findsWidgets);
-        await tester.tap(find.text(i == 5 ? 'Get started' : 'Continue'));
+        await tester.tap(
+          find.text(
+            i == 0
+                ? 'Start fresh'
+                : i == 1
+                ? 'Get started'
+                : i == introductionPages.length - 1
+                ? 'Continue'
+                : 'Next',
+          ),
+        );
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
       }
@@ -65,7 +73,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.drag(find.byType(PageView), const Offset(-380, 0));
+    await tester.drag(find.byType(PageView).first, const Offset(-380, 0));
     await tester.pumpAndSettle();
     expect(find.text(introductionPages[1].$1), findsOneWidget);
     await tester.tap(find.text('Skip'));
@@ -216,7 +224,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      for (final label in ['Accounts', 'Plans', 'More', 'Home']) {
+      for (final label in ['Accounts', 'Reports', 'Search', 'Home']) {
         await tester.tap(find.text(label).last);
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull, reason: label);
@@ -240,7 +248,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(
-      Directionality.of(tester.element(find.byType(GlassNavigationDock))),
+      Directionality.of(tester.element(find.byType(ReferenceNavigationDock))),
       TextDirection.rtl,
     );
     expect(tester.takeException(), isNull);

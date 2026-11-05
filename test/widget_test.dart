@@ -5,7 +5,7 @@ import 'package:paisaclone/core/data/providers.dart';
 import 'package:paisaclone/core/data/seed.dart';
 import 'package:paisaclone/core/models/models.dart';
 import 'package:paisaclone/main.dart';
-import 'package:paisaclone/shared/luxury_components.dart';
+import 'package:paisaclone/shared/widgets.dart';
 
 import 'support.dart';
 
@@ -24,8 +24,10 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Tink'), findsOneWidget);
-    expect(find.text('Continue'), findsOneWidget);
+    expect(find.text('Set up Tink'), findsOneWidget);
+    expect(find.text('Start fresh'), findsOneWidget);
+    await tester.tap(find.text('Start fresh'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Skip'));
     await tester.pumpAndSettle();
     expect(find.text('Let’s make it yours.'), findsOneWidget);
@@ -46,9 +48,9 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.byType(GlassNavigationDock), findsOneWidget);
-      expect(find.text('Total net worth'), findsOneWidget);
-      await tester.tap(find.text('Activity').last);
+      expect(find.byType(ReferenceNavigationDock), findsOneWidget);
+      expect(find.text('Total balance'), findsOneWidget);
+      await tester.tap(find.text('Search').last);
       await tester.pumpAndSettle();
       expect(find.text('Every little entry counts'), findsWidgets);
       expect(tester.takeException(), isNull);
@@ -109,9 +111,9 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Profiles'));
+    await tester.tap(find.byTooltip('Profiles & settings'));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Manage your private spaces'));
+    await tester.ensureVisible(find.text('Manage profiles'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });

@@ -35,5 +35,6 @@
   "backup": "Sichern und wiederherstellen",
   "security": "Datenschutz und Sicherheit",
   "unlockPlus": "Pro freischalten",
-  "privacyPromise": "Kein Konto. Keine Cloud. Keine Sorgen."
+  "privacyPromise": "Kein Konto. Keine Cloud. Keine Sorgen.",
+  "search": "Suchen"
 }

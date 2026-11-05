@@ -39,6 +39,8 @@ class PremiumRequired implements Exception {
 class AppController extends StateNotifier<AppData> {
   final AppRepository repository;
   Future<void> _tail = Future.value();
+  AppData? _beforeDemo;
+  AppRepository? _demoRepository;
   AppController(this.repository) : super(repository.initial);
   AppData get snapshot => state;
 
@@ -53,9 +55,70 @@ class AppController extends StateNotifier<AppData> {
             .map((profile) => unlockAchievements(profile, next.settings))
             .toList(),
       );
+      if (_demoRepository != null) next = next.copyWith(isDemo: true);
       validateData(next);
-      await repository.save(next);
+      await (_demoRepository ?? repository).save(next);
       if (mounted) state = next;
+    });
+    _tail = work.then<void>(
+      (_) {},
+      onError: (Object error, StackTrace trace) {},
+    );
+    return work;
+  }
+
+  /// Demo has its own in-memory repository. No financial/settings writes leak to disk.
+  Future<void> startDemo({String currency = 'USD', DateTime? clock}) {
+    final work = _tail.then((_) async {
+      if (_beforeDemo != null) return;
+      final settings = state.settings.copyWith(
+        theme: 'dark',
+        accent: 0xffffb59a,
+        isPro: true,
+        notificationsEnabled: false,
+        allowSilentAdds: false,
+        lockMode: 'none',
+        pinHash: '',
+        pinSalt: '',
+        homeCards: defaultHomeCards,
+        hiddenCards: const [],
+        navTabs: const ['home', 'accounts', 'reports', 'search'],
+      );
+      final profile = unlockAchievements(
+        seedProfile(
+          name: 'Demo User',
+          currency: currency,
+          accountName: 'Cash',
+          demo: true,
+          clock: clock,
+        ),
+        settings,
+      );
+      final demo = AppData(
+        isDemo: true,
+        profiles: [profile],
+        activeProfileId: profile.profile.id,
+        settings: settings,
+      );
+      validateData(demo);
+      _beforeDemo = state;
+      _demoRepository = _DemoRepository(demo);
+      if (mounted) state = demo;
+    });
+    _tail = work.then<void>(
+      (_) {},
+      onError: (Object error, StackTrace trace) {},
+    );
+    return work;
+  }
+
+  Future<void> exitDemo() {
+    final work = _tail.then((_) async {
+      final previous = _beforeDemo;
+      if (previous == null) return;
+      _demoRepository = null;
+      _beforeDemo = null;
+      if (mounted) state = previous;
     });
     _tail = work.then<void>(
       (_) {},
@@ -169,11 +232,19 @@ class AppController extends StateNotifier<AppData> {
       accounts: profile.accounts.where((item) => item.id != id).toList(),
     );
   });
-  Future<void> upsertCategory(Category item) => updateProfile(
-    (profile, app) => profile.copyWith(
-      categories: replace(profile.categories, item, (item) => item.id),
-    ),
-  );
+  Future<void> upsertCategory(Category item) => updateProfile((profile, app) {
+    final old = profile.categories.where((c) => c.id == item.id).firstOrNull;
+    require(
+      old == null ||
+          old.type == item.type ||
+          (!profile.transactions.any((e) => e.categoryId == item.id) &&
+              !profile.recurrings.any((r) => r.categoryId == item.id)),
+      'This category is in use. Keep its type or create a new category.',
+    );
+    return profile.copyWith(
+      categories: replace(profile.categories, item, (c) => c.id),
+    );
+  });
   Future<void> reorderCategories(List<Category> categories) => updateProfile(
     (profile, app) => profile.copyWith(
       categories: [
@@ -264,6 +335,14 @@ class AppController extends StateNotifier<AppData> {
   Future<void> deleteBudget(String id) => updateProfile(
     (profile, app) => profile.copyWith(
       budgets: profile.budgets.where((item) => item.id != id).toList(),
+      recurrings: [
+        for (final rule in profile.recurrings)
+          if (rule.budgetId == id) rule.copyWith(budgetId: '') else rule,
+      ],
+      transactions: [
+        for (final entry in profile.transactions)
+          if (entry.budgetId == id) entry.copyWith(budgetId: '') else entry,
+      ],
     ),
   );
   Future<void> upsertGoal(Goal item) => updateProfile((profile, app) {
@@ -463,6 +542,14 @@ class AppController extends StateNotifier<AppData> {
             placeId: entry.placeId == id ? '' : entry.placeId,
           ),
       ],
+      recurrings: [
+        for (final rule in profile.recurrings)
+          rule.copyWith(
+            labelIds: rule.labelIds.where((value) => value != id).toList(),
+            personIds: rule.personIds.where((value) => value != id).toList(),
+            placeId: rule.placeId == id ? '' : rule.placeId,
+          ),
+      ],
       templates: [
         for (final template in profile.templates)
           template.copyWith(
@@ -493,7 +580,7 @@ class AppController extends StateNotifier<AppData> {
         final rules = <Recurring>[];
         for (final rule in profile.recurrings) {
           var due = rule.nextDue;
-          var enabled = rule.enabled;
+          var enabled = rule.enabled && !rule.archived;
           var count = 0;
           while (enabled &&
               (rule.autoPost || rule.id == recordNowId) &&
@@ -513,6 +600,10 @@ class AppController extends StateNotifier<AppData> {
                   date: due,
                   recurringId: rule.id,
                   notes: rule.notes,
+                  budgetId: rule.budgetId,
+                  labelIds: rule.labelIds,
+                  personIds: rule.personIds,
+                  placeId: rule.placeId,
                 ),
               );
             }
@@ -525,6 +616,87 @@ class AppController extends StateNotifier<AppData> {
         }
         return profile.copyWith(transactions: entries, recurrings: rules);
       });
+
+  /// Advance exactly the occurrence that was displayed. Stale/double taps cannot
+  /// skip a second payment or create duplicate debits under concurrent catch-up.
+  Future<void> skipRecurringOccurrence(
+    String id, {
+    required DateTime expectedDue,
+  }) => updateProfile((profile, app) {
+    final rule = profile.recurrings.where((r) => r.id == id).firstOrNull;
+    require(
+      rule != null && rule.enabled && !rule.archived,
+      'This schedule is no longer active',
+    );
+    require(
+      rule!.nextDue == expectedDue,
+      'The schedule changed. Review the next payment first.',
+    );
+    final next = nextOccurrence(rule, rule.nextDue);
+    return profile.copyWith(
+      recurrings: replace(
+        profile.recurrings,
+        rule.copyWith(
+          nextDue: next,
+          enabled: rule.end == null || !next.isAfter(rule.end!),
+        ),
+        (r) => r.id,
+      ),
+    );
+  });
+  Future<void> processRecurringOccurrence(
+    String id, {
+    required DateTime expectedDue,
+    DateTime? clock,
+  }) => updateProfile((profile, app) {
+    final rule = profile.recurrings.where((r) => r.id == id).firstOrNull;
+    require(
+      rule != null && rule.enabled && !rule.archived,
+      'This schedule is no longer active',
+    );
+    require(
+      rule!.nextDue == expectedDue,
+      'The schedule changed. Review the next payment first.',
+    );
+    require(
+      !rule.nextDue.isAfter(clock ?? DateTime.now()),
+      'This payment is not due yet',
+    );
+    require(
+      rule.end == null || !rule.nextDue.isAfter(rule.end!),
+      'This schedule has ended',
+    );
+    final occurrenceId = '${rule.id}@${rule.nextDue.toIso8601String()}';
+    final next = nextOccurrence(rule, rule.nextDue);
+    final entry = MoneyTransaction(
+      id: occurrenceId,
+      name: rule.name,
+      type: rule.type,
+      amountMinor: rule.amountMinor,
+      accountId: rule.accountId,
+      categoryId: rule.categoryId,
+      date: rule.nextDue,
+      recurringId: rule.id,
+      notes: rule.notes,
+      budgetId: rule.budgetId,
+      labelIds: rule.labelIds,
+      personIds: rule.personIds,
+      placeId: rule.placeId,
+    );
+    return profile.copyWith(
+      transactions: profile.transactions.any((e) => e.id == occurrenceId)
+          ? profile.transactions
+          : [...profile.transactions, entry],
+      recurrings: replace(
+        profile.recurrings,
+        rule.copyWith(
+          nextDue: next,
+          enabled: rule.end == null || !next.isAfter(rule.end!),
+        ),
+        (r) => r.id,
+      ),
+    );
+  });
   Future<void> upsertBill(Bill item) => updateProfile((profile, app) {
     final previous = profile.bills
         .where((bill) => bill.id == item.id)
@@ -653,3 +825,15 @@ List<T> replace<T>(List<T> items, T item, String Function(T) key) =>
           if (key(existing) == key(item)) item else existing,
       ]
     : [...items, item];
+
+class _DemoRepository implements AppRepository {
+  AppData data;
+  _DemoRepository(this.data);
+  @override
+  AppData get initial => data;
+  @override
+  Future<void> save(AppData value) async {
+    validateData(value);
+    data = value;
+  }
+}

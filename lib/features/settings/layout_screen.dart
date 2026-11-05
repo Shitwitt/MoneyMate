@@ -13,6 +13,7 @@ const tabLabels = {
   'plans': 'Plans',
   'reports': 'Reports',
   'more': 'More',
+  'search': 'Search',
 };
 const tabIcons = {
   'home': Icons.space_dashboard_rounded,
@@ -21,6 +22,7 @@ const tabIcons = {
   'plans': Icons.donut_large_rounded,
   'reports': Icons.insert_chart_outlined_rounded,
   'more': Icons.grid_view_rounded,
+  'search': Icons.search_rounded,
 };
 
 class LayoutScreen extends ConsumerWidget {
@@ -119,7 +121,7 @@ class LayoutScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Keep 3–5 tabs, including More. Everything is still available from More.',
+                  'Choose 3–5 tabs. All tools and Settings are always available from the home toolbar.',
                 ),
                 const SizedBox(height: 12),
                 ReorderableListView.builder(
@@ -146,8 +148,7 @@ class LayoutScreen extends ConsumerWidget {
                         padding: const EdgeInsets.only(right: 25),
                         child: IconButton(
                           tooltip: 'Hide ${tabLabels[id]} tab',
-                          onPressed:
-                              id == 'more' || settings.navTabs.length <= 3
+                          onPressed: settings.navTabs.length <= 3
                               ? null
                               : () => runSafe(
                                   context,

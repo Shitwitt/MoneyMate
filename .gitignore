@@ -42,3 +42,5 @@ ios/Runner/GeneratedPluginRegistrant.*
 # Python development and CI helpers
 __pycache__/
 *.py[cod]
+# Local coding-agent diagnostics / formatter scratch (never app source)
+.cache/

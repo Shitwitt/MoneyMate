@@ -32,10 +32,6 @@ class AppearanceScreen extends ConsumerWidget {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(24),
                       onTap: () {
-                        if (mode == 'black' && !settings.isPro) {
-                          openPage(context, const PremiumScreen());
-                          return;
-                        }
                         runSafe(
                           context,
                           () => controller.settings(
@@ -56,7 +52,7 @@ class AppearanceScreen extends ConsumerWidget {
                             const SizedBox(height: 14),
                             Text(
                               mode == 'black'
-                                  ? 'Midnight · Pro'
+                                  ? 'Just Black'
                                   : '${mode[0].toUpperCase()}${mode.substring(1)}',
                               style: const TextStyle(fontSize: 12),
                             ),

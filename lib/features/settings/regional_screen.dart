@@ -8,6 +8,7 @@ import '../../core/utils/constants.dart';
 import '../../shared/actions.dart';
 import '../../shared/forms.dart';
 import '../../shared/widgets.dart';
+import 'language_picker.dart';
 
 class RegionalScreen extends ConsumerWidget {
   const RegionalScreen({super.key});
@@ -21,19 +22,24 @@ class RegionalScreen extends ConsumerWidget {
       child: ListView(
         children: [
           const SectionHeader('Language'),
-          formSelect(
-            'App language',
-            settings.locale,
-            languageNames.keys.toList(),
-            (value) => runSafe(
-              context,
-              () => controller.settings((s) => s.copyWith(locale: value)),
+          TonalCard(
+            padding: EdgeInsets.zero,
+            child: ListTile(
+              leading: const Icon(Icons.language_rounded),
+              title: Text(languageNames[settings.locale]!),
+              subtitle: Text(
+                '${languageNames.length} languages · core navigation',
+              ),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () =>
+                  showLanguagePicker(context, settings.locale, (value) async {
+                    await controller.settings((s) => s.copyWith(locale: value));
+                  }),
             ),
-            display: (id) => languageNames[id]!,
           ),
           const SizedBox(height: 12),
           const Text(
-            '13 starter translations cover navigation and primary actions. Detailed finance explanations and some forms remain in English. Arabic automatically uses right-to-left layout.',
+            '36 starter translations cover navigation and primary actions. Detailed finance explanations and some forms remain in English. Arabic, Persian and Urdu use right-to-left layout. All fonts are bundled offline.',
             style: TextStyle(fontSize: 12, height: 1.5),
           ),
           const SizedBox(height: 24),

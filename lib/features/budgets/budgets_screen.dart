@@ -35,36 +35,67 @@ class PlansScreen extends StatelessWidget {
   );
 }
 
-class BudgetsScreen extends ConsumerWidget {
+class BudgetsScreen extends ConsumerStatefulWidget {
   const BudgetsScreen({super.key});
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final profile = ref.watch(profileProvider)!;
+  ConsumerState<BudgetsScreen> createState() => _BudgetsScreenState();
+}
+
+class _BudgetsScreenState extends ConsumerState<BudgetsScreen> {
+  String sort = 'name';
+  @override
+  Widget build(BuildContext context) {
+    final ledger = ref.watch(ledgerProvider)!;
+    final budgets = [...ledger.data.budgets]
+      ..sort(
+        (a, b) => sort == 'amount'
+            ? b.limitMinor.compareTo(a.limitMinor)
+            : a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+      );
     return FeaturePage(
       title: 'Budgets',
-      subtitle: 'Make space for what matters',
       actions: [
+        PopupMenuButton<String>(
+          tooltip: 'Sort budgets',
+          icon: const Icon(Icons.sort_rounded),
+          onSelected: (value) => setState(() => sort = value),
+          itemBuilder: (_) => const [
+            PopupMenuItem(value: 'name', child: Text('Name')),
+            PopupMenuItem(
+              value: 'amount',
+              child: Text('Allowance · highest first'),
+            ),
+          ],
+        ),
+        IconButton(
+          tooltip: 'About budgets',
+          onPressed: () => showFeatureInfo(
+            context,
+            'Budgets',
+            'Set an allowance for all expenses or selected categories. Weekly, monthly and yearly periods renew automatically. Custom periods end on the date you choose. Rollover carries the actual previous surplus or deficit; it does not move money.',
+          ),
+          icon: const Icon(Icons.info_outline_rounded),
+        ),
         IconButton(
           tooltip: 'Create budget',
           onPressed: () => editBudget(context, ref),
           icon: const Icon(Icons.add_rounded),
         ),
       ],
-      child: profile.budgets.isEmpty
+      child: budgets.isEmpty
           ? EmptyState(
               title: 'A plan, not a restriction',
-              message: 'Give your spending a little direction. Start with food, transport, or everything.',
-              icon: Icons.donut_large_rounded,
+              message:
+                  'Create a spending plan for the things that matter to you.',
+              icon: Icons.pie_chart_outline_rounded,
               action: 'Create a budget',
               onAction: () => editBudget(context, ref),
             )
-          : ListView.builder(
-              padding: const EdgeInsets.only(bottom: 110),
-              itemCount: profile.budgets.length,
-              itemBuilder: (context, index) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: BudgetCard(profile.budgets[index]),
-              ),
+          : ListView.separated(
+              padding: const EdgeInsets.only(bottom: 100),
+              itemCount: budgets.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
+              itemBuilder: (context, index) => BudgetCard(budgets[index]),
             ),
     );
   }
@@ -78,98 +109,87 @@ class BudgetCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ledger = ref.watch(ledgerProvider)!;
     final status = ledger.budgetStatus(budget, DateTime.now());
-    final color = status.remaining < 0
-        ? AppColors.semantic(context, 'expense')
-        : status.progress >= .8
-        ? (AppColors.dark(context)
-              ? const Color(0xffFDB022)
-              : AppColors.warningInk)
-        : status.progress >= .6
-        ? (AppColors.dark(context)
-              ? const Color(0xffFEC84B)
-              : AppColors.warningInk)
-        : AppColors.semantic(context, 'income');
+    final color = readableTint(context, Color(budget.color));
+    final category = ledger.data.categories
+        .where((c) => budget.categoryIds.contains(c.id))
+        .firstOrNull;
+    final background = Color.alphaBlend(
+      Color(
+        budget.color,
+      ).withValues(alpha: AppColors.dark(context) ? .16 : .22),
+      Theme.of(context).colorScheme.surface,
+    );
     return BudgetWarningFrame(
       overLimit: status.remaining < 0,
-      child: Card(
-        child: InkWell(
-          borderRadius: BorderRadius.circular(24),
-          onTap: openDetails
-              ? () => openPage(context, BudgetDetailScreen(budget.id))
-              : null,
-          child: Padding(
-            padding: const EdgeInsets.all(22),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: TonalCard(
+        color: background,
+        onTap: openDetails
+            ? () => openPage(context, BudgetDetailScreen(budget.id))
+            : null,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    ColorIcon('category', budget.color, size: 40),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
+                ColorIcon(category?.icon ?? 'savings', budget.color, size: 44),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
                         budget.name,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                    ),
-                    Text(
-                      '${(status.progress * 100).round()}%',
-                      style: TextStyle(
-                        color: color,
-                        fontWeight: FontWeight.w700,
+                      const SizedBox(height: 5),
+                      Wrap(
+                        spacing: 5,
+                        runSpacing: 4,
+                        children: [
+                          SmallTag(titleCase(budget.period)),
+                          SmallTag(
+                            budget.categoryIds.isEmpty
+                                ? 'All expenses'
+                                : 'Category',
+                          ),
+                          if (budget.period != 'custom')
+                            const SmallTag(
+                              'Auto',
+                              icon: Icons.autorenew_rounded,
+                            ),
+                          if (budget.rollover) const SmallTag('Rollover'),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 22),
-                WavyProgress(status.progress, color: color),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: AmountText(
-                        status.spent,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                    Text('of ', style: Theme.of(context).textTheme.bodySmall),
-                    AmountText(
-                      status.limit,
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '${status.label} · ${titleCase(budget.period)}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                    AmountText(
-                      status.remaining.abs(),
-                      prefix: status.remaining < 0 ? 'Over ' : 'Left ',
-                      style: Theme.of(context).textTheme.labelSmall
-                          ?.copyWith(color: color),
-                    ),
-                  ],
-                ),
-                if (status.carry != 0)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: AmountText(
-                      status.carry,
-                      prefix: 'Rollover ',
-                      style: Theme.of(context).textTheme.labelSmall,
-                    ),
+                    ],
                   ),
+                ),
               ],
             ),
-          ),
+            const SizedBox(height: 22),
+            WavyProgress(status.progress, color: color),
+            const SizedBox(height: 20),
+            SummaryColumns(
+              labels: [
+                'Spent',
+                'Budget',
+                status.remaining < 0 ? 'Over budget' : 'Remaining',
+              ],
+              values: [
+                AmountText(status.spent),
+                AmountText(status.limit),
+                AmountText(status.remaining.abs()),
+              ],
+            ),
+            if (status.carry != 0)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: AmountText(
+                  status.carry,
+                  prefix: 'Rollover ',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -207,7 +227,8 @@ Future<void> editBudget(
   await showEditor(
     context,
     title: initial == null ? 'A little plan for your money' : 'Edit budget',
-    description: 'An empty category selection includes all expenses. Rollover carries unused allowance AND deducts overspending from the next period.',
+    description:
+        'An empty category selection includes all expenses. Rollover carries unused allowance AND deducts overspending from the next period.',
     fields: (context, setLocal) => [
       formText(name, 'Budget name', required: true),
       formText(

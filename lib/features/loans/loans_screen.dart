@@ -6,19 +6,55 @@ import '../../core/data/providers.dart';
 import '../../core/data/seed.dart';
 import '../../core/models/models.dart';
 import '../../core/utils/money.dart';
+import '../../core/utils/dates.dart';
 import '../../shared/actions.dart';
 import '../../shared/forms.dart';
 import '../../shared/widgets.dart';
 import '../transactions/transaction_tile.dart';
 
-class LoansScreen extends ConsumerWidget {
+class LoansScreen extends ConsumerStatefulWidget {
   const LoansScreen({super.key});
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LoansScreen> createState() => _LoansScreenState();
+}
+
+class _LoansScreenState extends ConsumerState<LoansScreen> {
+  int direction = 0;
+  String sort = 'date';
+  @override
+  Widget build(BuildContext context) {
     final ledger = ref.watch(ledgerProvider)!;
+    final loans =
+        ledger.data.loans
+            .where((l) => l.direction == (direction == 0 ? 'lent' : 'borrowed'))
+            .toList()
+          ..sort(
+            (a, b) => sort == 'amount'
+                ? ledger.loanRemaining(b).compareTo(ledger.loanRemaining(a))
+                : a.due.compareTo(b.due),
+          );
+    final balance = ledger.toReceive - ledger.toPay;
     return FeaturePage(
-      title: 'Money between people',
+      title: 'Loans',
       actions: [
+        PopupMenuButton<String>(
+          tooltip: 'Sort loans',
+          icon: const Icon(Icons.sort_rounded),
+          onSelected: (value) => setState(() => sort = value),
+          itemBuilder: (_) => const [
+            PopupMenuItem(value: 'date', child: Text('Due date')),
+            PopupMenuItem(value: 'amount', child: Text('Remaining amount')),
+          ],
+        ),
+        IconButton(
+          tooltip: 'About loans',
+          onPressed: () => showFeatureInfo(
+            context,
+            'Your private loan ledger',
+            'Lending is money owed to you; borrowing is money you owe. Net loan balance is lending minus borrowing. Repayments reduce the outstanding balance. Interest is a flat lifetime percentage, not APR. This records agreements only; it does not issue loans, collect payments, or contact anyone.',
+          ),
+          icon: const Icon(Icons.info_outline_rounded),
+        ),
         IconButton(
           tooltip: 'New loan',
           onPressed: () => editLoan(context, ref),
@@ -26,62 +62,237 @@ class LoansScreen extends ConsumerWidget {
         ),
       ],
       child: ListView(
-        padding: const EdgeInsets.only(bottom: 110),
+        padding: const EdgeInsets.only(bottom: 100),
+        children: [
+          TonalCard(
+            color: Theme.of(
+              context,
+            ).colorScheme.primaryContainer.withValues(alpha: .55),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        children: [
+                          const Text('Lending'),
+                          const SizedBox(height: 10),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: AmountText(
+                              ledger.toReceive,
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(
+                                    color: AppColors.semantic(
+                                      context,
+                                      'expense',
+                                    ),
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 1,
+                      height: 50,
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          const Text('Borrowing'),
+                          const SizedBox(height: 10),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: AmountText(
+                              ledger.toPay,
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(
+                                    color: AppColors.semantic(
+                                      context,
+                                      'income',
+                                    ),
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                const Divider(),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Net loan balance',
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            balance < 0
+                                ? 'You owe more than you’re owed'
+                                : balance > 0
+                                ? 'You’re owed more than you owe'
+                                : 'Your outstanding loans are balanced',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: AmountText(
+                          balance,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                color: AppColors.semantic(
+                                  context,
+                                  balance < 0 ? 'expense' : 'income',
+                                ),
+                              ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          PillTabs(
+            labels: const ['Lending', 'Borrowing'],
+            selected: direction,
+            onSelected: (value) => setState(() => direction = value),
+          ),
+          const SizedBox(height: 20),
+          if (loans.isEmpty)
+            EmptyState(
+              title: direction == 0
+                  ? 'Nothing lent yet'
+                  : 'Nothing borrowed yet',
+              message:
+                  'Keep a private record of money and repayments between people.',
+              icon: Icons.handshake_outlined,
+              action: 'Add a loan',
+              onAction: () => editLoan(context, ref),
+            ),
+          for (final completed in [false, true]) ...[
+            if (loans.any((l) => (ledger.loanRemaining(l) == 0) == completed))
+              SectionHeader(completed ? 'Completed' : 'Active'),
+            for (final loan in loans.where(
+              (l) => (ledger.loanRemaining(l) == 0) == completed,
+            ))
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _LoanCard(loan),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _LoanCard extends ConsumerWidget {
+  final Loan loan;
+  const _LoanCard(this.loan);
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ledger = ref.watch(ledgerProvider)!;
+    final total = (loan.principalMinor * (1 + loan.interestPercent / 100))
+        .round();
+    final remaining = ledger.loanRemaining(loan);
+    final days = calendarDaysBetween(DateTime.now(), loan.due);
+    final color = AppColors.semantic(
+      context,
+      loan.direction == 'lent' ? 'expense' : 'income',
+    );
+    return TonalCard(
+      color: Color.alphaBlend(
+        color.withValues(alpha: .11),
+        Theme.of(context).colorScheme.surface,
+      ),
+      onTap: () => openPage(context, LoanDetailScreen(loan.id)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(
-                child: StatCard(
-                  title: 'To receive',
-                  value: AmountText(ledger.toReceive, compact: true),
-                  icon: Icons.south_west_rounded,
-                ),
-              ),
+              Icon(Icons.credit_card_outlined, color: color),
               const SizedBox(width: 12),
               Expanded(
-                child: StatCard(
-                  title: 'To pay',
-                  value: AmountText(ledger.toPay, compact: true),
-                  icon: Icons.north_east_rounded,
-                  color: const Color(0xffbc7d5a),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      loan.personName,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    if (loan.notes.isNotEmpty)
+                      Text(
+                        loan.notes,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: SmallTag(
+                  remaining == 0
+                      ? 'Repaid'
+                      : days < 0
+                      ? '${-days} days late'
+                      : '$days days',
+                  color: color,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 22),
-          if (ledger.data.loans.isEmpty)
-            EmptyState(
-              title: 'Keep the money, not the awkwardness',
-              message: 'Remember what you lent, borrowed, and paid back. All privately.',
-              action: 'Add a loan',
-              onAction: () => editLoan(context, ref),
-              icon: Icons.handshake_outlined,
-            ),
-          for (final loan in ledger.data.loans)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Card(
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(18),
-                  leading: ColorIcon(
-                    'person',
-                    loan.direction == 'lent' ? 0xffa4ca6a : 0xfff2b88f,
-                  ),
-                  title: Text(
-                    loan.personName,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: Text(
-                    '${loan.direction == 'lent' ? 'You lent' : 'You borrowed'} · ${ledger.loanRemaining(loan) == 0 ? 'Repaid ✓' : 'Due ${DateFormat.MMMd().format(loan.due)}'}',
-                  ),
-                  trailing: AmountText(
-                    ledger.loanRemaining(loan),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  onTap: () => openPage(context, LoanDetailScreen(loan.id)),
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 5,
+            children: [
+              AmountText(
+                total - remaining,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(color: color),
+              ),
+              const Text('/'),
+              AmountText(total, style: Theme.of(context).textTheme.bodyMedium),
+            ],
+          ),
+          const SizedBox(height: 12),
+          WavyProgress(
+            total == 0 ? 0 : (total - remaining) / total,
+            color: color,
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Icon(Icons.event_outlined, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Due ${DateFormat.yMMMd().format(loan.due)}',
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
-            ),
+            ],
+          ),
         ],
       ),
     );
@@ -114,7 +325,8 @@ Future<void> editLoan(
   await showEditor(
     context,
     title: initial == null ? 'Keep things clear' : 'Edit loan',
-    description: 'Interest is a flat lifetime percentage, not APR. For a new disbursement, optionally create a matching account entry to keep net worth balanced.',
+    description:
+        'Interest is a flat lifetime percentage, not APR. For a new disbursement, optionally create a matching account entry to keep net worth balanced.',
     fields: (context, setLocal) => [
       formSelect('You…', direction, [
         'lent',

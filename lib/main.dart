@@ -29,6 +29,7 @@ import 'features/transactions/transaction_form.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'shared/actions.dart';
 import 'shared/widgets.dart';
+import 'shared/demo_frame.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -156,8 +157,9 @@ class _BootstrapState extends State<Bootstrap> {
                                 await FileService.save(
                                   Uint8List.fromList(
                                     utf8.encode(
-                                      Hive.box<String>('paisaclone_v1')
-                                              .get('state') ??
+                                      Hive.box<String>(
+                                            'paisaclone_v1',
+                                          ).get('state') ??
                                           '',
                                     ),
                                   ),
@@ -278,7 +280,7 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
   }
 
   Future<void> _sync(AppData app) async {
-    if (!widget.enablePlatformServices) return;
+    if (!widget.enablePlatformServices || app.isDemo) return;
     await Future.wait([
       ref.read(widgetServiceProvider).sync(app),
       ref
@@ -306,6 +308,7 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
   }
 
   void _drainLinks() {
+    if (ref.read(appProvider).isDemo) return;
     if (processing ||
         !mounted ||
         ref.read(profileProvider) == null ||
@@ -419,7 +422,14 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
       title: 'Tink',
       theme: buildTheme(app.settings, Brightness.light, dynamicScheme: light),
       darkTheme: buildTheme(app.settings, Brightness.dark, dynamicScheme: dark),
-      themeAnimationDuration: const Duration(milliseconds: 480),
+      themeAnimationDuration:
+          WidgetsBinding
+              .instance
+              .platformDispatcher
+              .accessibilityFeatures
+              .disableAnimations
+          ? Duration.zero
+          : const Duration(milliseconds: 280),
       themeAnimationCurve: Curves.easeInOutCubic,
       themeMode: switch (app.settings.theme) {
         'light' => ThemeMode.light,
@@ -435,7 +445,14 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
             MediaQuery.textScalerOf(context).scale(1) * app.settings.fontScale,
           ),
         ),
-        child: SecurityGate(child: child ?? const SizedBox.shrink()),
+        child: DemoFrame(
+          enabled: app.isDemo,
+          onExit: () {
+            navigator.currentState?.popUntil((route) => route.isFirst);
+            ref.read(appProvider.notifier).exitDemo();
+          },
+          child: SecurityGate(child: child ?? const SizedBox.shrink()),
+        ),
       ),
       home: app.profiles.isEmpty
           ? const OnboardingScreen()

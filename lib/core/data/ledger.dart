@@ -80,6 +80,7 @@ class Ledger {
     for (final rule in data.recurrings.where(
       (rule) =>
           rule.enabled &&
+          !rule.archived &&
           rule.type == 'expense' &&
           ids.contains(rule.accountId),
     )) {
@@ -110,7 +111,7 @@ class Ledger {
         .where((loan) => loan.direction == 'borrowed' && loan.due.isBefore(end))
         .fold<int>(0, (sum, loan) => sum + loanRemaining(loan));
     final goals = data.goals
-        .where((goal) => goal.accountId.isEmpty)
+        .where((goal) => goal.accountId.isEmpty && !goal.archived)
         .fold<int>(
           0,
           (sum, goal) => sum + math.min(goal.targetMinor, goalSaved(goal)),
@@ -166,7 +167,8 @@ class Ledger {
             entry.type == 'expense' &&
             window.contains(entry.date) &&
             !entry.date.isBefore(dayOnly(budget.start)) &&
-            (budget.categoryIds.isEmpty ||
+            (entry.budgetId == budget.id ||
+                budget.categoryIds.isEmpty ||
                 budget.categoryIds.contains(entry.categoryId)),
       )
       .fold(0, (sum, entry) => sum + entryValue(entry));
@@ -208,13 +210,16 @@ class Ledger {
     return switch (rule.frequency) {
       'daily' || 'custom' => value * 365.25 / 12 / rule.interval,
       'weekly' => value * 52.1775 / 12 / rule.interval,
+      'fortnightly' => value * 26.08875 / 12 / rule.interval,
+      'quarterly' => value / 3 / rule.interval,
+      'half-yearly' => value / 6 / rule.interval,
       'yearly' => value / 12 / rule.interval,
       _ => value / rule.interval,
     };
   }
 
   int get monthlyBurn => data.recurrings
-      .where((rule) => rule.enabled && rule.type == 'expense')
+      .where((rule) => rule.enabled && !rule.archived && rule.type == 'expense')
       .fold<double>(0, (sum, rule) => sum + monthlyCost(rule))
       .round();
   Map<String, int> breakdown(

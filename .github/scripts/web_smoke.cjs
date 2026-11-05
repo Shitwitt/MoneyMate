@@ -39,17 +39,17 @@ const binary = chromiumModule.default || chromiumModule;
     async function capture(name) {
       await page.mouse.move(2, 2);
       await page.waitForTimeout(180);
-      for (const quality of [50, 35, 20, 10]) {
+      for (const quality of [40, 25, 14, 8]) {
         const jpg = await page.screenshot({type: 'jpeg', quality, animations: 'disabled'});
         fs.writeFileSync(name, jpg);
-        if (jpg.length < 18000) break;
+        if (jpg.length < 14000) break;
       }
     }
     async function assertDarkPalette() {
       const shot = PNG.sync.read(await page.screenshot({type: 'png'}));
       const offset = (110 * shot.width + 4) * 4;
       const rgb = [...shot.data.subarray(offset, offset + 3)];
-      if (rgb.some((value, i) => Math.abs(value - [18, 18, 24][i]) > 6)) {
+      if (rgb.some((value, i) => Math.abs(value - [26, 16, 14][i]) > 6)) {
         throw new Error('Dark palette was not applied/persisted: ' + rgb.join(','));
       }
     }
@@ -77,59 +77,87 @@ const binary = chromiumModule.default || chromiumModule;
     }
     await page.goto('http://127.0.0.1:8080', {waitUntil: 'domcontentloaded'});
     await ready();
-    await page.getByRole('button', {name: 'Continue', exact: true}).waitFor();
+    await page.getByRole('button', {name: 'Start fresh', exact: true}).waitFor();
     await capture('web-intro.jpg');
-    for (let i = 0; i < 5; i++) {
-      await page.getByRole('button', {name: 'Continue', exact: true}).click();
-      // Allow this deliberate finite PageView slide to complete before advancing.
+    await page.getByRole('button', {name: 'Try Demo Mode', exact: true}).click();
+    await page.getByText('Demo User', {exact: true}).first().waitFor({timeout: 30000});
+    await page.waitForTimeout(800);
+    await capture('web-dashboard.jpg');
+    await page.mouse.move(200, 550); await page.mouse.wheel(0, 1500); await page.waitForTimeout(450);
+    await capture('web-home-grid.jpg');
+    await page.mouse.wheel(0, 3000); await page.waitForTimeout(450);
+    await capture('web-home-lower.jpg');
+    await page.mouse.wheel(0, -6000); await page.waitForTimeout(300);
+    await nav('Accounts');
+    await page.getByText('Your money, in one place', {exact: false}).first().waitFor();
+    await capture('web-accounts.jpg');
+    await nav('Reports');
+    await page.getByText('Your money, a little clearer', {exact: false}).first().waitFor();
+    await capture('web-reports.jpg');
+    await page.mouse.move(210, 590); await page.mouse.wheel(0, 1250); await page.waitForTimeout(650);
+    await capture('web-flow.jpg');
+    await page.mouse.wheel(0, 1000); await page.waitForTimeout(650);
+    await capture('web-allocation.jpg');
+    await nav('Home');
+    await page.getByRole('button', {name: 'All tools', exact: true}).click();
+    await nav('Recurring');
+    await capture('web-recurring.jpg');
+    await nav('Calendar');
+    await page.getByRole('button', {name: 'Next month', exact: true}).click();
+    await page.getByRole('button', {name: 'Previous month', exact: true}).click();
+    await capture('web-calendar.jpg');
+    await page.getByRole('button', {name: 'How recurring works', exact: true}).click();
+    await capture('web-help.jpg');
+    await page.mouse.move(210, 520); await page.mouse.wheel(0, 1600); await page.waitForTimeout(300);
+    await capture('web-help-bottom.jpg');
+    await page.getByRole('button', {name: 'Got it', exact: true}).click();
+    await nav('Due'); await nav('All');
+    await nav('Netflix');
+    await page.getByRole('button', {name: 'Process', exact: true}).waitFor();
+    await capture('web-detail.jpg');
+    await page.mouse.move(210, 600); await page.mouse.wheel(0, 1000); await page.waitForTimeout(400);
+    await capture('web-history.jpg');
+    await page.mouse.wheel(0, -3000); await page.waitForTimeout(300);
+    await page.getByRole('button', {name: 'Process', exact: true}).click();
+    await page.waitForTimeout(500);
+    await page.getByRole('button', {name: 'Recurring options', exact: true}).click();
+    await page.getByRole('menuitem', {name: 'Archive', exact: true}).or(page.getByText('Archive', {exact: true})).last().click();
+    await page.waitForTimeout(300);
+    await page.getByRole('button', {name: 'Back', exact: true}).click();
+    await nav('Archived');
+    await capture('web-archived.jpg');
+    await page.getByRole('button', {name: 'Exit Demo', exact: true}).click();
+    await page.getByRole('button', {name: 'Start fresh', exact: true}).waitFor();
+    // A demo edit must not leave a real profile behind. Now complete all 14 steps.
+    await page.getByRole('button', {name: 'Start fresh', exact: true}).click();
+    await page.waitForTimeout(350);
+    await page.getByRole('button', {name: 'Get started', exact: true}).click();
+    await page.waitForTimeout(350);
+    for (let index = 2; index <= 10; index++) {
+      if (index === 2) await capture('web-budget-tour.jpg');
+      if (index === 3) await capture('web-loan-tour.jpg');
+      if (index === 4) await capture('web-goal-tour.jpg');
+      if (index === 6) await capture('web-category-tour.jpg');
+      if (index === 7) await capture('web-languages.jpg');
+      if (index === 9) await capture('web-notifications.jpg');
+      await page.getByRole('button', {name: 'Next', exact: true}).click();
       await page.waitForTimeout(350);
     }
-    await page.getByRole('button', {name: 'Get started', exact: true}).click();
-    const name = page.getByRole('textbox', {name: 'What should we call you?', exact: true}).first();
-    await name.click();
-    await page.keyboard.type('Demo User', {delay: 45});
-    await page.keyboard.press('Tab');
     await page.getByRole('button', {name: 'Continue', exact: true}).click();
-    // SwitchListTile merges its text into its accessible name, not a DOM text node.
-    await page.getByRole('switch').or(page.getByRole('checkbox')).first().click();
+    const name = page.getByRole('textbox', {name: 'What should we call you?', exact: true}).first();
+    await name.click(); await page.keyboard.type('Browser User', {delay: 30}); await page.keyboard.press('Tab');
+    await page.getByRole('button', {name: 'Continue', exact: true}).click();
     await page.getByRole('button', {name: 'Start using Tink', exact: true}).click();
-    const celebration = page.getByRole('button', {name: 'A little proud of myself', exact: true});
-    if (await celebration.isVisible()) await celebration.click();
-    await page.getByRole('button', {name: 'How safe to spend is calculated', exact: true}).waitFor({timeout: 30000});
-    await page.waitForTimeout(800);
-    if (await page.getByText('Unsupported finance link', {exact: false}).isVisible()) throw new Error('Ordinary web startup was mistaken for a finance intent');
-    await capture('web-dashboard.jpg');
-    await nav('Accounts');
-    await page.getByLabel(/Your money, in one place/).or(page.getByText('Your money, in one place', {exact: false})).first().waitFor();
-    await capture('web-accounts.jpg');
-    await nav('More');
-    await nav('Reports');
-    await page.getByLabel(/Your money, a little clearer/).or(page.getByText('Your money, a little clearer', {exact: false})).first().waitFor();
-    await page.waitForTimeout(650);
-    await capture('web-reports.jpg');
-    // Review lower charts using Flutter's actual scroll view.
-    await page.mouse.move(210, 590);
-    await page.mouse.wheel(0, 1250);
-    await page.waitForTimeout(850);
-    await capture('web-flow.jpg');
-    await page.mouse.move(210, 590);
-    await page.mouse.wheel(0, 1000);
-    await page.waitForTimeout(850);
-    await capture('web-allocation.jpg');
-    await page.getByRole('button', {name: 'Back', exact: true}).click({force: true});
-    await page.waitForTimeout(350);
-    await nav('Settings');
-    await nav('Appearance');
+    await page.getByText('Browser User', {exact: true}).first().waitFor({timeout: 30000});
+    if (await page.getByRole('button', {name: 'Exit Demo', exact: true}).isVisible()) throw new Error('Real setup retained a demo overlay');
+    await page.getByRole('button', {name: 'Profiles & settings', exact: true}).click();
+    await nav('Settings'); await nav('Appearance'); await nav('Light');
     await nav('Dark');
     await assertDarkPalette();
-    // Reload from the selected theme to verify both its persistence and the
-    // saved profile, without depending on transient route semantics after retheming.
     await page.reload({waitUntil: 'domcontentloaded'});
     await ready();
-    await page.getByText('Demo User', {exact: false}).first().waitFor({timeout: 20000});
-    await page.getByRole('button', {name: 'How safe to spend is calculated', exact: true}).waitFor();
-    await page.waitForTimeout(700);
-    await assertDarkPalette();
+    await page.getByText('Browser User', {exact: true}).first().waitFor({timeout: 20000});
+    await page.waitForTimeout(700); await assertDarkPalette();
     await capture('web-dark.jpg');
     await page.evaluate(async () => {
       await navigator.serviceWorker.ready;
@@ -141,11 +169,11 @@ const binary = chromiumModule.default || chromiumModule;
     await context.setOffline(true);
     await page.reload({waitUntil: 'domcontentloaded'});
     await ready();
-    await page.getByText('Demo User', {exact: false}).first().waitFor({timeout: 30000});
+    await page.getByText('Browser User', {exact: true}).first().waitFor({timeout: 30000});
     await assertDarkPalette();
     if (remoteRequests.size) throw new Error('Unexpected runtime network hosts: ' + [...remoteRequests].join(', '));
     if (errors.length) throw new Error('Browser/layout errors: ' + errors.join('\n'));
-    console.log('::notice title=Tink web smoke::PASS: six intros, real demo onboarding, accounts, reports, dark theme, persisted reload, offline reload and zero external runtime requests.');
+    console.log('::notice title=Tink web smoke::PASS: isolated editable demo and exit, real 14-step setup, live feature previews, Home grid, accounts/reports, recurring calendar/help/history/process/archive, theme persistence, offline reload and zero external runtime requests.');
   } catch (error) {
     if (page) {
       console.log('Browser errors:', errors);

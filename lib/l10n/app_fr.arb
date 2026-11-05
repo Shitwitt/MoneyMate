@@ -35,5 +35,6 @@
   "backup": "Sauvegarde et restauration",
   "security": "Confidentialité et sécurité",
   "unlockPlus": "Débloquer Pro",
-  "privacyPromise": "Sans compte. Sans cloud. Sans souci."
+  "privacyPromise": "Sans compte. Sans cloud. Sans souci.",
+  "search": "Rechercher"
 }

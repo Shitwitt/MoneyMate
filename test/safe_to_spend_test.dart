@@ -244,7 +244,7 @@ void main() {
       'accent': 0xff557c36,
       'dynamicColors': true,
     });
-    expect(old.accent, 0xff916cff);
+    expect(old.accent, 0xffffb59a);
     expect(old.dynamicColors, false);
     final custom = AppSettings.fromJson({
       'accent': 0xff2E90FA,

@@ -14,6 +14,8 @@ export '../core/theme/app_text_styles.dart';
 export 'tink_components.dart';
 export 'luxury_components.dart';
 export 'account_artwork.dart';
+export 'reference_components.dart';
+export 'wavy_ring.dart';
 
 IconData iconFor(String key) => switch (key) {
   'food' => Icons.restaurant_rounded,
@@ -95,7 +97,7 @@ class AmountText extends ConsumerWidget {
     final effectiveStyle = DefaultTextStyle.of(context).style
         .merge(style)
         .copyWith(
-          fontFamily: 'SourceSerif4',
+          fontFamily: 'Quicksand',
           fontFeatures: const [FontFeature.tabularFigures()],
         );
     Widget render(int value) => Text(
@@ -178,8 +180,9 @@ class EmptyState extends StatelessWidget {
           width: 88,
           height: 88,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primaryContainer
-                .withValues(alpha: .45),
+            color: Theme.of(
+              context,
+            ).colorScheme.primaryContainer.withValues(alpha: .45),
             borderRadius: BorderRadius.circular(28),
           ),
           child: Icon(
@@ -311,8 +314,9 @@ class StatCard extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             DefaultTextStyle(
-              style: Theme.of(context).textTheme.headlineSmall!
-                  .copyWith(fontWeight: FontWeight.w700),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w700),
               child: value is AmountText
                   ? FittedBox(
                       fit: BoxFit.scaleDown,

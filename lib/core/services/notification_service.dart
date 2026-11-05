@@ -99,7 +99,10 @@ class NotificationService {
           await plugin.cancel(request.id);
         }
         final settings = app.settings;
-        if (!settings.notificationsEnabled || app.profiles.isEmpty) return;
+        if (!settings.notificationsEnabled ||
+            app.profiles.isEmpty ||
+            app.isDemo)
+          return;
         final profile = app.profiles.firstWhere(
           (item) => item.profile.id == app.activeProfileId,
         );
@@ -129,7 +132,9 @@ class NotificationService {
         }
         var count = 0; // Stay below iOS's 64 pending-notification limit.
         if (settings.recurringNotifications) {
-          for (final rule in profile.recurrings.where((rule) => rule.enabled)) {
+          for (final rule in profile.recurrings.where(
+            (rule) => rule.enabled && !rule.archived,
+          )) {
             var date = rule.nextDue;
             if (date.isBefore(now) && !rule.autoPost) {
               date = now.add(const Duration(minutes: 1));
@@ -141,11 +146,18 @@ class NotificationService {
                   (rule.end == null || !date.isAfter(rule.end!));
               i++
             ) {
+              final reminder = DateTime(
+                date.year,
+                date.month,
+                date.day - rule.reminderDays,
+                date.hour,
+                date.minute,
+              );
               await _schedule(
                 '${rule.id}:$i',
                 'Recurring payment',
                 'A scheduled payment is due. Open Tink to review it.',
-                date,
+                reminder.isAfter(now) ? reminder : date,
               );
               date = nextOccurrence(rule, date);
               count++;

@@ -81,11 +81,12 @@ DateTime nextOccurrence(Recurring rule, DateTime current) {
   final step = math.max(1, rule.interval);
   DateTime result;
   switch (rule.frequency) {
+    case 'fortnightly':
     case 'weekly':
       return DateTime(
         current.year,
         current.month,
-        current.day + 7 * step,
+        current.day + (rule.frequency == 'fortnightly' ? 14 : 7) * step,
         current.hour,
         current.minute,
       );
@@ -97,6 +98,18 @@ DateTime nextOccurrence(Recurring rule, DateTime current) {
         current.day + step,
         current.hour,
         current.minute,
+      );
+    case 'quarterly':
+      result = safeMonth(
+        current.year,
+        current.month + 3 * step,
+        rule.start.day,
+      );
+    case 'half-yearly':
+      result = safeMonth(
+        current.year,
+        current.month + 6 * step,
+        rule.start.day,
       );
     case 'yearly':
       result = safeMonth(current.year + step, rule.start.month, rule.start.day);

@@ -463,8 +463,10 @@ class _ActivityHeatmapState extends State<ActivityHeatmap> {
                               for (var day = 0; day < 7; day++)
                                 Builder(
                                   builder: (context) {
-                                    final date = start.add(
-                                      Duration(days: week * 7 + day),
+                                    final date = DateTime(
+                                      start.year,
+                                      start.month,
+                                      start.day + week * 7 + day,
                                     );
                                     final value = counts[date] ?? 0;
                                     final future = date.isAfter(today);

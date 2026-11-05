@@ -303,6 +303,8 @@ class AccountOverviewCard extends StatelessWidget {
           account: account,
           balance: ledger.accountBalance(account.id),
           hidden: ledger.settings.hideAmounts,
+          indian: ledger.settings.numberFormat == 'indian',
+          locale: ledger.settings.locale,
           onTap: onTap,
         ),
         Padding(

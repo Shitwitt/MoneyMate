@@ -22,13 +22,16 @@ const accountFinishes = <String, String>{
 class AccountArtwork extends StatelessWidget {
   final Account account;
   final int balance;
-  final bool hidden, preview;
+  final bool hidden, preview, indian;
+  final String locale;
   final VoidCallback? onTap;
   const AccountArtwork({
     super.key,
     required this.account,
     required this.balance,
     this.hidden = false,
+    this.indian = true,
+    this.locale = 'en',
     this.preview = false,
     this.onTap,
   });
@@ -76,8 +79,14 @@ class AccountArtwork extends StatelessWidget {
               .toList()
         : palette;
     final ink = light ? const Color(0xff20241D) : const Color(0xffFFFDF5);
-    final muted = light ? const Color(0xff4C5147) : const Color(0xffD4D0DB);
-    final amount = money(balance, account.currency, hidden: hidden);
+    final muted = light ? const Color(0xff363B30) : const Color(0xffD4D0DB);
+    final amount = money(
+      balance,
+      account.currency,
+      hidden: hidden,
+      indian: indian,
+      locale: locale,
+    );
     final type = account.type[0].toUpperCase() + account.type.substring(1);
     return Semantics(
       label:

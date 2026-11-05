@@ -306,6 +306,8 @@ class HomeScreen extends ConsumerWidget {
                     account: account,
                     balance: ledger.accountBalance(account.id),
                     hidden: ledger.settings.hideAmounts,
+                    indian: ledger.settings.numberFormat == 'indian',
+                    locale: ledger.settings.locale,
                     onTap: () =>
                         openPage(context, AccountDetailScreen(account.id)),
                   ),

@@ -38,14 +38,18 @@ class _ShineSurfaceState extends State<ShineSurface>
     duration: const Duration(milliseconds: 1100),
   );
   bool started = false;
+  Brightness? lastBrightness;
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final brightness = Theme.of(context).brightness;
+    final themeChanged = lastBrightness != null && lastBrightness != brightness;
+    lastBrightness = brightness;
     if (MediaQuery.disableAnimationsOf(context)) {
       sweep.value = 1;
-    } else if (!started) {
+    } else if (!started || themeChanged) {
       started = true;
-      sweep.forward();
+      sweep.forward(from: 0);
     }
   }
 

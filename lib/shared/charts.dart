@@ -244,6 +244,7 @@ class CategoryChart extends StatefulWidget {
 class _CategoryChartState extends State<CategoryChart> {
   int touched = -1;
   bool petals = true;
+  final plotKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
     if (widget.ledger.settings.hideAmounts)
@@ -305,7 +306,12 @@ class _CategoryChartState extends State<CategoryChart> {
             child: ExcludeSemantics(
               child: GestureDetector(
                 onTapUp: (details) {
-                  final delta = details.localPosition - const Offset(140, 140);
+                  final box =
+                      plotKey.currentContext?.findRenderObject() as RenderBox?;
+                  if (box == null) return;
+                  final delta =
+                      details.localPosition -
+                      Offset(box.size.width / 2, box.size.height / 2);
                   final angle =
                       (math.atan2(delta.dy, delta.dx) +
                           math.pi / 2 +
@@ -321,6 +327,7 @@ class _CategoryChartState extends State<CategoryChart> {
                   );
                 },
                 child: SizedBox.square(
+                  key: plotKey,
                   dimension: 280,
                   child: Stack(
                     alignment: Alignment.center,

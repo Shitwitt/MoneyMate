@@ -231,14 +231,16 @@ class FeaturePage extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       toolbarHeight:
-          72 * MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.8),
+          72 * MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 3.0),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title),
+          Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
           if (subtitle != null)
             Text(
               subtitle!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),

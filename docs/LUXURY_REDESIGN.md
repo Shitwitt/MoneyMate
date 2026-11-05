@@ -6,7 +6,7 @@ This redesign interprets the user's November 2026 references with original artwo
 
 - **Instrument Serif Regular**: Tink logotype, display headlines and large editorial titles. Selected for the high-contrast editorial-serif character of the final reference, not claimed to be that reference's exact licensed font.
 - **Source Serif 4**, static optical-size-16 faces at 400/500/600/700: the entire interface's body, controls, inputs, data, amounts and captions. Money retains tabular figures. Source Serif is also a serif: there is no silent switch back to sans-serif for dense UI.
-- Existing eight Noto script fallbacks, Poppins/Inter compatibility assets, the offline renderer fallback and all font licenses remain bundled. No runtime font fetching is enabled.
+- Existing eight Noto script fallbacks, Poppins/Inter compatibility assets, the offline renderer fallback and all font licenses remain bundled. No runtime font fetching is enabled. Android launcher widgets and the iOS WidgetKit extension use the platform serif design; they do not duplicate Flutter font files into native resources.
 - Ordinary text retains contrast-aware neutral inks. Exact brand-violet/white primary labels remain 20sp bold large text, not a claim of normal-text 4.5:1 contrast or independent accessibility certification.
 
 ## Navigation and surfaces

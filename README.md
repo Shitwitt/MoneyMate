@@ -1,6 +1,6 @@
 # Tink
 
-**Your money. A clearer mind.** A privacy-first Material 3 Flutter finance companion with a premium neutral/violet interface. Tink is an independent local tracker, not a bank, card issuer, payment service, trading platform, or an integration with the Tink banking API. Interface references inspired the visual direction; no Stable Money logos, proprietary screens or illustrations are bundled.
+**Your money. A clearer mind.** A privacy-first Material 3 Flutter finance companion with a editorial-serif typography, glass navigation, animated account artwork and a premium neutral/violet interface. Tink is an independent local tracker, not a bank, card issuer, payment service, trading platform, or an integration with the Tink banking API. Interface references inspired the visual direction; no Stable Money logos, proprietary screens or illustrations are bundled.
 
 No accounts, backend, ads, analytics, payment service, or automatic network calls. The Android release deliberately has **no Internet permission**. All finance data and receipt images are local. Pro is a free, persisted simulation.
 
@@ -55,7 +55,9 @@ Tink/
 
 ## GET YOUR APK NOW
 
-**[Download Tink 1.1.0, build 2 — installable Android APK](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-41887240793/Tink-Android-release.apk)** · **82.6 MB**, Android 7+, ARM64/ARMv7/x86-64. This optimized APK is **test/debug-key signed**, not store-signed. [Checksum, certificate and verified test evidence](docs/BUILD_STATUS.md). Historical 1.0 PaisaClone releases are **not** the redesigned Tink binary. Back up and verify your data before uninstalling a differently signed older version.
+**The 1.2.0 source is under verification; a fresh 1.2.0 APK is not published yet.** The following historical 1.1.0 APK does not contain the new editorial/glass UI.
+
+**[Download historical Tink 1.1.0, build 2 — installable Android APK](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-41887240793/Tink-Android-release.apk)** · **82.6 MB**, Android 7+, ARM64/ARMv7/x86-64. This optimized APK is **test/debug-key signed**, not store-signed. [Checksum, certificate and verified test evidence](docs/BUILD_STATUS.md). Historical 1.0 PaisaClone releases are **not** the redesigned Tink binary. Back up and verify your data before uninstalling a differently signed older version.
 
 **Here is how you get the APK ready to download and install** — fastest methods first:
 
@@ -248,12 +250,12 @@ adb shell am start -a android.intent.action.VIEW \
 
 ## Tink design system
 
-Version **1.1.0+2** replaces the old green visual identity across all existing screens. The six-page introduction is also replayable from **More → Widgets, automation & FAQ / Help**. Functionality, finance records and schema identities are retained.
+Version **1.2.0+3** adds the November editorial/glass redesign across all existing screens. See [the luxury redesign details](docs/LUXURY_REDESIGN.md). The six-page introduction is also replayable from **More → Widgets, automation & FAQ / Help**. Functionality, finance records and schema identities are retained.
 
 - **Color:** violet `#916CFF`, pressed `#7A55F0`, pale violet `#EDE7FF`; neutral light surfaces `#F7F7FB` / white; dark surfaces `#121218` / `#1B1B23`. No pure-black main background. Midnight is the darker-card treatment of the legacy `black` preference.
-- **Type:** bundled **Poppins** headings/UI and **Inter** dense/tabular money text, loaded through Google Fonts with runtime fetching disabled. All eight existing Noto language fallback families and OFL licenses remain bundled. Circular Std is not included or represented as licensed.
-- **Components:** named color/type/spacing/radius/theme tokens; rounded cards, semantic transaction tiles, category icons, buttons, progress bars/rings, chart cards, premium badges and empty/loading states. Shared theming applies to every screen, editor, sheet, picker and dialog.
-- **Interaction:** fade/scale splash, swipeable vector-art introduction, finite home entrances/count-up, clean circular add-entry FAB and rounded entry sheet, save check, selected-nav scale, budget warning outline pulse, goal rings, chart reveal/heatmap entrances and subtle Pro badge shimmer. Primary motion respects reduced-motion preferences. No continuous celebratory animation is required to use a form.
+- **Type:** bundled **Instrument Serif** display titles and **Source Serif 4** 400–700 for every body/control/data style, including tabular amounts. These licensed Google Fonts are packaged locally; runtime fetching is disabled. Existing Inter/Poppins assets remain for compatibility, not as the UI font. All eight existing Noto language fallback families and OFL licenses remain bundled. Circular Std is not included or represented as licensed.
+- **Components:** named color/type/spacing/radius/theme tokens; glass capsule navigation with a separate More control, metallic/paper bank/cash/debit/credit artwork, rounded cards, semantic transaction tiles, category icons, buttons, progress bars/rings, chart cards, premium badges and empty/loading states. Shared theming applies to every screen, editor, sheet, picker and dialog.
+- **Interaction:** fade/scale splash, swipeable vector-art introduction, finite home entrances/count-up, clean circular add-entry FAB and rounded entry sheet, save check, warm glowing selected-nav pill, finite foil sweeps, animated theme shifts, budget warning outline pulse, luminous goal rings, radar/gauge/petal/cashflow charts, 13-week calendar and subtle Pro badge shimmer. Primary motion respects reduced-motion preferences. No continuous celebratory animation is required to use a form.
 - **Contrast:** white on exact brand violet is **3.63:1**, not 4.5:1. Primary labels are therefore **20sp bold**, satisfying the WCAG AA large-text threshold of 3:1. Normal-size text uses neutral/semantic ink variants (at least 4.5:1 on their intended card backgrounds), not pale brand violet. See [the full rationale and tokens](docs/DESIGN_SYSTEM.md). This is not a claim of independent accessibility certification.
 - **Personalization:** new installs start violet. The legacy default green migrates to violet; explicitly customized accents, profile data, layouts and manual rates remain. Material You remains opt-in and functional. User-selected accents get a contrast-aware primary foreground.
 

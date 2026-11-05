@@ -1,8 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
  android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent"
  android:orientation="vertical" android:padding="20dp" android:gravity="center_vertical" android:background="@drawable/widget_background">
- <TextView android:id="@+id/widget_profile" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Tink" android:textColor="#5A5A66" android:textSize="12sp" />
- <TextView android:id="@+id/widget_caption" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="ONE LITTLE ENTRY" android:textSize="10sp" android:letterSpacing="0.12" android:textColor="#5A5A66" android:layout_marginTop="8dp" />
- <TextView android:id="@+id/widget_value" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="＋ Add expense" android:textStyle="bold" android:textSize="24sp" android:textColor="#0B0B0F" android:maxLines="1" android:ellipsize="end" android:layout_marginTop="4dp" />
+ <TextView android:fontFamily="serif" android:id="@+id/widget_profile" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Tink" android:textColor="#5A5A66" android:textSize="12sp" />
+ <TextView android:fontFamily="serif" android:id="@+id/widget_caption" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="ONE LITTLE ENTRY" android:textSize="10sp" android:letterSpacing="0.12" android:textColor="#5A5A66" android:layout_marginTop="8dp" />
+ <TextView android:fontFamily="serif" android:id="@+id/widget_value" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="＋ Add expense" android:textStyle="bold" android:textSize="24sp" android:textColor="#0B0B0F" android:maxLines="1" android:ellipsize="end" android:layout_marginTop="4dp" />
  
 </LinearLayout>

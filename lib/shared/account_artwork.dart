@@ -87,7 +87,9 @@ class AccountArtwork extends StatelessWidget {
       indian: indian,
       locale: locale,
     );
-    final type = account.type[0].toUpperCase() + account.type.substring(1);
+    final type = account.type.isEmpty
+        ? 'Account'
+        : account.type[0].toUpperCase() + account.type.substring(1);
     return Semantics(
       label:
           '$type account ${account.name}. ${preview ? 'Opening' : 'Recorded'} balance $amount.${account.archived ? ' Archived.' : ''}${account.excluded ? ' Excluded from net worth.' : ''}',

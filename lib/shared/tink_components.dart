@@ -172,10 +172,16 @@ class ProgressBar extends StatelessWidget {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                gradient: LinearGradient(colors: [
-                  Color.lerp(color ?? Theme.of(context).colorScheme.primary, Colors.white, .25)!,
-                  color ?? Theme.of(context).colorScheme.primary,
-                ]),
+                gradient: LinearGradient(
+                  colors: [
+                    Color.lerp(
+                      color ?? Theme.of(context).colorScheme.primary,
+                      Colors.white,
+                      .25,
+                    )!,
+                    color ?? Theme.of(context).colorScheme.primary,
+                  ],
+                ),
               ),
             ),
           ),

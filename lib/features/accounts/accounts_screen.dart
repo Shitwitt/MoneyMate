@@ -23,6 +23,7 @@ Future<void> editAccount(
   Account? initial,
 ]) async {
   final profile = ref.read(profileProvider)!;
+  final settings = ref.read(appProvider).settings;
   final name = TextEditingController(text: initial?.name ?? '');
   final opening = TextEditingController(
     text: initial == null
@@ -64,6 +65,9 @@ Future<void> editAccount(
                 imageBase64: image,
               ),
               balance: amount,
+              hidden: settings.hideAmounts,
+              indian: settings.numberFormat == 'indian',
+              locale: settings.locale,
               preview: true,
             ),
           );
@@ -308,38 +312,42 @@ class AccountOverviewCard extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(18, 14, 18, 6),
-          child: Wrap(
-            spacing: 20,
-            runSpacing: 8,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (final income in [true, false])
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      income
-                          ? Icons.south_west_rounded
-                          : Icons.north_east_rounded,
-                      size: 17,
-                      color: AppColors.semantic(
-                        context,
-                        income ? 'income' : 'expense',
+              for (final income in [true, false]) ...[
+                if (!income) const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            income ? Icons.south_west_rounded : Icons.north_east_rounded,
+                            size: 17,
+                            color: AppColors.semantic(context, income ? 'income' : 'expense'),
+                          ),
+                          const SizedBox(width: 7),
+                          Expanded(
+                            child: Text(
+                              income ? 'In this month' : 'Out this month',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 7),
-                    AmountText(
-                      _accountFlow(ledger.data, account.id, month, income),
-                      currency: account.currency,
-                      compact: true,
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      income ? 'in this month' : 'out this month',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      AmountText(
+                        _accountFlow(ledger.data, account.id, month, income),
+                        currency: account.currency,
+                        compact: true,
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                    ],
+                  ),
                 ),
+              ],
             ],
           ),
         ),

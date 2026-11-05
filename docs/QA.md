@@ -48,11 +48,16 @@ Automated finance, persistence, parsing, backup/security and basic widget tests 
 
 Record device model, OS, app version, signing certificate fingerprint and test date in your own release notes. Do not attach private databases, backups or screenshots with real account details to public issues.
 
-## Tink 1.1 design and upgrade checks
+## Tink 1.2 editorial/glass design and upgrade checks
 - Visit each of the six intro pages by both Next and swipe; Skip, restore, finish real account setup, add a profile without reseeding another, and replay from Help.
 - Check native launcher/adaptive/monochrome icons, Android 12 splash, app/permission labels, iOS/web icons and widget branding.
 - Verify the same backup format and database/app identifiers; use the same signing key for an actual in-place upgrade.
 - Compare Safe to spend with its information sheet, future income/expenses, weekly rules, period start, excluded/savings/investment accounts, goal allocations and due debts. It must never silently stand in for net worth.
-- Verify Poppins/Inter and all Noto language fallbacks without connectivity. Check tabular figures, money hiding, chart summaries/tooltips and semantic plus/minus/transfer indicators.
+- Verify Instrument Serif / Source Serif 4 and all Noto language fallbacks without connectivity. Check tabular figures, money hiding, chart summaries/tooltips and semantic plus/minus/transfer indicators.
 - Check 390px and narrow screens with 160–200% text, RTL, keyboard and screen reader; buttons have 48px minimum targets. Examine contrast against actual card backgrounds, not only white.
 - Check reduced motion, finite save states, progress/chart entrances, section reordering via the ellipsis handle and local Pro toggles. No animation should prevent completing a form.
+
+- Check all seven account types in all six finishes, long names, opening-balance/currency edits and local images; keep the same account IDs/transactions through backup/restore. No card may imply a real issuer or show a fabricated card number.
+- Inspect the pulse information sheet and unknown/zero/future-date cases; do not label it a credit or medical score. Verify exact category amounts and that selectable petals match the list.
+- Check thirteen-week activity calendar around spring/fall DST changes. Verify linked cashflow panels describe their independent units and selected month.
+- Check the 160% account monthly in/out summaries, home account carousel, separate More control, custom tab ordering, icon-only nav and all theme modes with reduced motion both on and off.

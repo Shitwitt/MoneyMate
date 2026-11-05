@@ -33,11 +33,11 @@ struct BalanceView: View {
     let entry: MoneyEntry
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label(entry.profile, systemImage: "sparkle").font(.caption)
+            Label(entry.profile, systemImage: "sparkle").font(.system(.caption, design: .serif))
             Spacer()
-            Text("NET WORTH").font(.caption2).tracking(2)
-            Text(entry.balance).font(.title2.bold()).monospacedDigit().minimumScaleFactor(0.5).lineLimit(1)
-            Text("Your money. Your device.").font(.caption2)
+            Text("NET WORTH").font(.system(.caption2, design: .serif)).tracking(2)
+            Text(entry.balance).font(.system(.title2, design: .serif).bold()).monospacedDigit().minimumScaleFactor(0.5).lineLimit(1)
+            Text("Your money. Your device.").font(.system(.caption2, design: .serif))
         }.foregroundColor(Color(red: 0.043, green: 0.043, blue: 0.059)).paisaBackground().widgetURL(URL(string: "paisa://home"))
     }
 }
@@ -45,9 +45,9 @@ struct BudgetView: View {
     let entry: MoneyEntry
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Budget check-in", systemImage: "chart.pie").font(.caption)
-            Text(entry.budgetName).font(.subheadline.bold()).lineLimit(2)
-            Text(entry.budget).font(.title3.bold())
+            Label("Budget check-in", systemImage: "chart.pie").font(.system(.caption, design: .serif))
+            Text(entry.budgetName).font(.system(.subheadline, design: .serif).bold()).lineLimit(2)
+            Text(entry.budget).font(.system(.title3, design: .serif).bold())
             ProgressView(value: min(1, max(0, entry.progress))).tint(Color(red: 0.569, green: 0.424, blue: 1.0))
         }.foregroundColor(Color(red: 0.043, green: 0.043, blue: 0.059)).paisaBackground().widgetURL(URL(string: "paisa://home"))
     }
@@ -56,8 +56,8 @@ struct QuickView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Image(systemName: "plus.circle.fill").font(.largeTitle)
-            Text("A little entry.").font(.title3.bold())
-            Text("One less thing to remember.").font(.caption)
+            Text("A little entry.").font(.system(.title3, design: .serif).bold())
+            Text("One less thing to remember.").font(.system(.caption, design: .serif))
         }.foregroundColor(Color(red: 0.043, green: 0.043, blue: 0.059)).paisaBackground().widgetURL(URL(string: "paisa://quick_add"))
     }
 }

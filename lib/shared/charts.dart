@@ -61,9 +61,8 @@ class TrendChart extends StatelessWidget {
               ? Padding(
                   padding: const EdgeInsets.only(top: 10),
                   child: Text(
-                    DateFormat.MMM(
-                      ledger.settings.locale,
-                    ).format(windows[value.toInt()].start),
+                    DateFormat.MMM(ledger.settings.locale)
+                        .format(windows[value.toInt()].start),
                     style: Theme.of(context).textTheme.labelSmall,
                   ),
                 )
@@ -80,9 +79,8 @@ class TrendChart extends StatelessWidget {
                 show: true,
                 drawVerticalLine: false,
                 getDrawingHorizontalLine: (_) => FlLine(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.outlineVariant.withValues(alpha: .55),
+                  color: Theme.of(context).colorScheme.outlineVariant
+                      .withValues(alpha: .55),
                   strokeWidth: .8,
                   dashArray: [3, 5],
                 ),
@@ -127,9 +125,8 @@ class TrendChart extends StatelessWidget {
                 show: true,
                 drawVerticalLine: false,
                 getDrawingHorizontalLine: (_) => FlLine(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.outlineVariant.withValues(alpha: .55),
+                  color: Theme.of(context).colorScheme.outlineVariant
+                      .withValues(alpha: .55),
                   strokeWidth: .8,
                   dashArray: [3, 5],
                 ),
@@ -301,8 +298,7 @@ class _CategoryChartState extends State<CategoryChart> {
         const SizedBox(height: 20),
         if (petals)
           Semantics(
-            label:
-                'Category flower. Petals compare relative category sizes; exact amounts and percentages follow below.',
+            label: 'Category flower. Petals compare relative category sizes; exact amounts and percentages follow below.',
             child: ExcludeSemantics(
               child: GestureDetector(
                 onTapUp: (details) {
@@ -375,9 +371,9 @@ class _CategoryChartState extends State<CategoryChart> {
                                 AmountText(
                                   active < 0 ? total : values[active].value,
                                   compact: true,
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
                                 ),
                               ],
                             ),

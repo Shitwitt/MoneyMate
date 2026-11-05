@@ -157,15 +157,28 @@ class ProgressBar extends StatelessWidget {
           ? Duration.zero
           : const Duration(milliseconds: 600),
       curve: Curves.easeOutCubic,
-      builder: (context, progress, _) => ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: LinearProgressIndicator(
-          value: progress,
-          minHeight: height,
-          color: color ?? Theme.of(context).colorScheme.primary,
-          backgroundColor: Theme.of(
-            context,
-          ).colorScheme.surfaceContainerHighest,
+      builder: (context, progress, _) => Container(
+        height: height,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: FractionallySizedBox(
+            widthFactor: progress,
+            heightFactor: 1,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(colors: [
+                  Color.lerp(color ?? Theme.of(context).colorScheme.primary, Colors.white, .25)!,
+                  color ?? Theme.of(context).colorScheme.primary,
+                ]),
+              ),
+            ),
+          ),
         ),
       ),
     ),

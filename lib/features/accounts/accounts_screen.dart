@@ -41,8 +41,7 @@ Future<void> editAccount(
   await showEditor(
     context,
     title: initial == null ? 'A home for your money' : 'Edit account',
-    description:
-        'Use a negative opening balance for credit card debt. Changing an opening balance adjusts the ledger without creating a transaction.',
+    description: 'Use a negative opening balance for credit card debt. Changing an opening balance adjusts the ledger without creating a transaction.',
     fields: (context, setLocal) => [
       AnimatedBuilder(
         animation: Listenable.merge([name, opening]),

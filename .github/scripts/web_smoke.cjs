@@ -42,7 +42,7 @@ const binary = chromiumModule.default || chromiumModule;
       for (const quality of [50, 35, 20, 10]) {
         const jpg = await page.screenshot({type: 'jpeg', quality, animations: 'disabled'});
         fs.writeFileSync(name, jpg);
-        if (jpg.length < 35000) break;
+        if (jpg.length < 18000) break;
       }
     }
     async function assertDarkPalette() {

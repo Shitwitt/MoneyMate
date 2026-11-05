@@ -32,9 +32,8 @@ class SafeToSpendCard extends ConsumerWidget {
               Expanded(
                 child: Text(
                   'Safe to spend',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(color: ink),
+                  style: Theme.of(context).textTheme.titleSmall
+                      ?.copyWith(color: ink),
                 ),
               ),
               IconButton(
@@ -51,20 +50,16 @@ class SafeToSpendCard extends ConsumerWidget {
           AmountText(
             summary.available,
             animate: true,
-            style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              color: ink,
-              fontSize: 43,
-              letterSpacing: -1.5,
-            ),
+            style: Theme.of(context).textTheme.displayLarge
+                ?.copyWith(color: ink, fontSize: 43, letterSpacing: -1.5),
           ),
           const SizedBox(height: 8),
           Text(
             summary.complete
                 ? 'After planned outgoings · Estimate'
                 : 'Review old recurring entries for a reliable estimate.',
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: secondary),
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: secondary),
           ),
           const SizedBox(height: 24),
           Container(
@@ -84,16 +79,14 @@ class SafeToSpendCard extends ConsumerWidget {
                     Expanded(
                       child: Text(
                         'Total net worth',
-                        style: Theme.of(
-                          context,
-                        ).textTheme.bodySmall?.copyWith(color: secondary),
+                        style: Theme.of(context).textTheme.bodySmall
+                            ?.copyWith(color: secondary),
                       ),
                     ),
                     AmountText(
                       ledger.netWorth,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleSmall?.copyWith(color: ink),
+                      style: Theme.of(context).textTheme.titleSmall
+                          ?.copyWith(color: ink),
                     ),
                     const SizedBox(width: 8),
                     Icon(
@@ -227,9 +220,8 @@ class HomeQuickActions extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               label,
-              style: Theme.of(
-                context,
-              ).textTheme.labelLarge?.copyWith(fontSize: 12),
+              style: Theme.of(context).textTheme.labelLarge
+                  ?.copyWith(fontSize: 12),
             ),
           ],
         ),

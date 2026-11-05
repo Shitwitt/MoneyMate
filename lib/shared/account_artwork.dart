@@ -178,11 +178,15 @@ class AccountArtwork extends StatelessWidget {
                         const SizedBox(width: 10),
                         Icon(Icons.wifi_rounded, color: muted, size: 22),
                       ] else
-                        Text(
-                          cash ? 'A little in hand.' : 'Room for tomorrow.',
-                          style: AppTextStyles.display(25, ink),
+                        Expanded(
+                          child: Text(
+                            cash ? 'A little in hand.' : 'Room for tomorrow.',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.display(25, ink),
+                          ),
                         ),
-                      const Spacer(),
+                      if (!cash && !bank) const Spacer(),
                     ],
                   ),
                   const SizedBox(height: 18),

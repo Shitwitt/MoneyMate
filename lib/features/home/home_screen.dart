@@ -270,7 +270,7 @@ class HomeScreen extends ConsumerWidget {
       case 'accounts':
         return SizedBox(
           height:
-              276 * MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.6),
+              340 * MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.6),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount:
@@ -492,9 +492,9 @@ class HomeScreen extends ConsumerWidget {
                                     children: [
                                       Text(
                                         template.name,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.labelLarge,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelLarge,
                                       ),
                                       const SizedBox(height: 6),
                                       AmountText(
@@ -502,9 +502,9 @@ class HomeScreen extends ConsumerWidget {
                                         currency: ledger
                                             .account(template.accountId)
                                             .currency,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.labelSmall,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelSmall,
                                       ),
                                     ],
                                   ),
@@ -597,9 +597,8 @@ class HomeScreen extends ConsumerWidget {
                 const SizedBox(height: 14),
                 Text(
                   'Dream a little bigger.',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(context).textTheme.headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 8),
                 const Text(

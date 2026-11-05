@@ -156,9 +156,8 @@ class _BootstrapState extends State<Bootstrap> {
                                 await FileService.save(
                                   Uint8List.fromList(
                                     utf8.encode(
-                                      Hive.box<String>(
-                                            'paisaclone_v1',
-                                          ).get('state') ??
+                                      Hive.box<String>('paisaclone_v1')
+                                              .get('state') ??
                                           '',
                                     ),
                                   ),

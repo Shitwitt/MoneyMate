@@ -153,9 +153,9 @@ class _FinancialPulsePanelState extends State<FinancialPulsePanel> {
                   builder: (context, progress, _) => SizedBox(
                     height:
                         320 *
-                        MediaQuery.textScalerOf(
-                          context,
-                        ).scale(1).clamp(1.0, 1.4),
+                        MediaQuery.textScalerOf(context)
+                            .scale(1)
+                            .clamp(1.0, 1.4),
                     width: double.infinity,
                     child: CustomPaint(
                       painter: _RadarPainter(

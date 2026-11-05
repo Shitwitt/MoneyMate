@@ -29,18 +29,15 @@ void main() {
       }
     },
   );
-  test(
-    'Pulse does not invent missing income, goals or a score from an empty ledger',
-    () {
-      final data = fixture().copyWith(accounts: []);
-      final pulse = FinancialPulse.fromLedger(
-        Ledger(data, const AppSettings()),
-        DateTime(2026, 1, 20),
-      );
-      expect(pulse.score, isNull);
-      expect(pulse.metrics.every((m) => m.value == null), true);
-    },
-  );
+  test('Pulse does not invent missing income, goals or a score from an empty ledger', () {
+    final data = fixture().copyWith(accounts: []);
+    final pulse = FinancialPulse.fromLedger(
+      Ledger(data, const AppSettings()),
+      DateTime(2026, 1, 20),
+    );
+    expect(pulse.score, isNull);
+    expect(pulse.metrics.every((m) => m.value == null), true);
+  });
   test(
     'Pulse ignores future transactions and explains record-derived values',
     () {

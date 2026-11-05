@@ -177,9 +177,8 @@ class EmptyState extends StatelessWidget {
           width: 88,
           height: 88,
           decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.primaryContainer.withValues(alpha: .45),
+            color: Theme.of(context).colorScheme.primaryContainer
+                .withValues(alpha: .45),
             borderRadius: BorderRadius.circular(28),
           ),
           child: Icon(
@@ -309,9 +308,8 @@ class StatCard extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             DefaultTextStyle(
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w700),
+              style: Theme.of(context).textTheme.headlineSmall!
+                  .copyWith(fontWeight: FontWeight.w700),
               child: value,
             ),
             if (caption != null) ...[

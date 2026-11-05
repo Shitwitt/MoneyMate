@@ -5,6 +5,7 @@ import 'package:paisaclone/core/data/providers.dart';
 import 'package:paisaclone/core/data/seed.dart';
 import 'package:paisaclone/core/models/models.dart';
 import 'package:paisaclone/main.dart';
+import 'package:paisaclone/shared/luxury_components.dart';
 
 import 'support.dart';
 
@@ -45,7 +46,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(find.byType(GlassNavigationDock), findsOneWidget);
       expect(find.text('Total net worth'), findsOneWidget);
       await tester.tap(find.text('Activity').last);
       await tester.pumpAndSettle();
@@ -108,7 +109,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Test').first);
+    await tester.tap(find.byTooltip('Profiles'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Manage your private spaces'));
     await tester.pumpAndSettle();

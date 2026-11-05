@@ -194,11 +194,16 @@ class LuxuryWordmark extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Text(
-            'Tink',
-            style: AppTextStyles.display(
-              size + 5,
-              Theme.of(context).colorScheme.onSurface,
+          Flexible(
+            child: Text(
+              'Tink',
+              textScaler: TextScaler.noScaling,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.display(
+                size + 5,
+                Theme.of(context).colorScheme.onSurface,
+              ),
             ),
           ),
         ],

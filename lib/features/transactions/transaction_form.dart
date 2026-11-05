@@ -745,9 +745,8 @@ class _Calculator extends StatelessWidget {
                     }
                   } else if (key == '=') {
                     try {
-                      controller.text = evaluateAmount(
-                        controller.text,
-                      ).toString();
+                      controller.text = evaluateAmount(controller.text)
+                          .toString();
                     } catch (_) {
                       toast(context, 'Finish the expression first');
                     }

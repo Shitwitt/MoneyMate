@@ -67,8 +67,7 @@ class _CashflowCompositionState extends State<CashflowComposition> {
         const SizedBox(height: 16),
         LayoutBuilder(
           builder: (context, box) => Semantics(
-            label:
-                'Linked cashflow comparison. Select a month below for exact figures.',
+            label: 'Linked cashflow comparison. Select a month below for exact figures.',
             child: ExcludeSemantics(
               child: GestureDetector(
                 onTapUp: (details) => setState(

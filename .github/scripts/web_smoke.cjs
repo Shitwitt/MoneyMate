@@ -112,6 +112,7 @@ const binary = chromiumModule.default || chromiumModule;
     await page.mouse.wheel(0, 1250);
     await page.waitForTimeout(850);
     await capture('web-flow.jpg');
+    await page.mouse.move(210, 590);
     await page.mouse.wheel(0, 1000);
     await page.waitForTimeout(850);
     await capture('web-allocation.jpg');

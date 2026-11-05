@@ -313,7 +313,13 @@ class StatCard extends StatelessWidget {
             DefaultTextStyle(
               style: Theme.of(context).textTheme.headlineSmall!
                   .copyWith(fontWeight: FontWeight.w700),
-              child: value,
+              child: value is AmountText
+                  ? FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: value,
+                    )
+                  : value,
             ),
             if (caption != null) ...[
               const SizedBox(height: 6),

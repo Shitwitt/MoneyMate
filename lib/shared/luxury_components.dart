@@ -250,7 +250,7 @@ class GlassNavigationDock extends StatelessWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: AppTextStyles.data(
-          12,
+          active ? 12 : 11,
           active ? FontWeight.w700 : FontWeight.w500,
           ink,
         ),
@@ -258,7 +258,7 @@ class GlassNavigationDock extends StatelessWidget {
       final content = SizedBox(
         height: more ? 68 : 58,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 2),
           child: horizontal && showLabels
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -287,6 +287,7 @@ class GlassNavigationDock extends StatelessWidget {
             message: labels[id]!,
             child: AnimatedScale(
               scale: active ? 1 : .96,
+              curve: Curves.easeOutCubic,
               duration: MediaQuery.disableAnimationsOf(context)
                   ? Duration.zero
                   : const Duration(milliseconds: 160),

@@ -324,9 +324,14 @@ class AccountOverviewCard extends StatelessWidget {
                       Row(
                         children: [
                           Icon(
-                            income ? Icons.south_west_rounded : Icons.north_east_rounded,
+                            income
+                                ? Icons.south_west_rounded
+                                : Icons.north_east_rounded,
                             size: 17,
-                            color: AppColors.semantic(context, income ? 'income' : 'expense'),
+                            color: AppColors.semantic(
+                              context,
+                              income ? 'income' : 'expense',
+                            ),
                           ),
                           const SizedBox(width: 7),
                           Expanded(

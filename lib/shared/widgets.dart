@@ -168,7 +168,8 @@ class EmptyState extends StatelessWidget {
     this.onAction,
   });
   @override
-  Widget build(BuildContext context) => Padding(
+  Widget build(BuildContext context) => SingleChildScrollView(
+    primary: false,
     padding: const EdgeInsets.all(28),
     child: Column(
       mainAxisSize: MainAxisSize.min,

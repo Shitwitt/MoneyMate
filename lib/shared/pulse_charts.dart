@@ -107,9 +107,13 @@ class _FinancialPulsePanelState extends State<FinancialPulsePanel> {
                     ),
                     child: Align(
                       alignment: const Alignment(0, .65),
-                      child: Text(
-                        pulse.score == null ? '—' : '${(value * 100).round()}',
-                        style: AppTextStyles.display(64, scheme.onSurface),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          pulse.score == null ? '—' : '${(value * 100).round()}',
+                          maxLines: 1,
+                          style: AppTextStyles.display(64, scheme.onSurface),
+                        ),
                       ),
                     ),
                   ),

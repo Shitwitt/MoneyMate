@@ -1,28 +1,32 @@
-# Tink 1.1 design system
+# Tink 1.2 design system
 
 ## Direction and provenance
-A quiet, original Indian-fintech interface: neutral canvas, large tabular amounts,
-rounded white cards, and restrained violet emphasis. Stable Money and the supplied
+An original editorial/glass finance interface: neutral canvas, large serif tabular
+amounts, engraved bank/cash/card artwork and a luminous warm navigation pill. Stable Money and the supplied
 screens are references for clarity and polish, not copied products or promised
 banking capabilities. The head/yellow-spark icon is an original scalable redraw
 of the user's first reference. Six introductory compositions are original Flutter
 vector drawings; there are no photos, realistic 3D characters or proprietary bank
-logos. Yellow is confined to the app mark.
+logos. The yellow spark stays in the mark; data visualizations may also use labelled warm/lime accents. See [the reference interpretation and chart rules](LUXURY_REDESIGN.md).
 
 ## Source of truth
 
 | File | Responsibility |
 |---|---|
 | `lib/core/theme/app_colors.dart` | Brand, neutral, semantic and chart palettes |
-| `lib/core/theme/app_text_styles.dart` | Poppins UI, Inter data, tabular figures and locale fallbacks |
+| `lib/core/theme/app_text_styles.dart` | Instrument Serif display, Source Serif 4 UI/data, tabular figures and locale fallbacks |
 | `lib/core/theme/app_spacing.dart` | 4/8/12/16/20/24/32/40/48 spacing, 56 buttons, 72 navigation |
-| `lib/core/theme/app_radius.dart` | 12 small, 16 buttons/inputs, 24 cards, 32 sheets |
+| `lib/core/theme/app_radius.dart` | 12 small, 16 buttons/inputs, 28 cards, 32 sheets |
 | `lib/core/theme/theme.dart` | Light/dark/Midnight Material 3 themes and route motion |
 | `lib/core/theme/app_theme.dart` | Compatibility entry point for existing screen callers |
 | `lib/shared/tink_components.dart` | Buttons, cards, icons, progress, chart frame, badge, mark and finite motion |
 | `lib/shared/widgets.dart` | AmountText, SectionHeader, StatCard, EmptyState, FeaturePage, skeleton and exports |
 | `lib/features/transactions/transaction_tile.dart` | Adaptive semantic transaction row and receipt/edit actions |
-| `lib/shared/charts.dart` | Accessible trends and muted-violet category donut |
+| `lib/shared/luxury_components.dart` | Foil shine, editorial wordmark, glass configurable navigation |
+| `lib/shared/account_artwork.dart` | Seven account types, six original bank/card/cash finishes |
+| `lib/shared/pulse_charts.dart` | Transparent pulse gauge/radar and 13-week record calendar |
+| `lib/shared/cashflow_composition.dart` | Linked cumulative-net and monthly-expense panels |
+| `lib/shared/charts.dart` | Accessible trends and selectable petal/segmented category allocations |
 
 `FeaturePage`, global component themes, shared money/transaction components and
 cards apply the system to every existing finance/settings screen, rather than
@@ -70,13 +74,11 @@ of every platform state. Continue the real-device accessibility checklist.
 
 ## Typography
 
-- Poppins: display 36/32, page 28, H1 24, H2 20, H3 18, large body 16.
-- Inter: dense body 14, labels 13, captions 12, uppercase metadata 11 / 0.5 tracking.
-- Monetary values explicitly use Inter and tabular figures. Currency precision,
-  Indian/international grouping and amount hiding still come from existing settings.
-- Comfortable 1.35–1.45 line heights; no serif, novelty or handwriting fonts.
-- Bundled static 400/500/600/700 Poppins and Inter. Google Fonts runtime fetching
-  is disabled. Eight Noto fallback families preserve the 13 starter locales/RTL.
+- Instrument Serif Regular: large editorial display and Tink branding, an original licensed interpretation of the supplied serif reference, not a claim of exact font identification.
+- Source Serif 4 400/500/600/700: every body, caption, control and data style. Display 36/32, page 28, H1 24, H2 20, H3 18, body 16/14, labels 13, captions 12, metadata 11.
+- Monetary values explicitly use Source Serif 4 with tabular figures. Currency precision, Indian/international grouping and amount hiding still come from existing settings.
+- Comfortable 1.35–1.45 body line heights; high-contrast display serif uses tighter title line heights. The wordmark is a fixed-size graphic-like brand label with full semantics, not financial content.
+- Fonts are licensed local assets; Google Fonts runtime fetching is disabled. Eight Noto fallback families preserve the 13 starter locales/RTL. Old Poppins/Inter assets and CanvasKit's local Inter compatibility alias remain for compatibility, not as the main UI type. Native launcher widgets use platform serif fonts.
 - Existing starter translations cover shell/actions; many feature-specific and
   introductory sentences remain English. This is not full translated-copy coverage.
 
@@ -93,14 +95,14 @@ transitions and 380–700ms chart/amount/progress entrances. Splash fades/scales
 0.95 → 1; intro illustration motion is a small one-shot float. Home cards enter
 subtly; money counts up. The entry sheet slides, its Save state briefly checks,
 and selection changes animate. Budget overrun gets one outline pulse. Goal rings,
-bars, donut sweep, left-to-right line reveal, heatmap entrances and the Pro badge
-have restrained animations. Reduced-motion preferences remove primary entrances;
+gradient bars/rings, petal reveal, radar/gauge reveals, comparative cashflow, calendar entrances and the Pro badge
+have restrained animations. Glass pills transition over 160ms, theme shifts blend over 480ms and foil sweeps finish after 1.1 seconds. Reduced-motion preferences remove primary entrances;
 forms never depend on waiting for looping animation. Preserve the shared editor's
 `route.completed` await before caller-owned controller disposal.
 
 ## Compatibility and scope
 
-Version is `1.1.0+2`; Android minimum remains 24. Internal package/database/archive/
+Version is `1.2.0+3`; Android minimum remains 24. Internal package/database/archive/
 URI IDs intentionally stay compatible with the original app. No financial API,
 banking connection, investment order, money transfer, card issuance or real
 purchase is added by the design references. All financial actions are local

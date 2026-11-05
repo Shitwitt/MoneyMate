@@ -2,6 +2,7 @@
 """Publish an already-verified APK with retryable, idempotent release uploads."""
 import hashlib
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -26,9 +27,15 @@ with apk.open('rb') as file:
         hash_value.update(block)
 Path(f'{apk}.sha256').write_text(f'{hash_value.hexdigest()}  {apk.name}\n')
 subprocess.run(['git', 'archive', '--format=zip', '--prefix=Tink/', 'HEAD', '-o', 'Tink-source.zip'], check=True)
-notes = ('Tink 1.2.0 build 3. Optimized, verified Android 7/API 24+ APK with ARM64, ARMv7 and x86-64 payloads and no Internet permission. '
+version = re.search(r'^version:\s*([^+\s]+)\+(\d+)', Path('pubspec.yaml').read_text(), re.M)
+if not version:
+    raise SystemExit('Missing application version in pubspec.yaml')
+notes = (f'Tink {version[1]} build {version[2]}. Coffee/peach reference batch 1. '
+         'Optimized, verified Android 7/API 24+ APK with ARM64, ARMv7 and x86-64 payloads and no Internet permission. '
          'Test/debug-key signed unless a persistent keystore was configured. Export and verify a backup before uninstalling an older differently signed build. '
-         'Source and public certificate/checksum metadata included. See README for device QA and platform limits.')
+         'Source and public certificate/checksum metadata included. See README for device QA, translation scope, design differences and platform limits.')
+Path('Tink-source.zip.sha256').write_text(hashlib.sha256(Path('Tink-source.zip').read_bytes()).hexdigest() + '  Tink-source.zip\n')
+
 
 
 def run(args):
@@ -42,13 +49,13 @@ def run(args):
 for attempt in range(5):
     if run(['gh', 'release', 'view', tag]):
         break
-    if run(['gh', 'release', 'create', tag, '--target', target, '--prerelease', '--title', 'Tink 1.2 — editorial luxury redesign', '--notes', notes]):
+    if run(['gh', 'release', 'create', tag, '--target', target, '--prerelease', '--title', f'Tink {version[1]} — reference batch 1', '--notes', notes]):
         break
     time.sleep(8 * (attempt + 1))
 else:
     raise SystemExit('Release creation failed after retries; diagnostics are above')
 
-assets = [str(apk), f'{apk}.sha256', 'Tink-source.zip', str(metadata)]
+assets = [str(apk), f'{apk}.sha256', 'Tink-source.zip', 'Tink-source.zip.sha256', str(metadata)]
 for attempt in range(5):
     if run(['gh', 'release', 'upload', tag, *assets, '--clobber']):
         print(f'::notice title=Tink download ready::Published {tag}; APK SHA-256 {hash_value.hexdigest()}')

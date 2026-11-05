@@ -142,7 +142,7 @@ Future<void> editRecurring(
       formSelect(
         'Reminder',
         '$reminder',
-        ['0', '1', '3', '7', '14', '30'],
+        List.generate(31, (index) => '$index'),
         (value) => setLocal(() => reminder = int.parse(value)),
         display: (value) =>
             value == '0' ? 'On the due date' : '$value days before',

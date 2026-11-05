@@ -1243,7 +1243,8 @@ class AppSettings {
   factory AppSettings.fromJson(Json json) => AppSettings(
     theme: readString(json['theme'], 'dark'),
     accent:
-        [0xff557c36, 0xff916cff].contains(readInt(json['accent'], 0xffffb59a))
+        readInt(json['uiRevision']) < 2 &&
+            [0xff557c36, 0xff916cff].contains(readInt(json['accent'], 0xffffb59a))
         ? 0xffffb59a
         : readInt(json['accent'], 0xffffb59a),
     dynamicColors: readInt(json['accent'], 0xff916cff) == 0xff557c36

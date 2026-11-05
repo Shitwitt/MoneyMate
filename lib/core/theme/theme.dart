@@ -15,13 +15,8 @@ ThemeData tinkTheme(
 }) {
   GoogleFonts.config.allowRuntimeFetching = false;
   final dark = brightness == Brightness.dark;
-  final requested = [0xff557c36, 0xff916cff].contains(settings.accent)
-      ? AppColors.primary
-      : Color(settings.accent);
-  final accent =
-      settings.dynamicColors &&
-          ![0xff557c36, 0xff916cff].contains(settings.accent) &&
-          dynamicScheme != null
+  final requested = Color(settings.accent);
+  final accent = settings.dynamicColors && dynamicScheme != null
       ? dynamicScheme.primary
       : requested;
   final onAccent = 1.05 / (accent.computeLuminance() + .05) >= 4.5

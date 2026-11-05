@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 const recurringHelpSections = [
   (
     Icons.repeat_rounded,

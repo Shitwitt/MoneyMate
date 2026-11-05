@@ -9,6 +9,7 @@ import '../../core/data/providers.dart';
 import '../../core/data/recurring_schedule.dart';
 import '../../core/utils/constants.dart';
 import '../../core/utils/dates.dart';
+import '../../core/utils/money.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../shared/actions.dart';
 import '../../shared/daily_spend_chart.dart';
@@ -394,9 +395,8 @@ class _DashboardTile extends StatelessWidget {
     final valueInk = AppColors.dark(context)
         ? Theme.of(context).colorScheme.primary
         : AppColors.primaryInk;
-    final small = Theme.of(
-      context,
-    ).textTheme.bodySmall?.copyWith(color: ink.withValues(alpha: .80));
+    final small = Theme.of(context).textTheme.bodySmall
+        ?.copyWith(color: ink.withValues(alpha: .80));
     Widget money(int value, {double size = 27}) => FittedBox(
       fit: BoxFit.scaleDown,
       alignment: AlignmentDirectional.centerStart,
@@ -990,9 +990,8 @@ class _SpendingComparison extends StatelessWidget {
           : change == null
           ? 'No previous period amount'
           : '${change >= 0 ? '↗' : '↘'} ${change.abs().toStringAsFixed(1)}% vs previous period',
-      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        color: AppColors.semantic(context, 'expense'),
-      ),
+      style: Theme.of(context).textTheme.bodySmall
+          ?.copyWith(color: AppColors.semantic(context, 'expense')),
     );
   }
 }
@@ -1064,9 +1063,8 @@ class _BudgetPeekState extends State<_BudgetPeek> {
                 margin: const EdgeInsets.symmetric(horizontal: 3),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: i == page ? 1 : .25),
+                  color: Theme.of(context).colorScheme.primary
+                      .withValues(alpha: i == page ? 1 : .25),
                 ),
               ),
           ],

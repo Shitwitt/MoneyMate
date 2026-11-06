@@ -5,7 +5,14 @@ module.exports = async function referenceBatchThree({page, nav, goBack, capture,
   const shot = async name => {await pause(); await capture('web-batch3-' + name + '.jpg');};
   async function fill(label, text) {
     const field = page.getByRole('textbox', {name: label}).first();
-    await field.click(); await page.keyboard.press('ControlOrMeta+A'); await page.keyboard.type(text); await page.keyboard.press('Tab');
+    // Flutter replaces its unfocused semantics input when editing begins. Wait
+    // for that real focus handshake before selection, then type at a human rate.
+    await field.click(); await pause();
+    await page.keyboard.press('ControlOrMeta+A'); await page.keyboard.press('Backspace');
+    await page.keyboard.type(text, {delay: 30});
+    const actual = await field.inputValue();
+    if (actual !== text) throw new Error('Demo editor did not receive the exact draft: ' + label + ' -> ' + actual);
+    await page.keyboard.press('Tab'); await pause();
   }
   await goBack(); // Recurring -> Home, with All tools still expanded.
   await nav('Loans');

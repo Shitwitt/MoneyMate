@@ -15,8 +15,7 @@ import '../transactions/transactions_screen.dart';
 Future<void> showCategoriesHelp(BuildContext context) => showHowItWorks(
   context,
   title: 'How Categories Work',
-  introduction:
-      'Categories describe what a local transaction was for. They organize your records; they do not move money.',
+  introduction: 'Categories describe what a local transaction was for. They organize your records; they do not move money.',
   sections: const [
     (
       Icons.category_outlined,
@@ -274,9 +273,9 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                                       children: [
                                         Text(
                                           c.name,
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.titleMedium,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium,
                                         ),
                                         const SizedBox(height: 6),
                                         Text('$count transactions'),
@@ -285,9 +284,9 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                                             c.parentId.isNotEmpty)
                                           Text(
                                             categoryPath(ledger.data, c.id),
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.bodySmall,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall,
                                           ),
                                       ],
                                     ),

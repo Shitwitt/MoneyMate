@@ -37,8 +37,7 @@ class _CategoryDetailScreenState extends ConsumerState<CategoryDetailScreen> {
         title: 'Category removed',
         child: EmptyState(
           title: 'Nothing to display',
-          message:
-              'Return to your categories. Existing record protection remains in place.',
+          message: 'Return to your categories. Existing record protection remains in place.',
         ),
       );
     final ids = categorySubtree(ledger.data, category.id);

@@ -91,9 +91,10 @@ class _AnalyticsChartState extends State<AnalyticsChart> {
       widget.color ?? Theme.of(context).colorScheme.primary,
       Theme.of(context).colorScheme.surface,
     );
-    final scale = MediaQuery.textScalerOf(
-      context,
-    ).scale(1).clamp(1.0, 1.6).toDouble();
+    final scale = MediaQuery.textScalerOf(context)
+        .scale(1)
+        .clamp(1.0, 1.6)
+        .toDouble();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -289,7 +290,7 @@ class _AnalyticsPainter extends CustomPainter {
       final dx = (at.dx - (center ? painter.width / 2 : painter.width)).clamp(
         0.0,
         math.max(0.0, size.width - painter.width),
-      );
+      ).toDouble();
       painter.paint(canvas, Offset(dx, at.dy));
     }
 

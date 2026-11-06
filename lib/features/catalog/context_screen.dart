@@ -15,35 +15,35 @@ import '../transactions/transaction_form.dart';
 import 'catalog_screen.dart';
 
 String contextTitle(String kind) => kind == 'person' ? 'People' : 'Places';
-Future<void> showContextHelp(
-  BuildContext context,
-  String kind,
-) => showHowItWorks(
-  context,
-  title: 'How ${contextTitle(kind)} Work',
-  introduction: kind == 'person'
-      ? 'People link local names to income and expenses. No contacts are uploaded or payment requests sent.'
-      : 'Places tag where you spend and earn. No GPS tracking or location service is used.',
-  sections: [
-    (
-      kind == 'person' ? Icons.person_add_alt : Icons.add_location_alt_outlined,
-      kind == 'person' ? 'Linking' : 'Location Tagging',
-      kind == 'person'
-          ? 'Choose one or several people on a transaction. A person can also be linked to a loan, without turning ordinary tagged records into repayments.'
-          : 'Choose a place on a transaction, or add an address/note for your own reference.',
-    ),
-    (
-      Icons.insights_outlined,
-      'Insights',
-      'Tap a name for signed net, income, expense, counts and grouped history. Transfers count as records but contribute zero to net. Saved schedules are included in book totals; overlapping people must not be summed as a consolidated total.',
-    ),
-    (
-      Icons.sort,
-      'Organization',
-      'Switch list/grid, choose financial-month or overall totals and sort by name, amount or record count. Edit icons, colors and names. Deleting a tag removes only its links, never the transactions.',
-    ),
-  ],
-);
+Future<void> showContextHelp(BuildContext context, String kind) =>
+    showHowItWorks(
+      context,
+      title: 'How ${contextTitle(kind)} Work',
+      introduction: kind == 'person'
+          ? 'People link local names to income and expenses. No contacts are uploaded or payment requests sent.'
+          : 'Places tag where you spend and earn. No GPS tracking or location service is used.',
+      sections: [
+        (
+          kind == 'person'
+              ? Icons.person_add_alt
+              : Icons.add_location_alt_outlined,
+          kind == 'person' ? 'Linking' : 'Location Tagging',
+          kind == 'person'
+              ? 'Choose one or several people on a transaction. A person can also be linked to a loan, without turning ordinary tagged records into repayments.'
+              : 'Choose a place on a transaction, or add an address/note for your own reference.',
+        ),
+        (
+          Icons.insights_outlined,
+          'Insights',
+          'Tap a name for signed net, income, expense, counts and grouped history. Transfers count as records but contribute zero to net. Saved schedules are included in book totals; overlapping people must not be summed as a consolidated total.',
+        ),
+        (
+          Icons.sort,
+          'Organization',
+          'Switch list/grid, choose financial-month or overall totals and sort by name, amount or record count. Edit icons, colors and names. Deleting a tag removes only its links, never the transactions.',
+        ),
+      ],
+    );
 
 class ContextScreen extends ConsumerStatefulWidget {
   final String kind;
@@ -124,8 +124,7 @@ class _ContextScreenState extends ConsumerState<ContextScreen> {
               title: kind == 'person'
                   ? 'People, not payment accounts'
                   : 'Where your story happens',
-              message:
-                  'Add local names, icons and notes. No tracking or bank connection.',
+              message: 'Add local names, icons and notes. No tracking or bank connection.',
               action: 'Add $kind',
               onAction: () => editCatalogEntity(context, ref, kind),
             )

@@ -374,10 +374,8 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           const SizedBox(height: 8),
           AmountText(
             amount,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(color: color, fontWeight: FontWeight.w700),
           ),
         ],
       ),

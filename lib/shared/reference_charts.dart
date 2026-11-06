@@ -148,9 +148,8 @@ class _ReferenceLineChartState extends State<ReferenceLineChart> {
                       low,
                       high,
                       progress,
-                      Theme.of(
-                        context,
-                      ).colorScheme.outlineVariant.withValues(alpha: .45),
+                      Theme.of(context).colorScheme.outlineVariant
+                          .withValues(alpha: .45),
                       Theme.of(context).textTheme.labelSmall!,
                       widget.start,
                       amount,
@@ -464,14 +463,19 @@ class _ReferenceDonutState extends State<ReferenceDonut> {
                   height: 270,
                   width: double.infinity,
                   child: CustomPaint(
-                    painter:
-                        _DonutPainter(widget.groups, total, progress, index, [
-                          for (final group in widget.groups)
-                            chartInk(
-                              Color(group.color),
-                              Theme.of(context).colorScheme.surface,
-                            ),
-                        ]),
+                    painter: _DonutPainter(
+                      widget.groups,
+                      total,
+                      progress,
+                      index,
+                      [
+                        for (final group in widget.groups)
+                          chartInk(
+                            Color(group.color),
+                            Theme.of(context).colorScheme.surface,
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),

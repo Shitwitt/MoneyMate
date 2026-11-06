@@ -59,7 +59,18 @@ Tink/
 The current branch contains **reference batch 2**: the complete lower Home feed,
 account carousel, month reports/insights, budget overview/details and functional
 budget/recurring help. [All 20 references and exact data rules](docs/REFERENCE_BATCH_02.md).
-Verification is in progress; check that page/Actions for the actual result.
+**All 20 references are implemented and the source/web verification has passed.**
+[Verified run 42171659295](https://github.com/Shitwitt/MoneyMate/actions/runs/42171659295)
+at application revision `133f36c` passed strict formatting, localization, analysis,
+the full Flutter suite, DST/calendar and Python checks, plus the real Chromium
+walkthrough, offline reload and zero external runtime requests. All five financial
+report links and both chart modes were exercised; 28 fictional-data review frames
+were checked. This is source/browser evidence, not Android-device certification.
+
+**[Download this verified Batch 2 application source](https://github.com/Shitwitt/MoneyMate/archive/133f36c8b72bc0039f6051bd3d7483d1634340b0.zip)**
+(or download `Tink-source` from the run's Artifacts; GitHub sign-in is required for
+Actions artifacts). The source-only handoff ZIP can include later documentation
+updates; its ZIP comment identifies the exact source commit. No APK is inside it.
 
 **No new APK is compiled or published until the user explicitly says “make APK.”**
 Both Android jobs are now opt-in; ordinary pushes only run source checks/web.

@@ -14,6 +14,20 @@ The current coffee/peach direction supersedes [the 1.2 editorial/glass design](L
 
 Default Home/Accounts/Reports/Search navigation, brown add FAB, profile/menu/grid controls, hideable balance/cashflow comparisons, ordered two-column tool cards, swipeable budgets, weekly bars, cumulative 30-day expenses, actual earned badge and usable templates. Narrow phones switch to one column above 130% text; saved order also applies to templates and last-earned cards. Missing historical comparison is labeled, not treated as a fabricated percentage. Future dates are not included in posted cash-flow charts; unknown future week days are outlined. The Home calendar also shows saved future records, and the trend has a separately labeled schedule-only upcoming series, not an inferred income/spending forecast.
 
+The New pill opens the saved Home-layout controls. Icon-only dock items still
+retain at least 48×48 logical-pixel touch areas. Calendar date cells are at least
+48px; all seven columns fit a regular 390px Home feed, with horizontal scrolling
+on narrower/large-text layouts instead of undersized targets. Brighter activity
+cells select black/white date ink against their actual composite background.
+
+Budget detail uses the same daily allowance as its overview card, recorded usage
+of the adjusted limit/target, persisted Show Budget and real category/recent
+activity. Category percentages are relative to that adjusted budget, not to the
+sum of spending. The Edit action overrides the circular plus-FAB theme with a
+rounded rectangle; its opaque composite budget tint gets contextual black/white
+ink. Both its shape and minimum 4.5:1 solid foreground/background contrast are
+regression-tested. This does not certify unrelated/custom UI pairs.
+
 Tour phone previews mount the real feature widgets in independent in-memory providers, using decorative fixed-scale light English previews and excluding their semantics. They cannot save into user data. Interactive real screens honor user locale, theme and text scale. No fake OS/status bar, copied screenshot backdrop, private chat-head photo or proprietary reference logo is bundled.
 
 ## Motion
@@ -44,6 +58,24 @@ WCAG relative-luminance formula, sRGB components. These are **specific solid col
 
 Prior violet/white 3.63:1 was a historical 1.2 large-text-only pair; it is not evidence for the new palette. Tinted feature cards use `readableTint` for an appropriate foreground. Screen-reader navigation, native pickers, complex scripts, actual devices and extreme display/font settings still need the documented QA checks.
 
+Chart strokes, rings and doughnut segments use hue-preserving `chartInk`
+resolution targeting at least 3:1 against the supplied theme surface, rather than
+making every light series the same dark ink. Legends follow the resolved colors;
+translucent fills and arbitrary surrounding surfaces are not separately certified.
+Regression cases cover light/dark/Just Black and a custom accent. Full-value
+selected-point summaries and paired increase/decrease values supplement tap
+inspection. Over-target progress is announced uncapped while painted tracks are
+bounded. The tablet rail's short scale transition also honors reduced motion.
+
 ## Safety and truthful numbers
 
 Charts and previews use ledger calculations or explicitly fictional isolated demo records. The record indicator is not a credit/health/AI score. Safe to spend remains a conservative planning estimate in Net worth details. Account finishes are bookkeeping artwork, not issued payment cards, bank connections, crypto custody or realistic bank logos. Data/backups are unencrypted; interface PIN is not database encryption.
+
+## Verification record
+
+[Batch 2 run 42171659295](https://github.com/Shitwitt/MoneyMate/actions/runs/42171659295)
+passed at application revision `133f36c`: strict SDK checks, complete Flutter and
+DST/calendar regressions, browser navigation/chart toggles, offline reload and no
+external runtime requests. The 28 fictional-data evidence frames were reviewed.
+Both Android jobs were skipped. Source/browser checks and measured pairs are not
+physical-device, proprietary-font/timing or blanket accessibility certification.

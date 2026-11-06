@@ -1,18 +1,44 @@
-# Tink 1.3 reference batch 1 — delivered build evidence
+# Tink 1.3 — Batch 2 source verification and Batch 1 binaries
 
 **Version 1.3.0+4**, branch `arena/9ea2a134-moneymate`, verified 6 November 2026.
 [The 1.2 build is historical](HISTORICAL_1_2_BUILD.md), not this delivery.
-Earlier 1.3 candidates are superseded by the final OFL-compliant font-name build below.
+The Batch 1 binaries below and the newer Batch 2 source are deliberately distinguished.
 
 > **Batch 2 build hold:** the current branch's Home/Accounts/Reports/Budgets UI is
 > newer than the Batch 1 packages documented below. No Batch 2 APK has been
 > compiled or published. Ordinary pushes skip both native jobs until the user
 > explicitly requests “make APK.” [Batch 2 scope and verification](REFERENCE_BATCH_02.md).
 
-## Downloads and identity
+## Batch 2 — current source/browser evidence, no new APK
+
+All 20 supplied Batch 2 references are implemented at application revision
+**`133f36c8b72bc0039f6051bd3d7483d1634340b0`**.
+[Run 42171659295](https://github.com/Shitwitt/MoneyMate/actions/runs/42171659295)
+is **SUCCESS**:
+
+| Check | Result |
+| --- | --- |
+| SDK formatting, localization, analyzer, full Flutter suite, DST/calendar, Python regressions, source archive | PASS — job `127740674393` |
+| Chromium walkthrough, both chart modes, all five financial reports, offline reload and zero external runtime requests | PASS — job `127741236539` |
+| 28 fictional-data review frames across both evidence jobs | Captured and reviewed; supplemental job `127742275702` PASS |
+| Release Android APK | SKIPPED — job `127741238094` |
+| Separate direct Gradle debug APK | SKIPPED — run `42171659300` |
+
+[Download the verified Batch 2 application source ZIP](https://github.com/Shitwitt/MoneyMate/archive/133f36c8b72bc0039f6051bd3d7483d1634340b0.zip)
+or the run's `Tink-source` artifact. The source-only handoff
+`Tink-Batch-2-source.zip` may add README/docs updates, with its exact commit in the
+ZIP comment and its checksum in the companion file. No application/build/test
+changes are made after the verified revision. It is not an APK and is not the
+older source ZIP paired with the Batch 1 release below.
+
+See [all 20 references, financial rules, coverage and limits](REFERENCE_BATCH_02.md).
+This verifies source and browser behavior, not Android installation/device QA or
+iOS. No new APK has been compiled or published during the hold.
+
+## Batch 1 — existing downloads and identity
 
 - **[Updated Android APK](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-Android-release.apk)**
-- **[Current runnable source ZIP](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-source.zip)** · [source SHA-256](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-source.zip.sha256)
+- **[Batch 1 runnable source ZIP](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-source.zip)** · [source SHA-256](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-source.zip.sha256)
 - [APK SHA-256 file](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-Android-release.apk.sha256) · [package/certificate metadata](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-APK-metadata.txt)
 
 | Property | Verified value |
@@ -30,12 +56,12 @@ Earlier 1.3 candidates are superseded by the final OFL-compliant font-name build
 | Internet permission | Absent, checked in the built APK |
 | Signing | Release-mode/AOT APK, **Android Debug test certificate**, not store signing |
 
-The source ZIP may include later README/docs/CI updates. Its ZIP comment identifies
+The Batch 1 source ZIP may include later README/docs/CI updates. Its ZIP comment identifies
 the exact source commit. The source-only publisher enforces no differences from
 the APK revision in `lib`, `android`, `ios`, `web`, `assets`, `test`, `scripts`,
 `pubspec.yaml`, `pubspec.lock` or `l10n.yaml`. It cannot replace/re-sign the APK.
 
-## Checks actually passed
+## Batch 1 — checks actually passed
 
 - [Full release workflow 42153449531](https://github.com/Shitwitt/MoneyMate/actions/runs/42153449531) — **all checks, browser and native jobs passed** on the same application revision. Includes strict non-mutating Dart format, gen-l10n, analyzer, complete Flutter unit/widget suite, calendar/DST reruns and Python packaging/retry/font tests. Flutter stable 3.47.9 is the pinned baseline.
 - [Native build, package/branding/version/ABI/permission/signature inspection and publication](https://github.com/Shitwitt/MoneyMate/actions/runs/42153449531/job/127682426870) — **passed**.

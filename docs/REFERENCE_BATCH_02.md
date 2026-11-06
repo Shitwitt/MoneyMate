@@ -93,6 +93,16 @@ photos are review inputs only; they are not bundled as app artwork or backdrops.
 - Show Budget persists the Home-carousel preference. Deleting a budget clears
   links but preserves transactions and recurrence history. Income targets cannot
   earn the expense-only balanced-budget badge just by remaining below target.
+- Budget details show recorded usage **of the adjusted allowance/target**, status,
+  remaining amount and signed rollover. The same calendar-day daily-allowance
+  summary is used on cards and details; it is not offered before a plan starts,
+  after the period ends, for income targets or when the expense allowance is
+  exceeded. Hide amounts also hides the daily monetary figure.
+- Category-detail percentages and waves divide matching category amounts by the
+  adjusted budget allowance/target, **not** by all spending. A lone category that
+  uses 6.4% of its budget is not shown as 100%. Percentages are unavailable without
+  a positive allowance. Over-target wave/ring semantics announce the uncapped
+  value even though the painted track stops at a full circle/bar.
 
 ## Preservation and adaptations
 
@@ -121,30 +131,64 @@ accessibility certification. Dynamic/custom tints still need contextual checks.
 Data and backups remain unencrypted; PIN/biometrics are interface locks, not
 storage encryption. Pro is a persisted local simulation, never a payment.
 
-## Verification status
+## Verification status — completed 6 November 2026
 
-- [Source check 42165662511](https://github.com/Shitwitt/MoneyMate/actions/runs/42165662511/job/127721439255)
-  at `3fe13ab`: **PASS** — strict, non-mutating SDK formatting; localization
-  generation; analyzer; the complete Flutter suite; calendar/DST reruns; Python
-  regressions; and runnable source packaging. Flutter stable 3.47.9 is pinned.
+Application revision: **`133f36c8b72bc0039f6051bd3d7483d1634340b0`**.
+[Full successful run 42171659295](https://github.com/Shitwitt/MoneyMate/actions/runs/42171659295).
+The separately published Batch 1 binaries remain unchanged.
+
+- [SDK/source job](https://github.com/Shitwitt/MoneyMate/actions/runs/42171659295/job/127740674393):
+  **PASS** — strict, non-mutating Dart formatting, localization generation,
+  analyzer, the complete Flutter suite, calendar/DST reruns, all 12 Python helper
+  regressions and runnable source packaging. Flutter stable 3.47.9 is pinned.
 - Coverage includes budget hierarchy/type/modes/period anchors and signed
   rollover, future starts, manual links without labels, account metadata,
   reporting exclusions/manual FX, retained filtered rollover history, read-only
-  recurring projection, 320px / 160% LTR and RTL traversal of all five financial
-  reports and primary screens, chart inspection/privacy, and persistence failure
-  rollback. The 14-step live tour and full Home traversal pass.
-- Calendar date targets retain at least 48px width/height and use contextual
-  black/white date ink. Additional regression coverage now verifies 48px
-  icon-only dock targets and the functional New → layout shortcut. Tracked rings
-  use finite thicker status-colored waves; income achievement is not treated as
-  expense overspending. The tablet navigation scale also honors reduced motion.
-- The first Batch 2 browser attempt compiled successfully and reported **no app
-  runtime/layout errors**, but its new inspector timed out on a Flutter heading
-  exposed as an ARIA group instead of DOM text. It is **not** a browser pass.
-  The driver now handles either representation, frames the section below the
-  toolbar, and asserts that account/budget swipes actually change visible pages.
-  First Home/grid renders were reviewed; the complete browser rerun is pending.
-- Full-size fictional-data captures remain artifacts. Twelve bounded review
-  thumbnails plus a failure thumbnail fit within the API annotation budget.
-- Both native jobs are **SKIPPED** under the build hold. **No Batch 2 APK, Android
-  device, signing, installation or iOS verification is claimed.**
+  recurring projections, 320px / 160% LTR and RTL traversal of all five financial
+  reports and primary screens, chart inspection/privacy/adjustable semantics,
+  and persistence failure rollback. The 14-step live tour and full Home traversal
+  pass.
+- Additional regressions cover the functional New → saved-layout controls,
+  48px icon-only navigation targets, included-account Home daily bins, contextual
+  chart contrast, daily allowance privacy/period bounds, category percentages
+  against the budget rather than spending, and the readable rounded-rectangular
+  Budget Edit control. Calendar cells remain at least 48px; all seven columns fit
+  the regular 390px Home feed. Narrow/large-text layouts can scroll horizontally
+  instead of shrinking date targets.
+- [Real Chromium/offline job](https://github.com/Shitwitt/MoneyMate/actions/runs/42171659295/job/127741236539):
+  **PASS** — editable isolated demo and exit, real 14-step setup, live previews,
+  long Home/heatmap/trend/tracked budgets/upcoming, asserted account/status
+  carousel swipes, monthly reports and both daily chart modes, all five financial
+  report destinations, budget overview/status/help/detail, recurring
+  calendar/help/history/process/archive, persisted dark appearance and offline
+  reload. **No captured app runtime/layout errors; zero external runtime requests.**
+- [Supplemental visual review job](https://github.com/Shitwitt/MoneyMate/actions/runs/42171659295/job/127742275702):
+  **PASS** — each expected full capture and thumbnail must exist. **28 distinct
+  fictional-data review frames** cover nine Home positions, two account states,
+  report overview/bar/line/doughnut and all five report destinations, budget
+  overview/status/detail/breakdown/help, and recurring-help introduction/end.
+  All were reviewed: 22 are byte-identical to the already-reviewed `d32a62d`
+  frames; the six changed final frames were reopened, including the corrected
+  Budget Edit button. Full-size captures are in `Tink-Web-screenshots`; bounded
+  thumbnails use separate per-job annotation budgets, not screenshot backdrops
+  committed to the app.
+- Native release job `127741238094` and the separate [direct-Gradle debug run
+  42171659300](https://github.com/Shitwitt/MoneyMate/actions/runs/42171659300):
+  **SKIPPED**, as required by the build hold. **No Batch 2 APK, Android device,
+  signing, installation or iOS verification is claimed.**
+
+## Source-only handoff
+
+The verified application is available as
+[an immutable GitHub source ZIP](https://github.com/Shitwitt/MoneyMate/archive/133f36c8b72bc0039f6051bd3d7483d1634340b0.zip)
+or the run's `Tink-source` artifact. The separately supplied
+`Tink-Batch-2-source.zip` is a `git archive` with the complete tracked project,
+including any final README/docs-only refresh; the archive comment names that
+exact commit. Its application/build/test files are unchanged from the successful
+revision above. The companion SHA-256 file verifies the ZIP's bytes. Generated
+APKs, private records, credentials and reference photos are not included.
+
+Run `flutter pub get`, `flutter gen-l10n`, `flutter analyze --no-fatal-infos` and
+`flutter test` with the pinned SDK. Web can be run with `flutter run -d chrome`.
+Android build and signing instructions remain in the README for **after** the
+explicit “make APK” request, not as authorization to build during this hold.

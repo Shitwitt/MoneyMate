@@ -93,8 +93,8 @@ const binary = chromiumModule.default || chromiumModule;
       // A painted sliver can still be partially behind the toolbar/demo exit.
       // Frame it with a real scroll, rather than clicking through that overlay.
       const box = await target.boundingBox();
-      if (box && box.y + box.height / 2 < 96) {
-        await scroll(box.y - 112);
+      if (box && box.y + box.height / 2 < 152) {
+        await scroll(box.y - 168);
         await page.waitForTimeout(250);
       }
       // Generated Flutter grouping nodes can overlap semantic buttons in the DOM.
@@ -116,7 +116,7 @@ const binary = chromiumModule.default || chromiumModule;
       const name = new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
       return page.getByText(label, {exact: false}).or(page.getByLabel(name)).first();
     }
-    async function revealText(label, top = 95) {
+    async function revealText(label, top = 152) {
       // Flutter can expose a heading as an aria-labeled group, not DOM text.
       const name = new RegExp('^' + label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:\\s|$)');
       const target = page.getByText(name).or(page.getByLabel(name)).first();
@@ -131,6 +131,9 @@ const binary = chromiumModule.default || chromiumModule;
     const touch = await context.newCDPSession(page);
     await touch.send('Emulation.setTouchEmulationEnabled', {enabled: true, maxTouchPoints: 1});
     async function swipeCarousel(y) {
+      // Coordinates are relative to the navigator, below the reserved demo band.
+      const exitBox = await page.getByRole('button', {name: 'Exit Demo', exact: true}).boundingBox();
+      y += exitBox ? exitBox.y + exitBox.height + 4 : 0;
       await touch.send('Input.dispatchTouchEvent', {type: 'touchStart', touchPoints: [{x: 325, y}]});
       for (let i = 1; i <= 10; i++) {
         await touch.send('Input.dispatchTouchEvent', {type: 'touchMove', touchPoints: [{x: 325 - i * 26, y}]});

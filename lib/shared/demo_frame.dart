@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 /// An app-owned demo control, not an imitation OS status bar or chat overlay.
+/// The navigator gets its own bounded region below this reserved band, so the
+/// exit control cannot cover an app bar, editor, sheet, or receipt preview.
 class DemoFrame extends StatelessWidget {
   final Widget child;
   final bool enabled;
@@ -16,36 +18,37 @@ class DemoFrame extends StatelessWidget {
     if (!enabled) return child;
     return ColoredBox(
       color: Theme.of(context).scaffoldBackgroundColor,
-      child: Stack(
+      child: Column(
         children: [
-          child,
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              bottom: false,
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(48, 48),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 10,
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
+                child: FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(48, 48),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
                     ),
-                    onPressed: onExit,
-                    icon: const Icon(Icons.close_rounded),
-                    label: const Text('Exit Demo'),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
+                  onPressed: onExit,
+                  icon: const Icon(Icons.close_rounded),
+                  label: const Text('Exit Demo'),
                 ),
               ),
+            ),
+          ),
+          Expanded(
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: child,
             ),
           ),
         ],

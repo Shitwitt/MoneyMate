@@ -296,5 +296,11 @@ jobs:
         with:
           name: Tink-Web-screenshots
           path: review-shots
-      - name: Require and expose every Batch 3 frame
-        run: python3 .github/scripts/reference_batch_03_evidence.py '${{ matrix.group }}'
+      - name: Require every Batch 3 frame
+        run: python3 .github/scripts/reference_batch_03_evidence.py '${{ matrix.group }}' --verify-only
+      - name: Reference frames 1–3
+        run: python3 .github/scripts/reference_batch_03_evidence.py '${{ matrix.group }}' 0
+      - name: Reference frames 4–6
+        run: python3 .github/scripts/reference_batch_03_evidence.py '${{ matrix.group }}' 1
+      - name: Reference frames 7–8
+        run: python3 .github/scripts/reference_batch_03_evidence.py '${{ matrix.group }}' 2

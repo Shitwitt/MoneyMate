@@ -31,7 +31,7 @@ module.exports = async function referenceBatchThree({page, nav, goBack, capture,
   await visibleText('Alex loan verified').waitFor();
   await goBack(); await goBack(); // Loan list -> Home.
 
-  await nav('Goals'); await shot('goals');
+  await nav('Savings goals'); await shot('goals');
   await button('How Goals Work').click(); await shot('goals-help'); await button('Got it').click();
   await nav('Emergency fund'); await shot('goal-detail');
   for (const label of ['Weekly', 'Monthly', 'Yearly', 'Daily']) {await nav(label);}

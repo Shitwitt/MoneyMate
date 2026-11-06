@@ -22,7 +22,10 @@ List<int?> dailyExpenses(Ledger ledger, DateWindow window, DateTime now) {
   );
   for (final entry in ledger.data.transactions.where(
     (e) =>
-        e.type == 'expense' && window.contains(e.date) && !e.date.isAfter(now),
+        e.type == 'expense' &&
+        !ledger.account(e.accountId).excluded &&
+        window.contains(e.date) &&
+        !e.date.isAfter(now),
   )) {
     final index = calendarDaysBetween(window.start, entry.date);
     if (index >= 0 && index < values.length && values[index] != null)

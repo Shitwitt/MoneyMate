@@ -336,15 +336,18 @@ class _HomeTrackedBudgetsState extends State<HomeTrackedBudgets> {
                 status.progress,
                 size: 94 * ringScale,
                 strokeWidth: 7 * ringScale,
-                color: budget.income
-                    ? status.progress >= 1
-                          ? AppColors.income
-                          : color
-                    : status.remaining < 0
-                    ? AppColors.expense
-                    : status.progress >= .8
-                    ? AppColors.warning
-                    : const Color(0xff74B85B),
+                color: chartInk(
+                  budget.income
+                      ? status.progress >= 1
+                            ? AppColors.income
+                            : color
+                      : status.remaining < 0
+                      ? AppColors.expense
+                      : status.progress >= .8
+                      ? AppColors.warning
+                      : const Color(0xff74B85B),
+                  Theme.of(context).colorScheme.surface,
+                ),
                 child: SizedBox.square(
                   dimension: 72 * ringScale,
                   child: FittedBox(

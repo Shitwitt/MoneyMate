@@ -264,6 +264,33 @@ Color readableTint(BuildContext context, Color tint) {
   return Theme.of(context).colorScheme.onSurface;
 }
 
+/// Keep plotted strokes/segments distinguishable on light, coffee, black and
+/// custom surfaces. Preserve the original hue instead of replacing every pale
+/// series with the same body-text color. Filled areas can remain translucent.
+Color chartInk(Color color, Color background) {
+  final base = Color.alphaBlend(color, background);
+  final bg = background.computeLuminance();
+  double contrast(Color value) {
+    final luminance = value.computeLuminance();
+    return luminance > bg
+        ? (luminance + .05) / (bg + .05)
+        : (bg + .05) / (luminance + .05);
+  }
+
+  if (contrast(base) >= 3) return base;
+  final hsl = HSLColor.fromColor(base);
+  final direction = bg < .179 ? 1.0 : -1.0;
+  for (var step = 1; step <= 100; step++) {
+    final adjusted = hsl
+        .withLightness(
+          (hsl.lightness + direction * step / 100).clamp(0.0, 1.0).toDouble(),
+        )
+        .toColor();
+    if (contrast(adjusted) >= 3) return adjusted;
+  }
+  return bg < .179 ? Colors.white : Colors.black;
+}
+
 class SummaryColumns extends StatelessWidget {
   final List<String> labels;
   final List<Widget> values;
@@ -299,44 +326,43 @@ class SummaryColumns extends StatelessWidget {
   );
 }
 
-Future<void> showFeatureInfo(BuildContext context, String title, String body) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) => SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+Future<void> showFeatureInfo(
+  BuildContext context,
+  String title,
+  String body,
+) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  useSafeArea: true,
+  builder: (context) => SingleChildScrollView(
+    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'Close information',
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close_rounded),
-                ),
-              ],
+            Expanded(
+              child: Text(title, style: Theme.of(context).textTheme.titleLarge),
             ),
-            const SizedBox(height: 16),
-            Text(
-              body,
-              style: Theme.of(context).textTheme.bodyLarge
-                  ?.copyWith(height: 1.6),
-            ),
-            const SizedBox(height: 24),
-            FilledButton(
+            IconButton(
+              tooltip: 'Close information',
               onPressed: () => Navigator.pop(context),
-              child: const Text('Got it'),
+              icon: const Icon(Icons.close_rounded),
             ),
           ],
         ),
-      ),
-    );
+        const SizedBox(height: 16),
+        Text(
+          body,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
+        ),
+        const SizedBox(height: 24),
+        FilledButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Got it'),
+        ),
+      ],
+    ),
+  ),
+);

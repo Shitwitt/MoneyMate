@@ -70,6 +70,16 @@ class _ReferenceLineChartState extends State<ReferenceLineChart> {
       locale: widget.ledger.settings.locale,
       indian: widget.ledger.settings.numberFormat == 'indian',
     );
+    final painted = [
+      for (final series in widget.series)
+        ReferenceSeries(
+          series.name,
+          series.values,
+          chartInk(series.color, Theme.of(context).colorScheme.surface),
+          dashed: series.dashed,
+          fill: series.fill,
+        ),
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -83,6 +93,19 @@ class _ReferenceLineChartState extends State<ReferenceLineChart> {
           ),
         LayoutBuilder(
           builder: (context, box) => Semantics(
+            onIncrease: count == 0
+                ? null
+                : () => setState(
+                    () => selected = ((index ?? -1) + 1).clamp(0, count - 1),
+                  ),
+            onDecrease: count == 0
+                ? null
+                : () => setState(
+                    () => selected = ((index ?? 1) - 1).clamp(0, count - 1),
+                  ),
+            value: index == null
+                ? 'No day selected'
+                : '${DateFormat.yMMMd().format(DateTime(widget.start.year, widget.start.month, widget.start.day + index))}. ${widget.series.map((s) => '${s.name}: ${index < s.values.length && s.values[index] != null ? money(s.values[index]!.round(), widget.ledger.currency, locale: widget.ledger.settings.locale) : 'not recorded'}').join('. ')}',
             label:
                 '${widget.bars ? 'Bar' : 'Line'} chart. ${widget.series.map((s) => s.name).join(', ')}. Tap a day to inspect recorded values.',
             child: GestureDetector(
@@ -102,7 +125,7 @@ class _ReferenceLineChartState extends State<ReferenceLineChart> {
                   height: widget.height,
                   child: CustomPaint(
                     painter: _ReferenceChartPainter(
-                      widget.series,
+                      painted,
                       low,
                       high,
                       progress,
@@ -126,7 +149,7 @@ class _ReferenceLineChartState extends State<ReferenceLineChart> {
           spacing: 18,
           runSpacing: 8,
           children: [
-            for (final s in widget.series)
+            for (final s in painted)
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -407,12 +430,14 @@ class _ReferenceDonutState extends State<ReferenceDonut> {
                   height: 270,
                   width: double.infinity,
                   child: CustomPaint(
-                    painter: _DonutPainter(
-                      widget.groups,
-                      total,
-                      progress,
-                      index,
-                    ),
+                    painter:
+                        _DonutPainter(widget.groups, total, progress, index, [
+                          for (final group in widget.groups)
+                            chartInk(
+                              Color(group.color),
+                              Theme.of(context).colorScheme.surface,
+                            ),
+                        ]),
                   ),
                 ),
               ),
@@ -435,7 +460,14 @@ class _DonutPainter extends CustomPainter {
   final List<ReportGroup> groups;
   final int total, selected;
   final double progress;
-  _DonutPainter(this.groups, this.total, this.progress, this.selected);
+  final List<Color> colors;
+  _DonutPainter(
+    this.groups,
+    this.total,
+    this.progress,
+    this.selected,
+    this.colors,
+  );
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2),
@@ -449,7 +481,7 @@ class _DonutPainter extends CustomPainter {
         math.max(0, sweep - .012),
         false,
         Paint()
-          ..color = Color(groups[i].color)
+          ..color = colors[i]
           ..style = PaintingStyle.stroke
           ..strokeWidth = i == selected ? 45 : 39,
       );

@@ -15,6 +15,7 @@ import 'package:paisaclone/features/reports/reports_screen.dart';
 import 'package:paisaclone/features/transactions/transaction_form.dart';
 import 'package:paisaclone/l10n/generated/app_localizations.dart';
 import 'package:paisaclone/shared/reference_charts.dart';
+import 'package:paisaclone/shared/daily_spend_chart.dart';
 
 import 'support.dart';
 
@@ -129,6 +130,62 @@ Future<void> inspectScroll(WidgetTester tester) async {
 }
 
 void main() {
+  test('Chart ink retains contrast across supported theme surfaces', () {
+    for (final settings in [
+      const AppSettings(),
+      const AppSettings(theme: 'black'),
+      const AppSettings(accent: 0xff567DEF),
+    ]) {
+      for (final brightness in Brightness.values) {
+        final surface = tinkTheme(settings, brightness).colorScheme.surface;
+        for (final color in [
+          const Color(0xffFFB59A),
+          const Color(0xffA7C994),
+          const Color(0xffEEB5B8),
+          const Color(0xffB7C9E5),
+          const Color(0xffA49D96),
+          const Color(0xffE8CA87),
+        ]) {
+          final ink = chartInk(color, surface);
+          final a = ink.computeLuminance(), b = surface.computeLuminance();
+          final ratio = a > b ? (a + .05) / (b + .05) : (b + .05) / (a + .05);
+          expect(ratio, greaterThanOrEqualTo(3));
+        }
+      }
+    }
+  });
+  test('Home day bins match totals from included posted accounts', () {
+    final data = fixture();
+    final outside = data.accounts.first.copyWith(id: 'outside', excluded: true);
+    final ledger = Ledger(
+      data.copyWith(
+        accounts: [...data.accounts, outside],
+        transactions: [
+          expense(data, amount: 100, date: DateTime(2026, 1, 5)),
+          expense(
+            data,
+            id: 'outside',
+            amount: 900,
+            date: DateTime(2026, 1, 5),
+          ).copyWith(accountId: outside.id),
+          expense(
+            data,
+            id: 'future',
+            amount: 900,
+            date: DateTime(2026, 1, 6, 18),
+          ),
+        ],
+      ),
+      const AppSettings(),
+    );
+    final bins = dailyExpenses(
+      ledger,
+      DateWindow(DateTime(2026, 1, 5), DateTime(2026, 1, 12)),
+      DateTime(2026, 1, 6, 12),
+    );
+    expect(bins.take(2), [100, 0]);
+    expect(bins.skip(2).every((n) => n == null), isTrue);
+  });
   testWidgets('Calendar date targets retain 48 pixels on a narrow screen', (
     tester,
   ) async {
@@ -313,6 +370,28 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.textContaining('Recorded:'), findsOneWidget);
+      final pointControl = find.byWidgetPredicate(
+        (w) =>
+            w is Semantics &&
+            (w.properties.label?.startsWith('Line chart.') ?? false),
+      );
+      final forward = tester
+          .widget<Semantics>(pointControl)
+          .properties
+          .onIncrease;
+      expect(forward, isNotNull);
+      forward!();
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<Semantics>(pointControl).properties.value,
+        contains('2.00'),
+      );
+      tester.widget<Semantics>(pointControl).properties.onDecrease!();
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<Semantics>(pointControl).properties.value,
+        contains('1.00'),
+      );
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpAndSettle();

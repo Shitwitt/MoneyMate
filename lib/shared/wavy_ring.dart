@@ -18,7 +18,7 @@ class WavyRing extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) => Semantics(
-    value: '${(value.clamp(0, 1) * 100).round()} percent',
+    value: '${(value * 100).round()} percent of target',
     child: TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: value.clamp(0, 1)),
       duration: referenceMotion(context, 500),

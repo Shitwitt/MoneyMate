@@ -261,6 +261,17 @@ void main() {
       const BudgetDetailScreen('manual'),
       scale: 1,
     );
+    final edit = tester.widget<FloatingActionButton>(
+      find.byType(FloatingActionButton),
+    );
+    expect(edit.isExtended, isTrue);
+    expect(edit.shape, isA<RoundedRectangleBorder>());
+    final background = edit.backgroundColor!.computeLuminance();
+    final foreground = edit.foregroundColor!.computeLuminance();
+    final contrast = foreground > background
+        ? (foreground + .05) / (background + .05)
+        : (background + .05) / (foreground + .05);
+    expect(contrast, greaterThanOrEqualTo(4.5));
     expect(find.textContaining('64.00 of '), findsOneWidget);
     expect(find.textContaining('You can spend '), findsOneWidget);
     await tester.scrollUntilVisible(

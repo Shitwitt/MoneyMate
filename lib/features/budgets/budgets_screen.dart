@@ -789,6 +789,10 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
       );
     });
     final color = readableTint(context, Color(budget.color));
+    final editColor = Color.alphaBlend(
+      Color(budget.color),
+      Theme.of(context).colorScheme.surface,
+    );
     final allowance = budgetAllowanceSummary(ledger, budget, status, now);
     final groups = <String, int>{};
     for (final entry in entries)
@@ -835,8 +839,9 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
         ),
       ],
       fab: FloatingActionButton.extended(
-        backgroundColor: Color(budget.color),
-        foregroundColor: Color(budget.color).computeLuminance() > .35
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.cardBorder),
+        backgroundColor: editColor,
+        foregroundColor: editColor.computeLuminance() > .179
             ? Colors.black
             : Colors.white,
         onPressed: () => editBudget(context, ref, budget),

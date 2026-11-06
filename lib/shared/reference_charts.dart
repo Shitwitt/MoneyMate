@@ -72,8 +72,12 @@ class _ReferenceLineChartState extends State<ReferenceLineChart> {
     );
     String pointSummary(int point) =>
         '${DateFormat.yMMMd().format(DateTime(widget.start.year, widget.start.month, widget.start.day + point))}. ${widget.series.map((series) => '${series.name}: ${point < series.values.length && series.values[point] != null ? money(series.values[point]!.round(), widget.ledger.currency, locale: widget.ledger.settings.locale) : 'not recorded'}').join('. ')}';
-    final nextPoint = ((index ?? -1) + 1).clamp(0, math.max(0, count - 1));
-    final previousPoint = ((index ?? 1) - 1).clamp(0, math.max(0, count - 1));
+    final nextPoint = ((index ?? -1) + 1)
+        .clamp(0, math.max(0, count - 1))
+        .toInt();
+    final previousPoint = ((index ?? 1) - 1)
+        .clamp(0, math.max(0, count - 1))
+        .toInt();
     final painted = [
       for (final series in widget.series)
         ReferenceSeries(
@@ -129,9 +133,8 @@ class _ReferenceLineChartState extends State<ReferenceLineChart> {
                       low,
                       high,
                       progress,
-                      Theme.of(
-                        context,
-                      ).colorScheme.outlineVariant.withValues(alpha: .45),
+                      Theme.of(context).colorScheme.outlineVariant
+                          .withValues(alpha: .45),
                       Theme.of(context).textTheme.labelSmall!,
                       widget.start,
                       amount,

@@ -38,11 +38,18 @@ class FinancialPulse {
       source.settings,
     );
     final window = financialMonth(now, ledger.settings.monthStart);
-    final income = ledger.total('income', window);
-    final expense = ledger.total('expense', window);
+    final eligible = ledger.data.transactions
+        .where((t) => !ledger.account(t.accountId).excluded)
+        .toList();
+    final income = ledger.total('income', window, entries: eligible);
+    final expense = ledger.total('expense', window, entries: eligible);
     final windows = monthlyWindows(now, ledger.settings.monthStart, 3);
     final averageSpend =
-        windows.fold<int>(0, (s, w) => s + ledger.total('expense', w)) / 3;
+        windows.fold<int>(
+          0,
+          (s, w) => s + ledger.total('expense', w, entries: eligible),
+        ) /
+        3;
     var liquid = 0, creditDebt = 0;
     for (final a in ledger.data.accounts.where(
       (a) => !a.archived && !a.excluded,
@@ -53,7 +60,7 @@ class FinancialPulse {
         liquid += math.max(0, amount);
     }
     final goals = ledger.data.goals.where((g) => g.targetMinor > 0).toList();
-    final records = ledger.data.transactions;
+    final records = eligible;
     final start = DateTime(now.year, now.month, now.day - 27);
     final days = records
         .where((t) => !dayOnly(t.date).isBefore(start))
@@ -106,7 +113,7 @@ class FinancialPulse {
       PulseMetric(
         'Record coverage',
         records.isEmpty ? null : bounded(days / 28 * 100),
-        'Distinct days with an entry in the past 28 calendar days. Daily logging is not a financial-health requirement.',
+        'Distinct days with an entry from an included account in the past 28 calendar days. Daily logging is not a financial-health requirement.',
       ),
     ]);
   }

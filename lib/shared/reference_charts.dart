@@ -106,9 +106,8 @@ class _ReferenceLineChartState extends State<ReferenceLineChart> {
                       low,
                       high,
                       progress,
-                      Theme.of(
-                        context,
-                      ).colorScheme.outlineVariant.withValues(alpha: .45),
+                      Theme.of(context).colorScheme.outlineVariant
+                          .withValues(alpha: .45),
                       Theme.of(context).textTheme.labelSmall!,
                       widget.start,
                       amount,
@@ -305,25 +304,38 @@ class ReportDailyChart extends StatelessWidget {
   final bool bars;
   const ReportDailyChart(this.snapshot, {super.key, this.bars = true});
   @override
-  Widget build(BuildContext context) => ReferenceLineChart(
-    ledger: snapshot.ledger,
-    start: snapshot.window.start,
-    bars: bars,
-    series: [
-      ReferenceSeries(
-        'Expense',
-        snapshot.daily
-            .map((d) => d.future ? null : d.expense.toDouble())
-            .toList(),
-        const Color(0xffF45B52),
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      ReferenceLineChart(
+        ledger: snapshot.ledger,
+        start: snapshot.window.start,
+        bars: bars,
+        series: [
+          ReferenceSeries(
+            'Expense',
+            snapshot.daily
+                .map((d) => d.future ? null : d.expense.toDouble())
+                .toList(),
+            const Color(0xffF45B52),
+          ),
+          ReferenceSeries(
+            'Income',
+            snapshot.daily
+                .map((d) => d.future ? null : d.income.toDouble())
+                .toList(),
+            const Color(0xff69BD75),
+          ),
+        ],
       ),
-      ReferenceSeries(
-        'Income',
-        snapshot.daily
-            .map((d) => d.future ? null : d.income.toDouble())
-            .toList(),
-        const Color(0xff69BD75),
-      ),
+      if (snapshot.window.days > 366)
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: Text(
+            'Daily chart shows the first 366 days. Totals cover the full selected range.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
     ],
   );
 }
@@ -464,35 +476,48 @@ class BudgetProgressChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var accumulated = 0.0;
-    return ReferenceLineChart(
-      ledger: ledger,
-      start: status.window.start,
-      series: [
-        ReferenceSeries(
-          income ? 'Income' : 'Expense',
-          flows.map((d) {
-            if (d.future) return null;
-            accumulated += income ? d.income : d.expense;
-            return accumulated;
-          }).toList(),
-          const Color(0xff32B5A5),
-          fill: true,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ReferenceLineChart(
+          ledger: ledger,
+          start: status.window.start,
+          series: [
+            ReferenceSeries(
+              income ? 'Income' : 'Expense',
+              flows.map((d) {
+                if (d.future) return null;
+                accumulated += income ? d.income : d.expense;
+                return accumulated;
+              }).toList(),
+              const Color(0xff32B5A5),
+              fill: true,
+            ),
+            ReferenceSeries(
+              'Ideal pace',
+              List.generate(
+                flows.length,
+                (i) => status.limit * (i + 1) / math.max(1, status.window.days),
+              ),
+              const Color(0xffA49D96),
+              dashed: true,
+            ),
+            ReferenceSeries(
+              income ? 'Target' : 'Limit',
+              List.filled(flows.length, status.limit.toDouble()),
+              const Color(0xffFFB7A9),
+              dashed: true,
+            ),
+          ],
         ),
-        ReferenceSeries(
-          'Ideal pace',
-          List.generate(
-            flows.length,
-            (i) => status.limit * (i + 1) / math.max(1, status.window.days),
+        if (flows.length < status.window.days)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Text(
+              'Daily chart shows the first 366 days. Budget totals cover the full period.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ),
-          const Color(0xffA49D96),
-          dashed: true,
-        ),
-        ReferenceSeries(
-          income ? 'Target' : 'Limit',
-          List.filled(flows.length, status.limit.toDouble()),
-          const Color(0xffFFB7A9),
-          dashed: true,
-        ),
       ],
     );
   }

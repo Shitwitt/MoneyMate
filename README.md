@@ -48,11 +48,23 @@ Tink/
 ├── scripts/create_web_cache.py  # Self-hosted post-build offline cache
 ├── docs/                        # Architecture, feature matrix, QA and signing
 └── .github/workflows/
-    ├── build.yml                # Gradle assembleDebug → downloadable debug APK
-    ├── build-apk.yml            # Analyze/test → release APK + Web + source ZIP
+    ├── build.yml                # Opt-in Gradle assembleDebug → debug APK
+    ├── build-apk.yml            # Checks/Web/source; release APK is opt-in
     ├── build-ios.yml            # Optional unsigned Xcode/WidgetKit compile check
     └── publish-source.yml       # Refresh docs/source ZIP; enforces same app revision
 ```
+
+## Current UI work — APK builds on hold
+
+The current branch contains **reference batch 2**: the complete lower Home feed,
+account carousel, month reports/insights, budget overview/details and functional
+budget/recurring help. [All 20 references and exact data rules](docs/REFERENCE_BATCH_02.md).
+Verification is in progress; check that page/Actions for the actual result.
+
+**No new APK is compiled or published until the user explicitly says “make APK.”**
+Both Android jobs are now opt-in; ordinary pushes only run source checks/web.
+The downloads below are the verified **Batch 1** packages, not this newer UI.
+Their release source ZIP is intentionally not relabeled as the current branch.
 
 ## GET YOUR APK NOW
 
@@ -72,7 +84,7 @@ The APK is release-mode but **test/debug-key signed**, not store-signed. Physica
 ### 1. GitHub Actions — no local Flutter or Android SDK needed
 
 1. Put **the contents of this project at the root of a GitHub repository**, including the hidden `.github` folder. Do not put it inside another `app/` directory. In this checkout the actual connected repository is **Shitwitt/MoneyMate**, not the example `yourusername/moneymate-app`.
-2. Push the files, then open the repository’s **Actions** tab. Both Android workflows run on every push. If needed, choose a workflow → **Run workflow** → select your branch → Run.
+2. Push the files, then open the repository’s **Actions** tab. Ordinary pushes run checks/web and skip both APK jobs. **After the build hold is lifted**, explicitly opt in with `[build-apk]` or choose the required Android workflow → **Run workflow** → select your branch → Run.
 3. For the quickest sideloadable build, open **Debug APK (Gradle)**. For optimized code choose **Release APK + Web + Tests**.
 4. Wait for a **green completed run**. Open the run and scroll to **Artifacts**.
 5. Download **Tink-debug-APK** or **Tink-release-APK**. GitHub wraps artifacts in a ZIP: **extract it** to get `app-debug.apk` / `app-release.apk`.
@@ -258,7 +270,7 @@ adb shell am start -a android.intent.action.VIEW \
 
 ## Tink design system
 
-Version **1.3.0+4** implements the first supplied reference batch. See [scope, genuine deviations and verification](docs/REFERENCE_BATCH_01.md), [design tokens/accessibility](docs/DESIGN_SYSTEM.md) and [build status](docs/BUILD_STATUS.md). Unseen steps 9/11–14 are original Tink layouts, not a claim to know missing screenshots. The earlier [1.2 design](docs/LUXURY_REDESIGN.md) is historical.
+The delivered version **1.3.0+4** implements the first supplied reference batch; the current branch adds [Batch 2](docs/REFERENCE_BATCH_02.md) without a new APK during the build hold. See [scope, genuine deviations and verification](docs/REFERENCE_BATCH_01.md), [design tokens/accessibility](docs/DESIGN_SYSTEM.md) and [build status](docs/BUILD_STATUS.md). Unseen steps 9/11–14 are original Tink layouts, not a claim to know missing screenshots. The earlier [1.2 design](docs/LUXURY_REDESIGN.md) is historical.
 
 - **Color:** coffee `#1A100E`, dark Home `#231A15`, peach `#FFB59A`, muted ink `#D9C4BA`; warm-white light surfaces and tinted cards. Just Black is selectable without Pro. Material You and custom accents remain functional.
 - **Type:** licensed bundled **TinkRounded 400–700 (Quicksand-derived)**, tabular money and Noto Latin/Arabic/Indic/Thai/CJK fallbacks. This is an approximation: the exact reference font has not been identified. [Font licenses and sources](assets/fonts/README.md). No runtime font CDN.

@@ -424,9 +424,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   vertical: 12,
                 ),
                 leading: CircleAvatar(
-                  backgroundColor: Theme.of(context)
-                      .colorScheme
-                      .primaryContainer,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer,
                   child: Icon(item.$4),
                 ),
                 title: Text(
@@ -602,21 +602,38 @@ class QuickInsights extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.auto_graph_rounded,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Quick Insights',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
-              SmallTag('${snapshot.entries.length} Transactions'),
-            ],
+          LayoutBuilder(
+            builder: (context, box) {
+              final heading = Row(
+                children: [
+                  Icon(
+                    Icons.auto_graph_rounded,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Quick Insights',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                ],
+              );
+              final count = SmallTag('${snapshot.entries.length} Transactions');
+              if (box.maxWidth < 280 ||
+                  MediaQuery.textScalerOf(context).scale(1) > 1.3)
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [heading, const SizedBox(height: 8), count],
+                );
+              return Row(
+                children: [
+                  Expanded(child: heading),
+                  const SizedBox(width: 8),
+                  count,
+                ],
+              );
+            },
           ),
           const SizedBox(height: 16),
           LayoutBuilder(
@@ -816,7 +833,8 @@ class ReportRecordsScreen extends ConsumerWidget {
       child: entries.isEmpty
           ? const EmptyState(
               title: 'No matching posted records',
-              message: 'Transfers, excluded accounts and future dates are not included.',
+              message:
+                  'Transfers, excluded accounts and future dates are not included.',
             )
           : ListView(
               padding: const EdgeInsets.only(bottom: 96),

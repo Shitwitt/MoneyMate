@@ -42,6 +42,7 @@ class _HomeCalendarHeatmapState extends State<HomeCalendarHeatmap> {
         accent = Theme.of(context).colorScheme.primary;
     final large = MediaQuery.textScalerOf(context).scale(1) > 1.3;
     return TonalCard(
+      padding: const EdgeInsets.all(4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -95,71 +96,84 @@ class _HomeCalendarHeatmapState extends State<HomeCalendarHeatmap> {
               ),
             ],
           ),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: ((days + offset) / 7).ceil() * 7,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7,
-              mainAxisSpacing: 5,
-              crossAxisSpacing: 5,
-              childAspectRatio: large ? .85 : 1,
-            ),
-            itemBuilder: (context, index) {
-              final day = index - offset + 1;
-              if (day < 1 || day > days) return const SizedBox.shrink();
-              final date = DateTime(month.year, month.month, day),
-                  count = counts[day] ?? 0;
-              final future = date.isAfter(today);
-              return Semantics(
-                button: true,
-                label:
-                    '${DateFormat.yMMMMd().format(date)}, $count recorded transactions${future ? ', future date' : ''}',
-                child: Tooltip(
-                  message: '$count transactions',
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(5),
-                    onTap: () => openPage(
-                      context,
-                      TransactionsScreen(
-                        title: DateFormat.MMMd().format(date),
-                        initialFilter: TransactionFilter(
-                          dates: DateWindow(date, nextDay(date)),
-                        ),
-                      ),
-                    ),
-                    child: AnimatedContainer(
-                      duration: referenceMotion(context, 180),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: count == 0
-                            ? Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest
-                                  .withValues(alpha: future ? .3 : .65)
-                            : accent.withValues(alpha: .2 + .65 * count / max),
-                        borderRadius: BorderRadius.circular(5),
-                        border: date == today
-                            ? Border.all(color: accent, width: 1.5)
-                            : null,
-                      ),
-                      child: Text(
-                        '$day',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: count > 0 || date == today
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                          color: count > max * .7
-                              ? AppColors.ink
-                              : Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ),
-                    ),
+          LayoutBuilder(
+            builder: (context, box) => SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: math.max(348.0, box.maxWidth),
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: ((days + offset) / 7).ceil() * 7,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 7,
+                    mainAxisSpacing: 2,
+                    crossAxisSpacing: 2,
+                    childAspectRatio: large ? .85 : 1,
                   ),
+                  itemBuilder: (context, index) {
+                    final day = index - offset + 1;
+                    if (day < 1 || day > days) return const SizedBox.shrink();
+                    final date = DateTime(month.year, month.month, day),
+                        count = counts[day] ?? 0;
+                    final future = date.isAfter(today);
+                    final cellColor = count == 0
+                        ? Theme.of(context).colorScheme.surfaceContainerHighest
+                              .withValues(alpha: future ? .3 : .65)
+                        : accent.withValues(alpha: .2 + .65 * count / max);
+                    final cellInk =
+                        Color.alphaBlend(
+                              cellColor,
+                              Theme.of(context).colorScheme.surface,
+                            ).computeLuminance() >
+                            .179
+                        ? Colors.black
+                        : Colors.white;
+                    return Semantics(
+                      button: true,
+                      label:
+                          '${DateFormat.yMMMMd().format(date)}, $count recorded transactions${future ? ', future date' : ''}',
+                      child: Tooltip(
+                        message: '$count transactions',
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(5),
+                          onTap: () => openPage(
+                            context,
+                            TransactionsScreen(
+                              title: DateFormat.MMMd().format(date),
+                              initialFilter: TransactionFilter(
+                                dates: DateWindow(date, nextDay(date)),
+                              ),
+                            ),
+                          ),
+                          child: AnimatedContainer(
+                            duration: referenceMotion(context, 180),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: cellColor,
+                              borderRadius: BorderRadius.circular(5),
+                              border: date == today
+                                  ? Border.all(color: accent, width: 1.5)
+                                  : null,
+                            ),
+                            child: Text(
+                              '$day',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: count > 0 || date == today
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                color: cellInk,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ),
           ),
           const SizedBox(height: 12),
           Text(
@@ -315,22 +329,31 @@ class _HomeTrackedBudgetsState extends State<HomeTrackedBudgets> {
               final budget = budgets[index],
                   status = ledger.budgetStatus(budget, DateTime.now()),
                   color = readableTint(context, Color(budget.color));
+              final ringScale = MediaQuery.textScalerOf(
+                context,
+              ).scale(1).clamp(1.0, 1.6);
               final ring = WavyRing(
                 status.progress,
-                size: 94,
+                size: 94 * ringScale,
                 color: color,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${(status.progress * 100).round()}%',
-                      style: Theme.of(context).textTheme.titleLarge,
+                child: SizedBox.square(
+                  dimension: 72 * ringScale,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${(status.progress * 100).round()}%',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        Text(
+                          budget.income ? 'reached' : 'used',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
                     ),
-                    Text(
-                      budget.income ? 'reached' : 'used',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
+                  ),
                 ),
               );
               final metrics = Column(
@@ -389,9 +412,9 @@ class _HomeTrackedBudgetsState extends State<HomeTrackedBudgets> {
                                   budget.name,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
                                 ),
                                 const SizedBox(height: 5),
                                 Text(
@@ -434,8 +457,9 @@ class _HomeTrackedBudgetsState extends State<HomeTrackedBudgets> {
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(context).colorScheme.primary
-                      .withValues(alpha: i == page ? 1 : .25),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: i == page ? 1 : .25),
                 ),
               ),
           ],

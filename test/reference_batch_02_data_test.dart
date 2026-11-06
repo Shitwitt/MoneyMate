@@ -75,11 +75,8 @@ void main() {
       ).copyWith(parentId: main.id);
       expect(Account.fromJson(child.toJson()).toJson(), child.toJson());
       expect(
-        Account.fromJson({
-          'id': 'legacy',
-          'name': 'Old',
-          'currency': 'USD',
-        }).lastDigits,
+        Account.fromJson({'id': 'legacy', 'name': 'Old', 'currency': 'USD'})
+            .lastDigits,
         '',
       );
       validateProfile(data.copyWith(accounts: [main, child]));

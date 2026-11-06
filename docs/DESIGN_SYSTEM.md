@@ -1,10 +1,10 @@
-# Tink 1.3 design system — reference batch 1
+# Tink design system — coffee / peach reference batches
 
-The current coffee/peach direction supersedes [the 1.2 editorial/glass design](LUXURY_REDESIGN.md). [Batch scope and deliberate differences](REFERENCE_BATCH_01.md).
+The current coffee/peach direction supersedes [the 1.2 editorial/glass design](LUXURY_REDESIGN.md). [Batch 1 scope](REFERENCE_BATCH_01.md) · [Batch 2 scope and behavior](REFERENCE_BATCH_02.md).
 
 ## Shared foundations
 
-- Coffee canvas `#1A100E`, Home/card `#231A15`, tool tiles `#271E19`, balance/FAB brown `#72361E`, primary peach `#FFB59A`, muted dark ink `#D9C4BA`.
+- Coffee canvas `#231A15`, cards/tool tiles `#271E19`, balance/FAB brown `#72361E`, primary peach `#FFB59A`, muted dark ink `#D9C4BA`.
 - Light canvas `#FFF8F2`, cards `#FFFDF9`, body ink `#2D211A`; semantic income/expense/transfer have separate light ink and dark pastel variants.
 - System/light/dark/**Just Black** plus opt-in Android dynamic color and saved custom accents. Just Black is not premium-gated. A UI-revision migration changes old defaults once, not newly selected custom accents on every launch.
 - Offline licensed TinkRounded 400–700 (Quicksand-derived and renamed under the OFL Reserved Font Name restriction); Noto Latin, Arabic, Indic, Thai and CJK fallback. Exact reference font is unknown; this is a deliberate licensed approximation. Tabular amount style, actual-record figures, full-value money semantics and text-scale/RTL-aware layouts. See [font sources/licenses](../assets/fonts/README.md).
@@ -12,13 +12,13 @@ The current coffee/peach direction supersedes [the 1.2 editorial/glass design](L
 
 ## Home and preview rules
 
-Default Home/Accounts/Reports/Search navigation, brown add FAB, profile/menu/grid controls, hideable balance/cashflow comparisons, ordered two-column tool cards, swipeable budgets, weekly bars, cumulative 30-day expenses, actual earned badge and usable templates. Narrow phones switch to one column above 130% text; saved order also applies to templates and last-earned cards. Missing historical comparison is labeled, not treated as a fabricated percentage. Future dates are not included in recorded charts; unknown future week days are outlined, not predictions.
+Default Home/Accounts/Reports/Search navigation, brown add FAB, profile/menu/grid controls, hideable balance/cashflow comparisons, ordered two-column tool cards, swipeable budgets, weekly bars, cumulative 30-day expenses, actual earned badge and usable templates. Narrow phones switch to one column above 130% text; saved order also applies to templates and last-earned cards. Missing historical comparison is labeled, not treated as a fabricated percentage. Future dates are not included in posted cash-flow charts; unknown future week days are outlined. The Home calendar also shows saved future records, and the trend has a separately labeled schedule-only upcoming series, not an inferred income/spending forecast.
 
 Tour phone previews mount the real feature widgets in independent in-memory providers, using decorative fixed-scale light English previews and excluding their semantics. They cannot save into user data. Interactive real screens honor user locale, theme and text scale. No fake OS/status bar, copied screenshot backdrop, private chat-head photo or proprietary reference logo is bundled.
 
 ## Motion
 
-Finite ease-out transitions; reference helpers default 240ms, app theme 280ms, charts 500ms. Reduced-motion disables reference/theme/chart animations. There is no continuous celebration blocking forms. Static references do not determine the original app's animation timings. Platform/third-party animations and every individual transition are not independently certified.
+Finite ease-out transitions; reference helpers default 240ms, app theme 280ms, charts 500–650ms. Reduced-motion disables reference/theme/chart animations. There is no continuous celebration blocking forms. Static references do not determine the original app's animation timings. Platform/third-party animations and every individual transition are not independently certified.
 
 ## Measured fixed-palette contrast
 
@@ -26,9 +26,9 @@ WCAG relative-luminance formula, sRGB components. These are **specific solid col
 
 | Pair | Foreground / background | Ratio |
 |---|---|---|
-| Peach on coffee | `#FFB59A` / `#1A100E` | 10.96:1 |
+| Peach on coffee | `#FFB59A` / `#231A15` | 10.02:1 |
 | Light ink on Home tile | `#F8E8DD` / `#271E19` | 13.67:1 |
-| Muted ink on coffee | `#D9C4BA` / `#1A100E` | 11.17:1 |
+| Muted ink on coffee | `#D9C4BA` / `#231A15` | 10.21:1 |
 | Hero light ink on brown | `#F8E8DD` / `#72361E` | 7.77:1 |
 | Light body ink on warm-white | `#2D211A` / `#FFF8F2` | 14.85:1 |
 | Light muted ink on warm-white | `#705C4F` / `#FFF8F2` | 5.99:1 |

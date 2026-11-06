@@ -79,8 +79,7 @@ class DailySpendChart extends StatelessWidget {
     }
     final maximum = values.whereType<int>().fold<int>(1, math.max);
     return Semantics(
-      label:
-          'Daily recorded expenses. Empty outlines are future days, not a prediction.',
+      label: 'Daily recorded expenses. Empty outlines are future days, not a prediction.',
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [

@@ -4,6 +4,11 @@
 [The 1.2 build is historical](HISTORICAL_1_2_BUILD.md), not this delivery.
 Earlier 1.3 candidates are superseded by the final OFL-compliant font-name build below.
 
+> **Batch 2 build hold:** the current branch's Home/Accounts/Reports/Budgets UI is
+> newer than the Batch 1 packages documented below. No Batch 2 APK has been
+> compiled or published. Ordinary pushes skip both native jobs until the user
+> explicitly requests “make APK.” [Batch 2 scope and verification](REFERENCE_BATCH_02.md).
+
 ## Downloads and identity
 
 - **[Updated Android APK](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-Android-release.apk)**

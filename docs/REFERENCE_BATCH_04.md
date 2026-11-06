@@ -1,6 +1,6 @@
 # Reference batch 4 — Categories, connected entry, context and Spending Health
 
-**Status: complete and source/browser verified — 6 November 2026. No native build.**
+**Status: complete and source/browser verified — 6 November 2026. Subsequent build 5 APK is also compiled/package-verified; see [current build status](BUILD_STATUS.md).**
 
 All 20 supplied originals were opened before implementation. This batch follows the verified Batch 3 baseline `244c9b62bdc7a7adbf60a81525e6ff647f8aa631` / run `42189659642`. Tink retains its own branding, original icons, licensed rounded fonts and isolated fictional demo. No OS bars, private overlays or proprietary photos are copied.
 
@@ -63,4 +63,4 @@ Refreshed Batch 3 evidence also passed: loans `127846782305` (8), goals `1278467
 
 The subsequent [whole-app public-reference audit](PAISA_REFERENCE_AUDIT.md) preserves existing features and records the independent-source/licence boundary, filtered/selected exports and canonical/legacy automation compatibility. No complete Paisa-platform parity is claimed.
 
-**APK hold remains active.** Release job `127844479187` and separate direct-Gradle run `42203316348` were **SKIPPED**. No APK/AAB/native compilation was performed. Physical-device/iOS and native widget/link execution still need platform QA; static platform-contract tests do not certify them. Both native paths remain explicit opt-ins until the user says **“make APK.”**
+**Historical source-only hold:** release job `127844479187` and separate direct-Gradle run `42203316348` were **SKIPPED**. No APK/AAB/native compilation was performed. Physical-device/iOS and native widget/link execution still need platform QA; static platform-contract tests do not certify them. The user subsequently authorized Android test build **1.3.0+5**, which passed both native paths; [actual APK, signing and checks](BUILD_STATUS.md). Native jobs remain explicit opt-ins, and runtime/device behavior is still not certified.

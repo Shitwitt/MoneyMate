@@ -1,29 +1,56 @@
-# Tink 1.3 — current source verification and historical Batch 1 binaries
+# Tink 1.3 — build 5 Android test APK and verification
 
-**Current requested test build: 1.3.0+5**, branch `arena/9ea2a134-moneymate`, verified 6 November 2026.
+**Current verified Android test build: 1.3.0+5**, branch `arena/9ea2a134-moneymate`, verified 6 November 2026.
 [The 1.2 build is historical](HISTORICAL_1_2_BUILD.md), not this delivery.
 The historical Batch 1 binaries below and the newer source/browser revisions are deliberately distinguished.
 
-## Requested Android test APK — build in progress
+## Current Android test APK — ready
 
-On 6 November 2026 the user explicitly requested an APK for testing, lifting
-the prior build hold for this build. Version code is incremented to **5**
-(`1.3.0+5`); the iOS widget source version is kept aligned, without claiming an
-iOS build. No finance/UI behavior is changed from the verified source below.
+**[Download Tink 1.3.0+5 APK](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-Android-release.apk)**
+([APK checksum](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-Android-release.apk.sha256),
+[public certificate/package report](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-APK-metadata.txt),
+[exact APK-matched source](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-source.zip)).
 
-The optimized release-mode APK and the separate direct-Gradle debug path are
-explicitly opted in for this verification. Only the optimized APK is selected
-for a public download. This section will record its actual run, checksums and
-certificate after successful compilation and inspection. The historical APK
-below is **not** the requested new build.
+| Property / check | Verified result |
+|---|---|
+| Application/source revision | `61897023181c99469a3cb915071d167f6ed6c6b3` |
+| Main run | [42205565833](https://github.com/Shitwitt/MoneyMate/actions/runs/42205565833) — SUCCESS, all 13 jobs |
+| Strict format/analyzer/full Flutter suite/DST/localization/15 Python regressions | PASS — `127851199323` |
+| Release-mode APK compile/inspection/publication | PASS — `127852137596` |
+| Real browser/setup/persistence/offline/zero external requests; scoped exports, holds/swipes, saved calculator values and notes | PASS — `127852137822` |
+| 39 Batch 4 and 27 Batch 3 full-frame evidence gates; additional references | All PASS again; [all job IDs](ANDROID_BUILD_05.json) |
+| Separate direct-Gradle debug build | [42205565926](https://github.com/Shitwitt/MoneyMate/actions/runs/42205565926), job `127851198481` — SUCCESS |
+| Version / package / display | 1.3.0 build 5 / `com.example.paisaclone` / Tink |
+| APK bytes | `98,819,607` |
+| APK SHA-256 | `70c0e9052c64b12b10d0b25ebdae81e98e0584f900cac5a1963e6a73e0af8714` |
+| Native payload | `arm64-v8a`, `armeabi-v7a`, `x86_64` |
+| Android | Minimum API 24 / Android 7; compile SDK 36 |
+| Internet permission | Absent, verified in the built release APK |
+| Signing | Android Debug **test certificate**, not store signing |
+| Certificate SHA-256 | `24f95422e50a2cb83e658390edca1280e8fbaeac1ffa2bff5566d991ab3453c9` |
 
-Signing defaults to an Android test/debug key unless a persistent keystore is
-configured in CI. A successful compilation is not physical-device testing;
-biometrics, camera/gallery, notification delivery, widgets and native link
-handling still need installation/device QA. Export and verify a backup before
-uninstalling any older differently signed installation: uninstalling deletes
-local data. Local data/backups remain unencrypted; PIN is not DB encryption.
-Future ordinary pushes still skip native builds unless explicitly opted in.
+The user explicitly requested this APK on 6 November 2026, lifting the former
+hold for this test build. No finance/UI behavior changed from the reviewed
+`4f018d4` baseline: only build/version metadata, aligned iOS widget version,
+publication/inspection scripts and docs. All source/browser/frame gates reran.
+[Build provenance and release asset digests](ANDROID_BUILD_05.json).
+
+**Backup before uninstalling.** This certificate differs from the last published
+build 4 (`16af1e…3862f`), so Android cannot update that differently signed install
+in place. Export and verify a backup before uninstalling; uninstalling deletes
+local data. The direct-Gradle debug artifact is separate and need not share the
+release runner's test certificate. Future normal pushes still skip native jobs
+unless explicitly opted in.
+
+Compilation, signature/package inspection and browser tests are **not physical-
+device testing**. Camera/gallery, biometrics, native URI dispatch, notifications,
+launcher widgets and OEM restrictions still need phone QA. No iOS build is
+claimed. Data/backups are unencrypted; PIN is not database encryption.
+[Installation and test-build notes](ANDROID_TEST_BUILD.md).
+
+The historical Batch 1 APK below is preserved for provenance, not substituted
+for this new download. The source-only verification below describes its earlier
+run where native jobs were intentionally skipped.
 
 ## Batch 4 and whole-app reference review — complete source/browser verification
 
@@ -58,11 +85,12 @@ README/docs-only updates; its ZIP comment identifies the exact source commit and
 verified application revision. There are no subsequent application/build/test
 changes in that handoff. It contains no APK.
 
-**No new native build. The historical APK below does not contain these source
-changes.** Device/iOS and native widget/link behavior remain unverified; the three
-Python platform-contract tests are static only. See [Batch 4 scope and checks](REFERENCE_BATCH_04.md)
+**At this earlier source-only run no native build was performed.** The newer
+build 5 above now contains these changes. Device/iOS and native widget/link
+runtime behavior remain unverified; the three Python platform-contract tests
+are static only. See [Batch 4 scope and checks](REFERENCE_BATCH_04.md)
 and [whole-app provenance, feature mapping and limits](PAISA_REFERENCE_AUDIT.md).
-Both native paths remain opt-in until the user explicitly says **“make APK.”**
+Both native paths remain explicit opt-ins; the user subsequently authorized the build 5 test APK documented above.
 
 ## Batch 3 — historical completed baseline
 

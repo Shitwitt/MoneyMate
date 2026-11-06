@@ -81,24 +81,25 @@ choices, retained selection across search changes, restored carousel pages after
 scrolling, canonical `tink://` plus legacy automation and `description` notes
 compatibility. [Whole-app public-reference audit and source/licence boundary](docs/PAISA_REFERENCE_AUDIT.md).
 
-**A new Android test APK was explicitly requested on 6 November 2026.**
-Build **1.3.0+5** is being compiled and verified; its download will be recorded
-only after success. Both Android paths remain opt-in for future pushes.
-The downloads below are still the historical **Batch 1** packages until the
-new build is verified. They must not be relabeled as the requested new APK.
+**The requested Android test APK, 1.3.0+5, is now compiled and verified.**
+[Main source/browser/native run 42205565833](https://github.com/Shitwitt/MoneyMate/actions/runs/42205565833)
+and the [separate direct-Gradle debug run](https://github.com/Shitwitt/MoneyMate/actions/runs/42205565926)
+are SUCCESS. No UI/finance code changed from the reviewed baseline above;
+version metadata is incremented and all checks reran. Both native paths remain
+opt-in for future pushes. Physical-device and iOS behavior remain unverified.
 
 ## GET YOUR APK NOW
 
-**Version 1.3.0, build 4 — reference batch 1 is ready.**
+**Version 1.3.0, build 5 — requested Android test APK ready, including reference batches 1–4.**
 
-- **[Download the updated Android APK](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-Android-release.apk)** — Android 7+; universal arm64/ARMv7/x86_64; 96,865,703 bytes.
-- **[Download the full runnable source ZIP](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-source.zip)** — includes Android/iOS/web projects, tests, workflows and licensed offline fonts.
-- [APK checksum](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-Android-release.apk.sha256) · [Source checksum](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-source.zip.sha256) · [Native certificate/package metadata](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-APK-metadata.txt).
-- [Exact revisions and successful checks](docs/BUILD_STATUS.md) · [Scope and documented reference adaptations](docs/REFERENCE_BATCH_01.md). This is a newly compiled 1.3 APK, not the historical 1.2 binary.
+- **[Download Tink-Android-release.apk](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-Android-release.apk)** — Android 7+; universal ARM64/ARMv7/x86-64; **98,819,607 bytes (98.8 MB)**.
+- **[Full APK-matched runnable source ZIP](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-source.zip)** — exact compiled revision `61897023181c99469a3cb915071d167f6ed6c6b3`; all Android/iOS/web projects, tests, workflows and licensed offline fonts. The ZIP captures build-time documentation; completed results are in the release notes and this branch.
+- [APK checksum](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-Android-release.apk.sha256) · [Source checksum](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-source.zip.sha256) · [Public package/certificate metadata](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-APK-metadata.txt).
+- [Successful build and actual signing identity](docs/BUILD_STATUS.md) · [Install/test notes](docs/ANDROID_TEST_BUILD.md) · [Independent reference/source boundary](docs/PAISA_REFERENCE_AUDIT.md). The build 4 / Batch 1 packages are historical and are not this download.
 
 The APK is release-mode but **test/debug-key signed**, not store-signed. Physical-device behavior and iOS compilation/distribution remain unverified. The 36 starter locales cover core navigation/actions; detailed finance forms are still largely English. Licensed Quicksand-derived **TinkRounded** is renamed to respect the OFL Reserved Font Name restriction; it approximates the unknown screenshot font. All original copyright/license notices are retained.
 
-**Upgrade warning:** without a persistent signing key, a new CI runner can generate a different certificate. Android cannot update a differently signed install in place. **Export and verify a backup before uninstalling.** See signing and device-QA limits below.
+**Upgrade warning:** build 5's certificate differs from the last published build 4. Android cannot update a differently signed install in place. **Export and verify a backup before uninstalling anything; uninstalling deletes local data.** A persistent signing key is needed for stable future upgrades. See signing and device-QA limits below.
 
 **Here is how you get the APK ready to download and install** — fastest methods first:
 
@@ -310,7 +311,7 @@ adb shell am start -a android.intent.action.VIEW \
 
 ## Tink design system
 
-The delivered version **1.3.0+4** implements the first supplied reference batch; the branch adds [Batch 2](docs/REFERENCE_BATCH_02.md), verified [Batch 3](docs/REFERENCE_BATCH_03.md) and the [Batch 4 integration](docs/REFERENCE_BATCH_04.md) without a new APK during the build hold. See [scope, genuine deviations and verification](docs/REFERENCE_BATCH_01.md), [design tokens/accessibility](docs/DESIGN_SYSTEM.md) and [build status](docs/BUILD_STATUS.md). Unseen steps 9/11–14 are original Tink layouts, not a claim to know missing screenshots. The earlier [1.2 design](docs/LUXURY_REDESIGN.md) is historical.
+The current Android test build **1.3.0+5** includes all four supplied reference batches: [Batch 2](docs/REFERENCE_BATCH_02.md), [Batch 3](docs/REFERENCE_BATCH_03.md), [Batch 4](docs/REFERENCE_BATCH_04.md) and the [whole-app public-reference review](docs/PAISA_REFERENCE_AUDIT.md). These source changes were held from native compilation until the user's explicit test-APK request. See [scope, genuine deviations and verification](docs/REFERENCE_BATCH_01.md), [design tokens/accessibility](docs/DESIGN_SYSTEM.md) and [build status](docs/BUILD_STATUS.md). Unseen steps 9/11–14 are original Tink layouts, not a claim to know missing screenshots. The earlier [1.2 design](docs/LUXURY_REDESIGN.md) is historical.
 
 - **Color:** coffee `#1A100E`, dark Home `#231A15`, peach `#FFB59A`, muted ink `#D9C4BA`; warm-white light surfaces and tinted cards. Just Black is selectable without Pro. Material You and custom accents remain functional.
 - **Type:** licensed bundled **TinkRounded 400–700 (Quicksand-derived)**, tabular money and Noto Latin/Arabic/Indic/Thai/CJK fallbacks. This is an approximation: the exact reference font has not been identified. [Font licenses and sources](assets/fonts/README.md). No runtime font CDN.
@@ -333,7 +334,7 @@ Public app labels, icons, exports, web shell and widgets are Tink. To retain rec
 * App art/icons: replace bundled original PNGs in `assets/branding`, Android mipmaps, iOS `AppIcon.appiconset`, and `web/icons`. No remote fonts are loaded. The editable icon source and generator are in `assets/branding/tink-mark.svg` and `tools/generate_branding.py`.
 * Categories/demo: `lib/core/data/seed.dart`. Rates there are illustrative **2026-01-01 reference values**, not quotes. Manual edits update their own timestamps; there is deliberately no fake “live refresh”.
 * Add a language: copy `lib/l10n/app_en.arb`, translate keys, add its label to `languageNames`, run `flutter gen-l10n`. Generated Dart is intentionally not committed; `flutter pub get`/gen-l10n produces it. The 36 included ARBs cover the app shell and primary actions; detailed form/help text remains English.
-* Version: increment `version: 1.3.0+4` in `pubspec.yaml` before shipping an update; change the iOS extension version too. Commit `pubspec.lock` after resolving to keep application dependencies reproducible.
+* Version: increment `version: 1.3.0+5` in `pubspec.yaml` before shipping an update; change the iOS extension version too. Commit `pubspec.lock` after resolving to keep application dependencies reproducible.
 
 ## Platform support and known limits
 

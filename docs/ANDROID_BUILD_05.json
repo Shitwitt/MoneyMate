@@ -1,0 +1,127 @@
+{
+  "version": "1.3.0+5",
+  "date": "2026-11-06",
+  "application_revision": "61897023181c99469a3cb915071d167f6ed6c6b3",
+  "main_run": 42205565833,
+  "main_result": "success",
+  "main_url": "https://github.com/Shitwitt/MoneyMate/actions/runs/42205565833",
+  "jobs": [
+    {
+      "databaseId": 127851199323,
+      "name": "Analyze, test and package source",
+      "conclusion": "success"
+    },
+    {
+      "databaseId": 127852137596,
+      "name": "Release Android APK",
+      "conclusion": "success"
+    },
+    {
+      "databaseId": 127852137822,
+      "name": "Self-hosted web + real-browser offline smoke test",
+      "conclusion": "success"
+    },
+    {
+      "databaseId": 127854613826,
+      "name": "Additional reference captures (fictional data)",
+      "conclusion": "success"
+    },
+    {
+      "databaseId": 127854613871,
+      "name": "Batch 4 reference: catalog (fictional data)",
+      "conclusion": "success"
+    },
+    {
+      "databaseId": 127854613873,
+      "name": "Batch 3 reference: labels (fictional data)",
+      "conclusion": "success"
+    },
+    {
+      "databaseId": 127854613891,
+      "name": "Batch 3 reference: loans (fictional data)",
+      "conclusion": "success"
+    },
+    {
+      "databaseId": 127854613945,
+      "name": "Batch 4 reference: entry (fictional data)",
+      "conclusion": "success"
+    },
+    {
+      "databaseId": 127854613964,
+      "name": "Batch 3 reference: goals (fictional data)",
+      "conclusion": "success"
+    },
+    {
+      "databaseId": 127854613978,
+      "name": "Batch 3 reference: analytics (fictional data)",
+      "conclusion": "success"
+    },
+    {
+      "databaseId": 127854613985,
+      "name": "Batch 4 reference: recurring (fictional data)",
+      "conclusion": "success"
+    },
+    {
+      "databaseId": 127854614033,
+      "name": "Batch 4 reference: context (fictional data)",
+      "conclusion": "success"
+    },
+    {
+      "databaseId": 127854614091,
+      "name": "Batch 4 reference: health (fictional data)",
+      "conclusion": "success"
+    }
+  ],
+  "direct_gradle_run": 42205565926,
+  "direct_gradle_result": "success",
+  "direct_gradle_job": 127851198481,
+  "release_url": "https://github.com/Shitwitt/MoneyMate/releases/tag/apk-release-42205565833",
+  "assets": [
+    {
+      "id": 716851699,
+      "name": "Tink-Android-release.apk",
+      "size": 98819607,
+      "digest": "sha256:70c0e9052c64b12b10d0b25ebdae81e98e0584f900cac5a1963e6a73e0af8714",
+      "browser_download_url": "https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-Android-release.apk"
+    },
+    {
+      "id": 716851697,
+      "name": "Tink-Android-release.apk.sha256",
+      "size": 91,
+      "digest": "sha256:ed965ae73fdff861177366af5a8a044aa5ac1037e5d5899adc0a75c6d6c39d33",
+      "browser_download_url": "https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-Android-release.apk.sha256"
+    },
+    {
+      "id": 716851702,
+      "name": "Tink-APK-metadata.txt",
+      "size": 654,
+      "digest": "sha256:fd46fa6f430362962d7b1e790d8d8023c7adfe1c4cd3290085c0662f2b146903",
+      "browser_download_url": "https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-APK-metadata.txt"
+    },
+    {
+      "id": 716851705,
+      "name": "Tink-source.zip",
+      "size": 17101545,
+      "digest": "sha256:60c5423f1a287bbec59ae2640cd670be5e5239f877b8e0c873b9bf3de34b7591",
+      "browser_download_url": "https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-source.zip"
+    },
+    {
+      "id": 716851703,
+      "name": "Tink-source.zip.sha256",
+      "size": 82,
+      "digest": "sha256:c034cad380ca69d84b96fc118b4e1c8d201e0b06274100b8d8e4bf1bc9c14d56",
+      "browser_download_url": "https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-source.zip.sha256"
+    }
+  ],
+  "apk_metadata": "Tink 1.3.0+5\nAPK size: 98,819,607 bytes\nNative ABIs: arm64-v8a, armeabi-v7a, x86_64\nNo Internet permission: verified\nAndroid minimum: API 24 (Android 7)\n\npackage: name='com.example.paisaclone' versionCode='5' versionName='1.3.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'\nV2 Signer: certificate DN: C=US, O=Android, CN=Android Debug\nV2 Signer: certificate SHA-256 digest: 24f95422e50a2cb83e658390edca1280e8fbaeac1ffa2bff5566d991ab3453c9\nV2 Signer: certificate SHA-1 digest: 179b61a960d4b0d4ac7a05e5abb40b3c553bbbf5\nV2 Signer: certificate MD5 digest: edae5a591aa15a88d6941861eae0dc84\n",
+  "certificate_sha256": "24f95422e50a2cb83e658390edca1280e8fbaeac1ffa2bff5566d991ab3453c9",
+  "previous_published_build_4_certificate_sha256": "16af1e7195942500bae8068f3e8cc5dbc8d894bb1494fe80a8cbfae0dee3862f",
+  "package_id": "com.example.paisaclone",
+  "minimum_api": 24,
+  "compile_sdk": 36,
+  "signing": "Android Debug test certificate; not store signing",
+  "physical_device_tested": false,
+  "ios_built": false,
+  "reviewed_layout_baseline": "4f018d40e9193e8cd916c90a5d0e6b0d3333b5ae",
+  "post_baseline_change_scope": "Version/build metadata, iOS extension version, APK publishing/verifier scripts and documentation only; no lib/ UI/finance changes."
+}

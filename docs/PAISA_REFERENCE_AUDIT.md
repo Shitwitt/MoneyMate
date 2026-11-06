@@ -17,7 +17,7 @@ The README also warns that switching between store and GitHub APKs can cause sig
 
 ## Feature mapping
 
-“Implemented” below describes inspectable Tink source and working connections, **not certification of every platform, a byte-for-byte clone, or complete Paisa parity**. Native checks remain subject to the APK hold and device QA.
+“Implemented” below describes inspectable Tink source and working connections, **not certification of every platform, a byte-for-byte clone, or complete Paisa parity**. Native compilation/package inspection does not replace physical-device QA; current test-build results are linked below.
 
 | Reference area | Existing Tink implementation and preserved behavior | Boundary / follow-up |
 |---|---|---|
@@ -63,4 +63,4 @@ Authoritative revision **`4f018d40e9193e8cd916c90a5d0e6b0d3333b5ae`** passed [ru
 - The calendar test stays a physical pointer press through both the web semantics debounce and Flutter long-press deadline; it does not dispatch a synthetic long-press action, click through to the records view instead, or weaken the exact-value assertion.
 - Native URI/widget contracts have static Python checks only. Native dispatch, Android installation, physical widgets/notifications/biometrics/camera and iOS compilation/device behavior are not certified by the source/browser run.
 
-**No new APK/AAB/native compilation.** Release and direct-Gradle workflows remain opt-in until the user explicitly says **“make APK.”**
+**At that source-only review no APK/AAB/native compilation was performed.** The user subsequently requested test build **1.3.0+5**; both the optimized Android APK/inspection and the separate direct-Gradle debug build passed. [Current download, exact source and test-signing identity](BUILD_STATUS.md). Native jobs remain explicit opt-ins; compilation does not certify physical-device behavior.

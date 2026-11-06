@@ -257,16 +257,23 @@ class FeaturePage extends StatelessWidget {
     ),
     floatingActionButton: fab,
     bottomNavigationBar: bottomBar,
-    body: Align(
-      alignment: Alignment.topCenter,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1120),
-        child: padded
-            ? Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                child: Entrance(child: child),
-              )
-            : Entrance(child: child),
+    // A real reserved viewport strip, not just trailing list padding: rows
+    // cannot pass behind a floating action, including at large text or in RTL.
+    body: Padding(
+      padding: EdgeInsets.only(
+        bottom: fab == null ? 0 : 80 + MediaQuery.viewPaddingOf(context).bottom,
+      ),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1120),
+          child: padded
+              ? Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                  child: Entrance(child: child),
+                )
+              : Entrance(child: child),
+        ),
       ),
     ),
   );
@@ -368,5 +375,8 @@ class LoadingSkeleton extends StatelessWidget {
   );
 }
 
-Future<T?> openPage<T>(BuildContext context, Widget page) =>
-    Navigator.of(context).push<T>(MaterialPageRoute(builder: (_) => page));
+Future<T?> openPage<T>(BuildContext context, Widget page) {
+  // A previous screen's acknowledgement must not obscure the new destination.
+  ScaffoldMessenger.maybeOf(context)?.clearSnackBars();
+  return Navigator.of(context).push<T>(MaterialPageRoute(builder: (_) => page));
+}

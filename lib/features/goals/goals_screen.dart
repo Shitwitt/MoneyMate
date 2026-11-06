@@ -149,7 +149,8 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                   : selected == 1
                   ? 'Keep taking little steps'
                   : 'What are you dreaming of?',
-              message: 'Track a target with a linked account or manual contributions.',
+              message:
+                  'Track a target with a linked account or manual contributions.',
               icon: Icons.flag_outlined,
               action: selected == 0 ? 'Start a goal' : null,
               onAction: selected == 0 ? () => editGoal(context, ref) : null,
@@ -290,34 +291,88 @@ Future<void> editGoal(
     context,
     title: 'Goal',
     saveLabel: initial == null ? 'Create Goal' : 'Update Goal',
-    description: 'Linked progress uses the whole account book balance. Manual contributions reserve money only in this plan. Dates organize the goal; they do not filter that balance.',
+    description:
+        'Linked progress uses the whole account book balance. Manual contributions reserve money only in this plan. Dates organize the goal; they do not filter that balance.',
     fields: (context, setLocal) {
       final profile = ref.read(profileProvider)!;
       return [
         Row(
           children: [
-            ColorIcon(icon, color, size: 48),
+            SizedBox(
+              width: 64,
+              height: 64,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Semantics(
+                    button: true,
+                    label: 'Choose goal icon',
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: () => showModalBottomSheet<void>(
+                        context: context,
+                        useSafeArea: true,
+                        isScrollControlled: true,
+                        builder: (sheet) => SingleChildScrollView(
+                          padding: const EdgeInsets.all(20),
+                          child: formIcons(icon, (v) {
+                            setLocal(() => icon = v);
+                            Navigator.pop(sheet);
+                          }),
+                        ),
+                      ),
+                      child: photo.isEmpty
+                          ? ColorIcon(icon, color, size: 56)
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(14),
+                              child: Image.memory(
+                                base64Decode(photo),
+                                width: 56,
+                                height: 56,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) =>
+                                    ColorIcon(icon, color, size: 56),
+                              ),
+                            ),
+                    ),
+                  ),
+                  PositionedDirectional(
+                    end: -6,
+                    bottom: -6,
+                    child: PopupMenuButton<String>(
+                      tooltip: 'Goal photo',
+                      icon: const Icon(Icons.add_a_photo_outlined, size: 20),
+                      onSelected: (action) async {
+                        if (action == 'remove') {
+                          setLocal(() => photo = '');
+                          return;
+                        }
+                        await runSafe(context, () async {
+                          final receipt = await ReceiptService.pick(
+                            ImageSource.gallery,
+                          );
+                          if (receipt != null && context.mounted)
+                            setLocal(() => photo = receipt.data);
+                        });
+                      },
+                      itemBuilder: (_) => [
+                        const PopupMenuItem(
+                          value: 'gallery',
+                          child: Text('Choose local photo'),
+                        ),
+                        if (photo.isNotEmpty)
+                          const PopupMenuItem(
+                            value: 'remove',
+                            child: Text('Remove photo'),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(width: 12),
             Expanded(child: formText(name, 'Goal name', required: true)),
-          ],
-        ),
-        Wrap(
-          spacing: 8,
-          children: [
-            OutlinedButton.icon(
-              icon: const Icon(Icons.add_a_photo_outlined),
-              label: Text(photo.isEmpty ? 'Add photo' : 'Change photo'),
-              onPressed: () => runSafe(context, () async {
-                final receipt = await ReceiptService.pick(ImageSource.gallery);
-                if (receipt != null && context.mounted)
-                  setLocal(() => photo = receipt.data);
-              }),
-            ),
-            if (photo.isNotEmpty)
-              TextButton(
-                onPressed: () => setLocal(() => photo = ''),
-                child: const Text('Remove photo'),
-              ),
           ],
         ),
         formText(target, 'Target ($currency)', required: true, numeric: true),
@@ -342,10 +397,6 @@ Future<void> editGoal(
             await editAccount(context, ref);
             if (context.mounted) setLocal(() {});
           },
-        ),
-        ExpansionTile(
-          title: const Text('Choose an icon'),
-          children: [formIcons(icon, (v) => setLocal(() => icon = v))],
         ),
         ReferenceColorPicker(
           value: color,
@@ -590,17 +641,17 @@ class _GoalDetailScreenState extends ConsumerState<GoalDetailScreen> {
                           SizedBox(
                             width: (box.maxWidth - (columns - 1) * 8) / columns,
                             child: TonalCard(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     t.$1,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
                                   ),
                                   const SizedBox(height: 10),
                                   t.$2,

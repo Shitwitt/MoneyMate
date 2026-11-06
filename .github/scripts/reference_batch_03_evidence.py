@@ -6,7 +6,7 @@ import sys
 GROUPS = {
     'loans': ['loan-help', 'loan-help-bottom', 'loan-detail', 'loan-history',
               'loan-editor', 'loan-colors', 'loan-borrowing', 'transaction-detail'],
-    'goals': ['goals-help', 'goals', 'goal-detail', 'goal-editor'],
+    'goals': ['goals-help', 'goals', 'goal-detail', 'goal-editor', 'goal-colors'],
     'labels': ['labels-help', 'labels', 'labels-grid', 'label-detail'],
     'analytics': ['analytics', 'analytics-monthly', 'analytics-predictions',
                   'analytics-unusual', 'analytics-trends', 'analytics-weekdays',

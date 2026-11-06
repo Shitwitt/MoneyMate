@@ -23,8 +23,8 @@ module.exports = async function referenceBatchThree({page, nav, goBack, capture,
   await page.getByRole('textbox', {name: 'What was it for?', exact: true}).waitFor();
   await goBack(); // Copy is an unsaved draft, not an immediate duplicate.
   await button('Edit').click(); await shot('loan-editor');
-  await revealText('Colors'); await shot('loan-colors');
-  await scroll(-20000); await pause(); await nav('Borrowing'); await revealText('Category'); await shot('loan-borrowing');
+  await revealText('Colors', 150); await shot('loan-colors');
+  await scroll(-20000); await pause(); await nav('Borrowing'); await revealText('Category', 150); await shot('loan-borrowing');
   await goBack(); // Cancel direction change, retaining the posted repayment.
   await scroll(-20000); await pause(); await button('Edit').click(); await pause();
   await fill('Loan name', 'Alex loan verified'); await button('Update Loan').click();
@@ -36,6 +36,7 @@ module.exports = async function referenceBatchThree({page, nav, goBack, capture,
   await nav('Emergency fund'); await shot('goal-detail');
   for (const label of ['Weekly', 'Monthly', 'Yearly', 'Daily']) {await nav(label);}
   await button('Edit').click(); await shot('goal-editor');
+  await revealText('Colors'); await shot('goal-colors'); await scroll(-20000); await pause();
   await fill('Goal name', 'Emergency fund verified'); await button('Update Goal').click(); await pause();
   await visibleText('Emergency fund verified').waitFor();
   await button('Archive goal').click(); await pause();

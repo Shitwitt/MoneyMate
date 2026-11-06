@@ -23,7 +23,8 @@ const weekdayNames = [
 Future<void> showAnalyticsHelp(BuildContext context) => showHowItWorks(
   context,
   title: 'How Analytics Work',
-  introduction: 'Transparent calculations from records on this device. Not AI advice, fraud detection or a prediction of unrecorded spending.',
+  introduction:
+      'Transparent calculations from records on this device. Not AI advice, fraud detection or a prediction of unrecorded spending.',
   sections: const [
     (
       Icons.receipt_long_outlined,
@@ -48,7 +49,7 @@ Future<void> showAnalyticsHelp(BuildContext context) => showHowItWorks(
     (
       Icons.trending_up,
       'Spending Predictions',
-      'Average means the six completed financial months before this one; months with no recorded expenses count as zero, not verified zero spending. Prediction blends that average and the current-month pace equally, with a floor at already posted spending. Without a historical baseline, it is pace-only. These are low-confidence estimates, not promises.',
+      'Average means the six completed financial months before this one; months with no recorded expenses count as zero, not verified zero spending. Each category forecast blends that average and its current-month pace equally, with a floor at already posted category spending. Without a category baseline, it is pace-only. Overall prediction sums these category forecasts. These are low-confidence estimates, not promises.',
     ),
     (
       Icons.warning_amber,
@@ -195,9 +196,9 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                                 Expanded(
                                   child: Text(
                                     '${c.previous == 0 ? 'New Spending' : 'High Spending'} in ${c.name}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
                                   ),
                                 ),
                               ],
@@ -261,8 +262,9 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               children: [
                 AmountText(
                   data.daily,
-                  style: Theme.of(context).textTheme.displaySmall
-                      ?.copyWith(color: Theme.of(context).colorScheme.primary),
+                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
                 const Text('/daily'),
               ],
@@ -351,7 +353,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                             else
                               AmountText(
                                 stat.$2,
-                                compact: true,
+                                compact: false,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.semantic(
@@ -386,6 +388,8 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                 subtitle: Text(
                   hidden
                       ? '•••% of total'
+                      : data.total == 0
+                      ? 'Below base-currency precision'
                       : '${(c.total / data.total * 100).toStringAsFixed(1)}% of total',
                 ),
                 trailing: ConstrainedBox(
@@ -553,9 +557,9 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                               children: [
                                 Text(
                                   c.name,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
                                 ),
                                 Text(
                                   '${c.currentCount} transactions this period',
@@ -592,7 +596,11 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                                 AmountText(c.current),
                                 Text(
                                   c.previous == 0
-                                      ? (hidden ? '•••' : 'New spending')
+                                      ? (hidden
+                                            ? '•••'
+                                            : c.current == 0
+                                            ? 'No baseline'
+                                            : 'New spending')
                                       : change(c.change),
                                   style: TextStyle(
                                     color: AppColors.semantic(

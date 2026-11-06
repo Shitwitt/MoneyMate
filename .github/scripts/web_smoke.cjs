@@ -116,7 +116,7 @@ const binary = chromiumModule.default || chromiumModule;
       const name = new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
       return page.getByText(label, {exact: false}).or(page.getByLabel(name)).first();
     }
-    async function revealText(label) {
+    async function revealText(label, top = 95) {
       // Flutter can expose a heading as an aria-labeled group, not DOM text.
       const name = new RegExp('^' + label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:\\s|$)');
       const target = page.getByText(label, {exact: true}).or(page.getByLabel(name)).first();
@@ -126,7 +126,7 @@ const binary = chromiumModule.default || chromiumModule;
       }
       await target.waitFor({state: 'visible', timeout: 10000});
       const box = await target.boundingBox();
-      if (box && box.y > 95) { await scroll(box.y - 95); await page.waitForTimeout(250); }
+      if (box && box.y > top) { await scroll(box.y - top); await page.waitForTimeout(250); }
     }
     const touch = await context.newCDPSession(page);
     await touch.send('Emulation.setTouchEmulationEnabled', {enabled: true, maxTouchPoints: 1});

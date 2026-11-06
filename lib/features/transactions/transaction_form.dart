@@ -370,7 +370,6 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
               controller: _amount,
               autofocus: widget.initial == null && widget.template == null,
               style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                fontFamily: 'SourceSerif4',
                 fontFeatures: AppTextStyles.tabular,
               ),
               keyboardType: const TextInputType.numberWithOptions(
@@ -837,8 +836,9 @@ class _Calculator extends StatelessWidget {
                     }
                   } else if (key == '=') {
                     try {
-                      controller.text = evaluateAmount(controller.text)
-                          .toString();
+                      controller.text = evaluateAmount(
+                        controller.text,
+                      ).toString();
                     } catch (_) {
                       toast(context, 'Finish the expression first');
                     }

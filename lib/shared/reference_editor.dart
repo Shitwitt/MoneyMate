@@ -15,6 +15,7 @@ Future<bool?> showReferenceEditor(
   required Future<void> Function() onSave,
   required String saveLabel,
   String? description,
+  Widget Function(BuildContext, StateSetter)? header,
 }) async {
   final form = GlobalKey<FormState>();
   var busy = false;
@@ -23,29 +24,45 @@ Future<bool?> showReferenceEditor(
   route = MaterialPageRoute<bool>(
     builder: (_) => StatefulBuilder(
       builder: (context, setLocal) => Scaffold(
-        appBar: AppBar(title: Text(title)),
-        body: Form(
-          key: form,
-          child: SingleChildScrollView(
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (description != null) ...[
-                  Text(
-                    description,
-                    style: Theme.of(context).textTheme.bodySmall,
+        appBar: AppBar(
+          title: Text(title),
+          actions: [
+            if (description != null)
+              IconButton(
+                tooltip: '$title editor help',
+                icon: const Icon(Icons.info_outline),
+                onPressed: () =>
+                    showFeatureInfo(context, '$title editor', description),
+              ),
+          ],
+        ),
+        body: Column(
+          children: [
+            if (header != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                child: header(context, setLocal),
+              ),
+            Expanded(
+              child: Form(
+                key: form,
+                child: SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ...fields(
+                        context,
+                        setLocal,
+                      ).expand((w) => [w, const SizedBox(height: 18)]),
+                    ],
                   ),
-                  const SizedBox(height: 20),
-                ],
-                ...fields(
-                  context,
-                  setLocal,
-                ).expand((w) => [w, const SizedBox(height: 18)]),
-              ],
+                ),
+              ),
             ),
-          ),
+          ],
         ),
         bottomNavigationBar: SafeArea(
           minimum: const EdgeInsets.fromLTRB(20, 10, 20, 14),
@@ -168,6 +185,24 @@ class _ReferenceColorPickerState extends State<ReferenceColorPicker> {
     0xff607d8b,
     0xff9e9e9e,
   ];
+  static const accents = <int>[
+    0xffff5252,
+    0xffff4081,
+    0xffe040fb,
+    0xff7c4dff,
+    0xff536dfe,
+    0xff448aff,
+    0xff40c4ff,
+    0xff18ffff,
+    0xff64ffda,
+    0xff69f0ae,
+    0xffb2ff59,
+    0xffeeff41,
+    0xffffff00,
+    0xffffd740,
+    0xffffab40,
+    0xffff6e40,
+  ];
   void choose(Color color) => widget.onChanged(color.toARGB32());
   @override
   Widget build(BuildContext context) {
@@ -193,7 +228,10 @@ class _ReferenceColorPickerState extends State<ReferenceColorPicker> {
             spacing: 6,
             runSpacing: 6,
             children: [
-              for (final value in page == 0 ? [...colors, ...shades] : shades)
+              for (final value
+                  in page == 0
+                      ? [...colors, ...shades]
+                      : [...accents, ...shades])
                 Semantics(
                   button: true,
                   selected: value == widget.value,
@@ -224,7 +262,8 @@ class _ReferenceColorPickerState extends State<ReferenceColorPicker> {
         else ...[
           Center(
             child: Semantics(
-              label: 'Hue and saturation wheel. Sliders below provide accessible controls.',
+              label:
+                  'Hue and saturation wheel. Sliders below provide accessible controls.',
               child: GestureDetector(
                 onPanDown: (event) => wheel(event.localPosition),
                 onPanUpdate: (event) => wheel(event.localPosition),
@@ -422,8 +461,9 @@ class ReferenceDatePair extends StatelessWidget {
                   subtitle: Text(
                     first && start == null
                         ? 'Not recorded'
-                        : MaterialLocalizations.of(context)
-                              .formatMediumDate(first ? start! : end),
+                        : MaterialLocalizations.of(
+                            context,
+                          ).formatMediumDate(first ? start! : end),
                   ),
                   onTap: () async {
                     final chosen = await showDatePicker(

@@ -80,8 +80,10 @@ class TransactionTile extends ConsumerWidget {
           entry.name,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.titleSmall
-              ?.copyWith(fontSize: 16, fontWeight: FontWeight.w600),
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 5),
         Text(
@@ -106,14 +108,16 @@ class TransactionTile extends ConsumerWidget {
               if (loan != null)
                 TransactionMetadataTag(
                   loan.personName,
-                  const Color(0xffD995A4),
+                  Color(loan.color),
                   Icons.handshake_outlined,
                 ),
               for (final entity in entities)
                 TransactionMetadataTag(
                   entity.name,
                   Color(entity.color),
-                  entity.kind == 'person'
+                  entity.icon.isNotEmpty
+                      ? iconFor(entity.icon)
+                      : entity.kind == 'person'
                       ? Icons.person_outline_rounded
                       : entity.kind == 'place'
                       ? Icons.place_outlined

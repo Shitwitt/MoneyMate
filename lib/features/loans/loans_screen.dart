@@ -21,7 +21,8 @@ import '../transactions/transactions_screen.dart';
 Future<void> showLoansHelp(BuildContext context) => showHowItWorks(
   context,
   title: 'How Loans Work',
-  introduction: 'Loans help you track money you have lent to others or borrowed, with payment progress.',
+  introduction:
+      'Loans help you track money you have lent to others or borrowed, with payment progress.',
   sections: const [
     (
       Icons.swap_vert,
@@ -296,18 +297,18 @@ Future<void> editLoan(
     description: initial == null
         ? 'Choose an account to also create a disbursement entry, or leave None for tracking only. All loan amounts use $currency.'
         : 'Changing this tracker never rewrites existing account entries. Account and category are retained as preferences; no new disbursement is posted.',
+    header: (context, setLocal) => PillTabs(
+      labels: const ['Lending', 'Borrowing'],
+      selected: direction == 'lent' ? 0 : 1,
+      onSelected: (n) => setLocal(() {
+        direction = n == 0 ? 'lent' : 'borrowed';
+        categoryId = '';
+      }),
+    ),
     fields: (context, setLocal) {
       final profile = ref.read(profileProvider)!;
       final type = direction == 'lent' ? 'expense' : 'income';
       return [
-        PillTabs(
-          labels: const ['Lending', 'Borrowing'],
-          selected: direction == 'lent' ? 0 : 1,
-          onSelected: (n) => setLocal(() {
-            direction = n == 0 ? 'lent' : 'borrowed';
-            categoryId = '';
-          }),
-        ),
         Row(
           children: [
             ColorIcon(icon, color, size: 48),
@@ -676,6 +677,14 @@ class LoanDetailScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 22),
           FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.dark(context)
+                  ? const Color(0xff604219)
+                  : AppColors.warningBackground,
+              foregroundColor: AppColors.dark(context)
+                  ? const Color(0xffffe0b2)
+                  : AppColors.warningInk,
+            ),
             onPressed: remaining == 0 && !loan.completed
                 ? null
                 : () async {

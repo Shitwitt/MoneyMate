@@ -7,6 +7,7 @@ import '../../core/data/providers.dart';
 import '../../shared/actions.dart';
 import '../../shared/widgets.dart';
 import '../accounts/accounts_screen.dart';
+import '../budgets/budgets_screen.dart';
 import '../catalog/catalog_screen.dart';
 import '../catalog/labels_screen.dart';
 import '../goals/goals_screen.dart';
@@ -49,14 +50,31 @@ Future<void> showTransactionDetail(
         final goal = ledger.data.goals
             .where((g) => g.id == entry.goalId)
             .firstOrNull;
+        final budget = ledger.data.budgets
+            .where((b) => b.id == entry.budgetId)
+            .firstOrNull;
         Widget row(
           String title,
           String value,
           IconData icon, [
           String? action,
+          int? color,
         ]) => ListTile(
-          contentPadding: const EdgeInsets.symmetric(vertical: 8),
-          leading: Icon(icon),
+          contentPadding: const EdgeInsets.symmetric(vertical: 4),
+          leading: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Color(color ?? 0xffffb59a),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              color: Color(color ?? 0xffffb59a).computeLuminance() > .179
+                  ? Colors.black
+                  : Colors.white,
+            ),
+          ),
           title: Text(title, style: Theme.of(sheet).textTheme.bodySmall),
           subtitle: Text(value, style: Theme.of(sheet).textTheme.titleMedium),
           trailing: action == null
@@ -80,48 +98,80 @@ Future<void> showTransactionDetail(
                         onPressed: () => Navigator.pop(sheet),
                       ),
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ColorIcon(
-                          category?.icon ?? 'transfer',
-                          category?.color ?? 0xffffb59a,
-                          size: 48,
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                entry.name,
-                                style: Theme.of(sheet).textTheme.titleLarge,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                DateFormat.yMMMEd().add_jm().format(entry.date),
-                              ),
-                              const SizedBox(height: 12),
-                              AmountText(
-                                entry.amountMinor,
-                                currency: account.currency,
-                                style: Theme.of(sheet).textTheme.headlineSmall
-                                    ?.copyWith(
-                                      color: AppColors.semantic(
-                                        sheet,
-                                        entry.type,
-                                      ),
+                    LayoutBuilder(
+                      builder: (context, box) {
+                        final amount = Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            AmountText(
+                              entry.amountMinor,
+                              currency: account.currency,
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(
+                                    color: AppColors.semantic(
+                                      context,
+                                      entry.type,
                                     ),
+                                  ),
+                            ),
+                            if (account.currency != ledger.currency)
+                              AmountText(
+                                ledger.entryValue(entry),
+                                prefix: 'Converted: ',
                               ),
-                              if (account.currency != ledger.currency)
-                                AmountText(
-                                  ledger.entryValue(entry),
-                                  prefix: 'Converted: ',
+                          ],
+                        );
+                        final wide =
+                            box.maxWidth >= 330 &&
+                            MediaQuery.textScalerOf(context).scale(1) < 1.3;
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ColorIcon(
+                              category?.icon ?? 'transfer',
+                              category?.color ?? 0xffffb59a,
+                              size: 48,
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    entry.name,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleLarge,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    DateFormat.yMMMEd().add_jm().format(
+                                      entry.date,
+                                    ),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
+                                  ),
+                                  if (!wide) ...[
+                                    const SizedBox(height: 12),
+                                    amount,
+                                  ],
+                                ],
+                              ),
+                            ),
+                            if (wide) ...[
+                              const SizedBox(width: 10),
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: box.maxWidth * .30,
                                 ),
+                                child: amount,
+                              ),
                             ],
-                          ),
-                        ),
-                      ],
+                          ],
+                        );
+                      },
                     ),
                     const SizedBox(height: 30),
                     const SectionHeader('Transaction Details'),
@@ -130,6 +180,7 @@ Future<void> showTransactionDetail(
                       account.name,
                       iconFor(account.icon),
                       'account:${account.id}',
+                      account.color,
                     ),
                     if (entry.type == 'transfer')
                       row(
@@ -150,6 +201,7 @@ Future<void> showTransactionDetail(
                         category.name,
                         iconFor(category.icon),
                         'category:${category.id}',
+                        category.color,
                       ),
                     for (final entity in ledger.data.entities.where(
                       (e) =>
@@ -164,8 +216,11 @@ Future<void> showTransactionDetail(
                             ? 'Person'
                             : 'Place',
                         entity.name,
-                        iconFor(entity.kind),
+                        iconFor(
+                          entity.icon.isEmpty ? entity.kind : entity.icon,
+                        ),
                         '${entity.kind}:${entity.id}',
+                        entity.color,
                       ),
                     if (loan != null)
                       row(
@@ -173,6 +228,7 @@ Future<void> showTransactionDetail(
                         loan.personName,
                         Icons.handshake_outlined,
                         'loan:${loan.id}',
+                        loan.color,
                       ),
                     if (goal != null)
                       row(
@@ -180,6 +236,15 @@ Future<void> showTransactionDetail(
                         goal.name,
                         Icons.flag_outlined,
                         'goal:${goal.id}',
+                        goal.color,
+                      ),
+                    if (budget != null)
+                      row(
+                        'Budget',
+                        budget.name,
+                        Icons.savings_outlined,
+                        'budget:${budget.id}',
+                        budget.color,
                       ),
                     if (entry.notes.isNotEmpty)
                       row('Notes', entry.notes, Icons.notes_rounded),
@@ -265,6 +330,7 @@ Future<void> showTransactionDetail(
     'label' => LabelDetailScreen(target),
     'loan' => LoanDetailScreen(target),
     'goal' => GoalDetailScreen(target),
+    'budget' => BudgetDetailScreen(target),
     'person' => TransactionsScreen(
       initialFilter: TransactionFilter(people: {target}),
     ),

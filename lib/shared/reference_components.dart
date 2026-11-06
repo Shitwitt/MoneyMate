@@ -158,8 +158,9 @@ class SmallTag extends StatelessWidget {
           Flexible(
             child: Text(
               text,
-              style: Theme.of(context).textTheme.labelSmall
-                  ?.copyWith(color: color ?? scheme.onSurfaceVariant),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: color ?? scheme.onSurfaceVariant,
+              ),
             ),
           ),
         ],
@@ -234,9 +235,9 @@ class ReferenceNavigationDock extends StatelessWidget {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(24),
                               color: selected == id
-                                  ? Theme.of(context)
-                                        .colorScheme
-                                        .primaryContainer
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.primaryContainer
                                   : Colors.transparent,
                             ),
                             child: Icon(
@@ -246,9 +247,9 @@ class ReferenceNavigationDock extends StatelessWidget {
                                   ? (AppColors.dark(context)
                                         ? AppColors.primary
                                         : AppColors.primaryInk)
-                                  : Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                           if (showLabels) ...[
@@ -282,9 +283,10 @@ class ReferenceNavigationDock extends StatelessWidget {
 
 Color readableTint(BuildContext context, Color tint) {
   final background = Theme.of(context).colorScheme.surface;
-  final a = tint.computeLuminance(), b = background.computeLuminance();
+  final blended = Color.alphaBlend(tint, background);
+  final a = blended.computeLuminance(), b = background.computeLuminance();
   if ((a > b ? (a + .05) / (b + .05) : (b + .05) / (a + .05)) >= 4.5)
-    return tint;
+    return blended;
   return Theme.of(context).colorScheme.onSurface;
 }
 
@@ -350,44 +352,43 @@ class SummaryColumns extends StatelessWidget {
   );
 }
 
-Future<void> showFeatureInfo(BuildContext context, String title, String body) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) => SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+Future<void> showFeatureInfo(
+  BuildContext context,
+  String title,
+  String body,
+) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  useSafeArea: true,
+  builder: (context) => SingleChildScrollView(
+    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'Close information',
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close_rounded),
-                ),
-              ],
+            Expanded(
+              child: Text(title, style: Theme.of(context).textTheme.titleLarge),
             ),
-            const SizedBox(height: 16),
-            Text(
-              body,
-              style: Theme.of(context).textTheme.bodyLarge
-                  ?.copyWith(height: 1.6),
-            ),
-            const SizedBox(height: 24),
-            FilledButton(
+            IconButton(
+              tooltip: 'Close information',
               onPressed: () => Navigator.pop(context),
-              child: const Text('Got it'),
+              icon: const Icon(Icons.close_rounded),
             ),
           ],
         ),
-      ),
-    );
+        const SizedBox(height: 16),
+        Text(
+          body,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
+        ),
+        const SizedBox(height: 24),
+        FilledButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Got it'),
+        ),
+      ],
+    ),
+  ),
+);

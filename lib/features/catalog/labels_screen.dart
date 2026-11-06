@@ -15,7 +15,8 @@ import 'catalog_screen.dart';
 Future<void> showLabelsHelp(BuildContext context) => showHowItWorks(
   context,
   title: 'How Labels Work',
-  introduction: 'Labels add context to your transactions and help you organize your money.',
+  introduction:
+      'Labels add context to your transactions and help you organize your money.',
   sections: const [
     (
       Icons.label_outline,
@@ -106,92 +107,51 @@ class _LabelsScreenState extends ConsumerState<LabelsScreen> {
                         MediaQuery.textScalerOf(context).scale(1) < 1.4
                     ? 2
                     : 1;
+                Widget item(NamedEntity label) {
+                  final entries = ledger.data.transactions
+                      .where(
+                        (e) =>
+                            e.labelIds.contains(label.id) &&
+                            (scope == 1 || window.contains(e.date)),
+                      )
+                      .toList();
+                  return _LabelRow(
+                    label: label,
+                    count: entries.length,
+                    net: labelNet(ledger, entries),
+                    grid: columns > 1,
+                  );
+                }
+
                 return SingleChildScrollView(
-                  child: Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: [
-                      for (final label in labels)
-                        SizedBox(
-                          width: (box.maxWidth - (columns - 1) * 12) / columns,
-                          child: Builder(
-                            builder: (context) {
-                              final entries = ledger.data.transactions
-                                  .where(
-                                    (e) =>
-                                        e.labelIds.contains(label.id) &&
-                                        (scope == 1 || window.contains(e.date)),
-                                  )
-                                  .toList();
-                              final content = Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    label.name,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium,
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    '${entries.length} transactions',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall,
-                                  ),
-                                  const SizedBox(height: 10),
-                                  AmountText(
-                                    labelNet(ledger, entries),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      color: readableTint(
-                                        context,
-                                        Color(label.color),
-                                      ),
-                                    ),
-                                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 110),
+                    child: columns == 1
+                        ? TonalCard(
+                            padding: EdgeInsets.zero,
+                            child: Column(
+                              children: [
+                                for (var i = 0; i < labels.length; i++) ...[
+                                  if (i > 0) const Divider(height: 1),
+                                  item(labels[i]),
                                 ],
-                              );
-                              return TonalCard(
-                                onTap: () => openPage(
-                                  context,
-                                  LabelDetailScreen(label.id),
+                              ],
+                            ),
+                          )
+                        : Wrap(
+                            spacing: 12,
+                            runSpacing: 12,
+                            children: [
+                              for (final label in labels)
+                                SizedBox(
+                                  width: (box.maxWidth - 12) / 2,
+                                  child: TonalCard(
+                                    padding: EdgeInsets.zero,
+                                    child: item(label),
+                                  ),
                                 ),
-                                child: columns == 1
-                                    ? Row(
-                                        children: [
-                                          ColorIcon(
-                                            label.icon.isEmpty
-                                                ? 'label'
-                                                : label.icon,
-                                            label.color,
-                                            size: 48,
-                                          ),
-                                          const SizedBox(width: 14),
-                                          Expanded(child: content),
-                                        ],
-                                      )
-                                    : Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          ColorIcon(
-                                            label.icon.isEmpty
-                                                ? 'label'
-                                                : label.icon,
-                                            label.color,
-                                            size: 48,
-                                          ),
-                                          const SizedBox(height: 16),
-                                          content,
-                                        ],
-                                      ),
-                              );
-                            },
+                            ],
                           ),
-                        ),
-                      const SizedBox(height: 100, width: double.infinity),
-                    ],
                   ),
                 );
               },
@@ -227,6 +187,12 @@ class _LabelDetailScreenState extends ConsumerState<LabelDetailScreen> {
     final entries = ledger.data.transactions
         .where((e) => e.labelIds.contains(label.id))
         .toList();
+    final income = entries
+        .where((e) => e.type == 'income')
+        .fold<int>(0, (s, e) => s + ledger.entryValue(e));
+    final expense = entries
+        .where((e) => e.type == 'expense')
+        .fold<int>(0, (s, e) => s + ledger.entryValue(e));
     return FeaturePage(
       title: label.name,
       actions: [
@@ -281,44 +247,130 @@ class _LabelDetailScreenState extends ConsumerState<LabelDetailScreen> {
       child: ListView(
         padding: const EdgeInsets.only(bottom: 110),
         children: [
-          const Text('Total'),
-          const SizedBox(height: 10),
-          AmountText(
-            labelNet(ledger, entries),
-            style: Theme.of(context).textTheme.displaySmall,
-          ),
-          const SizedBox(height: 8),
-          Text('${entries.length} transactions'),
-          const SizedBox(height: 24),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              for (final kind in ['income', 'expense'])
-                ActionChip(
-                  avatar: Icon(
-                    kind == 'income' ? Icons.south_west : Icons.north_east,
-                  ),
-                  label: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${kind == 'income' ? 'Income' : 'Expense'} · ${entries.where((e) => e.type == kind).length}',
-                      ),
-                      AmountText(
-                        entries
-                            .where((e) => e.type == kind)
-                            .fold<int>(0, (s, e) => s + ledger.entryValue(e)),
-                      ),
-                    ],
-                  ),
-                  backgroundColor: type == kind
-                      ? Theme.of(context).colorScheme.primaryContainer
-                      : null,
-                  onPressed: () =>
-                      setState(() => type = type == kind ? 'all' : kind),
+          TonalCard(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text('Total'),
+                const SizedBox(height: 10),
+                AmountText(
+                  labelNet(ledger, entries),
+                  style: Theme.of(context).textTheme.displaySmall,
                 ),
-            ],
+                const SizedBox(height: 8),
+                Text('${entries.length} transactions'),
+                const SizedBox(height: 20),
+                if (ledger.settings.hideAmounts)
+                  const Icon(Icons.visibility_off_outlined, size: 16)
+                else if (income + expense > 0)
+                  Semantics(
+                    label: 'Income and expense share. Exact amounts below.',
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: SizedBox(
+                        height: 6,
+                        child: Row(
+                          children: [
+                            if (income > 0)
+                              Expanded(
+                                flex: income,
+                                child: ColoredBox(
+                                  color: chartInk(
+                                    AppColors.semantic(context, 'income'),
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
+                                  ),
+                                  child: const SizedBox.expand(),
+                                ),
+                              ),
+                            if (expense > 0)
+                              Expanded(
+                                flex: expense,
+                                child: ColoredBox(
+                                  color: chartInk(
+                                    AppColors.semantic(context, 'expense'),
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
+                                  ),
+                                  child: const SizedBox.expand(),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                LayoutBuilder(
+                  builder: (context, box) {
+                    final columns =
+                        box.maxWidth < 260 ||
+                            MediaQuery.textScalerOf(context).scale(1) > 1.4
+                        ? 1
+                        : 2;
+                    return Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        for (final kind in ['income', 'expense'])
+                          SizedBox(
+                            width:
+                                (box.maxWidth - (columns - 1) * 10) / columns,
+                            child: Semantics(
+                              button: true,
+                              selected: type == kind,
+                              child: TonalCard(
+                                radius: 18,
+                                padding: const EdgeInsets.all(12),
+                                color: Color.alphaBlend(
+                                  AppColors.semantic(
+                                    context,
+                                    kind,
+                                  ).withValues(alpha: type == kind ? .25 : .12),
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
+                                ),
+                                onTap: () => setState(
+                                  () => type = type == kind ? 'all' : kind,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${kind == 'income' ? 'Income' : 'Expense'} · ${entries.where((e) => e.type == kind).length}',
+                                      style: TextStyle(
+                                        color: readableTint(
+                                          context,
+                                          AppColors.semantic(context, kind),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    AmountText(
+                                      kind == 'income' ? income : expense,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        color: readableTint(
+                                          context,
+                                          AppColors.semantic(context, kind),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 16),
           Text(
@@ -332,6 +384,78 @@ class _LabelDetailScreenState extends ConsumerState<LabelDetailScreen> {
             period: period,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LabelRow extends StatelessWidget {
+  final NamedEntity label;
+  final int count, net;
+  final bool grid;
+  const _LabelRow({
+    required this.label,
+    required this.count,
+    required this.net,
+    required this.grid,
+  });
+  @override
+  Widget build(BuildContext context) {
+    final large =
+        MediaQuery.textScalerOf(context).scale(1) > 1.3 ||
+        MediaQuery.sizeOf(context).width < 350;
+    final value = AmountText(
+      net,
+      style: TextStyle(
+        fontWeight: FontWeight.w700,
+        color: AppColors.semantic(context, net < 0 ? 'expense' : 'income'),
+      ),
+    );
+    final name = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label.name, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 6),
+        Text(
+          '$count transactions',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        if (large || grid) ...[const SizedBox(height: 10), value],
+      ],
+    );
+    return InkWell(
+      borderRadius: BorderRadius.circular(24),
+      onTap: () => openPage(context, LabelDetailScreen(label.id)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: grid
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ColorIcon(
+                    label.icon.isEmpty ? 'label' : label.icon,
+                    label.color,
+                    size: 48,
+                  ),
+                  const SizedBox(height: 16),
+                  name,
+                ],
+              )
+            : Row(
+                children: [
+                  ColorIcon(
+                    label.icon.isEmpty ? 'label' : label.icon,
+                    label.color,
+                    size: 48,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(child: name),
+                  if (!large) ...[
+                    const SizedBox(width: 10),
+                    Flexible(child: value),
+                  ],
+                ],
+              ),
       ),
     );
   }

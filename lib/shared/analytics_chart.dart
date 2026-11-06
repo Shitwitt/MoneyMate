@@ -49,6 +49,12 @@ class _AnalyticsChartState extends State<AnalyticsChart> {
       locale: widget.ledger.settings.locale,
       indian: widget.ledger.settings.numberFormat == 'indian',
     );
+    final next = ((index ?? -1) + 1).clamp(0, widget.values.length - 1).toInt();
+    final previous = ((index ?? 1) - 1)
+        .clamp(0, widget.values.length - 1)
+        .toInt();
+    String pointSummary(int i) =>
+        '${widget.labels[i]}: ${amount(widget.values[i])}';
     final ink = chartInk(
       widget.color ?? Theme.of(context).colorScheme.primary,
       Theme.of(context).colorScheme.surface,
@@ -68,29 +74,29 @@ class _AnalyticsChartState extends State<AnalyticsChart> {
                       .map((e) => '${widget.labels[e.key]}: ${amount(e.value)}')
                       .join('. ')
                 : '${widget.labels[index]}: ${amount(widget.values[index])}',
-            onIncrease: () => setState(
-              () => selected = ((index ?? -1) + 1)
-                  .clamp(0, widget.values.length - 1)
-                  .toInt(),
-            ),
-            onDecrease: () => setState(
-              () => selected = ((index ?? 1) - 1)
-                  .clamp(0, widget.values.length - 1)
-                  .toInt(),
-            ),
+            increasedValue: widget.small ? null : pointSummary(next),
+            decreasedValue: widget.small ? null : pointSummary(previous),
+            onIncrease: widget.small || index == widget.values.length - 1
+                ? null
+                : () => setState(() => selected = next),
+            onDecrease: widget.small || index == 0
+                ? null
+                : () => setState(() => selected = previous),
             child: GestureDetector(
-              onTapDown: (event) => setState(
-                () => selected =
-                    ((event.localPosition.dx - (widget.small ? 0 : 42)) /
-                            math.max(
-                              1,
-                              box.maxWidth - (widget.small ? 0 : 48),
-                            ) *
-                            (widget.values.length - 1))
-                        .round()
-                        .clamp(0, widget.values.length - 1)
-                        .toInt(),
-              ),
+              onTapDown: widget.small
+                  ? null
+                  : (event) => setState(
+                      () => selected =
+                          ((event.localPosition.dx - (widget.small ? 0 : 42)) /
+                                  math.max(
+                                    1,
+                                    box.maxWidth - (widget.small ? 0 : 48),
+                                  ) *
+                                  (widget.values.length - 1))
+                              .round()
+                              .clamp(0, widget.values.length - 1)
+                              .toInt(),
+                    ),
               child: TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: 1),
                 duration: referenceMotion(context, 600),

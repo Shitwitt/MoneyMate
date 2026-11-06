@@ -95,10 +95,7 @@ class AnalyticsSnapshot {
 
   /// Blend the six-completed-month mean and current pace, never predicting less
   /// than already posted. With no baseline, disclose a pace-only projection.
-  int get predicted => math.max(
-    spending,
-    average == null ? projected : ((projected + average!) / 2).round(),
-  );
+  int get predicted => categories.fold<int>(0, (sum, c) => sum + prediction(c));
   int prediction(AnalyticsCategory category) {
     final pace = category.current / elapsed * current.days;
     final sum = category.baseline.fold<int>(0, (s, n) => s + n);

@@ -37,10 +37,15 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull, reason: 'Initial Home at $scale');
       final scrollable = find.byType(Scrollable).first;
-      for (var index = 0; index < 10; index++) {
-        await tester.drag(scrollable, const Offset(0, -550));
+      final position = tester.state<ScrollableState>(scrollable).position;
+      for (var index = 0; index < 40; index++) {
+        final next = (position.pixels + 500)
+            .clamp(0.0, position.maxScrollExtent)
+            .toDouble();
+        position.jumpTo(next);
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull, reason: 'Home section $index');
+        if (position.pixels >= position.maxScrollExtent - 1) break;
       }
       expect(find.text('Templates'), findsOneWidget);
       expect(repo.writes, 0);

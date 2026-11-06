@@ -224,7 +224,7 @@ class _TemplatesStrip extends StatelessWidget {
         ),
       if (ledger.data.templates.isNotEmpty)
         SizedBox(
-          height: 140 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 1.6),
+          height: 160 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 1.6),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: ledger.data.templates.length,

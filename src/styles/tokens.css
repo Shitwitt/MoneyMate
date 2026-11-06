@@ -1,0 +1,55 @@
+/* ============================================================
+   MoneyMate — Material You "Warm Terracotta" design tokens
+   ============================================================ */
+:root {
+  /* Surfaces */
+  --canvas: #fdf3ee;
+  --hero: #fcdcd0;
+  --card: #ffffff;
+  --sand: #f5eae3;
+  --sand-footer: #fde6d8;
+
+  /* Brand */
+  --brand: #7b4028;
+  --brand-deep: #6a341f;
+  --brand-espresso: #3b2219;
+  --brand-ink: #2b1b15;
+  --brand-value: #5a2d1c;
+
+  /* Text */
+  --text: #3b2219;
+  --text-muted: #7a6860;
+  --text-greeting: #6e5a52;
+  --text-soft: #5a463e;
+
+  /* Semantic */
+  --pos: #2e7d32;
+  --pos-fill: #d7eedb;
+  --neg: #c62828;
+  --neg-soft: #fadad8;
+  --neg-strong: #d32f2f;
+  --warn: #d97706;
+  --amber: #fb8c00;
+
+  /* Chart neutrals */
+  --track: #f2e8e3;
+  --grid: #f5ece8;
+  --heat-0: #f4ece8;
+  --heat-1: #d7c0b6;
+  --heat-2: #ba988a;
+
+  /* Radii */
+  --r-card: 24px;
+  --r-hero: 28px;
+  --r-pill: 999px;
+
+  /* Shadow */
+  --shadow-card: 0 1px 2px rgba(59, 34, 25, 0.03);
+  --shadow-float: 0 4px 20px rgba(59, 34, 25, 0.08);
+  --shadow-fab: 0 6px 18px rgba(123, 64, 40, 0.18);
+
+  /* Layout */
+  --shell: 460px;
+  --gutter: 16px;
+  --nav-h: 64px;
+}

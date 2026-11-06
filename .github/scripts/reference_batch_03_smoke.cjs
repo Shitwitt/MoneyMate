@@ -72,8 +72,9 @@ module.exports = async function referenceBatchThree({page, nav, goBack, capture,
   const secondInsight = /^2 \/ \d+$/;
   await page.getByRole('group', {name: secondInsight}).or(page.getByText(secondInsight)).first().waitFor();
   await shot('analytics-swiped');
+  await revealText('Last 7 Days'); await shot('analytics-velocity');
   await revealText('Top categories'); await shot('analytics-monthly');
-  await revealText('Monthly Overview');
+  await revealText('Monthly Overview'); await shot('analytics-overview');
   await button('Next chart point').first().click(); await pause();
   await revealText('Spending Predictions'); await shot('analytics-predictions');
   await revealText('Unusual Spending'); await shot('analytics-unusual');

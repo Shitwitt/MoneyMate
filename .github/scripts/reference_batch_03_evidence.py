@@ -10,7 +10,7 @@ GROUPS = {
     'labels': ['labels-help', 'labels', 'labels-grid', 'label-detail'],
     'analytics': ['analytics', 'analytics-swiped', 'analytics-monthly', 'analytics-predictions',
                   'analytics-unusual', 'analytics-trends', 'analytics-weekdays',
-                  'analytics-methods'],
+                  'analytics-methods', 'analytics-velocity', 'analytics-overview'],
 }
 frames = GROUPS[sys.argv[1]]
 part = sys.argv[2] if len(sys.argv) > 2 else '0'

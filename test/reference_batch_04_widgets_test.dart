@@ -362,7 +362,14 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Review recurring draft'), findsOneWidget);
       expect(repo.writes, 0);
-      await tester.pageBack();
+      final automatic = find.byWidgetPredicate(
+        (w) =>
+            w is SwitchListTile &&
+            w.title is Text &&
+            (w.title as Text).data == 'Auto-create due entries',
+      );
+      expect(tester.widget<SwitchListTile>(automatic).value, isFalse);
+      await tester.tap(find.byTooltip('Cancel editor'));
       await tester.pumpAndSettle();
       expect(repo.writes, 0);
       expect(find.text('Review recurring draft'), findsNothing);

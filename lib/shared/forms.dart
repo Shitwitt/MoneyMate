@@ -67,8 +67,9 @@ Widget formDate(
   bool includeTime = false,
 }) => ListTile(
   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-  tileColor: Theme.of(context).colorScheme.surfaceContainerHighest
-      .withValues(alpha: .45),
+  tileColor: Theme.of(
+    context,
+  ).colorScheme.surfaceContainerHighest.withValues(alpha: .45),
   leading: const Icon(Icons.calendar_today_rounded),
   title: Text(title),
   subtitle: Text(
@@ -212,10 +213,31 @@ Future<bool?> showEditor(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.headlineSmall
-                        ?.copyWith(fontWeight: FontWeight.w700),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: 'Cancel editor',
+                        onPressed: busy
+                            ? null
+                            : () {
+                                if (!route.isActive) return;
+                                if (route.isCurrent) {
+                                  navigator.pop(false);
+                                } else {
+                                  navigator.removeRoute(route, false);
+                                }
+                              },
+                        icon: const Icon(Icons.close_rounded),
+                      ),
+                    ],
                   ),
                   if (description != null) ...[
                     const SizedBox(height: 8),

@@ -220,15 +220,21 @@ class _SpendingHealthScreenState extends ConsumerState<SpendingHealthScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        hidden
-                            ? '•••'
-                            : score == null
-                            ? '—'
-                            : '$score',
-                        style: Theme.of(
-                          context,
-                        ).textTheme.displayLarge?.copyWith(color: green),
+                      SizedBox(
+                        width: 150,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            hidden
+                                ? '•••'
+                                : score == null
+                                ? '—'
+                                : '$score',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.displayLarge?.copyWith(color: green),
+                          ),
+                        ),
                       ),
                       Text(
                         hidden ? 'Amounts are hidden' : data.pulse.status,

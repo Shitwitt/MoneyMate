@@ -54,6 +54,24 @@ class Paisa2026ProvenanceTest(unittest.TestCase):
         self.assertRegex(ios, r'CFBundleVersion</key>\s*<string>6</string>')
         self.assertIn('com.example.paisaclone', (ROOT / 'android/app/build.gradle').read_text())
 
+    def test_browser_fixture_is_fictional_and_matches_the_dart_schema_fixture(self):
+        literal = (ROOT / 'test/fixtures/paisa_636.dart').read_text().split('Json legacy636Fixture() => ', 1)[1].split('\n};', 1)[0] + '\n}'
+        literal = re.sub(r'^\s*//.*$', '', literal, flags=re.M)
+        literal = re.sub(r'0x[0-9a-fA-F]+', lambda m: str(int(m[0], 16)), literal)
+        literal = re.sub(r"'([^'\\]*(?:\\.[^'\\]*)*)'", lambda m: json.dumps(m[1]), literal)
+        literal = re.sub(r',\s*([}\]])', r'\1', literal)
+        self.assertEqual(json.loads(literal), json.loads((ROOT / 'test/fixtures/paisa_636.json').read_text()))
+        browser = (ROOT / '.github/scripts/reference_2026_smoke.cjs').read_text()
+        self.assertIn("page.waitForEvent('filechooser')", browser)
+        self.assertIn('Category exclusions were lost in CSV export', browser)
+        self.assertIn('Retained original legacy JSON changed', browser)
+        self.assertIn("button('Exit Demo').click()", browser)
+        self.assertIn("require('./reference_2026_smoke.cjs')", (ROOT / '.github/scripts/web_smoke.cjs').read_text())
+        evidence = (ROOT / '.github/scripts/reference_2026_evidence.py').read_text()
+        self.assertIn('sha256', evidence)
+        self.assertIn('Missing 2026 evidence', evidence)
+        self.assertIn('review-2026:', (ROOT / '.github/workflows/build-apk.yml').read_text())
+
     def test_license_checks_and_same_commit_source_are_required_for_apk_publication(self):
         verifier = (ROOT / '.github/scripts/verify_apk.py').read_text()
         publisher = (ROOT / '.github/scripts/publish_apk.py').read_text()

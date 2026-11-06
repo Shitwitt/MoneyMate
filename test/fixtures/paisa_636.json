@@ -1,0 +1,154 @@
+{
+  "version": "v6.3.6",
+  "accounts": [
+    {
+      "superId": 0,
+      "name": "Everyday legacy",
+      "bankName": "Local label",
+      "cardType": "bank",
+      "amount": 100,
+      "color": 4294948250,
+      "isAccountExcluded": false
+    },
+    {
+      "superId": 1,
+      "name": "Pocket legacy",
+      "bankName": "",
+      "cardType": "cash",
+      "amount": -5,
+      "color": 4289897703,
+      "isAccountExcluded": false
+    }
+  ],
+  "categories": [
+    {
+      "superId": 3,
+      "name": "Legacy food",
+      "description": "Original category note",
+      "icon": 986935,
+      "categoryType": "expense",
+      "color": 4293497255,
+      "budget": 60,
+      "isBudget": true
+    },
+    {
+      "superId": 4,
+      "name": "Legacy salary",
+      "description": "",
+      "icon": 986936,
+      "categoryType": "income",
+      "color": 4290234853,
+      "budget": 0,
+      "isBudget": false
+    },
+    {
+      "superId": 5,
+      "name": "Legacy transfer",
+      "description": "",
+      "icon": 986937,
+      "categoryType": "transfer",
+      "color": 4290304187,
+      "budget": 0,
+      "isBudget": false
+    }
+  ],
+  "expenses": [
+    {
+      "superId": 10,
+      "accountId": 0,
+      "categoryId": 3,
+      "currency": 2.5,
+      "name": "Legacy coffee",
+      "description": "A retained transaction note",
+      "time": "2026-01-05T10:00:00.000",
+      "type": "expense",
+      "fromAccountId": -1,
+      "toAccountId": -1
+    },
+    {
+      "superId": 11,
+      "accountId": 0,
+      "categoryId": 4,
+      "currency": 20,
+      "name": "Legacy income",
+      "description": "",
+      "time": "2026-01-05T11:00:00.000",
+      "type": "income",
+      "fromAccountId": -1,
+      "toAccountId": -1
+    },
+    {
+      "superId": 12,
+      "accountId": 0,
+      "categoryId": 5,
+      "currency": 15,
+      "name": "Legacy transfer",
+      "description": "",
+      "time": "2026-01-05T12:00:00.000",
+      "type": "transfer",
+      "fromAccountId": 0,
+      "toAccountId": 1
+    }
+  ],
+  "debts": [
+    {
+      "superId": 30,
+      "name": "Alex",
+      "description": "A legacy debt note",
+      "amount": 100,
+      "startDateTime": "2026-01-01T10:00:00.000",
+      "expiryDateTime": "2026-12-31T10:00:00.000",
+      "debtType": "debit",
+      "isCompleted": true,
+      "icon": 984246,
+      "color": 4293497255
+    },
+    {
+      "superId": 31,
+      "name": "Jules",
+      "description": "",
+      "amount": 80,
+      "startDateTime": "2026-01-01T10:00:00.000",
+      "expiryDateTime": "2026-12-31T10:00:00.000",
+      "debtType": "credit",
+      "isCompleted": false,
+      "icon": 984246,
+      "color": 4290234853
+    },
+    {
+      "superId": 32,
+      "name": "A little trip",
+      "description": "Legacy goal note",
+      "amount": 200,
+      "startDateTime": "2026-01-01T10:00:00.000",
+      "expiryDateTime": "2026-12-31T10:00:00.000",
+      "debtType": "goal",
+      "isCompleted": false,
+      "icon": 984246,
+      "color": 4289897703
+    }
+  ],
+  "transactions": [
+    {
+      "superId": 40,
+      "parentId": 30,
+      "amount": 25,
+      "now": "2026-01-06T10:00:00.000",
+      "type": "debit"
+    },
+    {
+      "superId": 41,
+      "parentId": 31,
+      "amount": 10,
+      "now": "2026-01-06T10:00:00.000",
+      "type": "debit"
+    },
+    {
+      "superId": 42,
+      "parentId": 32,
+      "amount": 50,
+      "now": "2026-01-06T10:00:00.000",
+      "type": "goal"
+    }
+  ]
+}

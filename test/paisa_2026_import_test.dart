@@ -89,9 +89,8 @@ void main() {
   test('Missing currency or loan-direction confirmation is not guessed', () {
     expect(() => inspectLegacy(currency: ''), throwsFormatException);
     expect(() => inspectLegacy(mapping: null), throwsFormatException);
-    final opposite = inspectLegacy(
-      mapping: LegacyDebtMapping.debitIsLent,
-    ).profile;
+    final opposite = inspectLegacy(mapping: LegacyDebtMapping.debitIsLent)
+        .profile;
     expect(
       opposite.loans.singleWhere((v) => v.personName == 'Alex').direction,
       'lent',
@@ -151,21 +150,18 @@ void main() {
     expect(ProfileData.fromJson(oldSchema).legacyImportJson, isEmpty);
   });
 
-  test(
-    'Currency precision is disclosed and a rounded-to-zero transaction is rejected',
-    () {
-      final jpy = inspectLegacy(currency: 'JPY');
-      expect(jpy.profile.transactions.first.amountMinor, 3);
-      expect(jpy.roundedAmounts, 1);
-      expect(jpy.warnings.join(' '), contains('rounded'));
-      final data = legacy636Fixture();
-      data['expenses'][0]['currency'] = .01;
-      expect(
-        () => inspectLegacy(data: data, currency: 'JPY'),
-        throwsFormatException,
-      );
-    },
-  );
+  test('Currency precision is disclosed and a rounded-to-zero transaction is rejected', () {
+    final jpy = inspectLegacy(currency: 'JPY');
+    expect(jpy.profile.transactions.first.amountMinor, 3);
+    expect(jpy.roundedAmounts, 1);
+    expect(jpy.warnings.join(' '), contains('rounded'));
+    final data = legacy636Fixture();
+    data['expenses'][0]['currency'] = .01;
+    expect(
+      () => inspectLegacy(data: data, currency: 'JPY'),
+      throwsFormatException,
+    );
+  });
 
   test(
     'Categories used for another record type split without losing either type',
@@ -269,53 +265,50 @@ void main() {
     },
   );
 
-  test(
-    'Import is durable-before-visible, retains old profile and lock, then rejects double save',
-    () async {
-      final before = appFor(
-        fixture(),
-        settings: const AppSettings(
-          lockMode: 'pin',
-          pinHash: 'retained hash',
-          pinSalt: 'retained salt',
-          allowSilentAdds: true,
-          notificationsEnabled: true,
-        ),
-      );
-      final repo = MemoryRepository(before);
-      final app = AppController(repo);
-      addTearDown(app.dispose);
-      final preview = inspectLegacy();
-      expect(repo.writes, 0);
-      repo.failNext = true;
-      await expectLater(
-        app.importLegacyProfile(preview.profile),
-        throwsStateError,
-      );
-      expect(app.snapshot, same(before));
-      expect(repo.persisted, isNull);
-      expect(repo.writes, 0);
-      await app.importLegacyProfile(preview.profile);
-      expect(app.snapshot.profiles.length, 2);
-      expect(
-        app.snapshot.profiles.first.toJson(),
-        before.profiles.first.toJson(),
-      );
-      expect(app.snapshot.activeProfileId, preview.profile.profile.id);
-      expect(app.snapshot.settings.pinHash, 'retained hash');
-      expect(app.snapshot.settings.pinSalt, 'retained salt');
-      expect(app.snapshot.settings.lockMode, 'pin');
-      expect(app.snapshot.settings.allowSilentAdds, isFalse);
-      expect(app.snapshot.settings.notificationsEnabled, isFalse);
-      expect(repo.writes, 1);
-      await expectLater(
-        app.importLegacyProfile(preview.profile),
-        throwsFormatException,
-      );
-      expect(repo.writes, 1);
-      expect(app.snapshot.profiles.length, 2);
-    },
-  );
+  test('Import is durable-before-visible, retains old profile and lock, then rejects double save', () async {
+    final before = appFor(
+      fixture(),
+      settings: const AppSettings(
+        lockMode: 'pin',
+        pinHash: 'retained hash',
+        pinSalt: 'retained salt',
+        allowSilentAdds: true,
+        notificationsEnabled: true,
+      ),
+    );
+    final repo = MemoryRepository(before);
+    final app = AppController(repo);
+    addTearDown(app.dispose);
+    final preview = inspectLegacy();
+    expect(repo.writes, 0);
+    repo.failNext = true;
+    await expectLater(
+      app.importLegacyProfile(preview.profile),
+      throwsStateError,
+    );
+    expect(app.snapshot, same(before));
+    expect(repo.persisted, isNull);
+    expect(repo.writes, 0);
+    await app.importLegacyProfile(preview.profile);
+    expect(app.snapshot.profiles.length, 2);
+    expect(
+      app.snapshot.profiles.first.toJson(),
+      before.profiles.first.toJson(),
+    );
+    expect(app.snapshot.activeProfileId, preview.profile.profile.id);
+    expect(app.snapshot.settings.pinHash, 'retained hash');
+    expect(app.snapshot.settings.pinSalt, 'retained salt');
+    expect(app.snapshot.settings.lockMode, 'pin');
+    expect(app.snapshot.settings.allowSilentAdds, isFalse);
+    expect(app.snapshot.settings.notificationsEnabled, isFalse);
+    expect(repo.writes, 1);
+    await expectLater(
+      app.importLegacyProfile(preview.profile),
+      throwsFormatException,
+    );
+    expect(repo.writes, 1);
+    expect(app.snapshot.profiles.length, 2);
+  });
 
   test(
     'Invalid profiles and the profile-count limit cannot partially import',

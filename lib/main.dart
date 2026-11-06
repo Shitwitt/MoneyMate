@@ -37,17 +37,17 @@ Future<void> main() async {
   await initializeDateFormatting();
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   LicenseRegistry.addLicense(() async* {
-    yield LicenseEntryWithLineBreaks(
-      ['Tink / Paisa 6.3.6 compatibility · GPL-3.0-or-later'],
-      await rootBundle.loadString('assets/licenses/GPL-3.0-or-later.txt'),
-    );
-    yield LicenseEntryWithLineBreaks(
-      ['Tink original implementation · MIT'],
-      await rootBundle.loadString('assets/licenses/Tink-original-MIT.txt'),
-    );
+    yield LicenseEntryWithLineBreaks([
+      'Tink / Paisa 6.3.6 compatibility · GPL-3.0-or-later',
+    ], await rootBundle.loadString('assets/licenses/GPL-3.0-or-later.txt'));
+    yield LicenseEntryWithLineBreaks([
+      'Tink original implementation · MIT',
+    ], await rootBundle.loadString('assets/licenses/Tink-original-MIT.txt'));
     yield LicenseEntryWithLineBreaks(
       ['Paisa compatibility source and modification notices'],
-      await rootBundle.loadString('assets/licenses/Paisa-compatibility-NOTICE.txt'),
+      await rootBundle.loadString(
+        'assets/licenses/Paisa-compatibility-NOTICE.txt',
+      ),
     );
     final license = await rootBundle.loadString('assets/fonts/OFL.txt');
     yield LicenseEntryWithLineBreaks(['Noto fonts'], license);

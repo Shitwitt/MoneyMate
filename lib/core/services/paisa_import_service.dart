@@ -282,8 +282,7 @@ class PaisaImportService {
         'Only a NEW profile is created. Existing profiles and the app lock stay intact. Silent link posting and notifications are switched off for review.',
         'Legacy payment/contribution records are imported as history only, not new cash transactions. Completed loans stay manually closed; completed legacy goals become archived.',
         'Old icon codes are replaced by Tink icons. Category descriptions, icon codes and other original fields ${keepOriginal ? 'are retained in the downloadable original JSON stored with this profile' : 'remain only in your original file; keep it safe'}.',
-        if (source.categories.any((v) => v.isBudget || v.budget != 0))
-          'Legacy category caps are not activated as Tink budgets: the export did not specify their date windows. Recreate them after review; original values are retained in your source file.',
+        if (source.categories.any((v) => v.isBudget || v.budget != 0)) 'Legacy category caps are not activated as Tink budgets: the export did not specify their date windows. Recreate them after review; original values are retained in your source file.',
         if (splitCategories > 0)
           '$splitCategories category/type combinations were split so income and expense history remain valid.',
         if (rounded > 0)

@@ -47,7 +47,10 @@ class AppController extends StateNotifier<AppData> {
   /// Serializes ALL read/modify/write operations, including imports and recurrence.
   /// State becomes visible only after the durable write succeeds; errors do not
   /// poison the queue and a failed operation never exposes a partial transfer.
-  Future<void> mutate(AppData Function(AppData) change, {bool awardAchievements = true}) {
+  Future<void> mutate(
+    AppData Function(AppData) change, {
+    bool awardAchievements = true,
+  }) {
     final work = _tail.then((_) async {
       var next = change(state);
       if (awardAchievements) {
@@ -168,15 +171,21 @@ class AppController extends StateNotifier<AppData> {
           : app.settings,
     );
   });
+
   /// A validated import is appended atomically, never merged into current data.
   Future<void> importLegacyProfile(ProfileData profile) => mutate((app) {
-    require(!app.profiles.any((item) => item.profile.id == profile.profile.id),
-      'This preview has already been imported.');
+    require(
+      !app.profiles.any((item) => item.profile.id == profile.profile.id),
+      'This preview has already been imported.',
+    );
     validateProfile(profile);
     return app.copyWith(
       profiles: [...app.profiles, profile],
       activeProfileId: profile.profile.id,
-      settings: app.settings.copyWith(allowSilentAdds: false, notificationsEnabled: false),
+      settings: app.settings.copyWith(
+        allowSilentAdds: false,
+        notificationsEnabled: false,
+      ),
     );
   }, awardAchievements: false);
 

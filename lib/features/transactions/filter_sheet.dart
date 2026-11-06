@@ -129,11 +129,16 @@ Future<TransactionFilter?> showTransactionFilters(
         categories,
         (value) => setLocal(() => categories = value),
       ),
-      formChips(
-        'Exclude categories (including children)',
-        {for (final item in profile.categories) item.id: item.name},
-        excludedCategories,
-        (value) => setLocal(() => excludedCategories = value),
+      Semantics(
+        container: true,
+        explicitChildNodes: true,
+        label: 'Excluded categories',
+        child: formChips(
+          'Exclude categories (including children)',
+          {for (final item in profile.categories) item.id: item.name},
+          excludedCategories,
+          (value) => setLocal(() => excludedCategories = value),
+        ),
       ),
       for (final kind in ['label', 'person', 'place'])
         if (profile.entities.any((item) => item.kind == kind))

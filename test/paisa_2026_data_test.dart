@@ -44,36 +44,33 @@ void main() {
     },
   );
 
-  test(
-    'Every page shortcut resolves to an allowlisted screen and cannot post money',
-    () {
-      final data = fixture();
-      for (final destination in DeepLinkService.pages.keys) {
-        expect(pageDestination(destination), isNotNull);
-        expect(DeepLinkService.pageUri(destination).scheme, 'tink');
-        for (final scheme in ['tink', 'paisa']) {
-          for (final uri in [
-            Uri(
-              scheme: scheme,
-              host: 'open',
-              queryParameters: {
-                'page': destination,
-                'amount': '999',
-                'type': 'income',
-              },
-            ),
-            Uri(scheme: scheme, host: destination),
-            Uri(scheme: scheme, host: 'page', path: '/$destination'),
-          ]) {
-            final request = DeepLinkService.parse(uri, data);
-            expect(request.destination, destination);
-            expect(request.transaction, isNull);
-            expect(request.silent, isFalse);
-          }
+  test('Every page shortcut resolves to an allowlisted screen and cannot post money', () {
+    final data = fixture();
+    for (final destination in DeepLinkService.pages.keys) {
+      expect(pageDestination(destination), isNotNull);
+      expect(DeepLinkService.pageUri(destination).scheme, 'tink');
+      for (final scheme in ['tink', 'paisa']) {
+        for (final uri in [
+          Uri(
+            scheme: scheme,
+            host: 'open',
+            queryParameters: {
+              'page': destination,
+              'amount': '999',
+              'type': 'income',
+            },
+          ),
+          Uri(scheme: scheme, host: destination),
+          Uri(scheme: scheme, host: 'page', path: '/$destination'),
+        ]) {
+          final request = DeepLinkService.parse(uri, data);
+          expect(request.destination, destination);
+          expect(request.transaction, isNull);
+          expect(request.silent, isFalse);
         }
       }
-    },
-  );
+    }
+  });
   test(
     'External URLs, arbitrary pages and route traversal are never opened',
     () {
@@ -181,9 +178,9 @@ void main() {
         const AppSettings(),
       );
       expect(
-        const TransactionFilter(
-          excludedCategories: {'unrelated'},
-        ).apply(ledger).length,
+        const TransactionFilter(excludedCategories: {'unrelated'})
+            .apply(ledger)
+            .length,
         1,
       );
     },

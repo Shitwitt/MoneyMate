@@ -11,20 +11,40 @@ class DeepLinkRequest {
 
 class DeepLinkService {
   static const pages = {
-    'home': 'Home', 'accounts': 'Accounts', 'activity': 'Activity',
-    'search': 'Search', 'plans': 'Plans', 'reports': 'Reports',
-    'analytics': 'Analytics', 'health': 'Spending Health',
-    'budgets': 'Budgets', 'goals': 'Goals', 'loans': 'Loans',
-    'recurring': 'Subscriptions & recurring', 'categories': 'Categories',
-    'labels': 'Labels', 'people': 'People', 'places': 'Places',
-    'assets': 'Assets', 'net-worth': 'Net worth', 'templates': 'Quick templates',
-    'splitter': 'Bill splitter', 'achievements': 'Achievements',
-    'settings': 'Settings', 'backup': 'Backup & transfer', 'more': 'All tools',
+    'home': 'Home',
+    'accounts': 'Accounts',
+    'activity': 'Activity',
+    'search': 'Search',
+    'plans': 'Plans',
+    'reports': 'Reports',
+    'analytics': 'Analytics',
+    'health': 'Spending Health',
+    'budgets': 'Budgets',
+    'goals': 'Goals',
+    'loans': 'Loans',
+    'recurring': 'Subscriptions & recurring',
+    'categories': 'Categories',
+    'labels': 'Labels',
+    'people': 'People',
+    'places': 'Places',
+    'assets': 'Assets',
+    'net-worth': 'Net worth',
+    'templates': 'Quick templates',
+    'splitter': 'Bill splitter',
+    'achievements': 'Achievements',
+    'settings': 'Settings',
+    'backup': 'Backup & transfer',
+    'more': 'All tools',
   };
 
   static Uri pageUri(String destination) {
-    if (!pages.containsKey(destination)) throw const FormatException('Unknown page shortcut');
-    return Uri(scheme: 'tink', host: 'open', queryParameters: {'page': destination});
+    if (!pages.containsKey(destination))
+      throw const FormatException('Unknown page shortcut');
+    return Uri(
+      scheme: 'tink',
+      host: 'open',
+      queryParameters: {'page': destination},
+    );
   }
 
   static bool isCustomScheme(Uri uri) => ['tink', 'paisa'].contains(uri.scheme);
@@ -40,15 +60,20 @@ class DeepLinkService {
     if (!isCustomScheme(uri) && !(uri.scheme == 'https' && action == 'add')) {
       throw const FormatException('Unsupported finance link');
     }
-    if (isCustomScheme(uri) && (action == 'open' || action == 'page' || pages.containsKey(action))) {
+    if (isCustomScheme(uri) &&
+        (action == 'open' || action == 'page' || pages.containsKey(action))) {
       final String? target;
       if (action == 'open') {
-        if (uri.pathSegments.isNotEmpty) throw const FormatException('Unknown page shortcut');
+        if (uri.pathSegments.isNotEmpty)
+          throw const FormatException('Unknown page shortcut');
         target = uri.queryParameters['page']?.trim().toLowerCase();
       } else if (action == 'page') {
-        target = uri.pathSegments.length == 1 ? uri.pathSegments.single.toLowerCase() : null;
+        target = uri.pathSegments.length == 1
+            ? uri.pathSegments.single.toLowerCase()
+            : null;
       } else {
-        if (uri.pathSegments.isNotEmpty) throw const FormatException('Unknown page shortcut');
+        if (uri.pathSegments.isNotEmpty)
+          throw const FormatException('Unknown page shortcut');
         target = action;
       }
       if (target == null || !pages.containsKey(target)) {

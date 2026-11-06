@@ -53,13 +53,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _editing = false, _savingLayout = false;
 
   Future<void> _reorder(List<String> visible, int from, int to) async {
-    if (_savingLayout) return;
+    if (_savingLayout || from == to || from + 1 == to) return;
     setState(() => _savingLayout = true);
-    await runSafe(context, () => ref.read(appProvider.notifier).settings(
-      (settings) => settings.copyWith(
-        homeCards: reorderVisibleHomeCards(settings.homeCards, visible, from, to),
-      ),
-    ));
+    await runSafe(
+      context,
+      () => ref
+          .read(appProvider.notifier)
+          .settings(
+            (settings) => settings.copyWith(
+              homeCards: reorderVisibleHomeCards(
+                settings.homeCards,
+                visible,
+                from,
+                to,
+              ),
+            ),
+          ),
+    );
     if (mounted) setState(() => _savingLayout = false);
   }
 
@@ -200,38 +210,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         toolbarHeight: 56,
         automaticallyImplyLeading: false,
         leadingWidth: 80,
-        leading: widget.standalone ? const BackButton() : Tooltip(
-          message: 'Customize home layout',
-          child: TextButton(
-            onPressed: () => openPage(context, const LayoutScreen()),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '2026',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.onPrimary,
+        leading: widget.standalone
+            ? const BackButton()
+            : Tooltip(
+                message: 'Customize home layout',
+                child: TextButton(
+                  onPressed: () => openPage(context, const LayoutScreen()),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '2026',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-        ),
         actions: [
           IconButton(
             tooltip: _editing ? 'Finish reordering' : 'Reorder Home cards',
-            onPressed: _savingLayout ? null : () => setState(() => _editing = !_editing),
-            icon: Icon(_editing ? Icons.check_rounded : Icons.drag_indicator_rounded),
+            onPressed: _savingLayout
+                ? null
+                : () => setState(() => _editing = !_editing),
+            icon: Icon(
+              _editing ? Icons.check_rounded : Icons.drag_indicator_rounded,
+            ),
           ),
           IconButton(
             tooltip: 'All tools',
@@ -262,10 +278,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       child: ListTile(
                         leading: const Icon(Icons.touch_app_outlined),
                         title: const Text('Make Home yours'),
-                        subtitle: const Text('Drag a handle or use the move buttons. Changes save on this device. Hidden cards stay hidden.'),
+                        subtitle: const Text(
+                          'Drag a handle or use the move buttons. Changes save on this device. Hidden cards stay hidden.',
+                        ),
                         trailing: IconButton(
                           tooltip: 'Card visibility and full layout',
-                          onPressed: () => openPage(context, const LayoutScreen()),
+                          onPressed: () =>
+                              openPage(context, const LayoutScreen()),
                           icon: const Icon(Icons.tune_rounded),
                         ),
                       ),
@@ -284,15 +303,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         children: [
                           Row(
                             children: [
-                              Expanded(child: Text(name, style: Theme.of(context).textTheme.titleSmall)),
+                              Expanded(
+                                child: Text(
+                                  name,
+                                  style: Theme.of(context).textTheme.titleSmall,
+                                ),
+                              ),
                               IconButton(
                                 tooltip: 'Move $name up',
-                                onPressed: index == 0 || _savingLayout ? null : () => _reorder(ids, index, index - 1),
+                                onPressed: index == 0 || _savingLayout
+                                    ? null
+                                    : () => _reorder(ids, index, index - 1),
                                 icon: const Icon(Icons.arrow_upward_rounded),
                               ),
                               IconButton(
                                 tooltip: 'Move $name down',
-                                onPressed: index == ids.length - 1 || _savingLayout ? null : () => _reorder(ids, index, index + 2),
+                                onPressed:
+                                    index == ids.length - 1 || _savingLayout
+                                    ? null
+                                    : () => _reorder(ids, index, index + 2),
                                 icon: const Icon(Icons.arrow_downward_rounded),
                               ),
                               ReorderableDragStartListener(
@@ -300,36 +329,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 enabled: !_savingLayout,
                                 child: Semantics(
                                   label: 'Drag $name',
-                                  child: const SizedBox(width: 48, height: 48, child: Icon(Icons.drag_handle_rounded)),
+                                  child: const SizedBox(
+                                    width: 48,
+                                    height: 48,
+                                    child: Icon(Icons.drag_handle_rounded),
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                          IgnorePointer(ignoring: true, child: _editableCard(id, ledger, now)),
+                          IgnorePointer(
+                            ignoring: true,
+                            child: _editableCard(id, ledger, now),
+                          ),
                         ],
                       ),
                     );
                   },
                 )
               : RefreshIndicator(
-            onRefresh: () => runSafe(
-              context,
-              () => ref.read(appProvider.notifier).processRecurring(),
-            ).then((_) {}),
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 104),
-              children: [
-                _HomeGreeting(
-                  name: profile.profile.name,
-                  notifications: settings.notificationsEnabled,
-                  earned: profile.achievements.length,
-                  now: now,
+                  onRefresh: () => runSafe(
+                    context,
+                    () => ref.read(appProvider.notifier).processRecurring(),
+                  ).then((_) {}),
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 104),
+                    children: [
+                      _HomeGreeting(
+                        name: profile.profile.name,
+                        notifications: settings.notificationsEnabled,
+                        earned: profile.achievements.length,
+                        now: now,
+                      ),
+                      const SizedBox(height: 18),
+                      ...sections,
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 18),
-                ...sections,
-              ],
-            ),
-          ),
         ),
       ),
     );

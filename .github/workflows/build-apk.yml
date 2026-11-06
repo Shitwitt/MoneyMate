@@ -337,3 +337,27 @@ jobs:
         run: python3 .github/scripts/reference_batch_04_evidence.py '${{ matrix.group }}' 3
       - name: Reference frames 13–15
         run: python3 .github/scripts/reference_batch_04_evidence.py '${{ matrix.group }}' 4
+
+
+  review-2026:
+    name: '2026 workflow evidence (fictional data)'
+    if: ${{ always() && (needs.web.result == 'success' || needs.web.result == 'failure') }}
+    needs: web
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
+        with:
+          name: Tink-Web-screenshots
+          path: review-shots
+      - name: Require all 2026 frames and record hashes
+        run: python3 .github/scripts/reference_2026_evidence.py --verify-only
+      - name: 2026 frames 1–3
+        run: python3 .github/scripts/reference_2026_evidence.py 0
+      - name: 2026 frames 4–6
+        run: python3 .github/scripts/reference_2026_evidence.py 1
+      - name: 2026 frames 7–9
+        run: python3 .github/scripts/reference_2026_evidence.py 2
+      - name: 2026 frames 10–12
+        run: python3 .github/scripts/reference_2026_evidence.py 3

@@ -71,19 +71,49 @@ Future<void> scrollAll2026(WidgetTester tester) async {
   expect(tester.takeException(), isNull);
 }
 
+Future<void> reveal2026(WidgetTester tester, Finder target) async {
+  await tester.scrollUntilVisible(
+    target,
+    300,
+    scrollable: find
+        .byWidgetPredicate(
+          (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+        )
+        .first,
+    maxScrolls: 80,
+  );
+  await tester.pumpAndSettle();
+}
+
 Future<void> previewLegacy2026(WidgetTester tester) async {
-  await tester.tap(find.byType(DropdownButtonFormField<String>).first);
+  final currencyLabel = find.text('Original backup currency (required)');
+  await reveal2026(tester, currencyLabel);
+  await tester.tap(
+    find
+        .ancestor(
+          of: currencyLabel,
+          matching: find.byType(DropdownButtonFormField<String>),
+        )
+        .first,
+  );
   await tester.pumpAndSettle();
   await tester.tap(find.text(r'USD · $').last);
   await tester.pumpAndSettle();
-  final mapping = find.byType(DropdownButtonFormField<String>).last;
-  await tester.ensureVisible(mapping);
-  await tester.tap(mapping);
+  final mappingLabel = find.text('Review legacy loan directions');
+  await reveal2026(tester, mappingLabel);
+  await tester.tap(
+    find
+        .ancestor(
+          of: mappingLabel,
+          matching: find.byType(DropdownButtonFormField<String>),
+        )
+        .first,
+  );
   await tester.pumpAndSettle();
   await tester.tap(find.text('Debt = I borrowed · Credit = I lent').last);
   await tester.pumpAndSettle();
   final validate = find.text('Validate & preview import');
-  await tester.ensureVisible(validate);
+  await reveal2026(tester, validate);
   await tester.tap(validate);
   await tester.pumpAndSettle();
 }
@@ -93,33 +123,36 @@ void main() {
     'Private amounts paint fixed shapes and reveal no number or sign in semantics',
     (tester) async {
       final semantics = tester.ensureSemantics();
-      addTearDown(semantics.dispose);
-      await pump2026(
-        tester,
-        const Scaffold(
-          body: Column(
-            children: [
-              AmountText(1, prefix: '+'),
-              AmountText(-987654321),
-            ],
+      try {
+        await pump2026(
+          tester,
+          const Scaffold(
+            body: Column(
+              children: [
+                AmountText(1, prefix: '+'),
+                AmountText(-987654321),
+              ],
+            ),
           ),
-        ),
-        settings: const AppSettings(hideAmounts: true),
-      );
-      expect(find.byType(PrivateAmount), findsNWidgets(2));
-      expect(
-        tester.getSize(find.byType(PrivateAmount).first),
-        tester.getSize(find.byType(PrivateAmount).last),
-      );
-      expect(find.textContaining(r'$'), findsNothing);
-      expect(find.textContaining('987'), findsNothing);
-      expect(find.textContaining('••••'), findsNothing);
-      final label = tester
-          .getSemantics(find.byType(PrivateAmount).first)
-          .toStringDeep();
-      expect(label, contains('Amount hidden'));
-      expect(label, isNot(contains('987654321')));
-      expect(tester.takeException(), isNull);
+          settings: const AppSettings(hideAmounts: true),
+        );
+        expect(find.byType(PrivateAmount), findsNWidgets(2));
+        expect(
+          tester.getSize(find.byType(PrivateAmount).first),
+          tester.getSize(find.byType(PrivateAmount).last),
+        );
+        expect(find.textContaining(r'$'), findsNothing);
+        expect(find.textContaining('987'), findsNothing);
+        expect(find.textContaining('••••'), findsNothing);
+        final label = tester
+            .getSemantics(find.byType(PrivateAmount).first)
+            .toStringDeep();
+        expect(label, contains('Amount hidden'));
+        expect(label, isNot(contains('987654321')));
+        expect(tester.takeException(), isNull);
+      } finally {
+        semantics.dispose();
+      }
     },
   );
 
@@ -207,8 +240,13 @@ void main() {
         find.byType(ReorderableDragStartListener).last,
       );
       final drag = await tester.startGesture(start);
-      await drag.moveTo(target + const Offset(0, 80));
+      await tester.pump(const Duration(milliseconds: 80));
+      await drag.moveBy(const Offset(0, 20));
+      await tester.pump(const Duration(milliseconds: 80));
+      await drag.moveTo(target + const Offset(0, 120));
       await tester.pump(const Duration(milliseconds: 400));
+      await drag.moveBy(const Offset(0, 20));
+      await tester.pump(const Duration(milliseconds: 250));
       await drag.up();
       await tester.pumpAndSettle();
       expect(repo.persisted!.settings.homeCards, ['reports', 'accounts']);
@@ -234,7 +272,7 @@ void main() {
       await previewLegacy2026(tester);
       expect(repo.writes, 0);
       expect(find.text('Validated preview'), findsOneWidget);
-      await tester.ensureVisible(find.text('Create imported profile'));
+      await reveal2026(tester, find.text('Create imported profile'));
       await tester.tap(find.text('Create imported profile'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Cancel'));

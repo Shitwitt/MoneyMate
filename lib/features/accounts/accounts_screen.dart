@@ -231,7 +231,8 @@ class _AccountsListScreenState extends ConsumerState<AccountsListScreen> {
     final profile = ledger.data;
     final month = financialMonth(DateTime.now(), ledger.settings.monthStart);
     final width = MediaQuery.sizeOf(context).width;
-    final wide = width >= 760 && MediaQuery.textScalerOf(context).scale(1) <= 1.3;
+    final wide =
+        width >= 760 && MediaQuery.textScalerOf(context).scale(1) <= 1.3;
     Widget accountList() => ListView(
       padding: const EdgeInsets.only(bottom: 110),
       children: [
@@ -297,6 +298,24 @@ class _AccountsListScreenState extends ConsumerState<AccountsListScreen> {
     return FeaturePage(
       title: AppLocalizations.of(context).accounts,
       actions: [
+        PopupMenuButton<String>(
+          tooltip: 'Manage accounts',
+          icon: const Icon(Icons.view_carousel_outlined),
+          onSelected: (value) {
+            if (value == 'add') editAccount(context, ref);
+            if (value == 'edit' && selectedId != null) {
+              editAccount(context, ref, ledger.account(selectedId!));
+            }
+          },
+          itemBuilder: (_) => [
+            const PopupMenuItem(value: 'add', child: Text('Add account')),
+            if (selectedId != null)
+              const PopupMenuItem(
+                value: 'edit',
+                child: Text('Edit selected account'),
+              ),
+          ],
+        ),
         IconButton(
           tooltip: 'Add account',
           onPressed: () => editAccount(context, ref),
@@ -450,10 +469,12 @@ class AccountDetailScreen extends ConsumerWidget {
       padded: false,
       automaticallyImplyLeading: onClose == null,
       actions: [
-        if (onClose != null) IconButton(
-          tooltip: 'Close account panel', onPressed: onClose,
-          icon: const Icon(Icons.close_rounded),
-        ),
+        if (onClose != null)
+          IconButton(
+            tooltip: 'Close account panel',
+            onPressed: onClose,
+            icon: const Icon(Icons.close_rounded),
+          ),
         IconButton(
           tooltip: 'Edit account',
           onPressed: () => editAccount(context, ref, account),
@@ -508,7 +529,8 @@ class AccountDetailScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
                     Wrap(
                       alignment: WrapAlignment.center,
-                      spacing: 12, runSpacing: 10,
+                      spacing: 12,
+                      runSpacing: 10,
                       children: [
                         OutlinedButton.icon(
                           onPressed: () =>

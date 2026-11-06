@@ -164,7 +164,9 @@ class BackupScreen extends ConsumerWidget {
             child: ListTile(
               leading: const Icon(Icons.history_rounded),
               title: const Text('Import Paisa 6.3.6 JSON'),
-              subtitle: const Text('Validate, preview, then create a NEW profile · not current Paisa backups'),
+              subtitle: const Text(
+                'Validate, preview, then create a NEW profile · not current Paisa backups',
+              ),
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => openPage(context, const PaisaImportScreen()),
             ),
@@ -175,14 +177,22 @@ class BackupScreen extends ConsumerWidget {
               child: ListTile(
                 leading: const Icon(Icons.download_for_offline_outlined),
                 title: const Text('Download retained original Paisa JSON'),
-                subtitle: const Text('Unencrypted original 6.3.6 export, including legacy metadata'),
+                subtitle: const Text(
+                  'Unencrypted original 6.3.6 export, including legacy metadata',
+                ),
                 onTap: () => runSafe(context, () async {
-                  final approved = await confirm(context, 'Export original legacy data?',
+                  final approved = await confirm(
+                    context,
+                    'Export original legacy data?',
                     'This file contains the full original financial data, even when on-screen amounts are hidden. Keep it private.',
-                    confirmLabel: 'Export original JSON');
+                    confirmLabel: 'Export original JSON',
+                  );
                   if (!approved) return;
-                  await FileService.save(Uint8List.fromList(utf8.encode(profile.legacyImportJson)),
-                    'Paisa-6.3.6-original.json', mime: 'application/json');
+                  await FileService.save(
+                    Uint8List.fromList(utf8.encode(profile.legacyImportJson)),
+                    'Paisa-6.3.6-original.json',
+                    mime: 'application/json',
+                  );
                 }),
               ),
             ),

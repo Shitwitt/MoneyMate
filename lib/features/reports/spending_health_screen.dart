@@ -28,7 +28,7 @@ Future<void> showSpendingMethods(
     (
       Icons.donut_large,
       'Recorded-data index',
-      'The ring is the equal mean of available planning indicators, requiring at least two. Each indicator is bounded to 0–100. ${data.pulse.metrics.map((m) => '${m.label}: ${m.explanation}').join(' ')}',
+      '${data.ledger.settings.hideAmounts ? 'Index hidden.' : data.pulse.score == null ? 'Index unavailable: fewer than two indicators have data.' : 'Recorded planning index ${data.pulse.score} / 100.'} The ring is the equal mean of available planning indicators, requiring at least two. Each indicator is bounded to 0–100. ${data.pulse.metrics.map((m) => '${m.label}: ${data.ledger.settings.hideAmounts ? 'hidden' : m.value == null ? 'unavailable' : '${m.value!.toStringAsFixed(1)} / 100'}. ${m.explanation}').join(' ')}',
     ),
     (
       Icons.local_fire_department_outlined,

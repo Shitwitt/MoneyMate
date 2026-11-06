@@ -56,21 +56,26 @@ Tink/
 
 ## Current UI work — APK builds on hold
 
-The current branch contains **reference batch 2**: the complete lower Home feed,
-account carousel, month reports/insights, budget overview/details and functional
-budget/recurring help. [All 20 references and exact data rules](docs/REFERENCE_BATCH_02.md).
-**All 20 references are implemented and the source/web verification has passed.**
-[Verified run 42171659295](https://github.com/Shitwitt/MoneyMate/actions/runs/42171659295)
-at application revision `133f36c` passed strict formatting, localization, analysis,
-the full Flutter suite, DST/calendar and Python checks, plus the real Chromium
-walkthrough, offline reload and zero external runtime requests. All five financial
-report links and both chart modes were exercised; 28 fictional-data review frames
-were checked. This is source/browser evidence, not Android-device certification.
+The branch preserves the verified first two batches and completes **Batch 3**
+(Loans, Goals, Labels and Analytics). **Batch 4 is integrated and its final
+browser/screenshot verification is in progress**; it is not yet a completed
+handoff. No next image batch has been requested.
 
-**[Download this verified Batch 2 application source](https://github.com/Shitwitt/MoneyMate/archive/133f36c8b72bc0039f6051bd3d7483d1634340b0.zip)**
-(or download `Tink-source` from the run's Artifacts; GitHub sign-in is required for
-Actions artifacts). The source-only handoff ZIP can include later documentation
-updates; its ZIP comment identifies the exact source commit. No APK is inside it.
+| Batch | Scope | Verification |
+|---|---|---|
+| [2](docs/REFERENCE_BATCH_02.md) | Lower Home feed, accounts/reports, budgets and Recurring | [42171659295](https://github.com/Shitwitt/MoneyMate/actions/runs/42171659295), `133f36c`, source/web success, 28 review frames |
+| [3](docs/REFERENCE_BATCH_03.md) | Connected Loans, Goals, Labels and Analytics, real insight swipe | [42189659642](https://github.com/Shitwitt/MoneyMate/actions/runs/42189659642), `244c9b6`, source/web/offline success, all 25 required review frames checked |
+| [4](docs/REFERENCE_BATCH_04.md) | Categories/charts, full connected transaction form, People/Places, disclosed Spending Health review and finite Material motion | SDK/analyzer/full tests/calendar/offline-packaging checks have passed before the final SDK-format correction; connected browser/39 new required-frame review remains pending |
+
+These are source/browser checks, not Android-device or iOS certification.
+The workflow preserves existing Batch 1–3 journeys and adds Batch 4 rather than
+substituting screenshots or arrows for the required real swipes and holds.
+
+**[Download the verified Batch 3 application source](https://github.com/Shitwitt/MoneyMate/archive/244c9b62bdc7a7adbf60a81525e6ff647f8aa631.zip)**
+(or download `Tink-source` from the corresponding successful run's Artifacts;
+GitHub sign-in is required). Source-only handoff ZIPs can include later
+documentation updates; their archive comment identifies the exact source commit.
+They contain no APK.
 
 **No new APK is compiled or published until the user explicitly says “make APK.”**
 Both Android jobs are now opt-in; ordinary pushes only run source checks/web.
@@ -281,7 +286,7 @@ adb shell am start -a android.intent.action.VIEW \
 
 ## Tink design system
 
-The delivered version **1.3.0+4** implements the first supplied reference batch; the current branch adds [Batch 2](docs/REFERENCE_BATCH_02.md) without a new APK during the build hold. See [scope, genuine deviations and verification](docs/REFERENCE_BATCH_01.md), [design tokens/accessibility](docs/DESIGN_SYSTEM.md) and [build status](docs/BUILD_STATUS.md). Unseen steps 9/11–14 are original Tink layouts, not a claim to know missing screenshots. The earlier [1.2 design](docs/LUXURY_REDESIGN.md) is historical.
+The delivered version **1.3.0+4** implements the first supplied reference batch; the branch adds [Batch 2](docs/REFERENCE_BATCH_02.md), verified [Batch 3](docs/REFERENCE_BATCH_03.md) and the [Batch 4 integration](docs/REFERENCE_BATCH_04.md) without a new APK during the build hold. See [scope, genuine deviations and verification](docs/REFERENCE_BATCH_01.md), [design tokens/accessibility](docs/DESIGN_SYSTEM.md) and [build status](docs/BUILD_STATUS.md). Unseen steps 9/11–14 are original Tink layouts, not a claim to know missing screenshots. The earlier [1.2 design](docs/LUXURY_REDESIGN.md) is historical.
 
 - **Color:** coffee `#1A100E`, dark Home `#231A15`, peach `#FFB59A`, muted ink `#D9C4BA`; warm-white light surfaces and tinted cards. Just Black is selectable without Pro. Material You and custom accents remain functional.
 - **Type:** licensed bundled **TinkRounded 400–700 (Quicksand-derived)**, tabular money and Noto Latin/Arabic/Indic/Thai/CJK fallbacks. This is an approximation: the exact reference font has not been identified. [Font licenses and sources](assets/fonts/README.md). No runtime font CDN.
@@ -324,7 +329,7 @@ Other deliberate boundaries:
 * Recurring ledger writes happen on launch/resume, not a background service. Inexact reminders do not guarantee a specific minute or execute finance writes. Up to 1,000 missed occurrences per rule are caught up per pass.
 * No exchange-rate provider, bank sync, geocoding, receipt OCR, real purchase validation, Drive SDK or server. Assets are manual and loan interest is flat, not amortized/APR. Split bills have one payer; net suggestions are computed across outstanding bills. “Mark settled” is a tracker action, not a payment; use Activity/Loans for actual account movement.
 * Manual goal contributions do not move funds. Avoid counting the same allocation twice by manually contributing and tagging the same income; avoid double-counting an asset also represented in an included account.
-* Whole-state Hive snapshots intentionally make financial edits atomic and backups portable. Writes/filters/analytics are O(n), suitable for personal ledgers; a very large ledger or many photos increases memory/serialization cost. Lists page visible history in batches of 80. Import safety caps are 50 MB, 200,000 stored transactions per profile, 50,000 CSV rows, five receipts per entry and 2 MB per photo. This is not a benchmarked enterprise ledger.
+* Whole-state Hive snapshots intentionally make financial edits atomic and backups portable. Writes and filters scan local records; some analytics traverse hierarchies or make multiple passes, intended for personal ledgers; a very large ledger or many photos increases memory/serialization cost. Lists page visible history in batches of 80. Import safety caps are 50 MB, 200,000 stored transactions per profile, 50,000 CSV rows, five receipts per entry and 2 MB per photo. This is not a benchmarked enterprise ledger.
 * PDF includes a summary, category bars/interpretation and paginated tables, not raster screenshots of Flutter charts. Noto fallback fonts are bundled; complex-script shaping/printing still needs platform/device QA.
 * Pro is intentionally bypassable local state, not purchase security. Forgotten PIN recovery requires a verified export and reinstall/reset; there is no secret backdoor.
 * Home dashboard is a responsive centered feed; accounts have a true tablet list/detail split. Not every feature is a two-pane editor. Native mobile features are not emulated on web.

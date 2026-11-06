@@ -262,7 +262,8 @@ class AppController extends StateNotifier<AppData> {
           !profile.transactions.any((entry) => entry.categoryId == id) &&
           !profile.budgets.any((budget) => budget.categoryIds.contains(id)) &&
           !profile.recurrings.any((rule) => rule.categoryId == id) &&
-          !profile.templates.any((template) => template.categoryId == id),
+          !profile.templates.any((template) => template.categoryId == id) &&
+          !profile.loans.any((loan) => loan.categoryId == id),
       'This category is in use. Hide it instead.',
     );
     return profile.copyWith(

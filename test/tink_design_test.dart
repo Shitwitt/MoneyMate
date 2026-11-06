@@ -19,6 +19,48 @@ double contrast(Color a, Color b) {
 
 void main() {
   testWidgets(
+    'Category icon glyph contrast adapts to composited custom colors',
+    (tester) async {
+      for (final brightness in Brightness.values) {
+        for (final color in [
+          const Color(0xff777777),
+          const Color(0xfff6bb96),
+          const Color(0xff794126),
+          const Color(0xff111111),
+          const Color(0x40888888),
+        ]) {
+          await tester.pumpWidget(
+            MaterialApp(
+              theme: tinkTheme(const AppSettings(), brightness),
+              home: Scaffold(
+                body: Center(
+                  child: CategoryIcon(icon: Icons.category, color: color),
+                ),
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+          final icon = tester.widget<Icon>(
+            find.descendant(
+              of: find.byType(CategoryIcon),
+              matching: find.byType(Icon),
+            ),
+          );
+          final box = tester.widget<Container>(
+            find.descendant(
+              of: find.byType(CategoryIcon),
+              matching: find.byType(Container),
+            ),
+          );
+          final background = (box.decoration! as BoxDecoration).color!;
+          expect(contrast(background, icon.color!), greaterThanOrEqualTo(4.5));
+          expect(tester.takeException(), isNull);
+        }
+      }
+    },
+  );
+
+  testWidgets(
     'Twelve reference/original tour steps lead to real account setup',
     (tester) async {
       await tester.pumpWidget(

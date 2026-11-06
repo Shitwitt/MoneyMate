@@ -37,7 +37,8 @@ class _CategoryDetailScreenState extends ConsumerState<CategoryDetailScreen> {
         title: 'Category removed',
         child: EmptyState(
           title: 'Nothing to display',
-          message: 'Return to your categories. Existing record protection remains in place.',
+          message:
+              'Return to your categories. Existing record protection remains in place.',
         ),
       );
     final ids = categorySubtree(ledger.data, category.id);
@@ -121,9 +122,19 @@ class _CategoryDetailScreenState extends ConsumerState<CategoryDetailScreen> {
           tooltip: 'Delete or hide category',
           icon: const Icon(Icons.delete_outline),
           onPressed: () async {
-            final used = ledger.data.transactions.any(
-              (e) => e.categoryId == category.id,
-            );
+            final used =
+                ledger.data.transactions.any(
+                  (e) => e.categoryId == category.id,
+                ) ||
+                ledger.data.categories.any((c) => c.parentId == category.id) ||
+                ledger.data.budgets.any(
+                  (b) => b.categoryIds.contains(category.id),
+                ) ||
+                ledger.data.recurrings.any(
+                  (r) => r.categoryId == category.id,
+                ) ||
+                ledger.data.templates.any((t) => t.categoryId == category.id) ||
+                ledger.data.loans.any((l) => l.categoryId == category.id);
             if (await confirm(
                   context,
                   used ? 'Hide this category?' : 'Delete category?',

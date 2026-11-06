@@ -118,6 +118,7 @@ Future<void> _editCategory(
   var type = initial?.type ?? initialType, icon = initial?.icon ?? 'category';
   var color = initial?.color ?? palette.first;
   var parentId = initial?.parentId ?? '';
+  var hiddenCategory = initial?.hidden ?? false;
   bool canParent(Category candidate) {
     var id = candidate.id;
     final visited = <String>{};
@@ -159,6 +160,15 @@ Future<void> _editCategory(
         ],
         onChanged: (value) => setLocal(() => parentId = value ?? ''),
       ),
+      SwitchListTile.adaptive(
+        contentPadding: EdgeInsets.zero,
+        title: const Text('Hide from new entries'),
+        subtitle: const Text(
+          'History is retained. Turn this off to show the category again.',
+        ),
+        value: hiddenCategory,
+        onChanged: (value) => setLocal(() => hiddenCategory = value),
+      ),
       const SizedBox(height: 16),
       ReferenceColorPicker(
         value: color,
@@ -176,7 +186,7 @@ Future<void> _editCategory(
             icon: icon,
             color: color,
             parentId: parentId,
-            hidden: initial?.hidden ?? false,
+            hidden: hiddenCategory,
             order:
                 initial?.order ?? ref.read(profileProvider)!.categories.length,
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:paisaclone/core/data/ledger.dart';
+import 'package:paisaclone/core/data/financial_pulse.dart';
 import 'package:paisaclone/core/data/providers.dart';
 import 'package:paisaclone/core/models/models.dart';
 import 'package:paisaclone/core/theme/theme.dart';
@@ -14,6 +15,7 @@ import 'package:paisaclone/features/recurring/recurring_editor.dart';
 import 'package:paisaclone/l10n/generated/app_localizations.dart';
 import 'package:paisaclone/shared/analytics_chart.dart';
 import 'package:paisaclone/shared/reference_charts.dart';
+import 'package:paisaclone/shared/wavy_ring.dart';
 import 'package:paisaclone/core/data/reporting.dart';
 
 import 'reference_batch_03_widgets_test.dart' show batchThreeData;
@@ -73,6 +75,7 @@ Future<MemoryRepository> pumpFour(
   );
   await tester.pumpWidget(
     ProviderScope(
+      key: ValueKey(repo),
       overrides: [repositoryProvider.overrideWithValue(repo)],
       child: MaterialApp(
         theme: tinkTheme(settings, Brightness.dark),
@@ -373,6 +376,103 @@ void main() {
       await tester.pumpAndSettle();
       expect(repo.writes, 0);
       expect(find.text('Review recurring draft'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets(
+    'Holding the index reveals its actual calculation and honors privacy',
+    (tester) async {
+      for (final hidden in [false, true]) {
+        final data = batchFourData(),
+            settings = AppSettings(hideAmounts: hidden);
+        final score = FinancialPulse.fromLedger(
+          Ledger(data, settings),
+          DateTime.now(),
+        ).score;
+        await pumpFour(
+          tester,
+          const SpendingHealthScreen(),
+          data: data,
+          settings: settings,
+        );
+        await tester.longPress(find.byType(WavyRing).first);
+        await tester.pumpAndSettle();
+        expect(find.text('How Spending Review Works'), findsOneWidget);
+        expect(
+          find.textContaining(
+            hidden ? 'Index hidden.' : 'Recorded planning index $score / 100.',
+          ),
+          findsOneWidget,
+        );
+        if (hidden) {
+          expect(
+            find.textContaining('Recorded planning index $score / 100.'),
+            findsNothing,
+          );
+        }
+        expect(tester.takeException(), isNull);
+        await tester.tap(find.text('Got it'));
+        await tester.pumpAndSettle();
+      }
+    },
+  );
+  testWidgets(
+    'Hidden category can be restored without modifying its linked records',
+    (tester) async {
+      var data = batchFourData();
+      final category = data.categories
+          .firstWhere((c) => c.type == 'expense')
+          .copyWith(hidden: true);
+      data = data.copyWith(
+        categories: [
+          for (final c in data.categories) c.id == category.id ? category : c,
+        ],
+      );
+      final repo = await pumpFour(
+        tester,
+        Consumer(
+          builder: (context, ref, _) => Scaffold(
+            body: Center(
+              child: FilledButton(
+                onPressed: () => editCatalogCategory(context, ref, category),
+                child: const Text('Restore category'),
+              ),
+            ),
+          ),
+        ),
+        data: data,
+        scale: 1,
+      );
+      await tester.tap(find.text('Restore category'));
+      await tester.pumpAndSettle();
+      final toggle = find.byWidgetPredicate(
+        (w) =>
+            w is SwitchListTile &&
+            w.title is Text &&
+            (w.title as Text).data == 'Hide from new entries',
+      );
+      expect(tester.widget<SwitchListTile>(toggle).value, isTrue);
+      await tester.ensureVisible(toggle);
+      await tester.pumpAndSettle();
+      await tester.tap(toggle);
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.text('Save'),
+        350,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      final saved = repo.persisted!.profiles.first;
+      expect(
+        saved.categories.singleWhere((c) => c.id == category.id).hidden,
+        isFalse,
+      );
+      expect(
+        saved.transactions.map((e) => e.toJson()),
+        data.transactions.map((e) => e.toJson()),
+      );
       expect(tester.takeException(), isNull);
     },
   );

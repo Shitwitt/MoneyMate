@@ -293,6 +293,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                             for (final pair in [
                               ('Accounts', filter.accounts.length),
                               ('Categories', filter.categories.length),
+                              (
+                                'Excluded categories',
+                                filter.excludedCategories.length,
+                              ),
                               ('Labels', filter.labels.length),
                               ('People', filter.people.length),
                               ('Places', filter.places.length),

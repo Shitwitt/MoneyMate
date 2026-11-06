@@ -133,8 +133,9 @@ class AppController extends StateNotifier<AppData> {
   }
 
   Future<void> updateProfile(
-    ProfileData Function(ProfileData, AppData) change,
-  ) => mutate(
+    ProfileData Function(ProfileData, AppData) change, {
+    bool awardAchievements = true,
+  }) => mutate(
     (app) => app.copyWith(
       profiles: [
         for (final profile in app.profiles)
@@ -144,6 +145,7 @@ class AppController extends StateNotifier<AppData> {
             profile,
       ],
     ),
+    awardAchievements: awardAchievements,
   );
   Future<void> settings(AppSettings Function(AppSettings) change) =>
       mutate((app) => app.copyWith(settings: change(app.settings)));
@@ -666,8 +668,14 @@ class AppController extends StateNotifier<AppData> {
           if (rule.end != null && due.isAfter(rule.end!)) enabled = false;
           rules.add(rule.copyWith(nextDue: due, enabled: enabled));
         }
-        return profile.copyWith(transactions: entries, recurrings: rules);
-      });
+        final next = profile.copyWith(transactions: entries, recurrings: rules);
+        // Catch-up also runs immediately after profile import/activation. Only
+        // newly posted records should earn badges, never a no-op refresh of
+        // historical data or an unrelated inactive profile.
+        return entries.length > profile.transactions.length
+            ? unlockAchievements(next, app.settings)
+            : next;
+      }, awardAchievements: false);
 
   /// Advance exactly the occurrence that was displayed. Stale/double taps cannot
   /// skip a second payment or create duplicate debits under concurrent catch-up.

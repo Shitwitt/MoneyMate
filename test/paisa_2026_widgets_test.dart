@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:paisaclone/core/data/ledger.dart';
 import 'package:paisaclone/core/data/providers.dart';
 import 'package:paisaclone/core/models/models.dart';
 import 'package:paisaclone/core/theme/theme.dart';
@@ -9,6 +10,7 @@ import 'package:paisaclone/features/accounts/accounts_screen.dart';
 import 'package:paisaclone/features/home/home_screen.dart';
 import 'package:paisaclone/features/settings/page_shortcuts_screen.dart';
 import 'package:paisaclone/features/settings/paisa_import_screen.dart';
+import 'package:paisaclone/features/transactions/filter_sheet.dart';
 import 'package:paisaclone/features/transactions/transaction_form.dart';
 import 'package:paisaclone/l10n/generated/app_localizations.dart';
 import 'package:paisaclone/shared/private_amount.dart';
@@ -185,6 +187,72 @@ void main() {
       await tester.enterText(notes, 'First line\nSecond line');
       expect(repo.writes, 0);
       expect(repo.initial.profiles.single.transactions, isEmpty);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'The real filter sheet selects, deselects and applies category exclusions',
+    (tester) async {
+      TransactionFilter? result;
+      final data = fixture();
+      await pump2026(
+        tester,
+        Builder(
+          builder: (context) => Scaffold(
+            body: FilledButton(
+              onPressed: () async {
+                result = await showTransactionFilters(
+                  context,
+                  data,
+                  const TransactionFilter(),
+                );
+              },
+              child: const Text('Open filters'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open filters'));
+      await tester.pumpAndSettle();
+      await reveal2026(
+        tester,
+        find.text('Exclude categories (including children)'),
+      );
+      final group = find.byWidgetPredicate(
+        (w) => w is Semantics && w.properties.label == 'Excluded categories',
+      );
+      final food = find.descendant(
+        of: group,
+        matching: find.widgetWithText(FilterChip, 'Food & Dining'),
+      );
+      await tester.ensureVisible(food);
+      await tester.pumpAndSettle();
+      await tester.tap(food);
+      await tester.pumpAndSettle();
+      expect(tester.widget<FilterChip>(food).selected, isTrue);
+      await tester.tap(food);
+      await tester.pumpAndSettle();
+      expect(tester.widget<FilterChip>(food).selected, isFalse);
+      await tester.tap(food);
+      await tester.pumpAndSettle();
+      await reveal2026(tester, find.text('Apply filters'));
+      await tester.tap(find.text('Apply filters'));
+      await tester.pumpAndSettle();
+      final foodId = data.categories
+          .firstWhere((c) => c.name == 'Food & Dining')
+          .id;
+      expect(result!.excludedCategories, {foodId});
+      final records = data.copyWith(
+        transactions: [
+          expense(data),
+          expense(data, id: 'income', type: 'income'),
+        ],
+      );
+      expect(
+        result!.apply(Ledger(records, const AppSettings())).map((t) => t.id),
+        ['income'],
+      );
       expect(tester.takeException(), isNull);
     },
   );

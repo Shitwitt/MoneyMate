@@ -110,7 +110,7 @@ module.exports = async function reference2026({page, nav, goBack, capture, scrol
     const rows = csvRows(fs.readFileSync(csvPath, 'utf8').replace(/^\uFEFF/, ''));
     const categoryColumn = rows[0].indexOf('category');
     if (rows.length - 1 !== count || categoryColumn < 0 || rows.slice(1).some(row => row[categoryColumn] === 'Food & Dining')) {
-      throw new Error('Category exclusions were lost in CSV export');
+      throw new Error('Category exclusions were lost in CSV export: declared=' + count + ', actual=' + (rows.length - 1) + ', categoryColumn=' + categoryColumn + ', sample=' + JSON.stringify(rows.slice(1, 5).map(row => [row[3], row[categoryColumn]])));
     }
     await goBack(); await goBack();
   });

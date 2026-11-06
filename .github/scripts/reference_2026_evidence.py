@@ -11,7 +11,7 @@ FRAMES = ['home-reorder', 'home-reordered', 'privacy', 'shortcuts', 'filters',
 part = sys.argv[1] if len(sys.argv) > 1 else '--verify-only'
 selected = [] if part == '--verify-only' else FRAMES[int(part) * 3:(int(part) + 1) * 3]
 manifest = []
-for name in FRAMES:
+for name in (FRAMES if part == '--verify-only' else selected):
     frame = Path(f'review-shots/web-2026-{name}.jpg')
     thumb = frame.with_name(frame.stem + '-thumb.jpg')
     record = {'name': name}

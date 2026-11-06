@@ -357,10 +357,14 @@ jobs:
       - name: Require all 2026 frames and record hashes
         run: python3 .github/scripts/checked_command.py python3 .github/scripts/reference_2026_evidence.py --verify-only
       - name: 2026 frames 1–3
+        if: always()
         run: python3 .github/scripts/checked_command.py python3 .github/scripts/reference_2026_evidence.py 0
       - name: 2026 frames 4–6
+        if: always()
         run: python3 .github/scripts/checked_command.py python3 .github/scripts/reference_2026_evidence.py 1
       - name: 2026 frames 7–9
+        if: always()
         run: python3 .github/scripts/checked_command.py python3 .github/scripts/reference_2026_evidence.py 2
       - name: 2026 frames 10–12
+        if: always()
         run: python3 .github/scripts/checked_command.py python3 .github/scripts/reference_2026_evidence.py 3

@@ -170,10 +170,15 @@ Widget formChips(
             (item) => FilterChip(
               label: Text(item.value),
               selected: selected.contains(item.key),
-              onSelected: (value) => changed(
-                value ? {...selected, item.key} : {...selected}
-                  ..remove(item.key),
-              ),
+              onSelected: (value) {
+                final next = {...selected};
+                if (value) {
+                  next.add(item.key);
+                } else {
+                  next.remove(item.key);
+                }
+                changed(next);
+              },
             ),
           )
           .toList(),

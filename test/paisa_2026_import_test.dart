@@ -310,6 +310,55 @@ void main() {
     expect(app.snapshot.profiles.length, 2);
   });
 
+  test('Import catch-up preserves history and other profiles', () async {
+    final original = fixture();
+    final before = original.copyWith(transactions: [expense(original)]);
+    final repo = MemoryRepository(appFor(before));
+    final controller = AppController(repo);
+    addTearDown(controller.dispose);
+    final imported = inspectLegacy().profile;
+    await controller.importLegacyProfile(imported);
+    expect(controller.snapshot.profiles.last.achievements, isEmpty);
+    await controller.processRecurring(clock: DateTime(2026, 11, 6));
+    expect(controller.snapshot.profiles.first.toJson(), before.toJson());
+    expect(controller.snapshot.profiles.last.toJson(), imported.toJson());
+    expect(controller.snapshot.profiles.last.achievements, isEmpty);
+    expect(
+      Ledger(
+        controller.snapshot.profiles.last,
+        controller.snapshot.settings,
+      ).accountsTotal,
+      11250,
+    );
+  });
+
+  test('Posted recurring records still earn one badge', () async {
+    final data = fixture();
+    final due = DateTime(2026, 1, 5);
+    final profile = data.copyWith(
+      recurrings: [
+        Recurring(
+          id: 'due-for-badge',
+          name: 'Fictional due bill',
+          amountMinor: 250,
+          accountId: data.accounts.first.id,
+          categoryId: data.categories.firstWhere((c) => c.type == 'expense').id,
+          start: due,
+          nextDue: due,
+        ),
+      ],
+    );
+    final controller = AppController(MemoryRepository(appFor(profile)));
+    addTearDown(controller.dispose);
+    await controller.processRecurring(clock: due);
+    final posted = controller.snapshot.profiles.single;
+    expect(posted.transactions.length, 1);
+    expect(posted.transactions.single.amountMinor, 250);
+    expect(posted.achievements.where((a) => a.id == 'first').length, 1);
+    await controller.processRecurring(clock: due);
+    expect(controller.snapshot.profiles.single.toJson(), posted.toJson());
+  });
+
   test(
     'Invalid profiles and the profile-count limit cannot partially import',
     () async {

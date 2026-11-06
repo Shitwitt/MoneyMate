@@ -65,9 +65,8 @@ class CatalogScreen extends ConsumerWidget {
               itemCount: entities.length,
               itemBuilder: (context, index) {
                 final entity = entities[index];
-                final entries = _filterFor(
-                  entity,
-                ).apply(ref.read(ledgerProvider)!);
+                final entries = _filterFor(entity)
+                    .apply(ref.read(ledgerProvider)!);
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Card(

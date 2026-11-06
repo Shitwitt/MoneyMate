@@ -371,9 +371,8 @@ class _HomeGreeting extends StatelessWidget {
           TextSpan(text: ' $earned milestones.'),
         ],
       ),
-      style: Theme.of(
-        context,
-      ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600, height: 1.5),
+      style: Theme.of(context).textTheme.bodyLarge
+          ?.copyWith(fontWeight: FontWeight.w600, height: 1.5),
     );
   }
 }
@@ -882,10 +881,8 @@ class _DashboardTile extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontSize: 15,
-                        color: ink,
-                      ),
+                      style: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(fontSize: 15, color: ink),
                     ),
                   ),
                   if (![
@@ -1226,9 +1223,8 @@ class _SpendingComparison extends StatelessWidget {
           : change == null
           ? 'No previous period amount'
           : '${change >= 0 ? '↗' : '↘'} ${change.abs().toStringAsFixed(1)}% vs previous period',
-      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        color: AppColors.semantic(context, 'expense'),
-      ),
+      style: Theme.of(context).textTheme.bodySmall
+          ?.copyWith(color: AppColors.semantic(context, 'expense')),
     );
   }
 }

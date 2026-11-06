@@ -12,7 +12,6 @@ import 'package:paisaclone/features/transactions/transaction_form.dart';
 import 'package:paisaclone/l10n/generated/app_localizations.dart';
 import 'package:paisaclone/shared/analytics_chart.dart';
 import 'package:paisaclone/shared/reference_editor.dart';
-import 'package:paisaclone/shared/widgets.dart';
 
 import 'support.dart';
 
@@ -232,13 +231,13 @@ void main() {
       await tester.pumpAndSettle();
       await tester.ensureVisible(
         find.byWidgetPredicate(
-          (w) => w is TextFormField && w.decoration?.labelText == 'ARGB color',
+          (w) => w is TextField && w.decoration?.labelText == 'ARGB color',
         ),
       );
       await tester.pumpAndSettle();
       await tester.enterText(
         find.byWidgetPredicate(
-          (w) => w is TextFormField && w.decoration?.labelText == 'ARGB color',
+          (w) => w is TextField && w.decoration?.labelText == 'ARGB color',
         ),
         '#123456',
       );

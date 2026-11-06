@@ -23,8 +23,7 @@ const weekdayNames = [
 Future<void> showAnalyticsHelp(BuildContext context) => showHowItWorks(
   context,
   title: 'How Analytics Work',
-  introduction:
-      'Transparent calculations from records on this device. Not AI advice, fraud detection or a prediction of unrecorded spending.',
+  introduction: 'Transparent calculations from records on this device. Not AI advice, fraud detection or a prediction of unrecorded spending.',
   sections: const [
     (
       Icons.receipt_long_outlined,
@@ -196,9 +195,9 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                                 Expanded(
                                   child: Text(
                                     '${c.previous == 0 ? 'New Spending' : 'High Spending'} in ${c.name}',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleMedium,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium,
                                   ),
                                 ),
                               ],
@@ -262,9 +261,8 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               children: [
                 AmountText(
                   data.daily,
-                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                  style: Theme.of(context).textTheme.displaySmall
+                      ?.copyWith(color: Theme.of(context).colorScheme.primary),
                 ),
                 const Text('/daily'),
               ],
@@ -555,9 +553,9 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                               children: [
                                 Text(
                                   c.name,
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
                                 ),
                                 Text(
                                   '${c.currentCount} transactions this period',

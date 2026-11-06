@@ -394,50 +394,50 @@ class AppController extends StateNotifier<AppData> {
       ],
     ),
   );
-  Future<void> upsertLoan(
-    Loan item, {
-    String disburseAccountId = '',
-  }) => updateProfile((profile, app) {
-    final old = profile.loans.where((l) => l.id == item.id).firstOrNull;
-    require(
-      old == null || old.repayments.isEmpty || old.direction == item.direction,
-      'A loan with payments cannot change direction. Create a new loan instead.',
-    );
-    final entries = [...profile.transactions];
-    if (disburseAccountId.isNotEmpty &&
-        !profile.loans.any((loan) => loan.id == item.id)) {
-      final account = profile.accounts.firstWhere(
-        (a) => a.id == disburseAccountId,
-      );
-      final type = item.direction == 'lent' ? 'expense' : 'income';
-      entries.add(
-        MoneyTransaction(
-          id: uuid.v4(),
-          name: 'Loan · ${item.personName}',
-          type: type,
-          amountMinor: convertMinor(
-            item.principalMinor,
-            profile.profile.currency,
-            account.currency,
-            profile.rates,
-          ),
-          accountId: account.id,
-          categoryId: item.categoryId.isNotEmpty
-              ? item.categoryId
-              : profile.categories.firstWhere((c) => c.type == type).id,
-          date: item.start ?? DateTime.now(),
-          createdAt: DateTime.now(),
-          loanId: item.id,
-          notes: item.notes,
-          personIds: item.personId.isEmpty ? [] : [item.personId],
-        ),
-      );
-    }
-    return profile.copyWith(
-      loans: replace(profile.loans, item, (l) => l.id),
-      transactions: entries,
-    );
-  });
+  Future<void> upsertLoan(Loan item, {String disburseAccountId = ''}) =>
+      updateProfile((profile, app) {
+        final old = profile.loans.where((l) => l.id == item.id).firstOrNull;
+        require(
+          old == null ||
+              old.repayments.isEmpty ||
+              old.direction == item.direction,
+          'A loan with payments cannot change direction. Create a new loan instead.',
+        );
+        final entries = [...profile.transactions];
+        if (disburseAccountId.isNotEmpty &&
+            !profile.loans.any((loan) => loan.id == item.id)) {
+          final account = profile.accounts.firstWhere(
+            (a) => a.id == disburseAccountId,
+          );
+          final type = item.direction == 'lent' ? 'expense' : 'income';
+          entries.add(
+            MoneyTransaction(
+              id: uuid.v4(),
+              name: 'Loan · ${item.personName}',
+              type: type,
+              amountMinor: convertMinor(
+                item.principalMinor,
+                profile.profile.currency,
+                account.currency,
+                profile.rates,
+              ),
+              accountId: account.id,
+              categoryId: item.categoryId.isNotEmpty
+                  ? item.categoryId
+                  : profile.categories.firstWhere((c) => c.type == type).id,
+              date: item.start ?? DateTime.now(),
+              createdAt: DateTime.now(),
+              loanId: item.id,
+              notes: item.notes,
+              personIds: item.personId.isEmpty ? [] : [item.personId],
+            ),
+          );
+        }
+        return profile.copyWith(
+          loans: replace(profile.loans, item, (l) => l.id),
+          transactions: entries,
+        );
+      });
   Future<void> repayLoan(
     String id,
     int amount,

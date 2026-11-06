@@ -149,8 +149,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> {
                   : selected == 1
                   ? 'Keep taking little steps'
                   : 'What are you dreaming of?',
-              message:
-                  'Track a target with a linked account or manual contributions.',
+              message: 'Track a target with a linked account or manual contributions.',
               icon: Icons.flag_outlined,
               action: selected == 0 ? 'Start a goal' : null,
               onAction: selected == 0 ? () => editGoal(context, ref) : null,
@@ -291,8 +290,7 @@ Future<void> editGoal(
     context,
     title: 'Goal',
     saveLabel: initial == null ? 'Create Goal' : 'Update Goal',
-    description:
-        'Linked progress uses the whole account book balance. Manual contributions reserve money only in this plan. Dates organize the goal; they do not filter that balance.',
+    description: 'Linked progress uses the whole account book balance. Manual contributions reserve money only in this plan. Dates organize the goal; they do not filter that balance.',
     fields: (context, setLocal) {
       final profile = ref.read(profileProvider)!;
       return [
@@ -592,17 +590,17 @@ class _GoalDetailScreenState extends ConsumerState<GoalDetailScreen> {
                           SizedBox(
                             width: (box.maxWidth - (columns - 1) * 8) / columns,
                             child: TonalCard(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerHighest,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     t.$1,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall,
                                   ),
                                   const SizedBox(height: 10),
                                   t.$2,

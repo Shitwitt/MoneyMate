@@ -21,8 +21,7 @@ import '../transactions/transactions_screen.dart';
 Future<void> showLoansHelp(BuildContext context) => showHowItWorks(
   context,
   title: 'How Loans Work',
-  introduction:
-      'Loans help you track money you have lent to others or borrowed, with payment progress.',
+  introduction: 'Loans help you track money you have lent to others or borrowed, with payment progress.',
   sections: const [
     (
       Icons.swap_vert,

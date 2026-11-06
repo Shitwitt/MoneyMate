@@ -15,8 +15,7 @@ import 'catalog_screen.dart';
 Future<void> showLabelsHelp(BuildContext context) => showHowItWorks(
   context,
   title: 'How Labels Work',
-  introduction:
-      'Labels add context to your transactions and help you organize your money.',
+  introduction: 'Labels add context to your transactions and help you organize your money.',
   sections: const [
     (
       Icons.label_outline,
@@ -129,16 +128,16 @@ class _LabelsScreenState extends ConsumerState<LabelsScreen> {
                                 children: [
                                   Text(
                                     label.name,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleMedium,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium,
                                   ),
                                   const SizedBox(height: 5),
                                   Text(
                                     '${entries.length} transactions',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall,
                                   ),
                                   const SizedBox(height: 10),
                                   AmountText(

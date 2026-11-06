@@ -80,6 +80,8 @@ jobs:
       - name: Prepare recommended Android NDK (retry downloads)
         run: python3 .github/scripts/checked_command.py bash .github/scripts/prepare_android.sh
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
       - name: Optional persistent release signing key
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -94,7 +96,7 @@ jobs:
           else
             echo 'No signing secrets: producing an installable DEBUG-KEY-SIGNED release APK. See README before distributing.'
           fi
-      - run: python3 .github/scripts/checked_command.py flutter build apk --release
+      - run: python3 .github/scripts/checked_command.py python3 .github/scripts/retry_build.py flutter build apk --release
       - name: Verify APK branding, version, native payload, signature and offline permissions
         run: python3 .github/scripts/checked_command.py python3 .github/scripts/verify_apk.py build/app/outputs/flutter-apk/app-release.apk
       - uses: actions/upload-artifact@v5

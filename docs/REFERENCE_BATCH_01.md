@@ -75,5 +75,5 @@ This is the **1.3.0+4** source, not the published 1.2 APK.
 - Browser: isolated demo edit/process/archive/exit, calendar/help/history,
   14-step setup, accounts/reports, theme persistence, offline reload and no
   external runtime requests, with fictional-data screenshots.
-- Fresh Android release APK and source ZIP only after checks pass.
+- Fresh Android release APK and source ZIP only after checks pass. Android dependency downloads recently returned Maven Central HTTP 429; bounded transient-only retry and latest-push debug concurrency are being verified. Ordinary compile errors are not retried.
 - Physical-device and iOS verification remain unproven unless reported separately.

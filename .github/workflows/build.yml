@@ -10,8 +10,8 @@ on:
 permissions:
   contents: write
 concurrency:
-  # A stale older run must not hold a newer APK behind its concurrency lock.
-  group: debug-${{ github.ref }}-${{ github.sha }}
+  # New pushes supersede old debug builds instead of stampeding Maven Central.
+  group: debug-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   debug-apk:
@@ -37,11 +37,13 @@ jobs:
       - name: Prepare recommended Android NDK (retry downloads)
         run: python3 .github/scripts/checked_command.py bash .github/scripts/prepare_android.sh
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
       - name: Build debug APK directly with Gradle
         working-directory: android
         run: |
           chmod +x gradlew
-          python3 ../.github/scripts/checked_command.py ./gradlew assembleDebug --stacktrace
+          python3 ../.github/scripts/checked_command.py python3 ../.github/scripts/retry_build.py ./gradlew assembleDebug --stacktrace
       - uses: actions/upload-artifact@v5
         with:
           name: Tink-debug-APK

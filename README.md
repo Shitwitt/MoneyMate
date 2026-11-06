@@ -267,19 +267,38 @@ The project opts for CocoaPods; if your Flutter installation enables experimenta
 * CSV supports income/expense rows, ISO dates, positive decimal amounts, mapped columns, validation preview, duplicate-ID/fingerprint skips, then atomic batch import. It is not a full-fidelity backup: transfers, attachments and all metadata use JSON/ZIP. CSV export neutralizes spreadsheet formula injection in text fields.
 * Scoped Android/iOS system pickers and app-private files mean **no broad storage or all-files permission is needed**. Camera/biometric/notification permissions are declared and requested only as appropriate. Debug/profile builds alone include Internet permission for the development VM service.
 
+## Whole-app reference review
+
+The additional reference is the [Paisa website](https://paisa-tracker.app/),
+its [feature guide](https://paisa-tracker.app/faq),
+[automation contract](https://paisa-tracker.app/automation), and the supplied
+[public release repository](https://github.com/h4h13/paisa-app/releases).
+The repository and its latest public release tag contain **no full Flutter app
+source**, and its README states **All rights reserved**. Its automatic source
+archives are not a reusable copy of the app. No Paisa code, translations, art,
+fonts or binaries have been copied into Tink.
+
+[The reference audit](docs/PAISA_REFERENCE_AUDIT.md) maps the advertised features,
+existing Tink implementations, intentional offline differences and remaining
+layout/device checks. This is an independently implemented feature reference,
+not a claim of complete certified parity. Filtered/selected activity now has
+explicit CSV/PDF choices with a private-data warning; Tink-branded automation
+links keep the old scheme compatible and accept the documented `description`
+parameter as an alias for `notes`.
+
 ## Links / Tasker automation
 
 ```text
-paisa://quick_add
-paisa://add?amount=180&type=expense&name=Coffee&account=Everyday&category=Food%20%26%20Dining
-paisa://silent_add?amount=180&type=expense&name=Coffee&account=Everyday&category=Food%20%26%20Dining
+tink://quick_add
+tink://add?amount=180&type=expense&name=Coffee&account=Everyday&category=Food%20%26%20Dining
+tink://silent_add?amount=180&type=expense&name=Coffee&account=Everyday&category=Food%20%26%20Dining&description=Local%20note
 ```
 
-Optional parameters: `date` (ISO 8601) and `notes`; account/category accept an existing ID or case-insensitive name. Missing type defaults to expense, missing account/category uses the first valid match. Unknown names, negative/nonfinite amounts and transfer requests are rejected. The default path always asks for confirmation; `silent_add` posts only after unlock and after enabling its explicit security warning/toggle in Help. Any installed app can invoke a custom URI, so enable silence only on a trusted device. Pending requests wait for onboarding/unlock.
+The canonical custom scheme is `tink://`; existing `paisa://` links remain supported for compatibility. If the original app is installed too, the OS may offer both handlers for the legacy scheme. Optional parameters: `date` (ISO 8601), `notes`, and `description` (an alias; explicit `notes` wins); account/category accept an existing ID or case-insensitive name. Missing type defaults to expense, missing account/category uses the first valid match. Unknown names, negative/nonfinite amounts and transfer requests are rejected. The default path always asks for confirmation; `silent_add` posts only after unlock and after enabling its explicit security warning/toggle in Help. Any installed app can invoke a custom URI, so enable silence only on a trusted device. Pending requests wait for onboarding/unlock.
 
 ```bash
 adb shell am start -a android.intent.action.VIEW \
-  -d 'paisa://quick_add' com.example.paisaclone
+  -d 'tink://quick_add' com.example.paisaclone
 ```
 
 `https://paisaclone.example/add?...` in the manifest is a **deliberately unverified placeholder**, not a hosted fallback. To distribute verified HTTPS links, replace it with a domain you own; host a fallback page plus `.well-known/assetlinks.json` with your package/signing certificate and `apple-app-site-association`; set Android `autoVerify` and iOS Associated Domains. Do not claim ownership of paisa-tracker.app or use the original app’s package ID.
@@ -301,7 +320,7 @@ Safe to spend is a **calculated planning estimate**, not net worth relabeled and
 
 ### Upgrade compatibility
 
-Public app labels, icons, exports, web shell and widgets are Tink. To retain records and old backups, the internal Dart package `paisaclone`, Android ID **`com.example.paisaclone`**, iOS/App Group IDs, Hive **`paisaclone_v1`**, archive entry **`paisaclone.json`**, backup format **`paisaclone-backup`**, and existing **`paisa://`** links deliberately remain stable. **The same Android signing certificate is still required for an in-place upgrade.** Do not confuse identifier compatibility with signing compatibility.
+Public app labels, icons, exports, web shell and widgets are Tink. To retain records and old backups, the internal Dart package `paisaclone`, Android ID **`com.example.paisaclone`**, iOS/App Group IDs, Hive **`paisaclone_v1`**, archive entry **`paisaclone.json`**, backup format **`paisaclone-backup`**, and existing **`paisa://`** links deliberately remain stable. New shortcuts and widget links use **`tink://`** without changing those internal IDs. **The same Android signing certificate is still required for an in-place upgrade.** Do not confuse identifier compatibility with signing compatibility.
 
 ## Customization
 

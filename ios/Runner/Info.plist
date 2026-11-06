@@ -79,6 +79,7 @@
 			<string>com.example.paisaclone</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>tink</string>
 				<string>paisa</string>
 			</array>
 		</dict>

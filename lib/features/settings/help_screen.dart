@@ -16,7 +16,7 @@ class HelpScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(appProvider).settings;
     const example =
-        'paisa://silent_add?amount=180&type=expense&name=Coffee&account=Everyday&category=Food%20%26%20Dining';
+        'tink://silent_add?amount=180&type=expense&name=Coffee&account=Everyday&category=Food%20%26%20Dining';
     return FeaturePage(
       title: 'Help & a little clarity',
       child: ListView(
@@ -134,12 +134,12 @@ class HelpScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           const SelectableText(
-            'adb shell am start -a android.intent.action.VIEW -d "paisa://quick_add" com.example.paisaclone',
+            'adb shell am start -a android.intent.action.VIEW -d "tink://quick_add" com.example.paisaclone',
             style: TextStyle(fontFamily: 'monospace', fontSize: 11),
           ),
           const SizedBox(height: 14),
           const Text(
-            'HTTPS fallback: https://paisaclone.example/add?... is a deliberately unverified placeholder, not a hosted website. Replace it with a domain you own, host a fallback page and assetlinks.json / apple-app-site-association, and configure App Links / Associated Domains before distributing. Custom paisa:// links work without a server.',
+            'HTTPS fallback: https://paisaclone.example/add?... is a deliberately unverified placeholder, not a hosted website. Replace it with a domain you own, host a fallback page and assetlinks.json / apple-app-site-association, and configure App Links / Associated Domains before distributing. Custom tink:// links work without a server. Existing paisa:// links remain supported for compatibility, but may also be handled by the original app if it is installed. The optional description parameter is accepted as an alias for notes.',
             style: TextStyle(fontSize: 12, height: 1.6),
           ),
           const SizedBox(height: 24),

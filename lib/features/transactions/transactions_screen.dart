@@ -5,12 +5,13 @@ import 'package:intl/intl.dart';
 import '../../core/data/ledger.dart';
 import '../../core/data/providers.dart';
 import '../../core/models/models.dart';
-import '../../core/services/csv_service.dart';
+import '../../core/services/transaction_export_service.dart';
 import '../../core/services/file_service.dart';
 import '../../core/utils/dates.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../shared/actions.dart';
 import '../../shared/widgets.dart';
+import '../../shared/transaction_export_sheet.dart';
 import 'filter_sheet.dart';
 import 'transaction_form.dart';
 import 'transaction_tile.dart';
@@ -29,9 +30,35 @@ class TransactionsScreen extends ConsumerStatefulWidget {
 
 class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   late TransactionFilter filter = widget.initialFilter;
-  final query = TextEditingController();
+  late final query = TextEditingController(text: widget.initialFilter.query);
   final selected = <String>{};
   int limit = 80;
+  bool exporting = false;
+
+  Future<void> exportEntries(
+    Ledger ledger,
+    List<MoneyTransaction> entries,
+  ) async {
+    if (exporting || entries.isEmpty) return;
+    final snapshot = List<MoneyTransaction>.unmodifiable(entries);
+    final kind = await showTransactionExportSheet(context, snapshot.length);
+    if (kind == null || !mounted) return;
+    setState(() => exporting = true);
+    try {
+      await runSafe(context, () async {
+        final file = await TransactionExportService.create(
+          ledger,
+          snapshot,
+          kind,
+          title: widget.title ?? 'Filtered transactions',
+        );
+        await FileService.save(file.bytes, file.name, mime: file.mime);
+      });
+    } finally {
+      if (mounted) setState(() => exporting = false);
+    }
+  }
+
   @override
   void dispose() {
     query.dispose();
@@ -130,24 +157,31 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             icon: const Icon(Icons.close_rounded),
           ),
           IconButton(
+            tooltip: 'Export selected records',
+            onPressed: exporting
+                ? null
+                : () => exportEntries(
+                    ledger,
+                    entries.where((e) => selected.contains(e.id)).toList(),
+                  ),
+            icon: const Icon(Icons.ios_share_rounded),
+          ),
+          IconButton(
             tooltip: 'Delete selected',
             onPressed: () => delete({...selected}),
             icon: const Icon(Icons.delete_outline_rounded),
           ),
         ] else ...[
           IconButton(
-            tooltip: 'Export filtered CSV',
-            onPressed: entries.isEmpty
+            tooltip: 'Export filtered records',
+            onPressed: entries.isEmpty || exporting
                 ? null
-                : () => runSafe(
-                    context,
-                    () => FileService.save(
-                      CsvService.export(ledger, entries),
-                      'Tink-transactions.csv',
-                      mime: 'text/csv',
-                    ),
-                  ),
-            icon: const Icon(Icons.ios_share_rounded),
+                : () => exportEntries(ledger, entries),
+            icon: Icon(
+              exporting
+                  ? Icons.hourglass_empty_rounded
+                  : Icons.ios_share_rounded,
+            ),
           ),
           IconButton(
             tooltip: 'Filters',
@@ -374,8 +408,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           const SizedBox(height: 8),
           AmountText(
             amount,
-            style: Theme.of(context).textTheme.titleMedium
-                ?.copyWith(color: color, fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ],
       ),

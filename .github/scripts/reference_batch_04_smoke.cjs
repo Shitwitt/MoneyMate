@@ -46,6 +46,38 @@ module.exports = async function referenceBatchFour({page, nav, goBack, capture, 
   await button('See matching records').waitFor(); await shot('category-hold');
   await button('See matching records').click(); await pause();
   await button('Filters').waitFor(); // A genuine scoped transaction route.
+  // The website's Search export workflow is real: verify actual private local
+  // downloads from this exact selection, not an unfiltered or first-page dump.
+  const fs = require('node:fs');
+  const path = require('node:path');
+  let exportedCount;
+  for (const [kind, filename] of [['PDF report','Tink-transactions.pdf'],['CSV spreadsheet','Tink-transactions.csv']]) {
+    await button('Export filtered records').click(); await pause();
+    const caption = page.getByText(/^Export \d+ transactions?/).or(page.getByLabel(/^Export \d+ transactions?/)).first();
+    const captionText = await caption.evaluate(el => el.getAttribute('aria-label') || el.textContent || '');
+    exportedCount = Number(captionText.match(/^Export (\d+)/)?.[1]);
+    if (!exportedCount) throw new Error('Export scope must contain matching saved records');
+    await visibleText('Files are unencrypted.').waitFor();
+    const pending = page.waitForEvent('download', {timeout:60000});
+    await nav(kind);
+    const download = await pending;
+    if (download.suggestedFilename() !== filename) throw new Error('Incorrect export format/name');
+    const file = path.resolve('review-shots', filename);
+    await download.saveAs(file);
+    const bytes = fs.readFileSync(file);
+    if (filename.endsWith('.pdf') && (bytes.subarray(0,5).toString() !== '%PDF-' || bytes.length < 1000)) throw new Error('Export did not produce a real PDF');
+    if (filename.endsWith('.csv')) {
+      const text = bytes.toString('utf8').replace(/^\uFEFF/,'');
+      let quoted = false, rows = 0;
+      for (let i = 0; i < text.length; i++) {
+        if (text[i] === '\"') {if (quoted && text[i+1] === '\"') i++; else quoted = !quoted;}
+        else if (text[i] === '\n' && !quoted) rows++;
+      }
+      if (!text.endsWith('\n')) rows++;
+      if (quoted || rows - 1 !== exportedCount) throw new Error('CSV rows do not match the selected scope');
+    }
+    await pause();
+  }
   await goBack();
   await button('Weekly category bars').click();
   await revealText('Recent Weekly Spending'); await shot('category-weekly');
@@ -70,8 +102,19 @@ module.exports = async function referenceBatchFour({page, nav, goBack, capture, 
   await button('Add transaction').click(); await pause();
   const celebration = button('A little proud of myself');
   if (await celebration.isVisible()) {await celebration.click(); await pause();}
-  await revealText('Batch four coffee verified'); await shot('transaction-saved');
+  // Transaction semantics intentionally prepend the type; match the saved
+  // record's complete button label rather than assuming the name is its prefix.
+  const savedRecord = page.getByRole('button', {name: /^Expense\s+Batch four coffee verified(?:\s|$)/});
+  await scroll(-20000); await pause();
+  for (let i = 0; i < 22 && !await savedRecord.isVisible(); i++) {await scroll(360); await pause();}
+  await savedRecord.waitFor();
+  const savedBox = await savedRecord.boundingBox();
+  if (savedBox && savedBox.y > 206) {await scroll(savedBox.y - 206); await pause();}
+  await savedRecord.click(); await pause();
   await visibleText('Batch four coffee verified').waitFor();
+  await revealText('Notes'); await visibleText('A local ledger note').waitFor();
+  await scroll(-20000); await shot('transaction-saved');
+  await button('Close transaction details').click(); await pause();
   await goBack(); await goBack();
 
   await nav('Places'); await shot('places');
@@ -121,5 +164,5 @@ module.exports = async function referenceBatchFour({page, nav, goBack, capture, 
   await visibleText('Possible Monthly Repeats').waitFor();
   await button('Spending review methods').click(); await shot('health-methods'); await button('Got it').click();
   await goBack();
-  console.log('::notice title=Tink Batch 4 browser::PASS: recurring list/calendar/help, category hierarchy/allocation/donut/monthly/weekly/hold/scoped records/overview/history, template/calculator/pinned transaction save with metadata, place list/grid/scope/help/persisted rename, people help/detail/grouping, local planning index/methods/streak/challenge/report, real habits swipe, heatmap hold values, category sparks, signed projection and unsaved monthly-reminder draft cancellation. Fictional demo only; no native build.');
+  console.log('::notice title=Tink Batch 4 browser::PASS: recurring list/calendar/help, category hierarchy/allocation/donut/monthly/weekly/hold/scoped records/overview/history, real scoped CSV/PDF downloads, template/calculator/pinned transaction save with metadata, place list/grid/scope/help/persisted rename, people help/detail/grouping, local planning index/methods/streak/challenge/report, real habits swipe, heatmap hold values, category sparks, signed projection and unsaved monthly-reminder draft cancellation. Fictional demo only; no native build.');
 };

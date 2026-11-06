@@ -346,7 +346,7 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
           final context = navigator.currentContext;
           if (context == null || !context.mounted) break;
           final uri = pending.removeAt(0);
-          if (uri.scheme == 'paisa' && uri.host == 'home') continue;
+          if (DeepLinkService.isCustomScheme(uri) && uri.host == 'home') continue;
           await runSafe(context, () async {
             final profile = ref.read(profileProvider)!;
             final request = DeepLinkService.parse(uri, profile);

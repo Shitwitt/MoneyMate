@@ -9,15 +9,17 @@ class DeepLinkRequest {
 }
 
 class DeepLinkService {
+  static bool isCustomScheme(Uri uri) => ['tink', 'paisa'].contains(uri.scheme);
+
   /// app_links also emits the ordinary browser address on startup.
   static bool isWebFinanceLink(Uri uri) =>
-      uri.scheme == 'paisa' || (uri.scheme == 'https' && uri.path == '/add');
+      isCustomScheme(uri) || (uri.scheme == 'https' && uri.path == '/add');
 
   static DeepLinkRequest parse(Uri uri, ProfileData data) {
-    final action = uri.scheme == 'paisa'
+    final action = isCustomScheme(uri)
         ? uri.host
         : uri.path.replaceFirst('/', '');
-    if (uri.scheme != 'paisa' && !(uri.scheme == 'https' && action == 'add')) {
+    if (!isCustomScheme(uri) && !(uri.scheme == 'https' && action == 'add')) {
       throw const FormatException('Unsupported finance link');
     }
     if (action == 'quick_add') return const DeepLinkRequest(null, false);
@@ -73,7 +75,7 @@ class DeepLinkService {
         accountId: account.id,
         categoryId: category.id,
         date: date,
-        notes: query['notes'] ?? '',
+        notes: query['notes'] ?? query['description'] ?? '',
       ),
       action == 'silent_add',
     );

@@ -38,7 +38,7 @@ struct BalanceView: View {
             Text("NET WORTH").font(.system(.caption2, design: .rounded)).tracking(2)
             Text(entry.balance).font(.system(.title2, design: .rounded).bold()).monospacedDigit().minimumScaleFactor(0.5).lineLimit(1)
             Text("Your money. Your device.").font(.system(.caption2, design: .rounded))
-        }.foregroundColor(Color(red: 0.176, green: 0.129, blue: 0.102)).paisaBackground().widgetURL(URL(string: "paisa://home"))
+        }.foregroundColor(Color(red: 0.176, green: 0.129, blue: 0.102)).paisaBackground().widgetURL(URL(string: "tink://home"))
     }
 }
 struct BudgetView: View {
@@ -49,7 +49,7 @@ struct BudgetView: View {
             Text(entry.budgetName).font(.system(.subheadline, design: .rounded).bold()).lineLimit(2)
             Text(entry.budget).font(.system(.title3, design: .rounded).bold())
             ProgressView(value: min(1, max(0, entry.progress))).tint(Color(red: 0.447, green: 0.212, blue: 0.118))
-        }.foregroundColor(Color(red: 0.176, green: 0.129, blue: 0.102)).paisaBackground().widgetURL(URL(string: "paisa://home"))
+        }.foregroundColor(Color(red: 0.176, green: 0.129, blue: 0.102)).paisaBackground().widgetURL(URL(string: "tink://home"))
     }
 }
 struct QuickView: View {
@@ -58,7 +58,7 @@ struct QuickView: View {
             Image(systemName: "plus.circle.fill").font(.largeTitle)
             Text("A little entry.").font(.system(.title3, design: .rounded).bold())
             Text("One less thing to remember.").font(.system(.caption, design: .rounded))
-        }.foregroundColor(Color(red: 0.176, green: 0.129, blue: 0.102)).paisaBackground().widgetURL(URL(string: "paisa://quick_add"))
+        }.foregroundColor(Color(red: 0.176, green: 0.129, blue: 0.102)).paisaBackground().widgetURL(URL(string: "tink://quick_add"))
     }
 }
 struct BalanceWidget: Widget {

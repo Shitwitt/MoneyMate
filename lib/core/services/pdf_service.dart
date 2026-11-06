@@ -11,8 +11,9 @@ class PdfService {
   static Future<Uint8List> report(
     Ledger ledger,
     List<MoneyTransaction> entries,
-    String title,
-  ) async {
+    String title, {
+    String? scopeNote,
+  }) async {
     final font = pw.Font.ttf(
       await rootBundle.load('assets/fonts/NotoSans-Regular.ttf'),
     );
@@ -47,6 +48,9 @@ class PdfService {
     final expense = entries
         .where((entry) => entry.type == 'expense')
         .fold<int>(0, (sum, entry) => sum + ledger.entryValue(entry));
+    final savings = income > 0
+        ? '${((income - expense) / income * 100).toStringAsFixed(1)}%'
+        : 'Unavailable (no recorded income)';
     final categories = ledger.breakdown(
       entries.where((entry) => entry.type == 'expense'),
       'category',
@@ -92,6 +96,11 @@ class PdfService {
             '${entries.length} transactions · Reference currency: ${ledger.currency}',
             style: const pw.TextStyle(fontSize: 11),
           ),
+          if (scopeNote != null && scopeNote.isNotEmpty)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 12),
+              child: pw.Text(scopeNote, style: const pw.TextStyle(fontSize: 10)),
+            ),
           pw.SizedBox(height: 20),
           pw.Container(
             padding: const pw.EdgeInsets.all(18),
@@ -106,7 +115,7 @@ class PdfService {
                 pw.Text('Expenses: ${amount(expense)}'),
                 pw.Text('Net cash flow: ${amount(income - expense)}'),
                 pw.Text(
-                  'Savings rate: ${income > 0 ? ((income - expense) / income * 100).toStringAsFixed(1) : '0'}%',
+                  'Savings rate: $savings',
                 ),
               ],
             ),

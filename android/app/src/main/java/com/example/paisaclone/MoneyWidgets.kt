@@ -24,7 +24,7 @@ abstract class MoneyWidget(private val layout: Int) : AppWidgetProvider() {
                     views.setProgressBar(R.id.widget_progress, 100, percent, false)
                 }
             }
-            val link = if (layout == R.layout.widget_quick_add) "paisa://quick_add" else "paisa://home"
+            val link = if (layout == R.layout.widget_quick_add) "tink://quick_add" else "tink://home"
             val intent = Intent(context, MainActivity::class.java).apply {
                 action = Intent.ACTION_VIEW
                 data = Uri.parse(link)

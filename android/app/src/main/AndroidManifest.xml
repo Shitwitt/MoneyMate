@@ -24,6 +24,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="tink" />
                 <data android:scheme="paisa" />
             </intent-filter>
             <intent-filter android:autoVerify="false">
@@ -41,15 +42,15 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".BalanceWidget" android:exported="true" android:label="Paisa · Balance">
+        <receiver android:name=".BalanceWidget" android:exported="true" android:label="Tink · Balance">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_balance_info" />
         </receiver>
-        <receiver android:name=".BudgetWidget" android:exported="true" android:label="Paisa · Budget">
+        <receiver android:name=".BudgetWidget" android:exported="true" android:label="Tink · Budget">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_budget_info" />
         </receiver>
-        <receiver android:name=".QuickAddWidget" android:exported="true" android:label="Paisa · Quick add">
+        <receiver android:name=".QuickAddWidget" android:exported="true" android:label="Tink · Quick add">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_quick_add_info" />
         </receiver>

@@ -119,7 +119,7 @@ const binary = chromiumModule.default || chromiumModule;
     async function revealText(label, top = 95) {
       // Flutter can expose a heading as an aria-labeled group, not DOM text.
       const name = new RegExp('^' + label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:\\s|$)');
-      const target = page.getByText(label, {exact: true}).or(page.getByLabel(name)).first();
+      const target = page.getByText(name).or(page.getByLabel(name)).first();
       await scroll(-20000); await page.waitForTimeout(220);
       for (let i = 0; i < 22 && !await target.isVisible(); i++) {
         await scroll(360); await page.waitForTimeout(180);

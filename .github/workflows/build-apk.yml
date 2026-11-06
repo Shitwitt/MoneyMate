@@ -280,6 +280,8 @@ jobs:
 
   batch3-review:
     name: 'Batch 3 reference: ${{ matrix.group }} (fictional data)'
+    # Expose available frames even on a failed journey; missing frames still fail.
+    if: ${{ always() && (needs.web.result == 'success' || needs.web.result == 'failure') }}
     needs: web
     runs-on: ubuntu-latest
     timeout-minutes: 5

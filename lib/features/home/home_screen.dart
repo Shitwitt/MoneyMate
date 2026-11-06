@@ -26,6 +26,7 @@ import '../goals/goals_screen.dart';
 import '../loans/loans_screen.dart';
 import '../recurring/recurring_screen.dart';
 import '../reports/reports_screen.dart';
+import '../reports/analytics_screen.dart';
 import '../settings/help_screen.dart';
 import '../settings/layout_screen.dart';
 import '../settings/premium_screen.dart';
@@ -370,8 +371,9 @@ class _HomeGreeting extends StatelessWidget {
           TextSpan(text: ' $earned milestones.'),
         ],
       ),
-      style: Theme.of(context).textTheme.bodyLarge
-          ?.copyWith(fontWeight: FontWeight.w600, height: 1.5),
+      style: Theme.of(
+        context,
+      ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600, height: 1.5),
     );
   }
 }
@@ -458,6 +460,7 @@ class _DashboardTile extends StatelessWidget {
       _ => Icons.auto_awesome_outlined,
     };
     final page = switch (id) {
+      'analytics' => const AnalyticsScreen(),
       'accounts' => const AccountsScreen(),
       'budgets' => const BudgetsScreen(),
       'assets' => const AssetsScreen(),
@@ -879,8 +882,10 @@ class _DashboardTile extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: Theme.of(context).textTheme.titleMedium
-                          ?.copyWith(fontSize: 15, color: ink),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontSize: 15,
+                        color: ink,
+                      ),
                     ),
                   ),
                   if (![
@@ -1221,8 +1226,9 @@ class _SpendingComparison extends StatelessWidget {
           : change == null
           ? 'No previous period amount'
           : '${change >= 0 ? '↗' : '↘'} ${change.abs().toStringAsFixed(1)}% vs previous period',
-      style: Theme.of(context).textTheme.bodySmall
-          ?.copyWith(color: AppColors.semantic(context, 'expense')),
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+        color: AppColors.semantic(context, 'expense'),
+      ),
     );
   }
 }

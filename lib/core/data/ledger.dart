@@ -45,11 +45,13 @@ class Ledger {
       );
   int get assetsTotal =>
       data.assets.fold(0, (sum, item) => sum + item.valueMinor);
-  int loanRemaining(Loan loan) => math.max(
-    0,
-    (loan.principalMinor * (1 + loan.interestPercent / 100)).round() -
-        loan.repayments.fold<int>(0, (sum, event) => sum + event.amountMinor),
-  );
+  int loanTotal(Loan loan) =>
+      (loan.principalMinor * (1 + loan.interestPercent / 100)).round();
+  int loanPaid(Loan loan, {DateTime? now}) => loan.repayments
+      .where((event) => !event.date.isAfter(now ?? DateTime.now()))
+      .fold<int>(0, (sum, event) => sum + event.amountMinor);
+  int loanUnpaid(Loan loan) => math.max(0, loanTotal(loan) - loanPaid(loan));
+  int loanRemaining(Loan loan) => loan.completed ? 0 : loanUnpaid(loan);
   int get toReceive => data.loans
       .where((loan) => loan.direction == 'lent')
       .fold(0, (sum, loan) => sum + loanRemaining(loan));
@@ -148,13 +150,7 @@ class Ledger {
       .where((entry) => entry.type == type && window.contains(entry.date))
       .fold(0, (sum, entry) => sum + entryValue(entry));
   int goalSaved(Goal goal) => goal.accountId.isNotEmpty
-      ? math.max(
-          0,
-          inBase(
-            accountBalance(goal.accountId),
-            account(goal.accountId).currency,
-          ),
-        )
+      ? inBase(accountBalance(goal.accountId), account(goal.accountId).currency)
       : goal.contributions.fold(0, (sum, item) => sum + item.amountMinor) +
             data.transactions
                 .where(

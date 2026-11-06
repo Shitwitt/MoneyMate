@@ -53,59 +53,83 @@ class PillTabs extends StatelessWidget {
       color: Theme.of(context).colorScheme.surfaceContainer,
       borderRadius: BorderRadius.circular(100),
     ),
-    child: Row(
-      children: [
-        for (var i = 0; i < labels.length; i++)
-          Expanded(
-            child: Semantics(
-              selected: i == selected,
-              button: true,
-              child: AnimatedContainer(
-                duration: referenceMotion(context, 160),
-                curve: Curves.easeOutCubic,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: i == selected
-                      ? Theme.of(context).colorScheme.primaryContainer
-                      : Colors.transparent,
-                ),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(100),
-                  onTap: () => onSelected(i),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 14,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (icons != null) ...[
-                          Icon(icons![i], size: 19),
-                          const SizedBox(width: 6),
-                        ],
-                        Flexible(
-                          child: Text(
-                            labels[i],
-                            textAlign: TextAlign.center,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.labelLarge
-                                ?.copyWith(
-                                  fontWeight: i == selected
-                                      ? FontWeight.w700
-                                      : FontWeight.w500,
-                                ),
+    child: LayoutBuilder(
+      builder: (context, box) {
+        final longest = labels.fold<int>(
+          0,
+          (n, s) => s.length > n ? s.length : n,
+        );
+        final tabWidth =
+            (longest * 8.0 * MediaQuery.textScalerOf(context).scale(1) + 24)
+                .clamp(48.0, 400.0);
+        final desired = tabWidth * labels.length;
+        final width = desired > box.maxWidth ? desired : box.maxWidth;
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+            width: width,
+            child: Row(
+              children: [
+                for (var i = 0; i < labels.length; i++)
+                  Expanded(
+                    child: Semantics(
+                      selected: i == selected,
+                      button: true,
+                      child: AnimatedContainer(
+                        duration: referenceMotion(context, 160),
+                        curve: Curves.easeOutCubic,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color: i == selected
+                              ? Theme.of(context).colorScheme.primaryContainer
+                              : Colors.transparent,
+                        ),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(100),
+                          onTap: () => onSelected(i),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(minHeight: 48),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 14,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (icons != null) ...[
+                                    Icon(icons![i], size: 19),
+                                    const SizedBox(width: 6),
+                                  ],
+                                  Flexible(
+                                    child: Text(
+                                      labels[i],
+                                      textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge
+                                          ?.copyWith(
+                                            fontWeight: i == selected
+                                                ? FontWeight.w700
+                                                : FontWeight.w500,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
+              ],
             ),
           ),
-      ],
+        );
+      },
     ),
   );
 }
@@ -134,8 +158,9 @@ class SmallTag extends StatelessWidget {
           Flexible(
             child: Text(
               text,
-              style: Theme.of(context).textTheme.labelSmall
-                  ?.copyWith(color: color ?? scheme.onSurfaceVariant),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: color ?? scheme.onSurfaceVariant,
+              ),
             ),
           ),
         ],
@@ -210,9 +235,9 @@ class ReferenceNavigationDock extends StatelessWidget {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(24),
                               color: selected == id
-                                  ? Theme.of(context)
-                                        .colorScheme
-                                        .primaryContainer
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.primaryContainer
                                   : Colors.transparent,
                             ),
                             child: Icon(
@@ -222,9 +247,9 @@ class ReferenceNavigationDock extends StatelessWidget {
                                   ? (AppColors.dark(context)
                                         ? AppColors.primary
                                         : AppColors.primaryInk)
-                                  : Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                           if (showLabels) ...[
@@ -326,44 +351,43 @@ class SummaryColumns extends StatelessWidget {
   );
 }
 
-Future<void> showFeatureInfo(BuildContext context, String title, String body) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) => SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+Future<void> showFeatureInfo(
+  BuildContext context,
+  String title,
+  String body,
+) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  useSafeArea: true,
+  builder: (context) => SingleChildScrollView(
+    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'Close information',
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close_rounded),
-                ),
-              ],
+            Expanded(
+              child: Text(title, style: Theme.of(context).textTheme.titleLarge),
             ),
-            const SizedBox(height: 16),
-            Text(
-              body,
-              style: Theme.of(context).textTheme.bodyLarge
-                  ?.copyWith(height: 1.6),
-            ),
-            const SizedBox(height: 24),
-            FilledButton(
+            IconButton(
+              tooltip: 'Close information',
               onPressed: () => Navigator.pop(context),
-              child: const Text('Got it'),
+              icon: const Icon(Icons.close_rounded),
             ),
           ],
         ),
-      ),
-    );
+        const SizedBox(height: 16),
+        Text(
+          body,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
+        ),
+        const SizedBox(height: 24),
+        FilledButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Got it'),
+        ),
+      ],
+    ),
+  ),
+);

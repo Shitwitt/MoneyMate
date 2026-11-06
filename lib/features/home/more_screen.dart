@@ -14,6 +14,7 @@ import '../goals/goals_screen.dart';
 import '../loans/loans_screen.dart';
 import '../recurring/recurring_screen.dart';
 import '../reports/reports_screen.dart';
+import '../reports/analytics_screen.dart';
 import '../settings/help_screen.dart';
 import '../settings/premium_screen.dart';
 import '../settings/settings_screen.dart';
@@ -30,6 +31,7 @@ class MoreScreen extends ConsumerWidget {
       (l.accounts, 'bank', 0xff8A8A96, const AccountsScreen()),
       (l.activity, 'expense', 0xff8A8A96, const TransactionsScreen()),
       (l.reports, 'asset', 0xff8A8A96, const ReportsScreen()),
+      ('Analytics', 'asset', 0xff8A8A96, const AnalyticsScreen()),
       (l.budgets, 'category', 0xff8A8A96, const BudgetsScreen()),
       (l.goals, 'goal', 0xff8A8A96, const GoalsScreen()),
       (l.subscriptions, 'bills', 0xff8A8A96, const RecurringScreen()),

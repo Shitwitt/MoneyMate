@@ -67,8 +67,9 @@ Widget formDate(
   bool includeTime = false,
 }) => ListTile(
   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-  tileColor: Theme.of(context).colorScheme.surfaceContainerHighest
-      .withValues(alpha: .45),
+  tileColor: Theme.of(
+    context,
+  ).colorScheme.surfaceContainerHighest.withValues(alpha: .45),
   leading: const Icon(Icons.calendar_today_rounded),
   title: Text(title),
   subtitle: Text(
@@ -185,7 +186,8 @@ Future<bool?> showEditor(
   final formKey = GlobalKey<FormState>();
   var busy = false;
   final navigator = Navigator.of(context);
-  final route = ModalBottomSheetRoute<bool>(
+  late ModalBottomSheetRoute<bool> route;
+  route = ModalBottomSheetRoute<bool>(
     capturedThemes: InheritedTheme.capture(
       from: context,
       to: navigator.context,
@@ -213,8 +215,9 @@ Future<bool?> showEditor(
                 children: [
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.headlineSmall
-                        ?.copyWith(fontWeight: FontWeight.w700),
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   if (description != null) ...[
                     const SizedBox(height: 8),
@@ -236,11 +239,16 @@ Future<bool?> showEditor(
                         ? null
                         : () async {
                             if (!formKey.currentState!.validate()) return;
+                            formKey.currentState!.save();
                             setLocal(() => busy = true);
                             final saved = await runSafe(context, onSave);
                             if (!context.mounted) return;
-                            if (saved) {
-                              Navigator.pop(context, true);
+                            if (saved && route.isActive) {
+                              if (route.isCurrent) {
+                                navigator.pop(true);
+                              } else {
+                                navigator.removeRoute(route, true);
+                              }
                             } else {
                               setLocal(() => busy = false);
                             }

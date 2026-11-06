@@ -534,12 +534,14 @@ class MoneyEvent {
   final int amountMinor;
   final DateTime date;
   final String note;
+  final String transactionId;
 
   const MoneyEvent({
     required this.id,
     required this.amountMinor,
     required this.date,
     this.note = '',
+    this.transactionId = '',
   });
 
   factory MoneyEvent.fromJson(Json json) => MoneyEvent(
@@ -547,6 +549,7 @@ class MoneyEvent {
     amountMinor: readInt(json['amountMinor']),
     date: readDate(json['date']),
     note: readString(json['note'], ''),
+    transactionId: readString(json['transactionId'], ''),
   );
 
   Json toJson() => {
@@ -554,6 +557,7 @@ class MoneyEvent {
     'amountMinor': amountMinor,
     'date': date.toIso8601String(),
     'note': note,
+    'transactionId': transactionId,
   };
 
   MoneyEvent copyWith({
@@ -561,11 +565,13 @@ class MoneyEvent {
     int? amountMinor,
     DateTime? date,
     String? note,
+    String? transactionId,
   }) => MoneyEvent(
     id: id ?? this.id,
     amountMinor: amountMinor ?? this.amountMinor,
     date: date ?? this.date,
     note: note ?? this.note,
+    transactionId: transactionId ?? this.transactionId,
   );
 }
 
@@ -578,6 +584,7 @@ class Goal {
   final bool archived;
   final String accountId;
   final String icon;
+  final String photoBase64;
   final int color;
   final List<MoneyEvent> contributions;
 
@@ -590,6 +597,7 @@ class Goal {
     this.archived = false,
     this.accountId = '',
     this.icon = 'goal',
+    this.photoBase64 = '',
     this.color = 0xffb2a4e7,
     this.contributions = const [],
   });
@@ -603,6 +611,7 @@ class Goal {
     archived: readBool(json['archived']),
     accountId: readString(json['accountId'], ''),
     icon: readString(json['icon'], 'goal'),
+    photoBase64: readString(json['photoBase64'], ''),
     color: readInt(json['color'], 0xffb2a4e7),
     contributions: readModels(json['contributions'], MoneyEvent.fromJson),
   );
@@ -616,6 +625,7 @@ class Goal {
     'archived': archived,
     'accountId': accountId,
     'icon': icon,
+    'photoBase64': photoBase64,
     'color': color,
     'contributions': contributions.map((item) => item.toJson()).toList(),
   };
@@ -629,6 +639,7 @@ class Goal {
     bool? archived,
     String? accountId,
     String? icon,
+    String? photoBase64,
     int? color,
     List<MoneyEvent>? contributions,
   }) => Goal(
@@ -640,12 +651,17 @@ class Goal {
     archived: archived ?? this.archived,
     accountId: accountId ?? this.accountId,
     icon: icon ?? this.icon,
+    photoBase64: photoBase64 ?? this.photoBase64,
     color: color ?? this.color,
     contributions: contributions ?? this.contributions,
   );
 }
 
 class Loan {
+  final DateTime? start;
+  final String icon, accountId, categoryId;
+  final int color;
+  final bool completed;
   final String id;
   final String personName;
   final int principalMinor;
@@ -661,6 +677,12 @@ class Loan {
     required this.personName,
     required this.principalMinor,
     required this.due,
+    this.start,
+    this.icon = 'loan',
+    this.accountId = '',
+    this.categoryId = '',
+    this.color = 0xffe991a7,
+    this.completed = false,
     this.direction = 'lent',
     this.personId = '',
     this.interestPercent = 0,
@@ -673,6 +695,12 @@ class Loan {
     personName: readString(json['personName']),
     principalMinor: readInt(json['principalMinor']),
     due: readDate(json['due']),
+    start: readOptionalDate(json['start']),
+    icon: readString(json['icon'], 'loan'),
+    accountId: readString(json['accountId'], ''),
+    categoryId: readString(json['categoryId'], ''),
+    color: readInt(json['color'], 0xffe991a7),
+    completed: readBool(json['completed']),
     direction: readString(json['direction'], 'lent'),
     personId: readString(json['personId'], ''),
     interestPercent: readDouble(json['interestPercent'], 0),
@@ -685,6 +713,12 @@ class Loan {
     'personName': personName,
     'principalMinor': principalMinor,
     'due': due.toIso8601String(),
+    'start': start?.toIso8601String(),
+    'icon': icon,
+    'accountId': accountId,
+    'categoryId': categoryId,
+    'color': color,
+    'completed': completed,
     'direction': direction,
     'personId': personId,
     'interestPercent': interestPercent,
@@ -697,6 +731,12 @@ class Loan {
     String? personName,
     int? principalMinor,
     DateTime? due,
+    DateTime? start,
+    String? icon,
+    String? accountId,
+    String? categoryId,
+    int? color,
+    bool? completed,
     String? direction,
     String? personId,
     double? interestPercent,
@@ -707,6 +747,12 @@ class Loan {
     personName: personName ?? this.personName,
     principalMinor: principalMinor ?? this.principalMinor,
     due: due ?? this.due,
+    start: start ?? this.start,
+    icon: icon ?? this.icon,
+    accountId: accountId ?? this.accountId,
+    categoryId: categoryId ?? this.categoryId,
+    color: color ?? this.color,
+    completed: completed ?? this.completed,
     direction: direction ?? this.direction,
     personId: personId ?? this.personId,
     interestPercent: interestPercent ?? this.interestPercent,
@@ -916,6 +962,7 @@ class NamedEntity {
   final String id;
   final String name;
   final String kind;
+  final String icon;
   final int color;
   final String notes;
   final String photoBase64;
@@ -924,6 +971,7 @@ class NamedEntity {
     required this.id,
     required this.name,
     required this.kind,
+    this.icon = '',
     this.color = 0xff9ac4dd,
     this.notes = '',
     this.photoBase64 = '',
@@ -933,6 +981,7 @@ class NamedEntity {
     id: readString(json['id']),
     name: readString(json['name']),
     kind: readString(json['kind']),
+    icon: readString(json['icon'], ''),
     color: readInt(json['color'], 0xff9ac4dd),
     notes: readString(json['notes'], ''),
     photoBase64: readString(json['photoBase64'], ''),
@@ -942,6 +991,7 @@ class NamedEntity {
     'id': id,
     'name': name,
     'kind': kind,
+    'icon': icon,
     'color': color,
     'notes': notes,
     'photoBase64': photoBase64,
@@ -951,6 +1001,7 @@ class NamedEntity {
     String? id,
     String? name,
     String? kind,
+    String? icon,
     int? color,
     String? notes,
     String? photoBase64,
@@ -958,6 +1009,7 @@ class NamedEntity {
     id: id ?? this.id,
     name: name ?? this.name,
     kind: kind ?? this.kind,
+    icon: icon ?? this.icon,
     color: color ?? this.color,
     notes: notes ?? this.notes,
     photoBase64: photoBase64 ?? this.photoBase64,

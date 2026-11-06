@@ -40,7 +40,7 @@ jobs:
       - name: Calendar regressions across a DST boundary
         env:
           TZ: America/New_York
-        run: python3 .github/scripts/checked_command.py flutter test test/regression_test.dart test/financial_pulse_calendar_test.dart
+        run: python3 .github/scripts/checked_command.py flutter test test/regression_test.dart test/financial_pulse_calendar_test.dart test/reference_batch_03_data_test.dart
       - name: Offline web packaging regression tests
         run: python3 -m unittest discover -s scripts/tests
       - name: Enforce the strict non-mutating format gate
@@ -276,3 +276,23 @@ jobs:
         run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-help.jpg" "batch2-recurring-help"
       - name: Visual evidence — Recurring help continuation (fictional data)
         run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-help-bottom.jpg" "batch2-recurring-help-bottom"
+
+
+  batch3-review:
+    name: 'Batch 3 reference: ${{ matrix.group }} (fictional data)'
+    needs: web
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [loans, goals, labels, analytics]
+    # Review existing screenshots only. No SDK, Gradle or APK compilation.
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
+        with:
+          name: Tink-Web-screenshots
+          path: review-shots
+      - name: Require and expose every Batch 3 frame
+        run: python3 .github/scripts/reference_batch_03_evidence.py '${{ matrix.group }}'

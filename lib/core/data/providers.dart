@@ -225,6 +225,7 @@ class AppController extends StateNotifier<AppData> {
             (entry) => entry.accountId == id || entry.toAccountId == id,
           ) &&
           !profile.goals.any((goal) => goal.accountId == id) &&
+          !profile.loans.any((loan) => loan.accountId == id) &&
           !profile.recurrings.any((rule) => rule.accountId == id) &&
           !profile.templates.any((template) => template.accountId == id),
       'This account is in use. Archive it instead.',
@@ -239,6 +240,7 @@ class AppController extends StateNotifier<AppData> {
       old == null ||
           old.type == item.type ||
           (!profile.transactions.any((e) => e.categoryId == item.id) &&
+              !profile.loans.any((l) => l.categoryId == item.id) &&
               !profile.recurrings.any((r) => r.categoryId == item.id)),
       'This category is in use. Keep its type or create a new category.',
     );
@@ -271,8 +273,11 @@ class AppController extends StateNotifier<AppData> {
     MoneyTransaction item, {
     bool asTemplate = false,
   }) => updateProfile((profile, app) {
-    var next = profile.copyWith(
-      transactions: replace(profile.transactions, item, (item) => item.id),
+    var next = _syncLoanEntries(
+      profile,
+      replace(profile.transactions, item, (item) => item.id),
+      app.settings,
+      changedId: item.id,
     );
     if (asTemplate) {
       require(item.type != 'transfer', 'Transfer templates are not supported');
@@ -295,10 +300,10 @@ class AppController extends StateNotifier<AppData> {
     return next;
   });
   Future<void> deleteTransactions(Set<String> ids) => updateProfile(
-    (profile, app) => profile.copyWith(
-      transactions: profile.transactions
-          .where((item) => !ids.contains(item.id))
-          .toList(),
+    (profile, app) => _syncLoanEntries(
+      profile,
+      profile.transactions.where((item) => !ids.contains(item.id)).toList(),
+      app.settings,
     ),
   );
   Future<void> saveTemplate(TransactionTemplate item) => updateProfile(
@@ -389,75 +394,86 @@ class AppController extends StateNotifier<AppData> {
       ],
     ),
   );
-  Future<void> upsertLoan(Loan item, {String disburseAccountId = ''}) =>
-      updateProfile((profile, app) {
-        final entries = [...profile.transactions];
-        if (disburseAccountId.isNotEmpty &&
-            !profile.loans.any((loan) => loan.id == item.id)) {
-          final account = profile.accounts.firstWhere(
-            (account) => account.id == disburseAccountId,
-          );
-          final type = item.direction == 'lent' ? 'expense' : 'income';
-          entries.add(
-            MoneyTransaction(
-              id: uuid.v4(),
-              name: 'Loan · ${item.personName}',
-              type: type,
-              amountMinor: convertMinor(
-                item.principalMinor,
-                profile.profile.currency,
-                account.currency,
-                profile.rates,
-              ),
-              accountId: account.id,
-              categoryId: profile.categories
-                  .firstWhere((category) => category.type == type)
-                  .id,
-              date: DateTime.now(),
-              loanId: item.id,
-              notes: item.notes,
-            ),
-          );
-        }
-        return profile.copyWith(
-          loans: replace(profile.loans, item, (item) => item.id),
-          transactions: entries,
-        );
-      });
+  Future<void> upsertLoan(
+    Loan item, {
+    String disburseAccountId = '',
+  }) => updateProfile((profile, app) {
+    final old = profile.loans.where((l) => l.id == item.id).firstOrNull;
+    require(
+      old == null || old.repayments.isEmpty || old.direction == item.direction,
+      'A loan with payments cannot change direction. Create a new loan instead.',
+    );
+    final entries = [...profile.transactions];
+    if (disburseAccountId.isNotEmpty &&
+        !profile.loans.any((loan) => loan.id == item.id)) {
+      final account = profile.accounts.firstWhere(
+        (a) => a.id == disburseAccountId,
+      );
+      final type = item.direction == 'lent' ? 'expense' : 'income';
+      entries.add(
+        MoneyTransaction(
+          id: uuid.v4(),
+          name: 'Loan · ${item.personName}',
+          type: type,
+          amountMinor: convertMinor(
+            item.principalMinor,
+            profile.profile.currency,
+            account.currency,
+            profile.rates,
+          ),
+          accountId: account.id,
+          categoryId: item.categoryId.isNotEmpty
+              ? item.categoryId
+              : profile.categories.firstWhere((c) => c.type == type).id,
+          date: item.start ?? DateTime.now(),
+          createdAt: DateTime.now(),
+          loanId: item.id,
+          notes: item.notes,
+          personIds: item.personId.isEmpty ? [] : [item.personId],
+        ),
+      );
+    }
+    return profile.copyWith(
+      loans: replace(profile.loans, item, (l) => l.id),
+      transactions: entries,
+    );
+  });
   Future<void> repayLoan(
     String id,
     int amount,
     String note, {
     String accountId = '',
   }) => updateProfile((profile, app) {
-    final loan = profile.loans.firstWhere((item) => item.id == id);
+    final loan = profile.loans.firstWhere((l) => l.id == id);
+    require(
+      !loan.completed,
+      'Reopen this loan before recording another payment',
+    );
     require(
       amount > 0 && amount <= Ledger(profile, app.settings).loanRemaining(loan),
       'Repayment must be positive and not exceed the outstanding balance',
     );
+    final now = DateTime.now(),
+        transactionId = accountId.isEmpty ? '' : uuid.v4();
     final updated = loan.copyWith(
       repayments: [
         ...loan.repayments,
         MoneyEvent(
           id: uuid.v4(),
           amountMinor: amount,
-          date: DateTime.now(),
+          date: now,
           note: note,
+          transactionId: transactionId,
         ),
       ],
     );
     final entries = [...profile.transactions];
     if (accountId.isNotEmpty) {
-      final account = profile.accounts.firstWhere(
-        (item) => item.id == accountId,
-      );
+      final account = profile.accounts.firstWhere((a) => a.id == accountId);
       final type = loan.direction == 'lent' ? 'income' : 'expense';
-      final category = profile.categories.firstWhere(
-        (item) => item.type == type,
-      );
       entries.add(
         MoneyTransaction(
-          id: uuid.v4(),
+          id: transactionId,
           name: 'Repayment · ${loan.personName}',
           type: type,
           amountMinor: convertMinor(
@@ -466,19 +482,29 @@ class AppController extends StateNotifier<AppData> {
             account.currency,
             profile.rates,
           ),
-          accountId: accountId,
-          categoryId: category.id,
-          date: DateTime.now(),
+          accountId: account.id,
+          categoryId: profile.categories.firstWhere((c) => c.type == type).id,
+          date: now,
+          createdAt: now,
           loanId: id,
           notes: note,
+          personIds: loan.personId.isEmpty ? [] : [loan.personId],
         ),
       );
     }
     return profile.copyWith(
-      loans: replace(profile.loans, updated, (item) => item.id),
+      loans: replace(profile.loans, updated, (l) => l.id),
       transactions: entries,
     );
   });
+  Future<void> setLoanCompleted(String id, bool completed) => updateProfile(
+    (profile, app) => profile.copyWith(
+      loans: [
+        for (final loan in profile.loans)
+          if (loan.id == id) loan.copyWith(completed: completed) else loan,
+      ],
+    ),
+  );
   Future<void> deleteLoan(String id) => updateProfile(
     (profile, app) => profile.copyWith(
       loans: profile.loans.where((item) => item.id != id).toList(),
@@ -838,4 +864,46 @@ class _DemoRepository implements AppRepository {
     validateData(value);
     data = value;
   }
+}
+
+// Only repayments explicitly created by the repayment action have this link.
+// Arbitrary loan-tagged purchases/disbursements must never become repayments.
+ProfileData _syncLoanEntries(
+  ProfileData profile,
+  List<MoneyTransaction> entries,
+  AppSettings settings, {
+  String? changedId,
+}) {
+  final ledger = Ledger(profile.copyWith(transactions: entries), settings);
+  final oldById = {for (final entry in profile.transactions) entry.id: entry};
+  final byId = {for (final entry in entries) entry.id: entry};
+  return profile.copyWith(
+    transactions: entries,
+    loans: [
+      for (final loan in profile.loans)
+        loan.copyWith(
+          repayments: [
+            for (final event in loan.repayments)
+              if (event.transactionId.isEmpty)
+                event
+              else if (byId[event.transactionId] case final entry?
+                  when entry.loanId == loan.id &&
+                      entry.type ==
+                          (loan.direction == 'lent' ? 'income' : 'expense'))
+                if (entry.id != changedId)
+                  event
+                else
+                  event.copyWith(
+                    amountMinor:
+                        oldById[entry.id]?.amountMinor == entry.amountMinor &&
+                            oldById[entry.id]?.accountId == entry.accountId
+                        ? event.amountMinor
+                        : ledger.entryValue(entry),
+                    date: entry.date,
+                    note: entry.notes,
+                  ),
+          ],
+        ),
+    ],
+  );
 }

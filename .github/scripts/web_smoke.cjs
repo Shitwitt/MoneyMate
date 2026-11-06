@@ -231,6 +231,7 @@ const binary = chromiumModule.default || chromiumModule;
     await goBack();
     await nav('Archived');
     await capture('web-archived.jpg');
+    await require('./reference_batch_03_smoke.cjs')({page, nav, goBack, capture, scroll, revealText, visibleText, swipeCarousel});
     await page.getByRole('button', {name: 'Exit Demo', exact: true}).click();
     await page.getByRole('button', {name: 'Start fresh', exact: true}).waitFor();
     // A demo edit must not leave a real profile behind. Now complete all 14 steps.

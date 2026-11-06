@@ -17,18 +17,24 @@ import 'receipt_viewer.dart';
 
 class TransactionForm extends ConsumerStatefulWidget {
   final MoneyTransaction? initial;
+  final MoneyTransaction? copyFrom;
   final TransactionTemplate? template;
   final String? accountId;
   final String initialType;
   final String initialBudgetId;
+  final List<String> initialLabelIds;
+  final String initialGoalId;
   final bool templateOnly;
   const TransactionForm({
     super.key,
     this.initial,
+    this.copyFrom,
     this.template,
     this.accountId,
     this.initialType = 'expense',
     this.initialBudgetId = '',
+    this.initialLabelIds = const [],
+    this.initialGoalId = '',
     this.templateOnly = false,
   });
   @override
@@ -58,7 +64,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
   void initState() {
     super.initState();
     final profile = ref.read(profileProvider)!;
-    final entry = widget.initial;
+    final entry = widget.initial ?? widget.copyFrom;
     final template = widget.template;
     _type = entry?.type ?? template?.type ?? widget.initialType;
     _budgetId = entry?.budgetId ?? widget.initialBudgetId;
@@ -110,7 +116,12 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
     }
     _name.text = entry?.name ?? template?.name ?? '';
     _notes.text = entry?.notes ?? template?.notes ?? '';
-    _labels = {...?entry?.labelIds, ...?template?.labelIds};
+    _labels = {
+      ...widget.initialLabelIds,
+      ...?entry?.labelIds,
+      ...?template?.labelIds,
+    };
+    _goalId = widget.initialGoalId;
     if (entry != null) {
       _people = entry.personIds.toSet();
       _placeId = entry.placeId;
@@ -826,8 +837,9 @@ class _Calculator extends StatelessWidget {
                     }
                   } else if (key == '=') {
                     try {
-                      controller.text = evaluateAmount(controller.text)
-                          .toString();
+                      controller.text = evaluateAmount(
+                        controller.text,
+                      ).toString();
                     } catch (_) {
                       toast(context, 'Finish the expression first');
                     }

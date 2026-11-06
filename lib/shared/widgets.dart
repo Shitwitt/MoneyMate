@@ -181,8 +181,9 @@ class EmptyState extends StatelessWidget {
           width: 88,
           height: 88,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primaryContainer
-                .withValues(alpha: .45),
+            color: Theme.of(
+              context,
+            ).colorScheme.primaryContainer.withValues(alpha: .45),
             borderRadius: BorderRadius.circular(28),
           ),
           child: Icon(
@@ -221,6 +222,7 @@ class FeaturePage extends StatelessWidget {
   final List<Widget>? actions;
   final Widget child;
   final Widget? fab;
+  final Widget? bottomBar;
   final bool padded;
   const FeaturePage({
     super.key,
@@ -229,6 +231,7 @@ class FeaturePage extends StatelessWidget {
     required this.child,
     this.actions,
     this.fab,
+    this.bottomBar,
     this.padded = true,
   });
   @override
@@ -254,6 +257,7 @@ class FeaturePage extends StatelessWidget {
       actions: actions,
     ),
     floatingActionButton: fab,
+    bottomNavigationBar: bottomBar,
     body: Align(
       alignment: Alignment.topCenter,
       child: ConstrainedBox(
@@ -314,8 +318,9 @@ class StatCard extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             DefaultTextStyle(
-              style: Theme.of(context).textTheme.headlineSmall!
-                  .copyWith(fontWeight: FontWeight.w700),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w700),
               child: value is AmountText
                   ? FittedBox(
                       fit: BoxFit.scaleDown,

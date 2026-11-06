@@ -13,9 +13,11 @@ import '../../core/utils/constants.dart';
 import '../../shared/actions.dart';
 import '../../shared/charts.dart';
 import '../../shared/forms.dart';
+import '../../shared/reference_editor.dart';
 import '../../shared/widgets.dart';
 import '../transactions/transactions_screen.dart';
 import 'categories_screen.dart';
+import 'labels_screen.dart';
 
 class CatalogScreen extends ConsumerWidget {
   final String kind;
@@ -29,10 +31,12 @@ class CatalogScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(profileProvider)!;
+    if (kind == 'label') return const LabelsScreen();
     if (kind == 'category') {
       return CategoriesScreen(
         onEdit: (initial, type) => _editCategory(context, ref, initial, type),
-        onOpen: (category) => openPage(context, _CategoryDetail(category.id)),
+        onOpen: (category) =>
+            openPage(context, CategoryDetailScreen(category.id)),
       );
     }
     final entities = profile.entities
@@ -61,8 +65,9 @@ class CatalogScreen extends ConsumerWidget {
               itemCount: entities.length,
               itemBuilder: (context, index) {
                 final entity = entities[index];
-                final entries = _filterFor(entity)
-                    .apply(ref.read(ledgerProvider)!);
+                final entries = _filterFor(
+                  entity,
+                ).apply(ref.read(ledgerProvider)!);
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Card(
@@ -131,11 +136,13 @@ class CatalogScreen extends ConsumerWidget {
   ]) async {
     final name = TextEditingController(text: initial?.name ?? ''),
         notes = TextEditingController(text: initial?.notes ?? '');
+    var icon = initial?.icon.isNotEmpty == true ? initial!.icon : kind;
     var color = initial?.color ?? palette[3],
         photo = initial?.photoBase64 ?? '';
-    await showEditor(
+    await showReferenceEditor(
       context,
       title: initial == null ? 'New $kind' : 'Edit $kind',
+      saveLabel: initial == null ? 'Create $kind' : 'Update $kind',
       fields: (context, setLocal) => [
         formText(name, 'Name', required: true),
         formText(
@@ -143,7 +150,14 @@ class CatalogScreen extends ConsumerWidget {
           kind == 'place' ? 'Address / notes' : 'Notes',
           lines: 3,
         ),
-        formColors(color, (value) => setLocal(() => color = value)),
+        ReferenceColorPicker(
+          value: color,
+          onChanged: (value) => setLocal(() => color = value),
+        ),
+        ExpansionTile(
+          title: const Text('Choose an icon'),
+          children: [formIcons(icon, (value) => setLocal(() => icon = value))],
+        ),
         if (kind == 'person')
           Row(
             children: [
@@ -173,6 +187,7 @@ class CatalogScreen extends ConsumerWidget {
               id: initial?.id ?? uuid.v4(),
               name: name.text.trim(),
               kind: kind,
+              icon: icon,
               color: color,
               notes: notes.text.trim(),
               photoBase64: photo,
@@ -236,7 +251,10 @@ Future<void> _editCategory(
         onChanged: (value) => setLocal(() => parentId = value ?? ''),
       ),
       const SizedBox(height: 16),
-      formColors(color, (value) => setLocal(() => color = value)),
+      ReferenceColorPicker(
+        value: color,
+        onChanged: (value) => setLocal(() => color = value),
+      ),
       formIcons(icon, (value) => setLocal(() => icon = value)),
     ],
     onSave: () => ref
@@ -258,9 +276,9 @@ Future<void> _editCategory(
   name.dispose();
 }
 
-class _CategoryDetail extends ConsumerWidget {
+class CategoryDetailScreen extends ConsumerWidget {
   final String id;
-  const _CategoryDetail(this.id);
+  const CategoryDetailScreen(this.id);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ledger = ref.watch(ledgerProvider)!;
@@ -310,3 +328,16 @@ class _CategoryDetail extends ConsumerWidget {
     );
   }
 }
+
+Future<void> editCatalogEntity(
+  BuildContext context,
+  WidgetRef ref,
+  String kind, [
+  NamedEntity? initial,
+]) => CatalogScreen(kind)._editEntity(context, ref, initial);
+Future<void> editCatalogCategory(
+  BuildContext context,
+  WidgetRef ref, [
+  Category? initial,
+  String type = 'expense',
+]) => _editCategory(context, ref, initial, type);

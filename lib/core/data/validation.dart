@@ -282,6 +282,22 @@ void validateProfile(ProfileData data) {
   }
   for (final goal in data.goals) {
     require(
+      goal.start == null ||
+          validDate(goal.start!) && !goal.deadline.isBefore(goal.start!),
+      'Goal end date must not precede its start',
+    );
+    require(
+      goal.photoBase64.length <= maxReceiptBytes * 1.4,
+      'Goal photo is too large',
+    );
+    if (goal.photoBase64.isNotEmpty) {
+      final bytes = base64Decode(goal.photoBase64);
+      require(
+        bytes.length <= maxReceiptBytes && receiptMime(bytes) != null,
+        'Invalid goal photo',
+      );
+    }
+    require(
       goal.name.trim().isNotEmpty &&
           goal.targetMinor > 0 &&
           validMoney(goal.targetMinor) &&
@@ -303,6 +319,46 @@ void validateProfile(ProfileData data) {
     );
   }
   for (final loan in data.loans) {
+    ids(loan.repayments.map((e) => e.id));
+    final paymentLinks = <String>{};
+    for (final event in loan.repayments.where(
+      (e) => e.transactionId.isNotEmpty,
+    )) {
+      require(
+        paymentLinks.add(event.transactionId) &&
+            data.transactions.any(
+              (e) =>
+                  e.id == event.transactionId &&
+                  e.loanId == loan.id &&
+                  e.type == (loan.direction == 'lent' ? 'income' : 'expense'),
+            ),
+        'Invalid linked repayment',
+      );
+    }
+    require(
+      loan.start == null ||
+          validDate(loan.start!) && !loan.due.isBefore(loan.start!),
+      'Loan end date must not precede its start',
+    );
+    require(
+      loan.personId.isEmpty ||
+          data.entities.any((e) => e.id == loan.personId && e.kind == 'person'),
+      'Linked loan person is missing',
+    );
+    require(
+      loan.accountId.isEmpty || accounts.containsKey(loan.accountId),
+      'Linked loan account is missing',
+    );
+    require(
+      loan.categoryId.isEmpty ||
+          data.categories.any(
+            (c) =>
+                c.id == loan.categoryId &&
+                c.type == (loan.direction == 'lent' ? 'expense' : 'income'),
+          ),
+      'Loan category must match its direction',
+    );
+
     require(
       loan.personName.trim().isNotEmpty &&
           ['lent', 'borrowed'].contains(loan.direction) &&

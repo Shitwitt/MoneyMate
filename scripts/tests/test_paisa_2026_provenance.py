@@ -79,7 +79,7 @@ class Paisa2026ProvenanceTest(unittest.TestCase):
         self.assertIn('GPL-3.0-or-later', verifier)
         self.assertIn('Source commit does not match', publisher)
         self.assertIn('Tracked source changed after checkout', publisher)
-        self.assertIn('git diff --exit-code HEAD --', (ROOT / '.github/workflows/build-apk.yml').read_text())
+        self.assertIn('python3 .github/scripts/source_integrity.py', (ROOT / '.github/workflows/build-apk.yml').read_text())
         self.assertIn('paisa_legacy_decoder.dart', publisher)
         self.assertIn('Tink-source.zip.sha256', publisher)
 

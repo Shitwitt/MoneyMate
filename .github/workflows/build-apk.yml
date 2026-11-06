@@ -47,7 +47,7 @@ jobs:
         if: ${{ always() && steps.dart-format.outcome != 'success' }}
         run: exit 1
       - name: Require unchanged tracked source and dependency lock
-        run: git diff --exit-code HEAD --
+        run: python3 .github/scripts/source_integrity.py
       - name: Package source for download
         run: git archive --format=zip --prefix=Tink/ HEAD -o Tink-source.zip
       - uses: actions/upload-artifact@v5

@@ -1,6 +1,6 @@
 # Reference batch 3 — Loans, Goals, Labels, Analytics
 
-**Status: implementation and verification in progress. Not a completed handoff.**
+**Status: complete and verified — 6 November 2026. No native build.**
 
 This batch uses the 20 originals `Screenshot_20261106_<time>_Paisa.jpg` provided on 6 November 2026. All twenty have been opened and reviewed. Screenshot financial figures and date countdowns are not authoritative data: several do not reconcile. Tink keeps actual local-record calculations, its own branding, licensed fonts and original assets. No OS bars, private overlays or proprietary imagery are reproduced.
 
@@ -35,9 +35,9 @@ This batch uses the 20 originals `Screenshot_20261106_<time>_Paisa.jpg` provided
 - Principal and flat lifetime interest are in profile currency. New loans can optionally post a converted disbursement; editing does not duplicate or rewrite it. Repayment action optionally posts a linked native-currency account record. Merely tagging another transaction as a loan is not a repayment.
 - New explicit repayment events store their transaction IDs. Amount/account edits update tracked paid amounts; notes/date edits retain the agreed base amount. Unrelated writes and FX changes must not silently revalue old payments. Deleting/unlinking removes the linked event. Legacy independent tracking-only payments are not guessed from names.
 - Paid is actual posted repayment events; scheduled future repayments are not yet paid. Manual completion removes the debt from outstanding summaries but never fabricates paid cash. Reopening restores the genuine unpaid balance. Contract dates organize the tracker, not a bank accrual schedule.
-- Linked goals use the whole account book balance, including opening, withdrawals, transfers and scheduled records, using saved FX. This preserves existing Tink behavior while removing the misleading zero floor. It is **not deposit-only tracking**. Manual allocations remain saved when linked but are not double-counted; unlinking restores their use. Unlinked progress remains manual allocations plus tagged income.
+- Linked goals use the whole account book balance, including opening, withdrawals, transfers and scheduled records, using saved manual reference rates. This preserves existing Tink behavior while removing the misleading zero floor. It is **not deposit-only tracking**. Manual allocations remain saved when linked but are not double-counted; unlinking restores their use. Unlinked progress remains manual allocations plus tagged income.
 - Labels are many-to-many. Book totals include saved scheduled records; income minus expense is net, transfers contribute zero. Different labels overlap and must not be added together as a consolidated total. Deleting a tag retains every transaction and other tags.
-- Analytics uses posted expenses, saved FX and included accounts only. No transfers, opening balances, future records or fabricated scores. Current-month comparisons explicitly name the prior **whole** financial month. Zero baseline percentages are unavailable, not fake 100% increases.
+- Analytics uses posted expenses, saved manual reference rates and included accounts only. No transfers, opening balances, future records or fabricated scores. Current-month comparisons explicitly name the prior **whole** financial month. Zero baseline percentages are unavailable, not fake 100% increases.
 - Velocity uses elapsed calendar days including today; remaining excludes today. Each category forecast equally blends its six-completed-month average and current pace, with a floor at that category’s posted spending; without a category baseline it uses pace alone. The overall prediction is the sum of those category forecasts, so the panels reconcile. Predictions are transparent low-confidence estimates, not AI advice. Outlier flags are not fraud detection. Empty/sparse data remains empty/unavailable.
 - All writes keep validate → durable save → publish. Editors await their own route exit before controller disposal and close their own route even when an achievement overlays it. Copying a record opens a new draft and never silently posts money.
 
@@ -47,16 +47,17 @@ Shared rounded coffee/peach theme, finite/reduced-motion wave/line/bar transitio
 
 Exact proprietary font outlines and motion timing cannot be certified from still images. Detailed forms/help remain mostly English, alongside the existing 36 starter core locales; this is not a complete-translation claim. Gallery selection and physical-device/iOS execution need platform testing. Local data/backups remain unencrypted; PIN is not database encryption.
 
-## Verification (in progress)
+## Verification — completed
 
-Run `42176720069` at `d374c68` passed Flutter analysis, the full Flutter test suite (including the repaired chart semantics), the America/New_York calendar run and all 12 offline-packaging Python tests. The run remained red solely on strict SDK formatting; its exact SDK patch has been applied. New calendar-date boundaries, retained direction-specific category drafts and explicit repayment conversion disclosure are being rechecked. Browser journeys and screenshot review are still pending; no completion claim is made.
+Authoritative run: [42189659642](https://github.com/Shitwitt/MoneyMate/actions/runs/42189659642), application/source commit `244c9b62bdc7a7adbf60a81525e6ff647f8aa631`.
 
-Required remaining coverage:
+- Source job `127798273550`: **success**. Strict non-mutating SDK format gate, Flutter analyzer, the full Flutter suite, America/New_York calendar/DST regressions and offline-packaging Python regressions all passed.
+- Real-browser job `127799059315`: **success**. The connected demo journey covers partial posted repayment/history, separate lending/borrowing category choices, copy-as-unsaved-draft, persisted loan/goal/label rename, goal archive/restore, label grid/scope/grouping, a genuine touch swipe to insight **2 / 2**, chart-point controls and every Analytics section/help.
+- Existing Batch 1/2 journeys, all 14 setup steps, exact persisted profile name, theme persistence after reload, offline reload and zero external runtime requests also passed. Browser/layout error collection was empty.
+- Four strict screenshot-review jobs passed: loans `127800798582` (8 frames), goals `127800798598` (5), labels `127800798618` (4), Analytics `127800798836` (8). **25 required full frames and bounded JPEG review copies**, including independent insight pages and palette continuations. Every review copy was opened: 22 are byte-identical to the immediately preceding reviewed run, and the three changed copies were reopened. Full-file presence/JPEG integrity is checked in CI; these bounded copies are a layout review, not a pixel-perfect certification.
+- Additional reference review job `127800798554`: **success**. Existing Batch 1/2 evidence remains separate from this batch.
+- Narrow/scaled/RTL tests include the editor/help/copy/privacy/carousel regressions and dedicated DemoFrame/FAB-versus-period-dock geometry assertions. This is not a blanket accessibility-conformance claim or physical-device certification.
 
-- New deterministic data tests: migrations, repayments/FX/edit/delete/atomic failures, manual close/reopen, signed goals/transfers, tags/deletion, grouping/DST, analytics exclusions/rates/calendar/forecasts/outliers/empty baselines.
-- New widget regressions: 320px/160% LTR and RTL across seven screens; privacy, type-dependent choices, custom hex save, lifecycle/disposal, help, label filters/grid, copy drafts, reduced-motion carousel and rounded Edit controls.
-- Existing full analyzer, localization, Flutter, calendar and offline-packaging suites remain required. Exact SDK formatting is authoritative; the local WASM formatter is only a syntax/preformat aid.
-- Chromium adds the connected Batch 3 demo journey and 25 Batch 3 coverage frames (including a separate swipe result and palette continuation). Existing Batch 1/2 journeys, theme persistence, offline reload and zero external runtime requests remain required.
-- Four screenshot-only review jobs require the new full frames and bounded thumbnails for close review; previous Batch 2 evidence does not verify this batch.
+**APK hold remains active.** Release Android job `127799062289` was skipped; direct-Gradle run `42189659815` was skipped. No APK, AAB or native compilation was performed. Both native paths remain explicit opt-ins.
 
-**APK hold remains active.** No APK/AAB/native compilation is requested or authorized. Both native workflow jobs remain explicitly opt-in; source/web checks run on UI-only pushes. No next image batch will be requested until implementation and these checks/review are completed.
+Batch 4's already supplied 20 originals have been reviewed. Work proceeds directly to them without requesting another image batch.

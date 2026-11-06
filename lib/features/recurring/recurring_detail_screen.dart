@@ -575,7 +575,7 @@ class _RecurringDetailHeading extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(child: label),
         const SizedBox(width: 8),
-        Flexible(child: amount),
+        Flexible(fit: FlexFit.tight, child: amount),
       ],
     );
   }

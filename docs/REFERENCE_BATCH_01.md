@@ -60,6 +60,7 @@ This is the **1.3.0+4** source, not the published 1.2 APK.
 - The screenshot's financial indicator is not a credit/health/AI score.
   Tink displays its existing transparent record-derived planning indicators,
   with unknown values left unavailable and an explicit limitation.
+- The app-owned Exit Demo control uses a separate top strip rather than obscuring the Back/profile toolbar, and reference OS/status/private-chat overlays are not copied.
 - No screenshot sample figure is substituted for the user's own ledger.
 - Budget custom periods do not auto-renew; allocations and loan records are
   bookkeeping, never payments, bank feeds, issued cards, or real lending.

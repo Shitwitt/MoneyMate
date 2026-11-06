@@ -37,7 +37,6 @@ WCAG relative-luminance formula, sRGB components. These are **specific solid col
 | Dark income on tile | `#A7C994` / `#271E19` | 8.88:1 |
 | Dark expense on tile | `#EEB5B8` / `#271E19` | 9.28:1 |
 | Brown on peach | `#2D211A` / `#FFB59A` | 9.17:1 |
-
 | Due tile ink | `#FFE0D2` / `#72361E` | 7.45:1 |
 | Yearly tile ink | `#F5E6A7` / `#49430C` | 8.01:1 |
 | Income tile ink | `#A7E3B0` / `#074926` | 7.16:1 |

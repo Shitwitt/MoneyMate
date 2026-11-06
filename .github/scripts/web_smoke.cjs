@@ -154,6 +154,8 @@ const binary = chromiumModule.default || chromiumModule;
     await page.waitForTimeout(350);
     await page.getByRole('button', {name: 'Get started', exact: true}).click();
     await page.waitForTimeout(350);
+    // Tour grouping semantics may overlap the CTA in the DOM. A forced click
+    // still uses Flutter's real canvas hit test; subsequent steps verify navigation.
     for (let index = 2; index <= 10; index++) {
       if (index === 2) await capture('web-budget-tour.jpg');
       if (index === 3) await capture('web-loan-tour.jpg');
@@ -161,14 +163,14 @@ const binary = chromiumModule.default || chromiumModule;
       if (index === 6) await capture('web-category-tour.jpg');
       if (index === 7) await capture('web-languages.jpg');
       if (index === 9) await capture('web-notifications.jpg');
-      await page.getByRole('button', {name: 'Next', exact: true}).click();
+      await page.getByRole('button', {name: 'Next', exact: true}).click({force: true});
       await page.waitForTimeout(350);
     }
-    await page.getByRole('button', {name: 'Continue', exact: true}).click();
+    await page.getByRole('button', {name: 'Continue', exact: true}).click({force: true});
     const name = page.getByRole('textbox', {name: 'What should we call you?', exact: true}).first();
     await name.click(); await page.keyboard.type('Browser User', {delay: 30}); await page.keyboard.press('Tab');
-    await page.getByRole('button', {name: 'Continue', exact: true}).click();
-    await page.getByRole('button', {name: 'Start using Tink', exact: true}).click();
+    await page.getByRole('button', {name: 'Continue', exact: true}).click({force: true});
+    await page.getByRole('button', {name: 'Start using Tink', exact: true}).click({force: true});
     await page.getByText('Browser User', {exact: false}).first().waitFor({timeout: 30000});
     if (await page.getByRole('button', {name: 'Exit Demo', exact: true}).isVisible()) throw new Error('Real setup retained a demo overlay');
     await page.getByRole('button', {name: 'Profiles & settings', exact: true}).click();

@@ -11,6 +11,7 @@ import 'exchange_rates_screen.dart';
 import 'help_screen.dart';
 import 'layout_screen.dart';
 import 'notifications_screen.dart';
+import 'page_shortcuts_screen.dart';
 import 'premium_screen.dart';
 import 'profiles_screen.dart';
 import 'regional_screen.dart';
@@ -99,6 +100,12 @@ class SettingsScreen extends ConsumerWidget {
               const ExchangeRatesScreen(),
             ),
             (
+              'Page shortcuts',
+              'Copy safe links to specific Tink pages',
+              Icons.link_rounded,
+              const PageShortcutsScreen(),
+            ),
+            (
               'Widgets, automation & FAQ',
               'Home-screen widgets, links, help',
               Icons.help_outline_rounded,
@@ -153,7 +160,7 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                     children: const [
                       Text(
-                        'An independent offline finance app inspired by the privacy-first approach of Paisa. Original implementation and branding; not affiliated with Hemanth Savarala or paisa-tracker.app.\n\nNo analytics. No ads. No cloud. Your data is yours.',
+                        'An independent offline finance app inspired by the privacy-first approach of Paisa. Independent Tink implementation and branding, with a GPL-licensed Paisa 6.3.6 backup compatibility adaptation. Not affiliated with Hemanth Savarala or paisa-tracker.app. See Open-source licenses for source, copyright and modification notices.\n\nNo analytics. No ads. No cloud. Your data is yours.',
                       ),
                     ],
                   ),

@@ -13,6 +13,7 @@ Future<TransactionFilter?> showTransactionFilters(
 ) async {
   var accounts = {...initial.accounts},
       categories = {...initial.categories},
+      excludedCategories = {...initial.excludedCategories},
       labels = {...initial.labels},
       people = {...initial.people},
       places = {...initial.places};
@@ -128,6 +129,12 @@ Future<TransactionFilter?> showTransactionFilters(
         categories,
         (value) => setLocal(() => categories = value),
       ),
+      formChips(
+        'Exclude categories (including children)',
+        {for (final item in profile.categories) item.id: item.name},
+        excludedCategories,
+        (value) => setLocal(() => excludedCategories = value),
+      ),
       for (final kind in ['label', 'person', 'place'])
         if (profile.entities.any((item) => item.kind == kind))
           formChips(
@@ -186,6 +193,7 @@ Future<TransactionFilter?> showTransactionFilters(
           weekday = null;
           accounts = {};
           categories = {};
+          excludedCategories = {};
           labels = {};
           people = {};
           places = {};
@@ -223,6 +231,7 @@ Future<TransactionFilter?> showTransactionFilters(
         dates: dates,
         accounts: accounts,
         categories: categories,
+        excludedCategories: excludedCategories,
         labels: labels,
         people: people,
         places: places,

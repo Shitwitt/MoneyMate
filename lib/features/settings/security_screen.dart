@@ -184,7 +184,7 @@ class SecurityScreen extends ConsumerWidget {
             child: SwitchListTile.adaptive(
               title: const Text('Hide amounts'),
               subtitle: const Text(
-                'Replace amounts with dots and hide chart values',
+                'Use fixed shapes for amounts and hide chart values',
               ),
               secondary: const Icon(Icons.visibility_off_outlined),
               value: settings.hideAmounts,

@@ -15,13 +15,20 @@ TextFormField formText(
   int lines = 1,
   String? hint,
   Widget? suffix,
+  Widget? prefix,
+  FocusNode? focusNode,
+  TextInputAction? textInputAction,
   String? Function(String?)? validator,
 }) => TextFormField(
   controller: controller,
+  focusNode: focusNode,
+  textInputAction: textInputAction,
   decoration: InputDecoration(
     labelText: label,
     hintText: hint,
     suffixIcon: suffix,
+    prefixIcon: prefix,
+    alignLabelWithHint: lines > 1,
   ),
   keyboardType: numeric
       ? const TextInputType.numberWithOptions(decimal: true, signed: true)

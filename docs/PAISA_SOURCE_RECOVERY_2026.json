@@ -1,0 +1,23 @@
+{
+  "reviewed_on": "2026-11-06",
+  "attachment": {
+    "filename": "README.md",
+    "bytes": 13860,
+    "sha256": "9e83b20923d4d9a80d312c6c0d462ea5f2e42001d4daaca8371c24d005bf1823",
+    "kind": "source-recovery/build guide, not a full app tree"
+  },
+  "legacy_flutter": {
+    "repository": "confumbit/Paisa",
+    "ref": "369aee29ebf51dd5007deca2bb414917f12b208a",
+    "version": "6.3.6+636",
+    "license": "GPL-3.0-or-later",
+    "copyright": "2022 Hemanth S"
+  },
+  "separate_native_rewrite": {
+    "repository": "maxcodl/Paisa-plus",
+    "ref": "516fafbf0b7a994005f82c92cff5f156d8c2d664",
+    "kind": "Kotlin/Jetpack Compose, no Dart files; not official current Flutter source"
+  },
+  "website_latest_listed": "2026.03.04",
+  "current_official_2026_flutter_source_obtained": false
+}

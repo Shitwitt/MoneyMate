@@ -60,6 +60,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
       _notes = TextEditingController(),
       _receive = TextEditingController();
   final _nameFocus = FocusNode();
+  final _amountFocus = FocusNode(), _notesFocus = FocusNode();
   late String _type, _accountId, _categoryId;
   String _toAccountId = '', _placeId = '', _goalId = '', _loanId = '';
   String _transferCategoryId = '';
@@ -200,6 +201,8 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
       controller.dispose();
     }
     _nameFocus.dispose();
+    _amountFocus.dispose();
+    _notesFocus.dispose();
     super.dispose();
   }
 
@@ -513,6 +516,8 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
         enabled: !_busy,
         controller: controller,
         focusNode: focus,
+        textInputAction: TextInputAction.next,
+        onFieldSubmitted: (_) => _amountFocus.requestFocus(),
         textCapitalization: TextCapitalization.sentences,
         decoration: const InputDecoration(
           labelText: 'What was it for?',
@@ -690,6 +695,9 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
                 TextFormField(
                   key: const ValueKey('transaction-amount'),
                   controller: _amount,
+                  focusNode: _amountFocus,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => _notesFocus.requestFocus(),
                   enabled: !_busy,
                   autofocus: false,
                   style: Theme.of(context).textTheme.displaySmall
@@ -725,7 +733,14 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
                   const SizedBox(height: 16),
                 ],
                 const SizedBox(height: 16),
-                formText(_notes, 'A little note (optional)', lines: 3),
+                formText(
+                  _notes,
+                  'A little note (optional)',
+                  lines: 3,
+                  focusNode: _notesFocus,
+                  textInputAction: TextInputAction.newline,
+                  prefix: const Icon(Icons.notes_rounded),
+                ),
                 const SizedBox(height: 16),
                 if (!widget.templateOnly)
                   formDate(

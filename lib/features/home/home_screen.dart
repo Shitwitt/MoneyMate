@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../core/data/achievements.dart';
 import '../../core/data/financial_pulse.dart';
 import '../../core/data/ledger.dart';
+import '../../core/data/home_layout.dart';
 import '../../core/data/providers.dart';
 import '../../core/data/recurring_schedule.dart';
 import '../../core/utils/constants.dart';
@@ -41,10 +42,45 @@ import 'more_screen.dart';
 import 'home_reference_sections.dart';
 import 'net_worth_screen.dart';
 
-class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends ConsumerStatefulWidget {
+  final bool standalone;
+  const HomeScreen({super.key, this.standalone = false});
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _editing = false, _savingLayout = false;
+
+  Future<void> _reorder(List<String> visible, int from, int to) async {
+    if (_savingLayout) return;
+    setState(() => _savingLayout = true);
+    await runSafe(context, () => ref.read(appProvider.notifier).settings(
+      (settings) => settings.copyWith(
+        homeCards: reorderVisibleHomeCards(settings.homeCards, visible, from, to),
+      ),
+    ));
+    if (mounted) setState(() => _savingLayout = false);
+  }
+
+  Widget _editableCard(String id, Ledger ledger, DateTime now) => switch (id) {
+    'balance' || 'cashflow' => _BalanceOverview(
+      ledger: ledger,
+      now: now,
+      showBalance: id == 'balance',
+      showCashflow: id == 'cashflow',
+    ),
+    'recent' => _LastEarned(ledger: ledger),
+    'templates' => _TemplatesStrip(ledger: ledger),
+    'heatmap' => HomeCalendarHeatmap(ledger),
+    'trend' => HomeCashflowTrend(ledger),
+    'trackedBudgets' => HomeTrackedBudgets(ledger),
+    'upcoming' => UpcomingTransactionsSection(ledger),
+    _ => _DashboardTile(id: id, ledger: ledger, now: now),
+  };
+
+  @override
+  Widget build(BuildContext context) {
     final app = ref.watch(appProvider), ledger = ref.watch(ledgerProvider)!;
     final profile = ledger.data, settings = app.settings;
     final now = DateTime.now();
@@ -164,7 +200,7 @@ class HomeScreen extends ConsumerWidget {
         toolbarHeight: 56,
         automaticallyImplyLeading: false,
         leadingWidth: 80,
-        leading: Tooltip(
+        leading: widget.standalone ? const BackButton() : Tooltip(
           message: 'Customize home layout',
           child: TextButton(
             onPressed: () => openPage(context, const LayoutScreen()),
@@ -180,7 +216,7 @@ class HomeScreen extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  'New',
+                  '2026',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -192,6 +228,11 @@ class HomeScreen extends ConsumerWidget {
           ),
         ),
         actions: [
+          IconButton(
+            tooltip: _editing ? 'Finish reordering' : 'Reorder Home cards',
+            onPressed: _savingLayout ? null : () => setState(() => _editing = !_editing),
+            icon: Icon(_editing ? Icons.check_rounded : Icons.drag_indicator_rounded),
+          ),
           IconButton(
             tooltip: 'All tools',
             onPressed: () => openPage(context, const MoreScreen()),
@@ -210,7 +251,67 @@ class HomeScreen extends ConsumerWidget {
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 840),
-          child: RefreshIndicator(
+          child: _editing
+              ? ReorderableListView.builder(
+                  key: const ValueKey('home-inline-reorder'),
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 104),
+                  buildDefaultDragHandles: false,
+                  header: Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.touch_app_outlined),
+                        title: const Text('Make Home yours'),
+                        subtitle: const Text('Drag a handle or use the move buttons. Changes save on this device. Hidden cards stay hidden.'),
+                        trailing: IconButton(
+                          tooltip: 'Card visibility and full layout',
+                          onPressed: () => openPage(context, const LayoutScreen()),
+                          icon: const Icon(Icons.tune_rounded),
+                        ),
+                      ),
+                    ),
+                  ),
+                  itemCount: ids.length,
+                  onReorder: (from, to) => _reorder(ids, from, to),
+                  itemBuilder: (context, index) {
+                    final id = ids[index];
+                    final name = homeCardNames[id] ?? id;
+                    return Padding(
+                      key: ValueKey('home-reorder-$id'),
+                      padding: const EdgeInsets.only(bottom: 18),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(child: Text(name, style: Theme.of(context).textTheme.titleSmall)),
+                              IconButton(
+                                tooltip: 'Move $name up',
+                                onPressed: index == 0 || _savingLayout ? null : () => _reorder(ids, index, index - 1),
+                                icon: const Icon(Icons.arrow_upward_rounded),
+                              ),
+                              IconButton(
+                                tooltip: 'Move $name down',
+                                onPressed: index == ids.length - 1 || _savingLayout ? null : () => _reorder(ids, index, index + 2),
+                                icon: const Icon(Icons.arrow_downward_rounded),
+                              ),
+                              ReorderableDragStartListener(
+                                index: index,
+                                enabled: !_savingLayout,
+                                child: Semantics(
+                                  label: 'Drag $name',
+                                  child: const SizedBox(width: 48, height: 48, child: Icon(Icons.drag_handle_rounded)),
+                                ),
+                              ),
+                            ],
+                          ),
+                          IgnorePointer(ignoring: true, child: _editableCard(id, ledger, now)),
+                        ],
+                      ),
+                    );
+                  },
+                )
+              : RefreshIndicator(
             onRefresh: () => runSafe(
               context,
               () => ref.read(appProvider.notifier).processRecurring(),

@@ -1,11 +1,12 @@
 const appName = 'Tink';
-const appVersion = '1.3.0';
+const appVersion = '2026.11.6';
 const freeBudgetLimit = 3;
 const freeGoalLimit = 3;
 const freeEntityLimit = 10;
 const freeBillLimit = 3;
 const maxReceiptBytes = 2 * 1024 * 1024;
 const maxBackupBytes = 50 * 1024 * 1024;
+const maxLegacyImportBytes = 10 * 1024 * 1024;
 const defaultHomeCards = [
   'balance',
   'cashflow',

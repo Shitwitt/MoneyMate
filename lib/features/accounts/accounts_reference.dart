@@ -25,7 +25,8 @@ class _AccountsReferenceScreenState
   @override
   Widget build(BuildContext context) {
     final ledger = ref.watch(ledgerProvider)!;
-    if (MediaQuery.sizeOf(context).width >= 1000)
+    if (MediaQuery.sizeOf(context).width >= 760 &&
+        MediaQuery.textScalerOf(context).scale(1) <= 1.3)
       return const AccountsListScreen();
     final accounts = ledger.data.accounts
         .where((a) => archived || !a.archived)

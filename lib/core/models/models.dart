@@ -1481,6 +1481,7 @@ class AppSettings {
 
 class ProfileData {
   final Profile profile;
+  final String legacyImportJson;
   final List<Account> accounts;
   final List<Category> categories;
   final List<MoneyTransaction> transactions;
@@ -1498,6 +1499,7 @@ class ProfileData {
 
   const ProfileData({
     required this.profile,
+    this.legacyImportJson = '',
     this.accounts = const [],
     this.categories = const [],
     this.transactions = const [],
@@ -1516,6 +1518,7 @@ class ProfileData {
 
   factory ProfileData.fromJson(Json json) => ProfileData(
     profile: Profile.fromJson(readMap(json['profile'])),
+    legacyImportJson: readString(json['legacyImportJson'], ''),
     accounts: readModels(json['accounts'], Account.fromJson),
     categories: readModels(json['categories'], Category.fromJson),
     transactions: readModels(json['transactions'], MoneyTransaction.fromJson),
@@ -1534,6 +1537,7 @@ class ProfileData {
 
   Json toJson() => {
     'profile': profile.toJson(),
+    if (legacyImportJson.isNotEmpty) 'legacyImportJson': legacyImportJson,
     'accounts': accounts.map((item) => item.toJson()).toList(),
     'categories': categories.map((item) => item.toJson()).toList(),
     'transactions': transactions.map((item) => item.toJson()).toList(),
@@ -1552,6 +1556,7 @@ class ProfileData {
 
   ProfileData copyWith({
     Profile? profile,
+    String? legacyImportJson,
     List<Account>? accounts,
     List<Category>? categories,
     List<MoneyTransaction>? transactions,
@@ -1568,6 +1573,7 @@ class ProfileData {
     List<String>? notificationMarks,
   }) => ProfileData(
     profile: profile ?? this.profile,
+    legacyImportJson: legacyImportJson ?? this.legacyImportJson,
     accounts: accounts ?? this.accounts,
     categories: categories ?? this.categories,
     transactions: transactions ?? this.transactions,

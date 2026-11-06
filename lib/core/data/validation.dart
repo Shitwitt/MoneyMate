@@ -83,6 +83,11 @@ void validateData(AppData app) {
 
 void validateProfile(ProfileData data) {
   require(
+    data.legacyImportJson.length <= maxLegacyImportBytes &&
+        utf8.encode(data.legacyImportJson).length <= maxLegacyImportBytes,
+    'The retained legacy JSON exceeds the 10 MiB limit',
+  );
+  require(
     data.profile.name.trim().isNotEmpty && data.profile.name.length <= 100,
     'Enter a profile name (up to 100 characters)',
   );

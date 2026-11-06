@@ -1,0 +1,95 @@
+{
+  "repository": "https://github.com/confumbit/Paisa",
+  "branch": "dev",
+  "commit": "369aee29ebf51dd5007deca2bb414917f12b208a",
+  "verified_pubspec_name": "paisa",
+  "verified_pubspec_version": "6.3.6+636",
+  "license": "GPL-3.0-or-later",
+  "files": [
+    {
+      "upstream_path": "lib/features/settings/data/model/paisa_data_response.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/features/settings/data/model/paisa_data_response.dart.txt",
+      "sha256": "ccb8df2d93a21f8cd40ac1bd83fb13b4aa9f050a6d159209998e5ceeaad93845"
+    },
+    {
+      "upstream_path": "lib/features/settings/data/model/paisa_data_response.g.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/features/settings/data/model/paisa_data_response.g.dart.txt",
+      "sha256": "97c1ef4a71b91b4c6d4b678334b873bd7a056134941334a2f0229a9dd641d1e4"
+    },
+    {
+      "upstream_path": "lib/features/settings/data/repository/json_export_import_impl.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/features/settings/data/repository/json_export_import_impl.dart.txt",
+      "sha256": "8382dafc2028f98b760ff73065c8b668c35bc2328948f8f1b61638c7b0d069bf"
+    },
+    {
+      "upstream_path": "lib/features/account/data/model/account_model.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/features/account/data/model/account_model.dart.txt",
+      "sha256": "01e3c1db07304dabd7de1ddf425aac3933ab8c6cd3ccac78d63fb2485d7ef389"
+    },
+    {
+      "upstream_path": "lib/features/account/data/model/account_model.g.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/features/account/data/model/account_model.g.dart.txt",
+      "sha256": "be5f444c575a32d2a61059c210779aada893f3f4a1798576090abbdf424e6959"
+    },
+    {
+      "upstream_path": "lib/features/category/data/model/category_model.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/features/category/data/model/category_model.dart.txt",
+      "sha256": "ebbab4f00aaee637a20d397641535ad453a9b59a57b8516a6ab97f708d37c57e"
+    },
+    {
+      "upstream_path": "lib/features/category/data/model/category_model.g.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/features/category/data/model/category_model.g.dart.txt",
+      "sha256": "8f7fdd90d1471a382dbb42884ffb32eb80257297f24732324b7735c98bd2e11b"
+    },
+    {
+      "upstream_path": "lib/features/transaction/data/model/transaction_model.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/features/transaction/data/model/transaction_model.dart.txt",
+      "sha256": "97974cfe9263e327bd8b1276fdde7a1440e70df4bafd5e8c3d3f624be62d63bd"
+    },
+    {
+      "upstream_path": "lib/features/transaction/data/model/transaction_model.g.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/features/transaction/data/model/transaction_model.g.dart.txt",
+      "sha256": "dbce8fc69b76aef6646c2aa6c6ec1fbe0b3f71d33e0475698efe149e7f3a3858"
+    },
+    {
+      "upstream_path": "lib/features/debit/data/models/debit_model.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/features/debit/data/models/debit_model.dart.txt",
+      "sha256": "63e84fbaf7376e849f82c7be0d4b7e0dd59f2841393943ac010caadeadf79e9b"
+    },
+    {
+      "upstream_path": "lib/features/debit/data/models/debit_model.g.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/features/debit/data/models/debit_model.g.dart.txt",
+      "sha256": "ca075b6a1bbd876f321a0cf6b5e155383790bb85e9757a068e441494c0f5a7fd"
+    },
+    {
+      "upstream_path": "lib/features/debt_transaction/data/model/debt_transactions_model.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/features/debt_transaction/data/model/debt_transactions_model.dart.txt",
+      "sha256": "18f390681733fd2bf1ec88507b9b08ca1d3dd61bf247100655f5006ed49d9384"
+    },
+    {
+      "upstream_path": "lib/features/debt_transaction/data/model/debit_transactions_model.g.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/features/debt_transaction/data/model/debit_transactions_model.g.dart.txt",
+      "sha256": "b5ebdf55f98d55628b85a5111a2a8b577c25a459def2c61204a81d00bf03f742"
+    },
+    {
+      "upstream_path": "lib/core/enum/account_type.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/core/enum/account_type.dart.txt",
+      "sha256": "56e30b459386409605ea00573752727602fbbfe96069a520f00c448e5ed634d2"
+    },
+    {
+      "upstream_path": "lib/core/enum/category_type.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/core/enum/category_type.dart.txt",
+      "sha256": "3041660d879e31d3f94c96c36712a1f922b1c186117893b9c5b59103dd40f9cb"
+    },
+    {
+      "upstream_path": "lib/core/enum/transaction_type.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/core/enum/transaction_type.dart.txt",
+      "sha256": "e2c72823c1c4f7b5c6214a3902063c654c23545ce9df4f2819e57d08a012a898"
+    },
+    {
+      "upstream_path": "lib/core/enum/debt_type.dart",
+      "reference_path": "third_party/paisa_6_3_6/reference/lib/core/enum/debt_type.dart.txt",
+      "sha256": "c29bd916a76471b3c5960d177323aaacb734c7bb2d5844ba796bfdb635316339"
+    }
+  ]
+}

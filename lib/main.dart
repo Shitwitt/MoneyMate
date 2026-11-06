@@ -21,6 +21,7 @@ import 'core/services/service_providers.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/money.dart';
 import 'features/home/app_shell.dart';
+import 'features/home/page_destinations.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/onboarding/splash_screen.dart';
 import 'features/settings/backup_screen.dart';
@@ -36,6 +37,18 @@ Future<void> main() async {
   await initializeDateFormatting();
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   LicenseRegistry.addLicense(() async* {
+    yield LicenseEntryWithLineBreaks(
+      ['Tink / Paisa 6.3.6 compatibility · GPL-3.0-or-later'],
+      await rootBundle.loadString('assets/licenses/GPL-3.0-or-later.txt'),
+    );
+    yield LicenseEntryWithLineBreaks(
+      ['Tink original implementation · MIT'],
+      await rootBundle.loadString('assets/licenses/Tink-original-MIT.txt'),
+    );
+    yield LicenseEntryWithLineBreaks(
+      ['Paisa compatibility source and modification notices'],
+      await rootBundle.loadString('assets/licenses/Paisa-compatibility-NOTICE.txt'),
+    );
     final license = await rootBundle.loadString('assets/fonts/OFL.txt');
     yield LicenseEntryWithLineBreaks(['Noto fonts'], license);
     for (final family in [
@@ -346,11 +359,14 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
           final context = navigator.currentContext;
           if (context == null || !context.mounted) break;
           final uri = pending.removeAt(0);
-          if (DeepLinkService.isCustomScheme(uri) && uri.host == 'home')
-            continue;
           await runSafe(context, () async {
             final profile = ref.read(profileProvider)!;
             final request = DeepLinkService.parse(uri, profile);
+            if (request.destination != null) {
+              // Push rather than discard an editor or other unsaved route.
+              await openPage(context, pageDestination(request.destination!));
+              return;
+            }
             if (request.transaction == null) {
               await openPage(context, const TransactionForm());
               return;

@@ -5,10 +5,28 @@ import '../utils/money.dart';
 class DeepLinkRequest {
   final MoneyTransaction? transaction;
   final bool silent;
-  const DeepLinkRequest(this.transaction, this.silent);
+  final String? destination;
+  const DeepLinkRequest(this.transaction, this.silent, {this.destination});
 }
 
 class DeepLinkService {
+  static const pages = {
+    'home': 'Home', 'accounts': 'Accounts', 'activity': 'Activity',
+    'search': 'Search', 'plans': 'Plans', 'reports': 'Reports',
+    'analytics': 'Analytics', 'health': 'Spending Health',
+    'budgets': 'Budgets', 'goals': 'Goals', 'loans': 'Loans',
+    'recurring': 'Subscriptions & recurring', 'categories': 'Categories',
+    'labels': 'Labels', 'people': 'People', 'places': 'Places',
+    'assets': 'Assets', 'net-worth': 'Net worth', 'templates': 'Quick templates',
+    'splitter': 'Bill splitter', 'achievements': 'Achievements',
+    'settings': 'Settings', 'backup': 'Backup & transfer', 'more': 'All tools',
+  };
+
+  static Uri pageUri(String destination) {
+    if (!pages.containsKey(destination)) throw const FormatException('Unknown page shortcut');
+    return Uri(scheme: 'tink', host: 'open', queryParameters: {'page': destination});
+  }
+
   static bool isCustomScheme(Uri uri) => ['tink', 'paisa'].contains(uri.scheme);
 
   /// app_links also emits the ordinary browser address on startup.
@@ -17,10 +35,26 @@ class DeepLinkService {
 
   static DeepLinkRequest parse(Uri uri, ProfileData data) {
     final action = isCustomScheme(uri)
-        ? uri.host
+        ? uri.host.toLowerCase()
         : uri.path.replaceFirst('/', '');
     if (!isCustomScheme(uri) && !(uri.scheme == 'https' && action == 'add')) {
       throw const FormatException('Unsupported finance link');
+    }
+    if (isCustomScheme(uri) && (action == 'open' || action == 'page' || pages.containsKey(action))) {
+      final String? target;
+      if (action == 'open') {
+        if (uri.pathSegments.isNotEmpty) throw const FormatException('Unknown page shortcut');
+        target = uri.queryParameters['page']?.trim().toLowerCase();
+      } else if (action == 'page') {
+        target = uri.pathSegments.length == 1 ? uri.pathSegments.single.toLowerCase() : null;
+      } else {
+        if (uri.pathSegments.isNotEmpty) throw const FormatException('Unknown page shortcut');
+        target = action;
+      }
+      if (target == null || !pages.containsKey(target)) {
+        throw const FormatException('Unknown page shortcut');
+      }
+      return DeepLinkRequest(null, false, destination: target);
     }
     if (action == 'quick_add') return const DeepLinkRequest(null, false);
     if (!['add', 'silent_add'].contains(action)) {

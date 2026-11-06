@@ -61,3 +61,14 @@ Record device model, OS, app version, signing certificate fingerprint and test d
 - Inspect the pulse information sheet and unknown/zero/future-date cases; do not label it a credit or medical score. Verify exact category amounts and that selectable petals match the list.
 - Check thirteen-week activity calendar around spring/fall DST changes. Verify linked cashflow panels describe their independent units and selected month.
 - Check the 160% account monthly in/out summaries, home account carousel, separate More control, custom tab ordering, icon-only nav and all theme modes with reduced motion both on and off.
+
+## 2026 edition additions
+- Home inline edit: real handle drag, keyboard/screen-reader move controls, hidden-card anchoring, failed durable save, Done and return; chart holds still inspect instead of reordering.
+- Every allowlisted page shortcut under canonical/legacy schemes, cold/resumed while locked, profile-less onboarding, duplicate queue delivery and no monetary writes; an existing editor must not be discarded.
+- Name → Amount → notes Next flow on real Android/iOS keyboards, multiline descriptions, inline expressions, retained autocomplete draft, notes icon and keyboard insets.
+- Fixed privacy shapes reveal neither digit count nor sign nor private semantics. Chart tooltips and locked widget values remain masked; exports warn about full amounts.
+- Parent/child category exclusions, include/exclude conflicts, clear filters, date-window changes and PDF/CSV totals against the identical selected record IDs.
+- Tablet account master/detail at 800px portrait/1280px landscape; close/edit/delete pane; 160–200% text fallback, RTL and both button wraps.
+- Legacy Paisa 6.3.6 JSON: actual `transactions` and alternate `debitTransactions` keys; both populated must fail. Explicit original currency/loan-direction confirmation; signed opening balances; category type splitting; partial repayments/manual closure; retained original JSON download; no guessed budget windows.
+- Legacy preview/cancel/write failure: no writes and no changed existing profile. Confirmed import appends once, preserves lock, disables automation/notifications and makes no synthetic cash records. Wrong/current format, duplicate/missing references, bad dates/enums/numbers, oversized and overpaid data fail atomically. Demo imports disappear on Exit Demo.
+- Inspect bundled GPL/original MIT/modification notices offline. Source ZIP must match the exact APK build commit and contain all notices/build scripts; compare public signing metadata before attempting an upgrade.

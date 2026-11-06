@@ -84,6 +84,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     dates: filter.dates,
     accounts: filter.accounts,
     categories: filter.categories,
+    excludedCategories: filter.excludedCategories,
     labels: filter.labels,
     people: filter.people,
     places: filter.places,

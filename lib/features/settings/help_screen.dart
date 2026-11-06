@@ -77,7 +77,7 @@ class HelpScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           const SectionHeader('Quick links & automation'),
           const Text(
-            'Use Tasker, shortcuts, or an Android VIEW intent to open a prefilled transaction. The app validates account, category, type, amount and date. By default you always review and confirm it. A silent_add request posts only after app unlock AND after explicitly enabling the toggle below.',
+            'Use Tasker, shortcuts, or an Android VIEW intent to open a prefilled transaction. The app validates account, category, type, amount and date. By default you always review and confirm it. A silent_add request posts only after app unlock AND after explicitly enabling the toggle below. Page-only links such as tink://open?page=reports never post money; copy them from Settings → Page shortcuts. Legacy paisa:// links remain accepted.',
             style: TextStyle(height: 1.6),
           ),
           const SizedBox(height: 12),

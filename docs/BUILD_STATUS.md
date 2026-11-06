@@ -1,3 +1,9 @@
+# Current 2026 rebuild status
+
+**2026.11.6+6: new code and regression coverage implemented; fresh build checks/publication pending.** [Feature/source/licence matrix](PAISA_2026_REBUILD.md). Do not label the historical build 5 APK below as this 2026 deliverable. Both native workflows remain opt-in; the user explicitly requested this rebuild.
+
+---
+
 # Tink 1.3 — build 5 Android test APK and verification
 
 **Current verified Android test build: 1.3.0+5**, branch `arena/9ea2a134-moneymate`, verified 6 November 2026.

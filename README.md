@@ -1,4 +1,4 @@
-# Tink
+# Tink 2026
 
 **Your money. A clearer mind.** A privacy-first Material 3 Flutter finance companion with rounded offline typography, a warm coffee/peach interface and real-record financial tools. Tink is an independent local tracker, not a bank, card issuer, payment service, trading platform, or an integration with the Tink banking API. Interface references inspired the visual direction; no Stable Money logos, proprietary screens or illustrations are bundled.
 
@@ -81,25 +81,19 @@ choices, retained selection across search changes, restored carousel pages after
 scrolling, canonical `tink://` plus legacy automation and `description` notes
 compatibility. [Whole-app public-reference audit and source/licence boundary](docs/PAISA_REFERENCE_AUDIT.md).
 
-**The requested Android test APK, 1.3.0+5, is now compiled and verified.**
-[Main source/browser/native run 42205565833](https://github.com/Shitwitt/MoneyMate/actions/runs/42205565833)
-and the [separate direct-Gradle debug run](https://github.com/Shitwitt/MoneyMate/actions/runs/42205565926)
-are SUCCESS. No UI/finance code changed from the reviewed baseline above;
-version metadata is incremented and all checks reran. Both native paths remain
-opt-in for future pushes. Physical-device and iOS behavior remain unverified.
+## 2026 edition — substantive rebuild
+
+**Version 2026.11.6+6** retains all four image-reference batches and adds direct Home card drag/move controls, safe page shortcuts, fixed-shape amount privacy, Name → Amount → Description keyboard flow, report category exclusions, portrait/landscape account panels and a previewed **Paisa 6.3.6 JSON import into a new profile**.
+
+The supplied source-recovery README led to a verified **GPL-3.0-or-later** source fork, `confumbit/Paisa@369aee29…`, package **6.3.6+636**. Its real JSON factories are adapted and used; the combined distribution is GPL-compatible, with original Tink MIT/font/dependency notices retained. This is **not current official 2026 Paisa source**. [Exact code reuse, feature matrix, safety and differences](docs/PAISA_2026_REBUILD.md) · [Copyright and modification notices](third_party/paisa_6_3_6/NOTICE.md).
 
 ## GET YOUR APK NOW
 
-**Version 1.3.0, build 5 — requested Android test APK ready, including reference batches 1–4.**
+**The new 2026 APK is not yet published.** Source changes are implemented; new strict SDK, regression, browser and explicitly requested Android checks must complete before a new download is labelled ready. See [build status](docs/BUILD_STATUS.md).
 
-- **[Download Tink-Android-release.apk](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-Android-release.apk)** — Android 7+; universal ARM64/ARMv7/x86-64; **98,819,607 bytes (98.8 MB)**.
-- **[Full APK-matched runnable source ZIP](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-source.zip)** — exact compiled revision `61897023181c99469a3cb915071d167f6ed6c6b3`; all Android/iOS/web projects, tests, workflows and licensed offline fonts. The ZIP captures build-time documentation; completed results are in the release notes and this branch.
-- [APK checksum](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-Android-release.apk.sha256) · [Source checksum](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-source.zip.sha256) · [Public package/certificate metadata](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42205565833/Tink-APK-metadata.txt).
-- [Successful build and actual signing identity](docs/BUILD_STATUS.md) · [Install/test notes](docs/ANDROID_TEST_BUILD.md) · [Independent reference/source boundary](docs/PAISA_REFERENCE_AUDIT.md). The build 4 / Batch 1 packages are historical and are not this download.
+The [previous 1.3.0+5 release](https://github.com/Shitwitt/MoneyMate/releases/tag/apk-release-42205565833) is historical and **is not the new 2026 edition**. Its immutable provenance remains in [ANDROID_BUILD_05.json](docs/ANDROID_BUILD_05.json). Do not substitute an old source ZIP or APK for the new matched build.
 
-The APK is release-mode but **test/debug-key signed**, not store-signed. Physical-device behavior and iOS compilation/distribution remain unverified. The 36 starter locales cover core navigation/actions; detailed finance forms are still largely English. Licensed Quicksand-derived **TinkRounded** is renamed to respect the OFL Reserved Font Name restriction; it approximates the unknown screenshot font. All original copyright/license notices are retained.
-
-**Upgrade warning:** build 5's certificate differs from the last published build 4. Android cannot update a differently signed install in place. **Export and verify a backup before uninstalling anything; uninstalling deletes local data.** A persistent signing key is needed for stable future upgrades. See signing and device-QA limits below.
+Release-mode test APKs are **test/debug-key signed unless a persistent key is configured**, not Play Store signed. **Export and verify a backup before uninstalling anything; uninstall deletes local data.** A differently signed new build cannot update an old install in place. Physical-device/iOS behavior and complete translations are not certified. The 36 starter locales cover core navigation/actions; detailed finance forms remain largely English.
 
 **Here is how you get the APK ready to download and install** — fastest methods first:
 
@@ -279,10 +273,14 @@ The additional reference is the [Paisa website](https://paisa-tracker.app/),
 its [feature guide](https://paisa-tracker.app/faq),
 [automation contract](https://paisa-tracker.app/automation), and the supplied
 [public release repository](https://github.com/h4h13/paisa-app/releases).
-The repository and its latest public release tag contain **no full Flutter app
-source**, and its README states **All rights reserved**. Its automatic source
-archives are not a reusable copy of the app. No Paisa code, translations, art,
-fonts or binaries have been copied into Tink.
+That particular repository and release tag contain **no full Flutter app source**,
+and its README states **All rights reserved**. A newly supplied source-recovery
+guide also identified the genuine older **GPL-3.0-or-later** source fork
+[confumbit/Paisa](https://github.com/confumbit/Paisa/tree/369aee29ebf51dd5007deca2bb414917f12b208a),
+version **6.3.6+636**. This 2026 Tink edition adapts its JSON model/backup code
+with retained notices and same-build corresponding source. No proprietary Paisa
+art, fonts, logos or APK binaries are imported; no current official 2026 Flutter
+source was obtained. [Detailed provenance and differences](docs/PAISA_2026_REBUILD.md).
 
 [The reference audit](docs/PAISA_REFERENCE_AUDIT.md) maps the advertised features,
 existing Tink implementations, intentional offline differences and remaining
@@ -295,6 +293,8 @@ parameter as an alias for `notes`.
 ## Links / Tasker automation
 
 ```text
+tink://open?page=reports
+tink://open?page=budgets
 tink://quick_add
 tink://add?amount=180&type=expense&name=Coffee&account=Everyday&category=Food%20%26%20Dining
 tink://silent_add?amount=180&type=expense&name=Coffee&account=Everyday&category=Food%20%26%20Dining&description=Local%20note
@@ -311,7 +311,7 @@ adb shell am start -a android.intent.action.VIEW \
 
 ## Tink design system
 
-The current Android test build **1.3.0+5** includes all four supplied reference batches: [Batch 2](docs/REFERENCE_BATCH_02.md), [Batch 3](docs/REFERENCE_BATCH_03.md), [Batch 4](docs/REFERENCE_BATCH_04.md) and the [whole-app public-reference review](docs/PAISA_REFERENCE_AUDIT.md). These source changes were held from native compilation until the user's explicit test-APK request. See [scope, genuine deviations and verification](docs/REFERENCE_BATCH_01.md), [design tokens/accessibility](docs/DESIGN_SYSTEM.md) and [build status](docs/BUILD_STATUS.md). Unseen steps 9/11–14 are original Tink layouts, not a claim to know missing screenshots. The earlier [1.2 design](docs/LUXURY_REDESIGN.md) is historical.
+The 2026 edition **2026.11.6+6** preserves all four supplied reference batches and adds the [2026 rebuild features](docs/PAISA_2026_REBUILD.md). The earlier build 5 already included: [Batch 2](docs/REFERENCE_BATCH_02.md), [Batch 3](docs/REFERENCE_BATCH_03.md), [Batch 4](docs/REFERENCE_BATCH_04.md) and the [whole-app public-reference review](docs/PAISA_REFERENCE_AUDIT.md). These source changes were held from native compilation until the user's explicit test-APK request. See [scope, genuine deviations and verification](docs/REFERENCE_BATCH_01.md), [design tokens/accessibility](docs/DESIGN_SYSTEM.md) and [build status](docs/BUILD_STATUS.md). Unseen steps 9/11–14 are original Tink layouts, not a claim to know missing screenshots. The earlier [1.2 design](docs/LUXURY_REDESIGN.md) is historical.
 
 - **Color:** coffee `#1A100E`, dark Home `#231A15`, peach `#FFB59A`, muted ink `#D9C4BA`; warm-white light surfaces and tinted cards. Just Black is selectable without Pro. Material You and custom accents remain functional.
 - **Type:** licensed bundled **TinkRounded 400–700 (Quicksand-derived)**, tabular money and Noto Latin/Arabic/Indic/Thai/CJK fallbacks. This is an approximation: the exact reference font has not been identified. [Font licenses and sources](assets/fonts/README.md). No runtime font CDN.
@@ -334,7 +334,7 @@ Public app labels, icons, exports, web shell and widgets are Tink. To retain rec
 * App art/icons: replace bundled original PNGs in `assets/branding`, Android mipmaps, iOS `AppIcon.appiconset`, and `web/icons`. No remote fonts are loaded. The editable icon source and generator are in `assets/branding/tink-mark.svg` and `tools/generate_branding.py`.
 * Categories/demo: `lib/core/data/seed.dart`. Rates there are illustrative **2026-01-01 reference values**, not quotes. Manual edits update their own timestamps; there is deliberately no fake “live refresh”.
 * Add a language: copy `lib/l10n/app_en.arb`, translate keys, add its label to `languageNames`, run `flutter gen-l10n`. Generated Dart is intentionally not committed; `flutter pub get`/gen-l10n produces it. The 36 included ARBs cover the app shell and primary actions; detailed form/help text remains English.
-* Version: increment `version: 1.3.0+5` in `pubspec.yaml` before shipping an update; change the iOS extension version too. Commit `pubspec.lock` after resolving to keep application dependencies reproducible.
+* Version: increment `version: 2026.11.6+6` in `pubspec.yaml` before shipping an update; change the iOS extension version too. Commit `pubspec.lock` after resolving to keep application dependencies reproducible.
 
 ## Platform support and known limits
 
@@ -358,7 +358,7 @@ Other deliberate boundaries:
 * PDF includes a summary, category bars/interpretation and paginated tables, not raster screenshots of Flutter charts. Noto fallback fonts are bundled; complex-script shaping/printing still needs platform/device QA.
 * Pro is intentionally bypassable local state, not purchase security. Forgotten PIN recovery requires a verified export and reinstall/reset; there is no secret backdoor.
 * Home dashboard is a responsive centered feed; accounts have a true tablet list/detail split. Not every feature is a two-pane editor. Native mobile features are not emulated on web.
-* No exhaustive original-app compatibility, imported Paisa backup compatibility, exact visual clone, security audit, store approval or production certification is claimed. Review [QA](docs/QA.md) and test signed upgrades, restoration and native integrations before entrusting important data to any release.
+* Only the verified legacy Paisa 6.3.6 JSON format is supported by the separate previewed import. Current official Paisa backup compatibility, exact visual cloning, exhaustive feature parity, security audit, store approval and production certification are not claimed. Review [QA](docs/QA.md) and test signed upgrades, restoration and native integrations before entrusting important data to any release.
 
 ## Source ZIP
 
@@ -384,3 +384,7 @@ python3 scripts/create_web_cache.py
 Tests cover fixed-point currencies, expressions, serialized writes and failure rollback, transfers and reversal, profile isolation, free limits, calendar edges/rollover, recurring idempotency, debt/account consistency, exact bill allocation, currency rebasing, filters, backup/checksum/receipts, real Hive reopen persistence, CSV validation/deduplication, deep links, PBKDF2 verification, strict date/integer parsing, DST-safe calendar windows, settled-bill integrity, account-editor controller disposal, long profile lists and basic widget navigation. CI also runs a compiled-web Chromium smoke test for demo onboarding, persistence, offline reload and unexpected runtime network requests. See Actions for the result of the specific commit you build; instructions are not a claim that an unrun workflow succeeded.
 
 MIT licensed; package/font licenses remain their own. Improvements welcome: full-string translations, encrypted-at-rest migration with recoverable key design, larger-ledger indexing, Android background reconciliation with explicit battery/consent tradeoffs, optional verified-link hosting, and broader device integration tests.
+
+## Licence and corresponding source
+
+The combined 2026 application is distributed under **GPL-3.0-or-later** because its working legacy compatibility decoder adapts GPL-licensed Paisa source. See [LICENSE](LICENSE) and [Paisa notices and changes](third_party/paisa_6_3_6/NOTICE.md). Original Tink MIT terms are retained in [LICENSES/Tink-original-MIT.txt](LICENSES/Tink-original-MIT.txt); other dependency/font licences remain in force. Each new APK release includes a runnable source ZIP from the exact build commit, including modifications, Android/iOS/web projects, tests, build scripts and notices. Settings → Open-source licenses includes these notices offline. No warranty or affiliation with Paisa is implied.

@@ -230,7 +230,8 @@ class _AccountsListScreenState extends ConsumerState<AccountsListScreen> {
     final ledger = ref.watch(ledgerProvider)!;
     final profile = ledger.data;
     final month = financialMonth(DateTime.now(), ledger.settings.monthStart);
-    final wide = MediaQuery.sizeOf(context).width > 1000;
+    final width = MediaQuery.sizeOf(context).width;
+    final wide = width >= 760 && MediaQuery.textScalerOf(context).scale(1) <= 1.3;
     Widget accountList() => ListView(
       padding: const EdgeInsets.only(bottom: 110),
       children: [
@@ -305,7 +306,7 @@ class _AccountsListScreenState extends ConsumerState<AccountsListScreen> {
       child: wide
           ? Row(
               children: [
-                SizedBox(width: 380, child: accountList()),
+                SizedBox(width: width < 1000 ? 300 : 380, child: accountList()),
                 const SizedBox(width: 20),
                 Expanded(
                   child: selectedId == null
@@ -318,6 +319,7 @@ class _AccountsListScreenState extends ConsumerState<AccountsListScreen> {
                       : AccountDetailScreen(
                           selectedId!,
                           key: ValueKey(selectedId),
+                          onClose: () => setState(() => selectedId = null),
                         ),
                 ),
               ],
@@ -427,7 +429,8 @@ int _accountFlow(
 
 class AccountDetailScreen extends ConsumerWidget {
   final String id;
-  const AccountDetailScreen(this.id, {super.key});
+  final VoidCallback? onClose;
+  const AccountDetailScreen(this.id, {super.key, this.onClose});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ledger = ref.watch(ledgerProvider)!;
@@ -445,7 +448,12 @@ class AccountDetailScreen extends ConsumerWidget {
     return FeaturePage(
       title: account.name,
       padded: false,
+      automaticallyImplyLeading: onClose == null,
       actions: [
+        if (onClose != null) IconButton(
+          tooltip: 'Close account panel', onPressed: onClose,
+          icon: const Icon(Icons.close_rounded),
+        ),
         IconButton(
           tooltip: 'Edit account',
           onPressed: () => editAccount(context, ref, account),
@@ -463,8 +471,12 @@ class AccountDetailScreen extends ConsumerWidget {
                 context,
                 () => ref.read(appProvider.notifier).deleteAccount(id),
               );
-              if (deleted && context.mounted && Navigator.canPop(context)) {
-                Navigator.pop(context);
+              if (deleted && context.mounted) {
+                if (onClose != null) {
+                  onClose!();
+                } else if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                }
               }
             }
           },
@@ -494,8 +506,9 @@ class AccountDetailScreen extends ConsumerWidget {
                         child: Text(account.notes),
                       ),
                     const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 12, runSpacing: 10,
                       children: [
                         OutlinedButton.icon(
                           onPressed: () =>
@@ -503,7 +516,6 @@ class AccountDetailScreen extends ConsumerWidget {
                           icon: const Icon(Icons.add_rounded),
                           label: const Text('Add entry'),
                         ),
-                        const SizedBox(width: 12),
                         OutlinedButton.icon(
                           onPressed: ledger.data.accounts.length < 2
                               ? null

@@ -316,6 +316,7 @@ class TransactionFilter {
   final DateWindow? dates;
   final Set<String> accounts;
   final Set<String> categories;
+  final Set<String> excludedCategories;
   final Set<String> labels;
   final Set<String> people;
   final Set<String> places;
@@ -334,6 +335,7 @@ class TransactionFilter {
     this.dates,
     this.accounts = const {},
     this.categories = const {},
+    this.excludedCategories = const {},
     this.labels = const {},
     this.people = const {},
     this.places = const {},
@@ -355,6 +357,7 @@ class TransactionFilter {
     dates: value,
     accounts: accounts,
     categories: categories,
+    excludedCategories: excludedCategories,
     labels: labels,
     people: people,
     places: places,
@@ -374,6 +377,7 @@ class TransactionFilter {
       dates != null ||
       accounts.isNotEmpty ||
       categories.isNotEmpty ||
+      excludedCategories.isNotEmpty ||
       labels.isNotEmpty ||
       people.isNotEmpty ||
       places.isNotEmpty ||
@@ -405,6 +409,12 @@ class TransactionFilter {
       }
       if (categories.isNotEmpty && !categories.contains(entry.categoryId)) {
         return false;
+      }
+      var categoryId = entry.categoryId;
+      final visited = <String>{};
+      while (categoryId.isNotEmpty && visited.add(categoryId)) {
+        if (excludedCategories.contains(categoryId)) return false;
+        categoryId = ledger.category(categoryId)?.parentId ?? '';
       }
       if (labels.isNotEmpty && !entry.labelIds.any(labels.contains)) {
         return false;

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +12,7 @@ import '../../core/services/file_service.dart';
 import '../../shared/actions.dart';
 import '../../shared/widgets.dart';
 import 'csv_import_screen.dart';
+import 'paisa_import_screen.dart';
 
 Future<bool> restoreBackup(
   BuildContext context,
@@ -62,6 +66,7 @@ class BackupScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(appProvider).settings;
+    final profile = ref.watch(profileProvider);
     return FeaturePage(
       title: 'Your data, in your hands',
       child: ListView(
@@ -154,6 +159,34 @@ class BackupScreen extends ConsumerWidget {
               }),
             ),
           ),
+          const SizedBox(height: 24),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.history_rounded),
+              title: const Text('Import Paisa 6.3.6 JSON'),
+              subtitle: const Text('Validate, preview, then create a NEW profile · not current Paisa backups'),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => openPage(context, const PaisaImportScreen()),
+            ),
+          ),
+          if (profile != null && profile.legacyImportJson.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.download_for_offline_outlined),
+                title: const Text('Download retained original Paisa JSON'),
+                subtitle: const Text('Unencrypted original 6.3.6 export, including legacy metadata'),
+                onTap: () => runSafe(context, () async {
+                  final approved = await confirm(context, 'Export original legacy data?',
+                    'This file contains the full original financial data, even when on-screen amounts are hidden. Keep it private.',
+                    confirmLabel: 'Export original JSON');
+                  if (!approved) return;
+                  await FileService.save(Uint8List.fromList(utf8.encode(profile.legacyImportJson)),
+                    'Paisa-6.3.6-original.json', mime: 'application/json');
+                }),
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           const SectionHeader('A gentle reminder'),
           SwitchListTile.adaptive(

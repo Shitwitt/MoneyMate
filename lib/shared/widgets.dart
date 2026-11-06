@@ -7,6 +7,7 @@ import 'package:shimmer/shimmer.dart';
 import '../core/data/providers.dart';
 import '../core/utils/money.dart';
 import 'tink_components.dart';
+import 'private_amount.dart';
 export '../core/theme/app_colors.dart';
 export '../core/theme/app_radius.dart';
 export '../core/theme/app_spacing.dart';
@@ -101,6 +102,7 @@ class AmountText extends ConsumerWidget {
           fontFamily: 'TinkRounded',
           fontFeatures: const [FontFeature.tabularFigures()],
         );
+    if (settings.hideAmounts) return PrivateAmount(style: effectiveStyle);
     Widget render(int value) => Text(
       '${settings.hideAmounts ? '' : prefix}${money(value, code, hidden: settings.hideAmounts, indian: settings.numberFormat == 'indian', compact: compact, locale: settings.locale)}',
       style: effectiveStyle,
@@ -222,7 +224,7 @@ class FeaturePage extends StatelessWidget {
   final Widget child;
   final Widget? fab;
   final Widget? bottomBar;
-  final bool padded;
+  final bool padded, automaticallyImplyLeading;
   const FeaturePage({
     super.key,
     required this.title,
@@ -232,10 +234,12 @@ class FeaturePage extends StatelessWidget {
     this.fab,
     this.bottomBar,
     this.padded = true,
+    this.automaticallyImplyLeading = true,
   });
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
+      automaticallyImplyLeading: automaticallyImplyLeading,
       toolbarHeight:
           72 * MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 3.0),
       title: Column(

@@ -1,7 +1,7 @@
 # Screenshot rebuild — batch 01 (20 supplied images)
 
-Status: implementation in progress; native/browser verification is not yet complete.
-This is the **1.3.0+4** source, not the published 1.2 APK.
+Status: **batch 1 implemented and CI-verified** — SDK/analyzer/regressions, real-browser/offline flow, fresh native APK verification and direct Gradle debug build passed.
+This is the **1.3.0+4** source and rebuilt APK, not the historical 1.2 binary. See [exact evidence and download integrity](BUILD_STATUS.md).
 
 ## Reference boundaries
 
@@ -53,6 +53,8 @@ This is the **1.3.0+4** source, not the published 1.2 APK.
 
 ## Deliberate truthful differences
 
+- Licensed bundled Quicksand approximates the rounded typography; the exact screenshot font is unknown.
+
 - The locked Google Drive item is replaced by **Restore a provider backup**.
   Both restore choices use the OS file picker. Tink neither signs into Google
   nor uploads to a server; external providers can appear only if supplied by
@@ -66,7 +68,7 @@ This is the **1.3.0+4** source, not the published 1.2 APK.
   bookkeeping, never payments, bank feeds, issued cards, or real lending.
 - Backups/data are unencrypted. PIN/biometrics protect app access, not the database.
 
-## Verification plan
+## Verification executed
 
 - Full existing finance, backup, security, lifecycle, large-money, chart and
   accessibility regression suite plus batch-specific demo/recurrence/calendar/
@@ -76,16 +78,26 @@ This is the **1.3.0+4** source, not the published 1.2 APK.
 - Browser: isolated demo edit/process/archive/exit, calendar/help/history,
   14-step setup, accounts/reports, theme persistence, offline reload and no
   external runtime requests, with fictional-data screenshots.
-- Fresh Android release APK and source ZIP only after checks pass. Android dependency downloads recently returned Maven Central HTTP 429; bounded transient-only retry and latest-push debug concurrency are being verified. Ordinary compile errors are not retried.
+- A newly compiled 1.3 Android release-mode APK is published with native metadata and SHA-256; matching source is refreshed only after enforcing unchanged application files. Bounded transient-only retry and direct Gradle builds passed. Ordinary compile errors are not retried.
 - Physical-device and iOS verification remain unproven unless reported separately.
 
-### Executed regression update
+### Evidence and limits
 
-The actual Flutter SDK check job in run **42149679213** passed formatting,
-gen-l10n, analyzer, all Flutter tests, DST reruns and Python packaging tests.
-The complete populated Home feed is tested at 100% and 160% text. Saved/reversed
-balance/cashflow/template positions and deep-route demo exit are covered.
-Native launcher/widget and web-shell colors now follow the warm palette;
-native widgets use system sans/rounded faces, not the Flutter Quicksand asset.
-WidgetKit extension metadata is 1.3.0 build 4. This is not iOS/device proof.
-Browser and fresh Android artifact verification are still pending.
+[Full SDK and browser run 42152170674](https://github.com/Shitwitt/MoneyMate/actions/runs/42152170674) passed on application-identical revision `9b5e84265265846e18299c20f02bf90fcedb23df`.
+[Direct Gradle run 42152170725](https://github.com/Shitwitt/MoneyMate/actions/runs/42152170725) passed.
+The native release/inspection/publication job in [run 42151561328](https://github.com/Shitwitt/MoneyMate/actions/runs/42151561328/job/127676384122) passed on `578afb263a459a1195d14712b81d72e8c725b5c4`.
+The follow-up changed only the browser harness; source publication rejects application-file differences from that APK revision.
+
+Coverage includes the complete populated Home feed at 100% and 160% text,
+saved/reversed layouts, 320-pixel detail at 160% text in LTR and RTL,
+atomic recurrence, deep demo exit with no real-repository writes,
+calendar/history/help/process/skip/archive, all 14 setup steps,
+theme persistence, offline reload and zero external runtime requests.
+All 12 fictional-data browser captures are retained in the web artifact;
+thumbnail evidence was also reviewed for setup, tour, Home and recurring flows.
+
+Native launcher/widget and web-shell colors follow the warm palette.
+Native widgets use system sans/rounded faces, not the Flutter Quicksand asset.
+WidgetKit extension metadata is 1.3.0 build 4; this is not iOS/device proof.
+Native biometrics, notification timing, camera, widgets and installation still
+need physical-device testing. No blanket accessibility certification is made.

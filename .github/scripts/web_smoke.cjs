@@ -14,7 +14,7 @@ const binary = chromiumModule.default || chromiumModule;
   let browser, page;
   const errors = [];
   async function capture(name) {
-    await page.mouse.move(2, 2);
+    await page.mouse.move(1, 843);
     await page.waitForTimeout(180);
     const full = await page.screenshot({type: 'jpeg', quality: 60, animations: 'disabled'});
     fs.writeFileSync(name, full);
@@ -139,7 +139,7 @@ const binary = chromiumModule.default || chromiumModule;
     await page.getByRole('button', {name: 'Back', exact: true}).click();
     await nav('Budgets'); await capture('web-budgets.jpg');
     await swipeCarousel(180);
-    await page.getByText('On Track', {exact: true}).or(page.getByLabel(/^On Track(?:\s|$)/)).first().waitFor();
+    await page.getByText(/^On Track(?:\s|$)/).or(page.getByLabel(/^On Track(?:\s|$)/)).first().waitFor();
     await capture('web-budget-status.jpg');
     await page.getByRole('button', {name: 'How budgets work', exact: true}).click();
     await page.waitForTimeout(350); await capture('web-budget-help.jpg');
@@ -156,7 +156,7 @@ const binary = chromiumModule.default || chromiumModule;
     await page.getByText('Total balance', {exact: false}).first().waitFor();
     await capture('web-accounts.jpg');
     await swipeCarousel(175);
-    await page.getByText('Pocket money', {exact: true}).or(page.getByLabel(/^Pocket money(?:\s|$)/)).first().waitFor();
+    await page.getByText(/^Pocket money(?:\s|$)/).or(page.getByLabel(/^Pocket money(?:\s|$)/)).first().waitFor();
     await capture('web-accounts-second.jpg');
     await nav('Reports');
     await page.getByText('Quick Insights', {exact: false}).first().waitFor();
@@ -165,6 +165,13 @@ const binary = chromiumModule.default || chromiumModule;
     await capture('web-flow.jpg');
     await scroll(1000); await page.waitForTimeout(650);
     await capture('web-allocation.jpg');
+    for (const [label, suffix] of [['Month Summary', 'month'], ['Category Breakdown', 'category'], ['Budget Performance', 'budget'], ['Cash Flow Analysis', 'cashflow'], ['Goal Progress', 'goal']]) {
+      await nav(label);
+      const name = new RegExp('^' + label + '(?:\\s|$)');
+      await page.getByText(name).or(page.getByLabel(name)).first().waitFor();
+      await capture('web-financial-' + suffix + '.jpg');
+      await page.getByRole('button', {name: 'Back', exact: true}).click();
+    }
     await nav('Home');
     await page.getByRole('button', {name: 'All tools', exact: true}).click();
     await nav('Recurring');
@@ -243,7 +250,7 @@ const binary = chromiumModule.default || chromiumModule;
     await assertDarkPalette();
     if (remoteRequests.size) throw new Error('Unexpected runtime network hosts: ' + [...remoteRequests].join(', '));
     if (errors.length) throw new Error('Browser/layout errors: ' + errors.join('\n'));
-    console.log('::notice title=Tink web smoke::PASS: isolated editable demo and exit, real 14-step setup, live feature previews, Home grid, Home heatmap/trend/tracked budgets/upcoming, account carousels/month reports, budget overview/status/help/detail, recurring calendar/help/history/process/archive, theme persistence, offline reload and zero external runtime requests.');
+    console.log('::notice title=Tink web smoke::PASS: isolated editable demo and exit, real 14-step setup, live feature previews, Home grid, Home heatmap/trend/tracked budgets/upcoming, account carousels/month reports/all five financial reports, budget overview/status/help/detail, recurring calendar/help/history/process/archive, theme persistence, offline reload and zero external runtime requests.');
   } catch (error) {
     if (page) {
       console.log('Browser errors:', errors);

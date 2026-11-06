@@ -38,6 +38,11 @@ WCAG relative-luminance formula, sRGB components. These are **specific solid col
 | Dark expense on tile | `#EEB5B8` / `#271E19` | 9.28:1 |
 | Brown on peach | `#2D211A` / `#FFB59A` | 9.17:1 |
 
+| Due tile ink | `#FFE0D2` / `#72361E` | 7.45:1 |
+| Yearly tile ink | `#F5E6A7` / `#49430C` | 8.01:1 |
+| Income tile ink | `#A7E3B0` / `#074926` | 7.16:1 |
+| Expense tile ink | `#FFBDC3` / `#700F18` | 7.52:1 |
+
 Prior violet/white 3.63:1 was a historical 1.2 large-text-only pair; it is not evidence for the new palette. Tinted feature cards use `readableTint` for an appropriate foreground. Screen-reader navigation, native pickers, complex scripts, actual devices and extreme display/font settings still need the documented QA checks.
 
 ## Safety and truthful numbers

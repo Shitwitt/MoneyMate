@@ -161,72 +161,10 @@ class _RecurringDetailScreenState extends ConsumerState<RecurringDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ColorIcon(
-                          category?.icon ?? 'bills',
-                          category?.color ?? 0xfff6bb96,
-                          size: 48,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                rule.name,
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.w700),
-                              ),
-                              const SizedBox(height: 6),
-                              Wrap(
-                                spacing: 6,
-                                runSpacing: 5,
-                                children: [
-                                  SmallTag(recurrenceLabel(rule)),
-                                  SmallTag(
-                                    rule.type == 'income'
-                                        ? 'Income'
-                                        : 'Expense',
-                                    color: AppColors.semantic(
-                                      context,
-                                      rule.type,
-                                    ),
-                                  ),
-                                  if (!active)
-                                    SmallTag(
-                                      rule.archived
-                                          ? 'Archived'
-                                          : 'Paused / ended',
-                                    ),
-                                  if (rule.autoPost)
-                                    const SmallTag('Auto processing'),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Flexible(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: AlignmentDirectional.centerEnd,
-                            child: AmountText(
-                              rule.amountMinor,
-                              currency: account.currency,
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(
-                                    color: AppColors.semantic(
-                                      context,
-                                      rule.type,
-                                    ),
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    _RecurringDetailHeading(
+                      rule: rule,
+                      category: category,
+                      account: account,
                     ),
                     const SizedBox(height: 20),
                     const Divider(),
@@ -261,15 +199,19 @@ class _RecurringDetailScreenState extends ConsumerState<RecurringDetailScreen> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        SmallTag(
-                          due
-                              ? 'Overdue / due'
-                              : active
-                              ? 'Upcoming'
-                              : 'Inactive',
-                          color: due
-                              ? AppColors.semantic(context, 'expense')
-                              : null,
+                        Flexible(
+                          child: SmallTag(
+                            due
+                                ? days < 0
+                                      ? 'Overdue'
+                                      : 'Due now'
+                                : active
+                                ? 'Upcoming'
+                                : 'Inactive',
+                            color: due
+                                ? AppColors.semantic(context, 'expense')
+                                : null,
+                          ),
                         ),
                       ],
                     ),
@@ -547,6 +489,93 @@ class _RecurringDetailActions extends StatelessWidget {
         Expanded(child: first),
         const SizedBox(width: 10),
         Expanded(child: second),
+      ],
+    );
+  }
+}
+
+class _RecurringDetailHeading extends StatelessWidget {
+  final Recurring rule;
+  final Category? category;
+  final Account account;
+  const _RecurringDetailHeading({
+    required this.rule,
+    required this.category,
+    required this.account,
+  });
+  @override
+  Widget build(BuildContext context) {
+    final active = recurringActive(rule);
+    final icon = ColorIcon(
+      category?.icon ?? 'bills',
+      category?.color ?? 0xfff6bb96,
+      size: 48,
+    );
+    final label = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          rule.name,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 6),
+        Wrap(
+          spacing: 6,
+          runSpacing: 5,
+          children: [
+            SmallTag(recurrenceLabel(rule)),
+            SmallTag(
+              rule.type == 'income' ? 'Income' : 'Expense',
+              color: AppColors.semantic(context, rule.type),
+            ),
+            if (!active)
+              SmallTag(rule.archived ? 'Archived' : 'Paused / ended'),
+            if (rule.autoPost) const SmallTag('Auto processing'),
+          ],
+        ),
+      ],
+    );
+    final amount = FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: AlignmentDirectional.centerEnd,
+      child: AmountText(
+        rule.amountMinor,
+        currency: account.currency,
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          color: AppColors.semantic(context, rule.type),
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+    if (MediaQuery.textScalerOf(context).scale(1) > 1.3 ||
+        MediaQuery.sizeOf(context).width < 360 ||
+        rule.amountMinor.abs() > 999999999) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              icon,
+              const SizedBox(width: 12),
+              Expanded(child: label),
+            ],
+          ),
+          const SizedBox(height: 14),
+          amount,
+        ],
+      );
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        icon,
+        const SizedBox(width: 12),
+        Expanded(child: label),
+        const SizedBox(width: 8),
+        Flexible(child: amount),
       ],
     );
   }

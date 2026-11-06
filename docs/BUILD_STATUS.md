@@ -21,3 +21,10 @@ Data and portable backups are unencrypted. PIN/biometrics are interface locks, n
 - Browser verification is still running. An earlier attempt reached the rendered demo Home with no browser runtime errors, then stopped on a too-strict profile-name selector; that selector has been corrected.
 - Android debug jobs hit Maven Central HTTP 429 during dependency resolution. Bounded transient-only retries and latest-push debug concurrency have been added; ordinary compile errors still fail immediately. The three retry regressions and four packaging tests passed locally.
 - The next opt-in run builds a **new** 1.3 release-mode APK. No historical 1.2 APK is being reused.
+
+The compact reference hierarchy was subsequently checked in run **42150845181**
+(application revision `6372d00315bd02bd8d1b2a4558ff25084e65c2f8`): its SDK/check job
+passed again. The overview now uses the compact peach hero and colored metric
+rows; the detail has a value-aligned hero and separate process/skip actions.
+Browser scrolling is over the actual canvas body rather than the demo strip.
+The earlier `dfeb887` Android candidate is not the final visual build.

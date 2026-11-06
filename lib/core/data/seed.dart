@@ -145,6 +145,13 @@ ProfileData seedProfile({
     kind: 'label',
     color: 0xff12B76A,
   );
+  final workLabel = NamedEntity(
+    id: uuid.v4(),
+    name: 'Work',
+    kind: 'label',
+    icon: 'work',
+    color: 0xffb7c9e5,
+  );
   final person = NamedEntity(
     id: uuid.v4(),
     name: 'Alex',
@@ -170,6 +177,7 @@ ProfileData seedProfile({
         accountId: everyday.id,
         categoryId: salary.id,
         date: first,
+        labelIds: [workLabel.id],
       ),
     );
     for (var day = 1; day <= (month == 0 ? now.day : 27); day += 2) {
@@ -192,17 +200,38 @@ ProfileData seedProfile({
           accountId: everyday.id,
           categoryId: cat.id,
           date: DateTime(first.year, first.month, day, 12, 30),
-          labelIds: [label.id],
+          labelIds: [label.id, if (cat.icon == 'transport') workLabel.id],
           placeId: place.id,
         ),
       );
     }
   }
+  // Fictional posted records make the carousel and statistical examples
+  // reproducible on every demo date. Analytics still computes from the ledger;
+  // nothing is injected into its results or into a real profile.
+  for (final sample in [
+    ('Household repair · demo', 'bills', 8000),
+    ('Learning course · demo', 'education', 1600),
+  ]) {
+    entries.add(
+      MoneyTransaction(
+        id: uuid.v4(),
+        name: sample.$1,
+        type: 'expense',
+        amountMinor: amount(sample.$3),
+        accountId: everyday.id,
+        categoryId: categories.firstWhere((c) => c.icon == sample.$2).id,
+        date: dayOnly(now),
+        labelIds: [label.id, workLabel.id],
+        notes: 'Fictional demo record. No real payment.',
+      ),
+    );
+  }
   final goal = Goal(
     id: uuid.v4(),
     name: 'A little escape',
     targetMinor: amount(60000),
-    deadline: now.add(const Duration(days: 180)),
+    deadline: DateTime(now.year, now.month, now.day + 180),
     icon: 'travel',
     contributions: [
       MoneyEvent(
@@ -220,12 +249,7 @@ ProfileData seedProfile({
       label,
       person,
       place,
-      NamedEntity(
-        id: uuid.v4(),
-        name: 'Work',
-        kind: 'label',
-        color: 0xffb7c9e5,
-      ),
+      workLabel,
     ],
     budgets: [
       Budget(
@@ -287,7 +311,7 @@ ProfileData seedProfile({
         personName: 'Sam',
         principalMinor: amount(2500),
         direction: 'borrowed',
-        due: now.add(const Duration(days: 45)),
+        due: DateTime(now.year, now.month, now.day + 45),
         notes: 'Shared travel booking',
       ),
       Loan(
@@ -295,7 +319,7 @@ ProfileData seedProfile({
         personName: person.name,
         personId: person.id,
         principalMinor: amount(3000),
-        due: now.add(const Duration(days: 14)),
+        due: DateTime(now.year, now.month, now.day + 14),
         notes: 'Weekend trip',
       ),
     ],

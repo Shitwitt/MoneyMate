@@ -201,9 +201,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Update Loan'), findsOneWidget);
       expect(find.byType(ReferenceColorPicker), findsOneWidget);
-      ReferenceChoices categoryChoices() => tester.widget<ReferenceChoices>(
-        find.byType(ReferenceChoices).last,
-      );
+      ReferenceChoices categoryChoices() =>
+          tester.widget<ReferenceChoices>(find.byType(ReferenceChoices).last);
       final expenseCategory = categoryChoices().choices.keys.last;
       categoryChoices().onChanged(expenseCategory);
       await tester.pumpAndSettle();

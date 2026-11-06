@@ -25,6 +25,24 @@ List<ExchangeRate> euroRate(List<ExchangeRate> rates, double value) => [
 ];
 
 void main() {
+  test('Isolated demo has computed insights, outliers and overlapping tags on every month day', () async {
+    for (final day in [1, 6, 30]) {
+      final now = DateTime(2026, 11, day);
+      final repo = MemoryRepository(appFor(fixture()));
+      final controller = AppController(repo);
+      await controller.startDemo(clock: now);
+      final data = current(controller);
+      validateProfile(data);
+      final snapshot = AnalyticsSnapshot(book(controller), now);
+      expect(snapshot.insights.length, greaterThanOrEqualTo(2));
+      expect(snapshot.unusual.map((e) => e.name), contains('Household repair · demo'));
+      expect(data.transactions.any((e) => e.labelIds.length > 1), isTrue);
+      expect(repo.writes, 0);
+      await controller.exitDemo();
+      expect(repo.writes, 0);
+      controller.dispose();
+    }
+  });
   test('Legacy loans, goals, entities and events migrate without inventing start dates or links', () {
     final loan = Loan.fromJson({
       'id': 'old',
@@ -291,26 +309,29 @@ void main() {
       );
     },
   );
-  test('Loan and goal boundaries compare calendar days, not hidden clock times', () {
-    final data = fixture();
-    final date = DateTime(2026, 11, 6, 20);
-    validateProfile(
-      data.copyWith(
-        loans: [
-          agreement().copyWith(start: date, due: DateTime(2026, 11, 6)),
-        ],
-        goals: [
-          Goal(
-            id: 'same-day',
-            name: 'Same day',
-            targetMinor: 100,
-            deadline: DateTime(2026, 11, 6),
-            start: date,
-          ),
-        ],
-      ),
-    );
-  });
+  test(
+    'Loan and goal boundaries compare calendar days, not hidden clock times',
+    () {
+      final data = fixture();
+      final date = DateTime(2026, 11, 6, 20);
+      validateProfile(
+        data.copyWith(
+          loans: [
+            agreement().copyWith(start: date, due: DateTime(2026, 11, 6)),
+          ],
+          goals: [
+            Goal(
+              id: 'same-day',
+              name: 'Same day',
+              targetMinor: 100,
+              deadline: DateTime(2026, 11, 6),
+              start: date,
+            ),
+          ],
+        ),
+      );
+    },
+  );
   test('Signed linked-goal balance, all transfer sides and manual-only source are preserved', () {
     final data = fixture();
     final goal = Goal(

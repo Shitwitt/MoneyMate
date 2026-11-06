@@ -56,7 +56,7 @@ Required remaining coverage:
 - New deterministic data tests: migrations, repayments/FX/edit/delete/atomic failures, manual close/reopen, signed goals/transfers, tags/deletion, grouping/DST, analytics exclusions/rates/calendar/forecasts/outliers/empty baselines.
 - New widget regressions: 320px/160% LTR and RTL across seven screens; privacy, type-dependent choices, custom hex save, lifecycle/disposal, help, label filters/grid, copy drafts, reduced-motion carousel and rounded Edit controls.
 - Existing full analyzer, localization, Flutter, calendar and offline-packaging suites remain required. Exact SDK formatting is authoritative; the local WASM formatter is only a syntax/preformat aid.
-- Chromium adds the connected Batch 3 demo journey and 27 Batch 3 coverage frames (including a separate swipe result and palette continuation). Existing Batch 1/2 journeys, theme persistence, offline reload and zero external runtime requests remain required.
+- Chromium adds the connected Batch 3 demo journey and 25 Batch 3 coverage frames (including a separate swipe result and palette continuation). Existing Batch 1/2 journeys, theme persistence, offline reload and zero external runtime requests remain required.
 - Four screenshot-only review jobs require the new full frames and bounded thumbnails for close review; previous Batch 2 evidence does not verify this batch.
 
 **APK hold remains active.** No APK/AAB/native compilation is requested or authorized. Both native workflow jobs remain explicitly opt-in; source/web checks run on UI-only pushes. No next image batch will be requested until implementation and these checks/review are completed.

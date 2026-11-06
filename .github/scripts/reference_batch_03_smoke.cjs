@@ -15,7 +15,7 @@ module.exports = async function referenceBatchThree({page, nav, goBack, capture,
   await button('Record a repayment').click(); await pause();
   await fill(/^Repaid \(/, '1');
   await page.getByText('None · tracking only', {exact: true}).last().click(); await pause();
-  await page.getByText('Cash', {exact: true}).last().click();
+  await page.getByText('Pocket money', {exact: true}).last().click();
   await button('Save').click(); await pause();
   await revealText('Payment History'); await shot('loan-history');
   await nav('Repayment · Alex'); await shot('transaction-detail');
@@ -55,9 +55,11 @@ module.exports = async function referenceBatchThree({page, nav, goBack, capture,
 
   await nav('Analytics'); await shot('analytics');
   // A real touch swipe, not merely programmatic page selection.
-  if (await button('Next smart insight').isEnabled().catch(() => false)) {
-    await swipeCarousel(225); await shot('analytics-swiped');
-  }
+  await button('Next smart insight').waitFor();
+  if (!await button('Next smart insight').isEnabled()) throw new Error('Demo must contain at least two computed insights');
+  await swipeCarousel(225);
+  await page.getByText(/^2 \/ \d+$/).waitFor();
+  await shot('analytics-swiped');
   await revealText('Top categories'); await shot('analytics-monthly');
   await revealText('Monthly Overview');
   await button('Next chart point').first().click(); await pause();

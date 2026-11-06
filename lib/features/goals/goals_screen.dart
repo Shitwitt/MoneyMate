@@ -281,7 +281,8 @@ Future<void> editGoal(
   DateTime? start =
       initial?.start ?? (initial == null ? dayOnly(DateTime.now()) : null);
   final today = dayOnly(DateTime.now());
-  var deadline = initial?.deadline ?? DateTime(today.year, today.month, today.day + 180);
+  var deadline =
+      initial?.deadline ?? DateTime(today.year, today.month, today.day + 180);
   var icon = initial?.icon ?? 'goal',
       accountId = initial?.accountId ?? '',
       photo = initial?.photoBase64 ?? '';

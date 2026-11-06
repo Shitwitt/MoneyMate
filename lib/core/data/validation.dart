@@ -284,7 +284,8 @@ void validateProfile(ProfileData data) {
   for (final goal in data.goals) {
     require(
       goal.start == null ||
-          validDate(goal.start!) && !dayOnly(goal.deadline).isBefore(dayOnly(goal.start!)),
+          validDate(goal.start!) &&
+              !dayOnly(goal.deadline).isBefore(dayOnly(goal.start!)),
       'Goal end date must not precede its start',
     );
     require(
@@ -338,7 +339,8 @@ void validateProfile(ProfileData data) {
     }
     require(
       loan.start == null ||
-          validDate(loan.start!) && !dayOnly(loan.due).isBefore(dayOnly(loan.start!)),
+          validDate(loan.start!) &&
+              !dayOnly(loan.due).isBefore(dayOnly(loan.start!)),
       'Loan end date must not precede its start',
     );
     require(

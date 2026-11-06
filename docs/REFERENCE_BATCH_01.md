@@ -83,10 +83,9 @@ This is the **1.3.0+4** source and rebuilt APK, not the historical 1.2 binary. S
 
 ### Evidence and limits
 
-[Full SDK and browser run 42152170674](https://github.com/Shitwitt/MoneyMate/actions/runs/42152170674) passed on application-identical revision `9b5e84265265846e18299c20f02bf90fcedb23df`.
-[Direct Gradle run 42152170725](https://github.com/Shitwitt/MoneyMate/actions/runs/42152170725) passed.
-The native release/inspection/publication job in [run 42151561328](https://github.com/Shitwitt/MoneyMate/actions/runs/42151561328/job/127676384122) passed on `578afb263a459a1195d14712b81d72e8c725b5c4`.
-The follow-up changed only the browser harness; source publication rejects application-file differences from that APK revision.
+[Full SDK, browser and native run 42153449531](https://github.com/Shitwitt/MoneyMate/actions/runs/42153449531) passed on application revision `6dac3439c7614755f7997c847b6602577dd44d75`.
+[Separate direct Gradle run 42153449674](https://github.com/Shitwitt/MoneyMate/actions/runs/42153449674) also passed.
+Source publication enforces unchanged application/platform/asset/test/dependency files from that exact APK revision; only later README/docs/CI updates are allowed.
 
 Coverage includes the complete populated Home feed at 100% and 160% text,
 saved/reversed layouts, 320-pixel detail at 160% text in LTR and RTL,
@@ -94,7 +93,14 @@ atomic recurrence, deep demo exit with no real-repository writes,
 calendar/history/help/process/skip/archive, all 14 setup steps,
 theme persistence, offline reload and zero external runtime requests.
 All 12 fictional-data browser captures are retained in the web artifact;
-thumbnail evidence was also reviewed for setup, tour, Home and recurring flows.
+thumbnail evidence was reviewed for setup, tour, Home and recurring flows.
+
+The final license audit renamed the locally instantiated Quicksand derivatives
+to **TinkRounded**, retaining upstream copyright/OFL notices. Three new stdlib
+regressions enforce primary-name compliance, weight registration and unchanged
+glyph/metric/layout tables. All 10 Python packaging/retry/font tests passed.
+The 12 final browser evidence thumbnails are byte-identical to the reviewed
+pre-rename captures; letter shapes and layouts did not change.
 
 Native launcher/widget and web-shell colors follow the warm palette.
 Native widgets use system sans/rounded faces, not the Flutter TinkRounded asset.

@@ -56,14 +56,14 @@ Tink/
 
 ## GET YOUR APK NOW
 
-**Version 1.3.0, build 4 — final font-name rebuild is being verified.** The reserved-name-compliant TinkRounded assets preserve the previous letter shapes and layout. Links below temporarily identify the preceding candidate until the new native verification completes.
+**Version 1.3.0, build 4 — reference batch 1 is ready.**
 
-- **[Download the updated Android APK](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42151561328/Tink-Android-release.apk)** — Android 7+; universal arm64/ARMv7/x86_64; 96,865,291 bytes.
-- **[Download the full runnable source ZIP](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42151561328/Tink-source.zip)** — includes Android/iOS/web projects, tests, workflows and licensed offline fonts.
-- [APK checksum](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42151561328/Tink-Android-release.apk.sha256) · [Source checksum](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42151561328/Tink-source.zip.sha256) · [Native certificate/package metadata](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42151561328/Tink-APK-metadata.txt).
+- **[Download the updated Android APK](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-Android-release.apk)** — Android 7+; universal arm64/ARMv7/x86_64; 96,865,703 bytes.
+- **[Download the full runnable source ZIP](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-source.zip)** — includes Android/iOS/web projects, tests, workflows and licensed offline fonts.
+- [APK checksum](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-Android-release.apk.sha256) · [Source checksum](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-source.zip.sha256) · [Native certificate/package metadata](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-APK-metadata.txt).
 - [Exact revisions and successful checks](docs/BUILD_STATUS.md) · [Scope and documented reference adaptations](docs/REFERENCE_BATCH_01.md). This is a newly compiled 1.3 APK, not the historical 1.2 binary.
 
-The APK is release-mode but **test/debug-key signed**, not store-signed. Physical-device behavior and iOS compilation/distribution remain unverified. The 36 starter locales cover core navigation/actions; detailed finance forms are still largely English. Quicksand is a licensed approximation, not the identified screenshot font.
+The APK is release-mode but **test/debug-key signed**, not store-signed. Physical-device behavior and iOS compilation/distribution remain unverified. The 36 starter locales cover core navigation/actions; detailed finance forms are still largely English. Licensed Quicksand-derived **TinkRounded** is renamed to respect the OFL Reserved Font Name restriction; it approximates the unknown screenshot font. All original copyright/license notices are retained.
 
 **Upgrade warning:** without a persistent signing key, a new CI runner can generate a different certificate. Android cannot update a differently signed install in place. **Export and verify a backup before uninstalling.** See signing and device-QA limits below.
 

@@ -7,7 +7,7 @@ The current coffee/peach direction supersedes [the 1.2 editorial/glass design](L
 - Coffee canvas `#1A100E`, Home/card `#231A15`, tool tiles `#271E19`, balance/FAB brown `#72361E`, primary peach `#FFB59A`, muted dark ink `#D9C4BA`.
 - Light canvas `#FFF8F2`, cards `#FFFDF9`, body ink `#2D211A`; semantic income/expense/transfer have separate light ink and dark pastel variants.
 - System/light/dark/**Just Black** plus opt-in Android dynamic color and saved custom accents. Just Black is not premium-gated. A UI-revision migration changes old defaults once, not newly selected custom accents on every launch.
-- Offline licensed Quicksand 400–700; Noto Latin, Arabic, Indic, Thai and CJK fallback. Exact reference font is unknown; this is a deliberate licensed approximation. Tabular amount style, actual-record figures, full-value money semantics and text-scale/RTL-aware layouts. See [font sources/licenses](../assets/fonts/README.md).
+- Offline licensed TinkRounded 400–700 (Quicksand-derived and renamed under the OFL Reserved Font Name restriction); Noto Latin, Arabic, Indic, Thai and CJK fallback. Exact reference font is unknown; this is a deliberate licensed approximation. Tabular amount style, actual-record figures, full-value money semantics and text-scale/RTL-aware layouts. See [font sources/licenses](../assets/fonts/README.md).
 - Shared `core/theme/` tokens; `shared/reference_components.dart`, `widgets.dart`, `forms.dart`, `wavy_ring.dart` and `daily_spend_chart.dart`. Rounded tonal cards, pills/segments, wavy progress, summary columns, form/editor/picker/empty/loading components apply throughout, not just Home.
 
 ## Home and preview rules

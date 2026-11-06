@@ -1,27 +1,25 @@
-# Tink 1.3 reference batch 1 — final font-name rebuild in progress
-
-**The last asset audit identified the OFL reserved-name restriction on locally instanced Quicksand fonts. The renamed TinkRounded assets preserve every glyph/metric/layout table. A new native APK is being verified; the links below are the preceding candidate, not the final font-renamed APK.**
+# Tink 1.3 reference batch 1 — delivered build evidence
 
 **Version 1.3.0+4**, branch `arena/9ea2a134-moneymate`, verified 6 November 2026.
 [The 1.2 build is historical](HISTORICAL_1_2_BUILD.md), not this delivery.
+Earlier 1.3 candidates are superseded by the final OFL-compliant font-name build below.
 
 ## Downloads and identity
 
-- **[Updated Android APK](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42151561328/Tink-Android-release.apk)**
-- **[Current runnable source ZIP](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42151561328/Tink-source.zip)** · [source SHA-256](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42151561328/Tink-source.zip.sha256)
-- [APK SHA-256 file](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42151561328/Tink-Android-release.apk.sha256) · [package/certificate metadata](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42151561328/Tink-APK-metadata.txt)
+- **[Updated Android APK](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-Android-release.apk)**
+- **[Current runnable source ZIP](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-source.zip)** · [source SHA-256](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-source.zip.sha256)
+- [APK SHA-256 file](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-Android-release.apk.sha256) · [package/certificate metadata](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42153449531/Tink-APK-metadata.txt)
 
 | Property | Verified value |
 | --- | --- |
-| Release tag | `apk-release-42151561328` |
-| Native application revision | `578afb263a459a1195d14712b81d72e8c725b5c4` |
-| Subsequent full browser/SDK verification | `9b5e84265265846e18299c20f02bf90fcedb23df` — only CI harness changes |
+| Release tag | `apk-release-42153449531` |
+| Native application / full SDK-browser verification revision | `6dac3439c7614755f7997c847b6602577dd44d75` |
 | App/version | Tink 1.3.0, build 4 |
 | Package ID | `com.example.paisaclone` — legacy ID preserved; displayed brand is Tink |
-| APK bytes | `96,865,291` |
-| APK SHA-256 | `d89a2c055b9bc19ed72a86c339471028162033e09905e983c8fbc5a25eff6ed2` |
-| Signing certificate SHA-256 | `a47ef423996924606e3bfc7211d30ac7fe0a166b9e73cd4929af7c982ccb2c49` |
-| Signing certificate SHA-1 | `7d33b3b5d1ab51bca383d5a5efd370622166ffa5` |
+| APK bytes | `96,865,703` |
+| APK SHA-256 | `2f60f5609b1477bc182f56ad07528e867151a61e7018b3e9d7154bef5b611e2a` |
+| Signing certificate SHA-256 | `16af1e7195942500bae8068f3e8cc5dbc8d894bb1494fe80a8cbfae0dee3862f` |
+| Signing certificate SHA-1 | `77e1f2ae7d31f054374c83db77d72e365d1c6030` |
 | Android | Minimum API 24 (Android 7), compile SDK 36 |
 | Native payload | `arm64-v8a`, `armeabi-v7a`, `x86_64` |
 | Internet permission | Absent, checked in the built APK |
@@ -34,17 +32,18 @@ the APK revision in `lib`, `android`, `ios`, `web`, `assets`, `test`, `scripts`,
 
 ## Checks actually passed
 
-- [Native build, package/branding/version/ABI/permission/signature inspection and publication](https://github.com/Shitwitt/MoneyMate/actions/runs/42151561328/job/127676384122) — **passed**. That run's older browser harness hit Flutter DOM semantics interception; the follow-up below fixes only the harness, not application code.
-- [Full strict SDK checks and real-browser/offline verification](https://github.com/Shitwitt/MoneyMate/actions/runs/42152170674) — **passed**: non-mutating Dart format, gen-l10n, analyzer, complete Flutter unit/widget suite, calendar/DST reruns and Python packaging/retry tests. Flutter stable 3.47.9 is the pinned baseline.
-- [Separate push-triggered direct Gradle debug APK](https://github.com/Shitwitt/MoneyMate/actions/runs/42152170725) — **passed**, built using Gradle rather than `flutter build apk`.
+- [Full release workflow 42153449531](https://github.com/Shitwitt/MoneyMate/actions/runs/42153449531) — **all checks, browser and native jobs passed** on the same application revision. Includes strict non-mutating Dart format, gen-l10n, analyzer, complete Flutter unit/widget suite, calendar/DST reruns and Python packaging/retry/font tests. Flutter stable 3.47.9 is the pinned baseline.
+- [Native build, package/branding/version/ABI/permission/signature inspection and publication](https://github.com/Shitwitt/MoneyMate/actions/runs/42153449531/job/127682426870) — **passed**.
+- [Separate push-triggered direct Gradle debug APK 42153449674](https://github.com/Shitwitt/MoneyMate/actions/runs/42153449674) — **passed**, built using Gradle rather than `flutter build apk`.
 - Browser: isolated editable demo and exit; real 14-step setup; live phone previews; full Home grid; accounts/reports; recurring calendar, help, history, process, skip and archive; light/dark persistence; offline reload; **zero external runtime requests**. All 12 fictional-data reference captures are in the web artifact.
 - Layout regressions: full Home at 100%/160% text, saved/reversed ordering, safe deep-route demo exit with zero real-repository writes, plus 320×844 detail at 160% text in both LTR and RTL.
 - Old JSON migration, recurrence anchors/atomicity/metadata, reporting-currency projections, actual recorded history/statistics, generated 36 core locales and offline fonts remain covered.
+- Final font license audit: locally instanced Quicksand files renamed to **TinkRounded** under the OFL Reserved Font Name condition. Original notices are retained. Three new tests verify primary names, 400–700 registration and byte-identical glyph/metric/layout tables; **all 10 Python tests passed**. All 12 final browser thumbnails are byte-identical to the reviewed pre-rename evidence.
 
 ## Honest limits and installation safety
 
 - **Export and verify a backup before uninstalling an older build.** This ephemeral CI test certificate differs from earlier delivered builds; Android will reject an in-place upgrade across different certificates. Uninstalling deletes local app data. Configure your own persistent signing key for future stable upgrades/Play distribution.
 - Native compilation/inspection is not physical-device testing. Camera, biometrics, notification delivery/timing, widgets, OEM background restrictions and sideload/upgrade flows still need device QA. No iOS compilation, signing or device result is claimed.
 - Data and portable backups are **unencrypted**. PIN/biometrics are interface locks, not database encryption. Pro is a persisted local simulation, never a payment.
-- The 36 starter locales cover core navigation/actions, not every detailed finance form. Licensed Quicksand approximates the unknown reference font. Unseen setup pages and static-image animation timing cannot be certified as exact copies. Original Tink identity and local-only backup behavior are intentional; see [batch scope/adaptations](REFERENCE_BATCH_01.md).
+- The 36 starter locales cover core navigation/actions, not every detailed finance form. Licensed Quicksand-derived TinkRounded approximates the unknown reference font. Unseen setup pages and static-image animation timing cannot be certified as exact copies. Original Tink identity and local-only backup behavior are intentional; see [batch scope/adaptations](REFERENCE_BATCH_01.md).
 - Contrast pairs and large-type/RTL regressions are documented, not a blanket accessibility certification.

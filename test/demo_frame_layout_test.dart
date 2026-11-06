@@ -17,63 +17,68 @@ void main() {
           addTearDown(tester.view.resetPhysicalSize);
           addTearDown(tester.view.resetDevicePixelRatio);
           final handle = tester.ensureSemantics();
-          addTearDown(handle.dispose);
-          var exited = false;
-          await tester.pumpWidget(
-            MaterialApp(
-              theme: tinkTheme(const AppSettings(), Brightness.dark),
-              builder: (context, child) => MediaQuery(
-                data: MediaQuery.of(context).copyWith(
-                  textScaler: TextScaler.linear(scale),
-                  padding: const EdgeInsets.only(top: 24, bottom: 16),
+          try {
+            var exited = false;
+            await tester.pumpWidget(
+              MaterialApp(
+                theme: tinkTheme(const AppSettings(), Brightness.dark),
+                builder: (context, child) => MediaQuery(
+                  data: MediaQuery.of(context).copyWith(
+                    textScaler: TextScaler.linear(scale),
+                    padding: const EdgeInsets.only(top: 24, bottom: 16),
+                  ),
+                  child: Directionality(
+                    textDirection: direction,
+                    child: DemoFrame(
+                      enabled: true,
+                      onExit: () => exited = true,
+                      child: child!,
+                    ),
+                  ),
                 ),
-                child: Directionality(
-                  textDirection: direction,
-                  child: DemoFrame(
-                    enabled: true,
-                    onExit: () => exited = true,
-                    child: child!,
+                home: Scaffold(
+                  appBar: AppBar(
+                    title: const Text('Emergency fund verified'),
+                    actions: [
+                      IconButton(
+                        tooltip: 'Archive goal',
+                        onPressed: () {},
+                        icon: const Icon(Icons.archive_outlined),
+                      ),
+                    ],
+                  ),
+                  body: const Center(
+                    child: Text('Your saved data is separate'),
                   ),
                 ),
               ),
-              home: Scaffold(
-                appBar: AppBar(
-                  title: const Text('Emergency fund verified'),
-                  actions: [
-                    IconButton(
-                      tooltip: 'Archive goal',
-                      onPressed: () {},
-                      icon: const Icon(Icons.archive_outlined),
-                    ),
-                  ],
-                ),
-                body: const Center(child: Text('Your saved data is separate')),
-              ),
-            ),
-          );
-          await tester.pumpAndSettle();
-          final exit = find.widgetWithText(FilledButton, 'Exit Demo');
-          final exitRect = tester.getRect(exit);
-          final barRect = tester.getRect(find.byType(AppBar));
-          expect(exitRect.bottom, lessThanOrEqualTo(barRect.top));
-          expect(exitRect.width, greaterThanOrEqualTo(48));
-          expect(exitRect.height, greaterThanOrEqualTo(48));
-          var accessibleExit = false;
-          void inspect(SemanticsNode node) {
-            if (node.getSemanticsData().label.contains('Exit Demo')) {
-              accessibleExit = true;
+            );
+            await tester.pumpAndSettle();
+            final exit = find.widgetWithText(FilledButton, 'Exit Demo');
+            final exitRect = tester.getRect(exit);
+            final barRect = tester.getRect(find.byType(AppBar));
+            expect(exitRect.bottom, lessThanOrEqualTo(barRect.top));
+            expect(exitRect.width, greaterThanOrEqualTo(48));
+            expect(exitRect.height, greaterThanOrEqualTo(48));
+            var accessibleExit = false;
+            void inspect(SemanticsNode node) {
+              if (node.getSemanticsData().label.contains('Exit Demo')) {
+                accessibleExit = true;
+              }
+              node.visitChildren((child) {
+                inspect(child);
+                return true;
+              });
             }
-            node.visitChildren((child) {
-              inspect(child);
-              return true;
-            });
-          }
 
-          inspect(tester.getSemantics(find.byType(DemoFrame)));
-          expect(accessibleExit, isTrue);
-          expect(tester.takeException(), isNull);
-          await tester.tap(exit);
-          expect(exited, isTrue);
+            inspect(tester.getSemantics(find.byType(DemoFrame)));
+            expect(accessibleExit, isTrue);
+            expect(tester.takeException(), isNull);
+            await tester.tap(exit);
+            expect(exited, isTrue);
+          } finally {
+            handle.dispose();
+          }
         });
       }
     }

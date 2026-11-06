@@ -68,7 +68,9 @@ module.exports = async function referenceBatchThree({page, nav, goBack, capture,
   await button('Next smart insight').waitFor();
   if (!await button('Next smart insight').isEnabled()) throw new Error('Demo must contain at least two computed insights');
   await swipeCarousel(225);
-  await page.getByText(/^2 \/ \d+$/).waitFor();
+  // Flutter exposes this read-only counter as an accessible group, not always DOM text.
+  const secondInsight = /^2 \/ \d+$/;
+  await page.getByRole('group', {name: secondInsight}).or(page.getByText(secondInsight)).first().waitFor();
   await shot('analytics-swiped');
   await revealText('Top categories'); await shot('analytics-monthly');
   await revealText('Monthly Overview');

@@ -1,6 +1,6 @@
 # Reference batch 4 — Categories, connected entry, context and Spending Health
 
-**Status: integrated; SDK/browser verification in progress. Not yet a completed handoff.**
+**Status: complete and source/browser verified — 6 November 2026. No native build.**
 
 All 20 supplied originals were opened before implementation. This batch follows the verified Batch 3 baseline `244c9b62bdc7a7adbf60a81525e6ff647f8aa631` / run `42189659642`. Tink retains its own branding, original icons, licensed rounded fonts and isolated fictional demo. No OS bars, private overlays or proprietary photos are copied.
 
@@ -40,11 +40,27 @@ Card/icon/ring/chart effects are finite and respect reduced motion. No endless o
 
 Detailed help/forms remain predominantly English alongside the 36 starter core locales. Proprietary reference fonts and exact motion timing cannot be certified from still images. Camera/gallery, physical-device and iOS checks remain platform work. Local data/backups are unencrypted; PIN is not database encryption.
 
-## Verification gates (pending)
+## Verification — completed
 
-- Flutter SDK format, analyzer and full suite, including added data/gesture/narrow-160%-RTL/privacy/pinned-save regressions.
-- America/New_York calendar/DST run with UTC-instant weekday/last-seven cases.
-- Connected browser journey with real carousel swipes and pointer holds, real record drilldowns, category scopes, metadata persistence, context edits and unsaved reminder-draft cancellation.
-- Required full screenshot files plus bounded review copies for all Batch 4 sections, while preserving Batch 1–3 browser/offline coverage.
+Authoritative application/source revision **`4f018d40e9193e8cd916c90a5d0e6b0d3333b5ae`**:
+[run 42203316290](https://github.com/Shitwitt/MoneyMate/actions/runs/42203316290), **SUCCESS**.
 
-**APK hold remains active.** Both release and direct-Gradle native paths stay opt-in. No APK/AAB/native build is requested.
+- **Source `127843696973`: PASS.** Strict non-mutating SDK format, localization generation, analyzer, complete Flutter unit/widget suite, America/New_York calendar/DST reruns and all **15 Python packaging/platform-contract regressions**. New regressions include full 150-record exports, immutable selection, no-income PDF behavior, incoming search query, selected records surviving a later search, recycled-carousel state, narrow 160% LTR/RTL, chart gestures, privacy, pinned controls and unsaved recurring/no-replay behavior.
+- **Browser `127844476713`: PASS.** Genuine pointer holds and touch swipes, painter-matched category inspection, exact scoped records, actual CSV/PDF downloads with chooser-count/CSV-row and PDF-header/size checks, calculator expression `2+0.50` saved as **$2.50**, exact saved name/notes through transaction details, context list/grid/scopes/help/grouping/persisted rename, all Spending Health sections and recurring-review cancellation. Calendar hold showed **4 demo posted records, income $1.00, expense $115.44, net −$114.44**, matching its actual scoped records. A held calendar button is not substituted with its tap-to-records action.
+- Browser coverage retains the existing Batch 1–3 journeys, all 14 real setup steps, exact saved profile name, theme persistence, offline reload and **zero external runtime requests**. Browser/layout error collection was empty.
+
+| Required Batch 4 evidence | Job | Result |
+|---|---|---|
+| Categories/allocation/graphs/hold/overview — 9 frames | `127846782379` | PASS |
+| Connected transaction form/calculator/metadata/saved detail — 6 | `127846782257` | PASS |
+| People/Places help/list/grid/detail — 7 | `127846783557` | PASS |
+| Spending Health, real swipe/hold, projection/repeats/draft/help — 13 | `127846782523` | PASS |
+| Recurring list/calendar/help — 4 | `127846782241` | PASS |
+
+All **39 full screenshot files** passed the strict presence/JPEG evidence gates. All **39 bounded review copies**, plus the refreshed **27 Batch 3 copies**, were reviewed: 44 are byte-identical to already opened copies and 22 new/changed copies were reopened. [Per-frame byte counts, SHA-256 hashes, job provenance and review inventory](REFERENCE_REVIEW_04.json) record the complete 66-frame set with no missing/unexpected names. Bounded API copies are a layout review, **not full-resolution pixel/font/motion certification**. Full-size captures remain in the run's web artifact.
+
+Refreshed Batch 3 evidence also passed: loans `127846782305` (8), goals `127846782409` (5), labels `127846782921` (4), Analytics `127846783099` (10). Additional historical-reference review `127846782520` passed. Analytics/habit page storage now preserves the actual selected card after vertical list recycling, not just its counter. Normal category/context row names no longer lose half the row to an unnecessarily flexible amount column; narrow/large-text stacking remains intact.
+
+The subsequent [whole-app public-reference audit](PAISA_REFERENCE_AUDIT.md) preserves existing features and records the independent-source/licence boundary, filtered/selected exports and canonical/legacy automation compatibility. No complete Paisa-platform parity is claimed.
+
+**APK hold remains active.** Release job `127844479187` and separate direct-Gradle run `42203316348` were **SKIPPED**. No APK/AAB/native compilation was performed. Physical-device/iOS and native widget/link execution still need platform QA; static platform-contract tests do not certify them. Both native paths remain explicit opt-ins until the user says **“make APK.”**

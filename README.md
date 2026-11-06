@@ -2,7 +2,7 @@
 
 **Your money. A clearer mind.** A privacy-first Material 3 Flutter finance companion with rounded offline typography, a warm coffee/peach interface and real-record financial tools. Tink is an independent local tracker, not a bank, card issuer, payment service, trading platform, or an integration with the Tink banking API. Interface references inspired the visual direction; no Stable Money logos, proprietary screens or illustrations are bundled.
 
-No accounts, backend, ads, analytics, payment service, or automatic network calls. The Android release deliberately has **no Internet permission**. All finance data and receipt images are local. Pro is a free, persisted simulation.
+No sign-in, backend, ads, analytics, payment service, or automatic network calls. The Android release deliberately has **no Internet permission**. All finance data and receipt images are local. Pro is a free, persisted simulation.
 
 > This is a substantial, runnable implementation, not a claim of byte-for-byte or certified feature parity with Paisa. See [platform support and known limits](#platform-support-and-known-limits), [architecture](docs/ARCHITECTURE.md), and [device QA](docs/QA.md). Native biometrics, camera, notification delivery and widgets require real-device verification before distributing your own release.
 
@@ -46,7 +46,7 @@ Tink/
 ├── assets/branding/ fonts/ templates/
 ├── test/                        # Finance, persistence, import, security, widget tests
 ├── scripts/create_web_cache.py  # Self-hosted post-build offline cache
-├── docs/                        # Architecture, feature matrix, QA and signing
+├── docs/                        # Architecture, reference audits, QA and signing
 └── .github/workflows/
     ├── build.yml                # Opt-in Gradle assembleDebug → debug APK
     ├── build-apk.yml            # Checks/Web/source; release APK is opt-in
@@ -57,25 +57,29 @@ Tink/
 ## Current UI work — APK builds on hold
 
 The branch preserves the verified first two batches and completes **Batch 3**
-(Loans, Goals, Labels and Analytics). **Batch 4 is integrated and its final
-browser/screenshot verification is in progress**; it is not yet a completed
-handoff. No next image batch has been requested.
+(Loans, Goals, Labels and Analytics) and **all 20 supplied Batch 4 references**
+(Categories, connected entry, People/Places and Spending Health). The current
+source/browser run is **SUCCESS** at `4f018d4`, with all 39 Batch 4 and 27 refreshed
+Batch 3 review frames checked. No next image batch has been requested.
 
 | Batch | Scope | Verification |
 |---|---|---|
 | [2](docs/REFERENCE_BATCH_02.md) | Lower Home feed, accounts/reports, budgets and Recurring | [42171659295](https://github.com/Shitwitt/MoneyMate/actions/runs/42171659295), `133f36c`, source/web success, 28 review frames |
 | [3](docs/REFERENCE_BATCH_03.md) | Connected Loans, Goals, Labels and Analytics, real insight swipe | [42189659642](https://github.com/Shitwitt/MoneyMate/actions/runs/42189659642), `244c9b6`, source/web/offline success, all 25 required review frames checked |
-| [4](docs/REFERENCE_BATCH_04.md) | Categories/charts, full connected transaction form, People/Places, disclosed Spending Health review and finite Material motion | SDK/analyzer/full tests/calendar/offline-packaging checks have passed before the final SDK-format correction; connected browser/39 new required-frame review remains pending |
+| [4](docs/REFERENCE_BATCH_04.md) | Categories/charts, full connected transaction form, People/Places, disclosed Spending Health review and finite Material motion | [42203316290](https://github.com/Shitwitt/MoneyMate/actions/runs/42203316290), `4f018d4`, strict source/full tests/DST/15 Python/browser/offline success; 39 Batch 4 + 27 refreshed Batch 3 frames reviewed |
 
 These are source/browser checks, not Android-device or iOS certification.
 The workflow preserves existing Batch 1–3 journeys and adds Batch 4 rather than
 substituting screenshots or arrows for the required real swipes and holds.
 
-**[Download the verified Batch 3 application source](https://github.com/Shitwitt/MoneyMate/archive/244c9b62bdc7a7adbf60a81525e6ff647f8aa631.zip)**
+**[Download the verified current application source](https://github.com/Shitwitt/MoneyMate/archive/4f018d40e9193e8cd916c90a5d0e6b0d3333b5ae.zip)**
 (or download `Tink-source` from the corresponding successful run's Artifacts;
 GitHub sign-in is required). Source-only handoff ZIPs can include later
 documentation updates; their archive comment identifies the exact source commit.
-They contain no APK.
+They contain no APK. The current review also adds full-filtered/selected CSV/PDF
+choices, retained selection across search changes, restored carousel pages after
+scrolling, canonical `tink://` plus legacy automation and `description` notes
+compatibility. [Whole-app public-reference audit and source/licence boundary](docs/PAISA_REFERENCE_AUDIT.md).
 
 **No new APK is compiled or published until the user explicitly says “make APK.”**
 Both Android jobs are now opt-in; ordinary pushes only run source checks/web.

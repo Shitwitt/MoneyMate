@@ -60,4 +60,18 @@ Authoritative run: [42189659642](https://github.com/Shitwitt/MoneyMate/actions/r
 
 **APK hold remains active.** Release Android job `127799062289` was skipped; direct-Gradle run `42189659815` was skipped. No APK, AAB or native compilation was performed. Both native paths remain explicit opt-ins.
 
-Batch 4's already supplied 20 originals have been reviewed. Work proceeds directly to them without requesting another image batch.
+At that historical handoff, all 20 already supplied Batch 4 originals had been reviewed and work proceeded directly to them without requesting another image batch. Their completed verification is recorded below.
+
+## Refreshed verification alongside Batch 4
+
+The completed Batch 4 revision `4f018d40e9193e8cd916c90a5d0e6b0d3333b5ae`
+([run 42203316290](https://github.com/Shitwitt/MoneyMate/actions/runs/42203316290))
+reran the entire Batch 3 browser journey and expanded evidence to **27 frames**:
+loans `127846782305` (8), goals `127846782409` (5), labels `127846782921` (4),
+Analytics `127846783099` (10), all PASS. The two extra Analytics views separate
+the velocity and complete monthly graph. All refreshed copies were reviewed;
+[per-frame hashes and provenance](REFERENCE_REVIEW_04.json). The current demo has
+three genuine insight cards, and its real swipe reaches 2 / 3; the historical
+2 / 2 result above describes that earlier dataset, not a hard-coded card count.
+Source `127843696973` and browser `127844476713` passed; both native paths
+remained skipped. [Current Batch 4 verification](REFERENCE_BATCH_04.md).

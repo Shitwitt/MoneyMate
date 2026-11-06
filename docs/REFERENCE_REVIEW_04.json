@@ -1,0 +1,496 @@
+{
+  "commit": "4f018d40e9193e8cd916c90a5d0e6b0d3333b5ae",
+  "run": 42203316290,
+  "run_result": "success",
+  "url": "https://github.com/Shitwitt/MoneyMate/actions/runs/42203316290",
+  "kind": "bounded API review JPEG copies, not full-resolution originals",
+  "frames": {
+    "batch4-recurring-help-bottom.jpg": {
+      "sha256": "675137bc7d6c12a79ceafb11ee01b283b724db6303e72efa7c6f4d1c9efc5503",
+      "bytes": 6586,
+      "job": 127846782241,
+      "job_result": "success"
+    },
+    "batch4-recurring-help.jpg": {
+      "sha256": "050cdad2508526693dd64a68f1e451789f454c9a116b2e75f278ab8457889aa3",
+      "bytes": 5630,
+      "job": 127846782241,
+      "job_result": "success"
+    },
+    "batch4-recurring-calendar.jpg": {
+      "sha256": "5cb8559eb5011f9f336ffdb95ac7a12ab7cb1e47222b5b9199ad8864e8dfb2ee",
+      "bytes": 5394,
+      "job": 127846782241,
+      "job_result": "success"
+    },
+    "batch4-recurring.jpg": {
+      "sha256": "5564a972c7aad95b196ca9bd66d2e8c5a22c5a53f4d241a791bbd87679ce8999",
+      "bytes": 5374,
+      "job": 127846782241,
+      "job_result": "success"
+    },
+    "batch4-transaction-saved.jpg": {
+      "sha256": "4a4511baf41b899a9676381330450b70a5cf4763293232eadb8d52450fc8474e",
+      "bytes": 5679,
+      "job": 127846782257,
+      "job_result": "success"
+    },
+    "batch4-transaction-collapsed.jpg": {
+      "sha256": "246dc09f41cdf642dcae590c19b71e789d04433753abbfc008ccf7c23a87d466",
+      "bytes": 5705,
+      "job": 127846782257,
+      "job_result": "success"
+    },
+    "batch4-transaction-context.jpg": {
+      "sha256": "bf077cab1db047d482927b639e9a6ab3bd492b6ab8d3873b95d87f15502a0a2e",
+      "bytes": 5647,
+      "job": 127846782257,
+      "job_result": "success"
+    },
+    "batch4-transaction-links.jpg": {
+      "sha256": "b634f487333c7c9f68d9496141f53a8f3a63986ebfbb9fc008dc0f0521f422f2",
+      "bytes": 5906,
+      "job": 127846782257,
+      "job_result": "success"
+    },
+    "batch4-transaction-calculator.jpg": {
+      "sha256": "2cb58c66100f78c0cdf1264f329e0b1e73fb1f86a03c63ace5b76f61ff49f93b",
+      "bytes": 6743,
+      "job": 127846782257,
+      "job_result": "success"
+    },
+    "batch4-transaction-main.jpg": {
+      "sha256": "12ee6f2b099985c5eccf0f6482b9a9481233897a07f007cd954aedd328bdb31d",
+      "bytes": 5823,
+      "job": 127846782257,
+      "job_result": "success"
+    },
+    "batch3-transaction-detail.jpg": {
+      "sha256": "4fafe26600e7d0ffcec2518e68b487b8e6f127b852206a08856cdfb531ab2401",
+      "bytes": 6166,
+      "job": 127846782305,
+      "job_result": "success"
+    },
+    "batch3-loan-borrowing.jpg": {
+      "sha256": "d02637f85880e23835ab250ea3c1a0e9e9cfb463fc7a67ac36f12a32d99115da",
+      "bytes": 5289,
+      "job": 127846782305,
+      "job_result": "success"
+    },
+    "batch3-loan-colors.jpg": {
+      "sha256": "cabd96f5b63dc3a834ac6ddc00586bce93ab0b76908e87ef46d79c9be8ad2302",
+      "bytes": 5636,
+      "job": 127846782305,
+      "job_result": "success"
+    },
+    "batch3-loan-editor.jpg": {
+      "sha256": "0afdbb748fde56dc210bf5ab6344b0b82a80c8dc244b394b2c1d13ecd2f8d04d",
+      "bytes": 6393,
+      "job": 127846782305,
+      "job_result": "success"
+    },
+    "batch3-loan-history.jpg": {
+      "sha256": "2bd97617c5f3157ec8cdb57b4c42ef15d2cf223e437ea7948990e72b82755702",
+      "bytes": 5549,
+      "job": 127846782305,
+      "job_result": "success"
+    },
+    "batch3-loan-detail.jpg": {
+      "sha256": "d14d56dc4eb0c9b00827698ac71882c1a40abc13e03ee0b6bd8e4e50573a76a9",
+      "bytes": 5401,
+      "job": 127846782305,
+      "job_result": "success"
+    },
+    "batch3-loan-help-bottom.jpg": {
+      "sha256": "68e5f1c1b13fa3f56b0e151a6b14e098e183bc39adaa3e99b79357f5abe5e99d",
+      "bytes": 6615,
+      "job": 127846782305,
+      "job_result": "success"
+    },
+    "batch3-loan-help.jpg": {
+      "sha256": "8773baaedc5f77783db5f0947cb84c5291a4835ddbcb2840612704a1e2289809",
+      "bytes": 5610,
+      "job": 127846782305,
+      "job_result": "success"
+    },
+    "batch4-category-insights.jpg": {
+      "sha256": "67420a618369d87118080d32118ffe75b5cf67767bed8224bf0f28a02878da05",
+      "bytes": 5244,
+      "job": 127846782379,
+      "job_result": "success"
+    },
+    "batch4-category-overview.jpg": {
+      "sha256": "ea68616a8eb3d01e37273eb934a8202a7dd5dd78ccfc9f3fb3463104cc50c68e",
+      "bytes": 6399,
+      "job": 127846782379,
+      "job_result": "success"
+    },
+    "batch4-category-weekly.jpg": {
+      "sha256": "3122c1f79b553a3c23aee3e6519eaa4a51c76aa4f350341e1f1ed0ffd773c56a",
+      "bytes": 4941,
+      "job": 127846782379,
+      "job_result": "success"
+    },
+    "batch4-category-hold.jpg": {
+      "sha256": "53534b80068e2bd87e533b68db3189f16fbfaeb6a9202a55da6f521ada6ccaf8",
+      "bytes": 4956,
+      "job": 127846782379,
+      "job_result": "success"
+    },
+    "batch4-category-monthly.jpg": {
+      "sha256": "09ac7fec455677ceeeebbdc6c0343ae1ff3d6724f1546378f281f9bc9c1dc733",
+      "bytes": 6574,
+      "job": 127846782379,
+      "job_result": "success"
+    },
+    "batch4-category-donut.jpg": {
+      "sha256": "a783fe183f3a095a584a9f00d25ce9833073e74d814504092ab2ab3b29c435cc",
+      "bytes": 6465,
+      "job": 127846782379,
+      "job_result": "success"
+    },
+    "batch4-category-breakdown.jpg": {
+      "sha256": "aad700490e7bf0e02a7d95bd598024500123ca1daf710f74228a8b878dfd9d7e",
+      "bytes": 5134,
+      "job": 127846782379,
+      "job_result": "success"
+    },
+    "batch4-categories-help.jpg": {
+      "sha256": "66fb9832e62b199d589772285d496cbf54927f4993be80ce7f7aa26b367cee59",
+      "bytes": 5493,
+      "job": 127846782379,
+      "job_result": "success"
+    },
+    "batch4-categories.jpg": {
+      "sha256": "f45fdb68bc8d177566882036cfff65207f3656f8790a1a2689abb401f01faa34",
+      "bytes": 5067,
+      "job": 127846782379,
+      "job_result": "success"
+    },
+    "batch3-goal-colors.jpg": {
+      "sha256": "9e51185ae924fe05251b0d94ae208a8c72decbd815faefeaa7efae9f325116a3",
+      "bytes": 6049,
+      "job": 127846782409,
+      "job_result": "success"
+    },
+    "batch3-goal-editor.jpg": {
+      "sha256": "a175b65d0c12a47f00ac068e4069e36c88f240bf29e6ab1b7634623b95c41b6f",
+      "bytes": 5363,
+      "job": 127846782409,
+      "job_result": "success"
+    },
+    "batch3-goal-detail.jpg": {
+      "sha256": "35345224261047ea381a4f1e28658e9bcd1ef57e0633ff0be63a0f09c74fa501",
+      "bytes": 5239,
+      "job": 127846782409,
+      "job_result": "success"
+    },
+    "batch3-goals.jpg": {
+      "sha256": "d80ca426ab44e7afe4ad3d0633c5619c0e8eafa930ee5ed88c6678d4f7355abf",
+      "bytes": 6417,
+      "job": 127846782409,
+      "job_result": "success"
+    },
+    "batch3-goals-help.jpg": {
+      "sha256": "55989caeeeb0f0779be3a7529babc62c1424b137cd7c489ffca43033970a9c43",
+      "bytes": 5353,
+      "job": 127846782409,
+      "job_result": "success"
+    },
+    "batch4-health-methods.jpg": {
+      "sha256": "1d77539bc39a61270e7b95f99de4802630835dbe615a634807ce04753c7ea52c",
+      "bytes": 6178,
+      "job": 127846782523,
+      "job_result": "success"
+    },
+    "batch4-health-reminder-draft.jpg": {
+      "sha256": "125ad667299f6897a7c10c95af03fb408cdaa709c3d3a84020fdd271105e4f61",
+      "bytes": 6523,
+      "job": 127846782523,
+      "job_result": "success"
+    },
+    "batch4-health-repeats.jpg": {
+      "sha256": "c1cbf4304d1ae881bff4b049b206522d6f882a768ee1fb213f273be96a57a737",
+      "bytes": 5682,
+      "job": 127846782523,
+      "job_result": "success"
+    },
+    "batch4-health-projection.jpg": {
+      "sha256": "508ee71a079bf3c71a617096e8043e38814e6bd35d38c35a341c0c24f436d5d7",
+      "bytes": 5936,
+      "job": 127846782523,
+      "job_result": "success"
+    },
+    "batch4-health-categories.jpg": {
+      "sha256": "11bbea91a621d51249b23cb896a9651f7878c25e2823292328ab5ae4921fffd8",
+      "bytes": 5858,
+      "job": 127846782523,
+      "job_result": "success"
+    },
+    "batch4-health-hold.jpg": {
+      "sha256": "f4ddc2ae417dbff7f1e957b90d47a5d9b3d3cdcc3e69a0fa5d4a42989c15ffd3",
+      "bytes": 5684,
+      "job": 127846782523,
+      "job_result": "success"
+    },
+    "batch4-health-heatmap.jpg": {
+      "sha256": "6efde792d39728b8e09013bb384522a843cca1b2e876330e1318e6223603211e",
+      "bytes": 5124,
+      "job": 127846782523,
+      "job_result": "success"
+    },
+    "batch4-health-habits-swiped.jpg": {
+      "sha256": "63f87ae346eb3102e5ac40c456361d31e68eb45ce9f6bfbe1e5097d59d8ffaf6",
+      "bytes": 5114,
+      "job": 127846782523,
+      "job_result": "success"
+    },
+    "batch4-health-habits.jpg": {
+      "sha256": "9278a777a1bdb276f4794bf6cab7275e710d687d9ab035f98fd9efbafc258c53",
+      "bytes": 6395,
+      "job": 127846782523,
+      "job_result": "success"
+    },
+    "batch4-health-report.jpg": {
+      "sha256": "de78f9623b0678abf5f36b1933af4bbe2bbd20b912ff6ec722bb36f3abffcecb",
+      "bytes": 5686,
+      "job": 127846782523,
+      "job_result": "success"
+    },
+    "batch4-health-challenge.jpg": {
+      "sha256": "0823cf8bb41a426716db1a760f9d6ea6ab476815084c51902ef3fb8923dfa33b",
+      "bytes": 5919,
+      "job": 127846782523,
+      "job_result": "success"
+    },
+    "batch4-health-streak.jpg": {
+      "sha256": "d072ee061d23db94bc426ef8ffbc30a1f6db0ca50ce22b9f7607f17930427415",
+      "bytes": 6447,
+      "job": 127846782523,
+      "job_result": "success"
+    },
+    "batch4-health-index.jpg": {
+      "sha256": "d5ca50d8727de59332bbbea8cbcf9768e5a4a13adbc7c4464671f23e73e3d2be",
+      "bytes": 5976,
+      "job": 127846782523,
+      "job_result": "success"
+    },
+    "batch3-label-detail.jpg": {
+      "sha256": "e3f25019374f2d8cb1d060bf5b0b63a3147e1dc0a3a87a0b36e88640f1623eb1",
+      "bytes": 6687,
+      "job": 127846782921,
+      "job_result": "success"
+    },
+    "batch3-labels-grid.jpg": {
+      "sha256": "ef1fb4c9b91bc1e96b24bfd6197b830863f8b0db690b01bd4246a34bf665d0e7",
+      "bytes": 5351,
+      "job": 127846782921,
+      "job_result": "success"
+    },
+    "batch3-labels.jpg": {
+      "sha256": "eab68b8261ac1012f7f059887bcbd10686099ff1aac0fdf4b74fbf5bc8810825",
+      "bytes": 5402,
+      "job": 127846782921,
+      "job_result": "success"
+    },
+    "batch3-labels-help.jpg": {
+      "sha256": "23f2c4281542068a267c6378d77851afa721f1885733632e1a9e74de4eefde0a",
+      "bytes": 6663,
+      "job": 127846782921,
+      "job_result": "success"
+    },
+    "batch3-analytics-overview.jpg": {
+      "sha256": "813ed5748ad3376e80478bcae5151778a341aab5c41c37569ee82d394ef1987b",
+      "bytes": 6658,
+      "job": 127846783099,
+      "job_result": "success"
+    },
+    "batch3-analytics-velocity.jpg": {
+      "sha256": "5dbcb4f89ba7e315bc8e61c7c9885477cd2b39e98c1ec3771f5d3c0f5b4f1a1b",
+      "bytes": 5192,
+      "job": 127846783099,
+      "job_result": "success"
+    },
+    "batch3-analytics-methods.jpg": {
+      "sha256": "4fab7d87229cddda23c87d73b5d2be8ea4a5ab72b62896cb9a43a32104f59f20",
+      "bytes": 5502,
+      "job": 127846783099,
+      "job_result": "success"
+    },
+    "batch3-analytics-weekdays.jpg": {
+      "sha256": "2f8aea6a2e34b8642f30a2176df24c4e37817ea490ffcff3d323428f31d5de4f",
+      "bytes": 5107,
+      "job": 127846783099,
+      "job_result": "success"
+    },
+    "batch3-analytics-trends.jpg": {
+      "sha256": "7bdc12eb373aaf49ef19602e5b5aece51e2dd56a983a2d5aaa64ad40c2ee0b6b",
+      "bytes": 5355,
+      "job": 127846783099,
+      "job_result": "success"
+    },
+    "batch3-analytics-unusual.jpg": {
+      "sha256": "403c45bef527d25c8b305dac9f05cb1b11073a971a0b3334fb5fba9853e4011e",
+      "bytes": 6586,
+      "job": 127846783099,
+      "job_result": "success"
+    },
+    "batch3-analytics-predictions.jpg": {
+      "sha256": "f223d76b6a6d925b24bbe88852a4cf6f4151b11e25ad58d77e8349fb2c4cb03b",
+      "bytes": 5421,
+      "job": 127846783099,
+      "job_result": "success"
+    },
+    "batch3-analytics-monthly.jpg": {
+      "sha256": "b32143f886d57cebf2853f5838f198f9c8558448fda89ad5f0ff57e5cdda0188",
+      "bytes": 6174,
+      "job": 127846783099,
+      "job_result": "success"
+    },
+    "batch3-analytics-swiped.jpg": {
+      "sha256": "e3f554cc90564538270b851f83f89a9dc4e32a58fc0ff9e7b6a20500c5ebaaf9",
+      "bytes": 5082,
+      "job": 127846783099,
+      "job_result": "success"
+    },
+    "batch3-analytics.jpg": {
+      "sha256": "ea32c5b2dd762c660abf25a0a93886d5a4dd0c1d3f71bdd0ec477aa735e8a54c",
+      "bytes": 6471,
+      "job": 127846783099,
+      "job_result": "success"
+    },
+    "batch4-person-detail.jpg": {
+      "sha256": "0f6e2709b5f88aef0a3b20ccff489f827513b2dbfdc86f645ffa0d80ef477c73",
+      "bytes": 6404,
+      "job": 127846783557,
+      "job_result": "success"
+    },
+    "batch4-people-help.jpg": {
+      "sha256": "ab521748a58b5e2b10cab2233a4c8d55b7176ab77b80179de0f11d078c501dd8",
+      "bytes": 5346,
+      "job": 127846783557,
+      "job_result": "success"
+    },
+    "batch4-people.jpg": {
+      "sha256": "f10bb51855d0cd6d9a11e53432202366c59b2da5273609461b05ee5c23462795",
+      "bytes": 4815,
+      "job": 127846783557,
+      "job_result": "success"
+    },
+    "batch4-place-detail.jpg": {
+      "sha256": "8004e58e775699d318c0fc0ee8136f77cdcf96d18764b25ebc0d5ac7eddb548a",
+      "bytes": 5317,
+      "job": 127846783557,
+      "job_result": "success"
+    },
+    "batch4-places-help.jpg": {
+      "sha256": "b37e2b4259c206accc9ad23ed7bf31ee1e0589c0495ff9d026d6a2ef10aa02d3",
+      "bytes": 6642,
+      "job": 127846783557,
+      "job_result": "success"
+    },
+    "batch4-places-grid.jpg": {
+      "sha256": "0d5351dc836d32f4f544f5f1d37af1d64ab0304ddbfab8932444a073e6d8926b",
+      "bytes": 5145,
+      "job": 127846783557,
+      "job_result": "success"
+    },
+    "batch4-places.jpg": {
+      "sha256": "8da431c0ef87c9b79eecadadaa46d93979ffbffa09ba9eff467d537bdb171d5c",
+      "bytes": 5154,
+      "job": 127846783557,
+      "job_result": "success"
+    }
+  },
+  "missing": [],
+  "unexpected": [],
+  "review": {
+    "date": "2026-11-06",
+    "bounded_layout_review_only": true,
+    "byte_identical_to_previously_opened": [
+      "batch3-analytics-methods.jpg",
+      "batch3-analytics-overview.jpg",
+      "batch3-analytics-predictions.jpg",
+      "batch3-analytics-swiped.jpg",
+      "batch3-analytics-trends.jpg",
+      "batch3-analytics-unusual.jpg",
+      "batch3-analytics-velocity.jpg",
+      "batch3-analytics-weekdays.jpg",
+      "batch3-analytics.jpg",
+      "batch3-goal-colors.jpg",
+      "batch3-goal-detail.jpg",
+      "batch3-goal-editor.jpg",
+      "batch3-goals-help.jpg",
+      "batch3-goals.jpg",
+      "batch3-label-detail.jpg",
+      "batch3-labels-grid.jpg",
+      "batch3-labels-help.jpg",
+      "batch3-labels.jpg",
+      "batch3-loan-borrowing.jpg",
+      "batch3-loan-colors.jpg",
+      "batch3-loan-detail.jpg",
+      "batch3-loan-editor.jpg",
+      "batch3-loan-help-bottom.jpg",
+      "batch3-loan-help.jpg",
+      "batch4-categories-help.jpg",
+      "batch4-categories.jpg",
+      "batch4-category-breakdown.jpg",
+      "batch4-category-donut.jpg",
+      "batch4-category-hold.jpg",
+      "batch4-category-insights.jpg",
+      "batch4-category-monthly.jpg",
+      "batch4-category-overview.jpg",
+      "batch4-category-weekly.jpg",
+      "batch4-people-help.jpg",
+      "batch4-place-detail.jpg",
+      "batch4-places-grid.jpg",
+      "batch4-places-help.jpg",
+      "batch4-recurring-calendar.jpg",
+      "batch4-recurring-help-bottom.jpg",
+      "batch4-recurring-help.jpg",
+      "batch4-recurring.jpg",
+      "batch4-transaction-calculator.jpg",
+      "batch4-transaction-context.jpg",
+      "batch4-transaction-links.jpg"
+    ],
+    "new_or_changed_reopened": [
+      "batch3-analytics-monthly.jpg",
+      "batch3-loan-history.jpg",
+      "batch3-transaction-detail.jpg",
+      "batch4-health-categories.jpg",
+      "batch4-health-challenge.jpg",
+      "batch4-health-habits-swiped.jpg",
+      "batch4-health-habits.jpg",
+      "batch4-health-heatmap.jpg",
+      "batch4-health-hold.jpg",
+      "batch4-health-index.jpg",
+      "batch4-health-methods.jpg",
+      "batch4-health-projection.jpg",
+      "batch4-health-reminder-draft.jpg",
+      "batch4-health-repeats.jpg",
+      "batch4-health-report.jpg",
+      "batch4-health-streak.jpg",
+      "batch4-people.jpg",
+      "batch4-person-detail.jpg",
+      "batch4-places.jpg",
+      "batch4-transaction-collapsed.jpg",
+      "batch4-transaction-main.jpg",
+      "batch4-transaction-saved.jpg"
+    ],
+    "outcome": "No overlaps observed in these bounded copies; not a pixel/font/motion/accessibility or device certification."
+  },
+  "checks": {
+    "source": 127843696973,
+    "browser": 127844476713,
+    "additional_reference": 127846782520,
+    "release_apk": {
+      "job": 127844479187,
+      "result": "skipped"
+    },
+    "direct_gradle_debug": {
+      "run": 42203316348,
+      "result": "skipped"
+    },
+    "external_runtime_requests": 0
+  }
+}

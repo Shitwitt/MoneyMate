@@ -1,15 +1,58 @@
-# Tink 1.3 — Batch 2 source verification and Batch 1 binaries
+# Tink 1.3 — current source verification and historical Batch 1 binaries
 
 **Version 1.3.0+4**, branch `arena/9ea2a134-moneymate`, verified 6 November 2026.
 [The 1.2 build is historical](HISTORICAL_1_2_BUILD.md), not this delivery.
-The Batch 1 binaries below and the newer Batch 2 source are deliberately distinguished.
+The historical Batch 1 binaries below and the newer source/browser revisions are deliberately distinguished.
 
-> **Batch 2 build hold:** the current branch's Home/Accounts/Reports/Budgets UI is
-> newer than the Batch 1 packages documented below. No Batch 2 APK has been
-> compiled or published. Ordinary pushes skip both native jobs until the user
-> explicitly requests “make APK.” [Batch 2 scope and verification](REFERENCE_BATCH_02.md).
+## Batch 4 and whole-app reference review — complete source/browser verification
 
-## Batch 2 — current source/browser evidence, no new APK
+Application/source revision **`4f018d40e9193e8cd916c90a5d0e6b0d3333b5ae`**,
+[run 42203316290](https://github.com/Shitwitt/MoneyMate/actions/runs/42203316290), **SUCCESS**.
+
+| Check | Result |
+|---|---|
+| Strict SDK format, analyzer, complete Flutter suite, localization, DST/calendar, all 15 Python regressions, source archive | PASS — `127843696973` |
+| Connected Batch 1–4 Chromium journeys, real holds/swipes, scoped PDF/CSV downloads, $2.50 calculator save/notes, context edits, unsaved recurring cancellation, setup/persistence/offline/zero external requests | PASS — `127844476713` |
+| All 39 Batch 4 full-frame gates / bounded review copies | PASS — catalog `127846782379`, entry `127846782257`, context `127846783557`, health `127846782523`, recurring `127846782241` |
+| All 27 refreshed Batch 3 frame gates / bounded review copies | PASS — loans `127846782305`, goals `127846782409`, labels `127846782921`, Analytics `127846783099` |
+| Additional existing-reference captures | PASS — `127846782520` |
+| Release APK | SKIPPED — `127844479187` |
+| Separate direct-Gradle debug APK | SKIPPED — run `42203316348` |
+
+All 66 current review copies were reviewed: 44 byte-identical to already opened
+frames and 22 new/changed copies reopened. Full-size presence/JPEG integrity is
+checked in CI; bounded review is not pixel/font/motion/device certification.
+[Frame hashes and provenance](REFERENCE_REVIEW_04.json).
+
+Newer source retains Batch 1–3 features and adds connected Categories, complete
+transaction metadata/calculator, People/Places and a disclosed local Spending
+Health review. The whole-app reference audit adds full-filtered/selected CSV/PDF
+choices, initialized search and Tink/legacy automation compatibility without
+importing unavailable proprietary app source. Selected records survive later
+search changes; insight/habit pages survive lazy vertical-list recycling.
+
+[Download this verified application source](https://github.com/Shitwitt/MoneyMate/archive/4f018d40e9193e8cd916c90a5d0e6b0d3333b5ae.zip)
+or the run's `Tink-source` artifact. `Tink-Batch-4-source.zip` can include later
+README/docs-only updates; its ZIP comment identifies the exact source commit and
+verified application revision. There are no subsequent application/build/test
+changes in that handoff. It contains no APK.
+
+**No new native build. The historical APK below does not contain these source
+changes.** Device/iOS and native widget/link behavior remain unverified; the three
+Python platform-contract tests are static only. See [Batch 4 scope and checks](REFERENCE_BATCH_04.md)
+and [whole-app provenance, feature mapping and limits](PAISA_REFERENCE_AUDIT.md).
+Both native paths remain opt-in until the user explicitly says **“make APK.”**
+
+## Batch 3 — historical completed baseline
+
+[Run 42189659642](https://github.com/Shitwitt/MoneyMate/actions/runs/42189659642)
+at `244c9b62bdc7a7adbf60a81525e6ff647f8aa631` passed source, browser/offline
+and all 25 historical review-frame gates. Partial posted repayment, loan/goal/
+label updates, goal archive/restore, transaction-copy draft and a genuine
+Analytics swipe were verified. Release job `127799062289` and direct-Gradle run
+`42189659815` were skipped. [Detailed Batch 3 verification](REFERENCE_BATCH_03.md).
+
+## Batch 2 — historical completed source/browser evidence, no new APK
 
 All 20 supplied Batch 2 references are implemented at application revision
 **`133f36c8b72bc0039f6051bd3d7483d1634340b0`**.

@@ -95,6 +95,11 @@ const binary = chromiumModule.default || chromiumModule;
       await target.click({timeout: 15000, force: ['Light', 'Dark', 'Just Black', 'System'].includes(label)});
       await page.waitForTimeout(350);
     }
+    function visibleText(label) {
+      // Read-only chart/card semantics may merge title and values into one label.
+      const name = new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      return page.getByText(label, {exact: false}).or(page.getByLabel(name)).first();
+    }
     async function revealText(label) {
       // Flutter can expose a heading as an aria-labeled group, not DOM text.
       const name = new RegExp('^' + label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:\\s|$)');
@@ -146,20 +151,20 @@ const binary = chromiumModule.default || chromiumModule;
     await scroll(1500); await page.waitForTimeout(350); await capture('web-budget-help-bottom.jpg');
     await page.getByRole('button', {name: 'Got it', exact: true}).click();
     await nav('Getting around');
-    await page.getByText('Budget Progress', {exact: true}).waitFor();
+    await visibleText('Budget Progress').waitFor();
     await capture('web-budget-detail.jpg');
     await scroll(700); await page.waitForTimeout(400); await capture('web-budget-breakdown.jpg');
     await page.getByRole('button', {name: 'Back', exact: true}).click();
     await page.getByRole('button', {name: 'Back', exact: true}).click();
     await scroll(-20000); await page.waitForTimeout(300);
     await nav('Accounts');
-    await page.getByText('Total balance', {exact: false}).first().waitFor();
+    await visibleText('Total balance').waitFor();
     await capture('web-accounts.jpg');
     await swipeCarousel(175);
     await page.getByText(/^Pocket money(?:\s|$)/).or(page.getByLabel(/^Pocket money(?:\s|$)/)).first().waitFor();
     await capture('web-accounts-second.jpg');
     await nav('Reports');
-    await page.getByText('Quick Insights', {exact: false}).first().waitFor();
+    await visibleText('Quick Insights').waitFor();
     await capture('web-reports.jpg');
     await page.mouse.move(210, 590); await scroll(1250); await page.waitForTimeout(650);
     await capture('web-flow.jpg');

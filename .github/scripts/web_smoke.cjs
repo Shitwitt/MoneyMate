@@ -98,8 +98,10 @@ const binary = chromiumModule.default || chromiumModule;
     async function goBack() {
       // Consecutive pops must not reuse the departing route's semantics node.
       // Flutter hides/remounts those nodes during its 300ms route transition.
+      await page.mouse.move(1, 843);
       await page.waitForTimeout(350);
       await page.getByRole('button', {name: 'Back', exact: true}).click();
+      await page.mouse.move(1, 843);
       await page.waitForTimeout(350);
     }
     function visibleText(label) {
@@ -268,6 +270,7 @@ const binary = chromiumModule.default || chromiumModule;
       console.log('Browser errors:', errors);
       console.log('Page text:', (await page.locator('body').innerText().catch(() => '')).slice(-8000));
       console.log('Aria labels:', JSON.stringify(await page.locator('[aria-label]').evaluateAll(nodes => nodes.map(n => ({role: n.getAttribute('role'), label: n.getAttribute('aria-label')})).filter(n => n.label).slice(-60)).catch(() => [])));
+      console.log('Back semantics:', JSON.stringify(await page.getByText('Back', {exact: true}).evaluateAll(nodes => nodes.map(n => ({html: n.outerHTML.slice(0, 1200), hidden: !!n.closest('[aria-hidden="true"]'), rect: n.getBoundingClientRect().toJSON()}))).catch(() => [])));
       console.log('Demo input diagnostics:', await page.locator('input').evaluateAll(inputs => inputs.map(input => ({label: input.getAttribute('aria-label'), value: input.value, type: input.type}))).catch(() => []));
       await capture('web-failure.jpg').catch(() => {});
     }

@@ -16,6 +16,7 @@ import 'package:paisaclone/features/transactions/transaction_form.dart';
 import 'package:paisaclone/l10n/generated/app_localizations.dart';
 import 'package:paisaclone/shared/reference_charts.dart';
 import 'package:paisaclone/shared/daily_spend_chart.dart';
+import 'package:paisaclone/shared/wavy_progress.dart';
 
 import 'support.dart';
 
@@ -185,6 +186,127 @@ void main() {
     );
     expect(bins.take(2), [100, 0]);
     expect(bins.skip(2).every((n) => n == null), isTrue);
+  });
+  test('Budget daily summaries respect dates, targets and hidden amounts', () {
+    final ledger = Ledger(fixture(), const AppSettings());
+    final now = DateTime(2026, 1, 6);
+    final budget = Budget(
+      id: 'daily-summary',
+      name: 'An allowance',
+      limitMinor: 100000,
+      start: DateTime(2026, 1, 1),
+    );
+    final status = BudgetStatus(
+      window: DateWindow(DateTime(2026, 1, 1), DateTime(2026, 2, 1)),
+      spent: 6400,
+      limit: 100000,
+      carry: 0,
+    );
+    expect(
+      budgetAllowanceSummary(ledger, budget, status, now),
+      contains('36.00/day for 26 more days'),
+    );
+    expect(
+      budgetAllowanceSummary(
+        Ledger(fixture(), const AppSettings(hideAmounts: true)),
+        budget,
+        status,
+        now,
+      ),
+      'Daily allowance hidden',
+    );
+    expect(
+      budgetAllowanceSummary(
+        ledger,
+        budget.copyWith(start: DateTime(2026, 2, 1)),
+        status,
+        now,
+      ),
+      startsWith('Starts '),
+    );
+    expect(
+      budgetAllowanceSummary(
+        ledger,
+        budget.copyWith(transactionType: 'income'),
+        status,
+        now,
+      ),
+      isNull,
+    );
+    expect(
+      budgetAllowanceSummary(
+        ledger,
+        budget,
+        BudgetStatus(
+          window: status.window,
+          spent: 100001,
+          limit: 100000,
+          carry: 0,
+        ),
+        now,
+      ),
+      isNull,
+    );
+    expect(
+      budgetAllowanceSummary(ledger, budget, status, DateTime(2026, 2, 2)),
+      isNull,
+    );
+  });
+  testWidgets('Budget details use allowance percentages, not spending shares', (
+    tester,
+  ) async {
+    final repo = await pumpFeature(
+      tester,
+      const BudgetDetailScreen('manual'),
+      scale: 1,
+    );
+    expect(find.textContaining('64.00 of '), findsOneWidget);
+    expect(find.textContaining('You can spend '), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Category Breakdown'),
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    final card = find.ancestor(
+      of: find.text('Category Breakdown'),
+      matching: find.byType(TonalCard),
+    );
+    expect(find.descendant(of: card, matching: find.text('6%')), findsOneWidget);
+    final wave = tester.widget<WavyProgress>(
+      find.descendant(of: card, matching: find.byType(WavyProgress)),
+    );
+    expect(wave.value, closeTo(.064, .00001));
+    expect(repo.writes, 0);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('Budget detail daily allowance does not leak hidden money', (
+    tester,
+  ) async {
+    await pumpFeature(
+      tester,
+      const BudgetDetailScreen('manual'),
+      settings: const AppSettings(hideAmounts: true),
+      scale: 1,
+    );
+    expect(find.text('Daily allowance hidden'), findsOneWidget);
+    expect(find.textContaining('64.00'), findsNothing);
+    expect(find.textContaining('1,000.00'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('Wavy progress announces the uncapped over-target percentage', (
+    tester,
+  ) async {
+    await pumpFeature(
+      tester,
+      const Scaffold(body: WavyProgress(1.6)),
+      scale: 1,
+    );
+    final semantics = find.byWidgetPredicate(
+      (w) => w is Semantics && w.properties.label == 'Progress',
+    );
+    expect(tester.widget<Semantics>(semantics).properties.value, '160 percent');
+    expect(tester.takeException(), isNull);
   });
   testWidgets('Calendar date targets retain 48 pixels on a narrow screen', (
     tester,

@@ -15,7 +15,7 @@ class WavyProgress extends StatelessWidget {
     final ink = color ?? Theme.of(context).colorScheme.primary;
     return Semantics(
       label: 'Progress',
-      value: '${(progress * 100).round()} percent',
+      value: '${((value.isFinite ? value : 0) * 100).round()} percent',
       child: TweenAnimationBuilder<double>(
         tween: Tween(begin: 0, end: progress),
         duration: referenceMotion(context, 500),

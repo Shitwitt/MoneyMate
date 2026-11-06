@@ -390,6 +390,29 @@ String budgetStatusLabel(Budget budget, BudgetStatus status) {
       : 'Good';
 }
 
+String? budgetAllowanceSummary(
+  Ledger ledger,
+  Budget budget,
+  BudgetStatus status,
+  DateTime now,
+) {
+  if (dayOnly(now).isBefore(dayOnly(budget.start)))
+    return 'Starts ${DateFormat.yMMMd().format(budget.start)}';
+  if (budget.income || status.remaining < 0) return null;
+  final today = dayOnly(now);
+  final from = today.isBefore(status.window.start) ? status.window.start : today;
+  final days = calendarDaysBetween(from, status.window.end);
+  if (days <= 0) return null;
+  if (ledger.settings.hideAmounts) return 'Daily allowance hidden';
+  final daily = money(
+    (status.remaining / days).floor(),
+    ledger.currency,
+    locale: ledger.settings.locale,
+    indian: ledger.settings.numberFormat == 'indian',
+  );
+  return 'You can spend $daily/day for $days more days';
+}
+
 class BudgetCard extends ConsumerWidget {
   final Budget budget;
   final bool openDetails;
@@ -399,17 +422,7 @@ class BudgetCard extends ConsumerWidget {
     final ledger = ref.watch(ledgerProvider)!, now = DateTime.now();
     final status = ledger.budgetStatus(budget, now),
         color = readableTint(context, Color(budget.color));
-    final upcoming = dayOnly(now).isBefore(dayOnly(budget.start));
-    final activeFrom = upcoming ? dayOnly(budget.start) : dayOnly(now);
-    final days = math.max(
-      0,
-      calendarDaysBetween(
-        activeFrom.isBefore(status.window.start)
-            ? status.window.start
-            : activeFrom,
-        status.window.end,
-      ),
-    );
+    final allowance = budgetAllowanceSummary(ledger, budget, status, now);
     final background = Color.alphaBlend(
       Color(budget.color)
           .withValues(alpha: AppColors.dark(context) ? .21 : .13),
@@ -522,19 +535,9 @@ class BudgetCard extends ConsumerWidget {
                   '${(status.progress * 100).round()}% · ${budgetStatusLabel(budget, status)}',
                   icon: Icons.check_circle_outline_rounded,
                 ),
-                if (upcoming)
+                if (allowance != null)
                   Text(
-                    'Starts ${DateFormat.yMMMd().format(budget.start)}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                if (!upcoming &&
-                    !budget.income &&
-                    days > 0 &&
-                    status.remaining >= 0)
-                  Text(
-                    ledger.settings.hideAmounts
-                        ? 'Daily allowance hidden'
-                        : 'You can spend ${money((status.remaining / days).floor(), ledger.currency, locale: ledger.settings.locale)}/day for $days more days',
+                    allowance,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
               ],
@@ -787,6 +790,7 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
       );
     });
     final color = readableTint(context, Color(budget.color));
+    final allowance = budgetAllowanceSummary(ledger, budget, status, now);
     final groups = <String, int>{};
     for (final entry in entries)
       groups.update(
@@ -877,6 +881,8 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                         ],
                       ),
                     ),
+                    const SizedBox(width: 8),
+                    SmallTag(budgetStatusLabel(budget, status)),
                   ],
                 ),
                 const SizedBox(height: 18),
@@ -889,11 +895,10 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                       '${(status.progress * 100).round()}% ${budget.income ? 'reached' : 'Used'}',
                     ),
                     AmountText(
-                      status.spent,
-                      prefix: '${budget.income ? 'Received ' : ''}',
+                      status.limit,
+                      prefix: '${money(status.spent, ledger.currency, locale: ledger.settings.locale, indian: ledger.settings.numberFormat == 'indian')} of ',
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
-                    SmallTag(budgetStatusLabel(budget, status)),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -914,6 +919,28 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                   '${DateFormat.yMMMd().format(status.window.start)} – ${DateFormat.yMMMd().format(status.window.end.subtract(const Duration(days: 1)))}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
+                if (allowance != null) ...[
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: .08),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.calendar_today_outlined, color: color),
+                        const SizedBox(width: 10),
+                        Expanded(child: Text(allowance)),
+                      ],
+                    ),
+                  ),
+                ],
+                if (status.carry != 0)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: AmountText(status.carry, prefix: 'Rollover '),
+                  ),
               ],
             ),
           ),
@@ -974,6 +1001,13 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                   style: Theme.of(context).textTheme.titleMedium
                       ?.copyWith(color: color),
                 ),
+                const SizedBox(height: 8),
+                Text(
+                  status.limit > 0
+                      ? 'Percentages use the current ${budget.income ? 'target' : 'allowance'}.'
+                      : 'No positive ${budget.income ? 'target' : 'allowance'}; percentages are unavailable.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
                 const SizedBox(height: 18),
                 if (groups.isEmpty)
                   const Text('No matching records in this period.'),
@@ -997,12 +1031,20 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                               ),
                             ),
                             const SizedBox(width: 8),
+                            Text(
+                              status.limit > 0
+                                  ? '${(group.value / status.limit * 100).round()}%'
+                                  : '—',
+                            ),
+                            const SizedBox(width: 8),
                             Flexible(child: AmountText(group.value)),
                           ],
                         ),
                         const SizedBox(height: 9),
                         WavyProgress(
-                          status.spent <= 0 ? 0 : group.value / status.spent,
+                          status.limit <= 0
+                              ? (group.value > 0 ? 1 : 0)
+                              : group.value / status.limit,
                           color: readableTint(
                             context,
                             Color(

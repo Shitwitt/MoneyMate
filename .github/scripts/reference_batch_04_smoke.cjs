@@ -148,10 +148,15 @@ module.exports = async function referenceBatchFour({page, nav, goBack, capture, 
   const today = new Date();
   const date = new Intl.DateTimeFormat('en-US', {year:'numeric',month:'long',day:'numeric',timeZone:'UTC'}).format(today);
   const escape = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const day = page.getByLabel(new RegExp('^' + escape(date) + '\\. \\d+ records\\.')).first();
+  const dayName = new RegExp('^' + escape(date) + '\\. \\d+ records\\.');
+  // Interactive Flutter semantics can expose their label as button text rather
+  // than an aria-label; this still targets the exact date and its record count.
+  const day = page.getByRole('button', {name: dayName}).or(page.getByLabel(dayName)).first();
   await hold(day);
   await visibleText('Transfers and excluded accounts omitted.').waitFor(); await shot('health-hold');
   await button('Close information').click();
+  await revealText('Spending Habits'); await counter(2,3);
+  await visibleText('End-of-month pattern').waitFor();
   await revealText('Category Review'); await shot('health-categories');
   await revealText('Savings Projection'); await shot('health-projection');
   await hold(page.getByLabel('Recorded surplus line chart', {exact: true}), 0.8);

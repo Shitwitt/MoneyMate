@@ -538,4 +538,34 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+  testWidgets('Habits retain the selected card after vertical list recycling', (
+    tester,
+  ) async {
+    await pumpFour(tester, const SpendingHealthScreen(), scale: 1);
+    final vertical = find
+        .byWidgetPredicate(
+          (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+        )
+        .first;
+    final pager = find.byType(PageView);
+    await tester.scrollUntilVisible(pager, 350, scrollable: vertical);
+    await tester.ensureVisible(pager);
+    await tester.pumpAndSettle();
+    await tester.drag(pager, const Offset(-260, 0));
+    await tester.pumpAndSettle();
+    expect(find.text('2 / 3'), findsOneWidget);
+    expect(find.text('End-of-month pattern').hitTestable(), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Possible Monthly Repeats'),
+      350,
+      scrollable: vertical,
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(pager, -350, scrollable: vertical);
+    await tester.ensureVisible(pager);
+    await tester.pumpAndSettle();
+    expect(find.text('2 / 3'), findsOneWidget);
+    expect(find.text('End-of-month pattern').hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

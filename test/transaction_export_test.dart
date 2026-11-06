@@ -103,9 +103,16 @@ void main() {
       await tester.pumpAndSettle();
       await tester.longPress(find.byType(TransactionTile).first);
       await tester.pumpAndSettle();
+      // A selected record remains selected even if a later search hides its row.
+      await tester.enterText(find.byType(TextField).first, 'Not in this export');
+      await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Export selected records'));
       await tester.pumpAndSettle();
       expect(find.text('Export 1 transaction'), findsOneWidget);
+      expect(
+        find.textContaining('including selections hidden by the current search'),
+        findsOneWidget,
+      );
       await tester.tap(find.byTooltip('Cancel export'));
       await tester.pumpAndSettle();
       expect(repo.writes, 0);

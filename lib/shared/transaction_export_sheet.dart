@@ -6,8 +6,9 @@ import '../core/services/transaction_export_service.dart';
 /// and privacy warnings. Dismissing this sheet creates no file or data write.
 Future<TransactionExportKind?> showTransactionExportSheet(
   BuildContext context,
-  int count,
-) => showModalBottomSheet<TransactionExportKind>(
+  int count, {
+  bool selectedOnly = false,
+}) => showModalBottomSheet<TransactionExportKind>(
   context: context,
   isScrollControlled: true,
   useSafeArea: true,
@@ -37,8 +38,10 @@ Future<TransactionExportKind?> showTransactionExportSheet(
             ],
           ),
           const SizedBox(height: 12),
-          const Text(
-            'The complete matching selection, not just the visible page. No other profiles or non-matching records are included.',
+          Text(
+            selectedOnly
+                ? 'Only your explicitly selected records, including selections hidden by the current search. Other records and profiles are not included.'
+                : 'The complete matching selection, not just the visible page. No other profiles or non-matching records are included.',
           ),
           const SizedBox(height: 12),
           const Text(

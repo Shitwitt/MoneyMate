@@ -484,6 +484,7 @@ class _SpendingHealthScreenState extends ConsumerState<SpendingHealthScreen> {
             height:
                 230 * MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 2.0),
             child: PageView.builder(
+              key: const PageStorageKey('spending-review-habits'),
               controller: pager,
               itemCount: habitData.length,
               onPageChanged: (v) => setState(() => habit = v),

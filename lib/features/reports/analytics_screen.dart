@@ -170,6 +170,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                   185 *
                   MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 2.0),
               child: PageView.builder(
+                key: const PageStorageKey('analytics-smart-insights'),
                 controller: pager,
                 itemCount: insights.length,
                 onPageChanged: (i) => setState(() => insight = i),

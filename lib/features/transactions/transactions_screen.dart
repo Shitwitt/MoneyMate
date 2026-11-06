@@ -37,11 +37,17 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
 
   Future<void> exportEntries(
     Ledger ledger,
-    List<MoneyTransaction> entries,
-  ) async {
+    List<MoneyTransaction> entries, {
+    bool selectedOnly = false,
+  }) async {
     if (exporting || entries.isEmpty) return;
     final snapshot = List<MoneyTransaction>.unmodifiable(entries);
-    final kind = await showTransactionExportSheet(context, snapshot.length);
+    FocusScope.of(context).unfocus();
+    final kind = await showTransactionExportSheet(
+      context,
+      snapshot.length,
+      selectedOnly: selectedOnly,
+    );
     if (kind == null || !mounted) return;
     setState(() => exporting = true);
     try {
@@ -50,7 +56,9 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           ledger,
           snapshot,
           kind,
-          title: widget.title ?? 'Filtered transactions',
+          title: selectedOnly
+              ? 'Selected transactions'
+              : widget.title ?? 'Filtered transactions',
         );
         await FileService.save(file.bytes, file.name, mime: file.mime);
       });
@@ -162,7 +170,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                 ? null
                 : () => exportEntries(
                     ledger,
-                    entries.where((e) => selected.contains(e.id)).toList(),
+                    ledger.data.transactions
+                        .where((e) => selected.contains(e.id))
+                        .toList(),
+                    selectedOnly: true,
                   ),
             icon: const Icon(Icons.ios_share_rounded),
           ),

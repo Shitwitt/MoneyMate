@@ -429,7 +429,8 @@ class _ReferenceDonutState extends State<ReferenceDonut> {
       );
     final index = selected.clamp(0, widget.groups.length - 1),
         group = widget.groups[selected.clamp(0, widget.groups.length - 1)];
-    String segmentSummary(ReportGroup value)=>'${value.name}, ${(value.amount/total*100).toStringAsFixed(1)} percent. ${money(value.amount,widget.ledger.currency,locale:widget.ledger.settings.locale,indian:widget.ledger.settings.numberFormat=='indian')}. ';
+    String segmentSummary(ReportGroup value) =>
+        '${value.name}, ${(value.amount / total * 100).toStringAsFixed(1)} percent. ${money(value.amount, widget.ledger.currency, locale: widget.ledger.settings.locale, indian: widget.ledger.settings.numberFormat == 'indian')}. ';
     return Column(
       children: [
         LayoutBuilder(
@@ -448,9 +449,14 @@ class _ReferenceDonutState extends State<ReferenceDonut> {
                     (index + widget.groups.length - 1) % widget.groups.length,
               ),
               label: 'Category allocation. Hold and drag to inspect segments.',
-              value:segmentSummary(group),
-              increasedValue:segmentSummary(widget.groups[(index+1)%widget.groups.length]),
-              decreasedValue:segmentSummary(widget.groups[(index+widget.groups.length-1)%widget.groups.length]),
+              value: segmentSummary(group),
+              increasedValue: segmentSummary(
+                widget.groups[(index + 1) % widget.groups.length],
+              ),
+              decreasedValue: segmentSummary(
+                widget.groups[(index + widget.groups.length - 1) %
+                    widget.groups.length],
+              ),
               child: TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: 1),
                 duration: referenceMotion(context, 650),

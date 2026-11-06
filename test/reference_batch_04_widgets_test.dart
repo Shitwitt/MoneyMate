@@ -476,4 +476,66 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+  testWidgets(
+    'Saving a reviewed monthly candidate preserves its next due without historical replay',
+    (tester) async {
+      final data = batchFourData(), now = DateTime.now();
+      final category = data.categories.firstWhere((c) => c.type == 'expense');
+      final start = DateTime(now.year, now.month - 5, 8),
+          last = DateTime(now.year, now.month - 1, 8);
+      final next = DateTime(now.year, now.month, 8);
+      final draft = Recurring(
+        id: 'unsaved-candidate',
+        name: 'Reading circle',
+        amountMinor: 750,
+        accountId: data.accounts.first.id,
+        categoryId: category.id,
+        start: start,
+        nextDue: next,
+        frequency: 'monthly',
+        autoPost: false,
+        notes: 'Candidate history ends $last',
+      );
+      final repo = await pumpFour(
+        tester,
+        Consumer(
+          builder: (context, ref, _) => Scaffold(
+            body: Center(
+              child: FilledButton(
+                onPressed: () => reviewRecurringDraft(context, ref, draft),
+                child: const Text('Save candidate'),
+              ),
+            ),
+          ),
+        ),
+        data: data,
+        scale: 1,
+      );
+      await tester.tap(find.text('Save candidate'));
+      await tester.pumpAndSettle();
+      expect(repo.writes, 0);
+      expect(find.text('Next due'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('Save'),
+        350,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      final saved = repo.persisted!.profiles.first;
+      final rule = saved.recurrings.single;
+      expect(rule.id, isNot(draft.id));
+      expect(rule.name, draft.name);
+      expect(rule.start, start);
+      expect(rule.nextDue, next);
+      expect(rule.autoPost, isFalse);
+      expect(
+        saved.transactions.map((e) => e.toJson()),
+        data.transactions.map((e) => e.toJson()),
+      );
+      expect(find.text('Review recurring draft'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

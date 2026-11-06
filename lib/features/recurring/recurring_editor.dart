@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/data/providers.dart';
 import '../../core/data/seed.dart';
@@ -34,7 +35,11 @@ Future<void> _recurringEditor(
       frequency = initial?.frequency ?? 'monthly';
   var categoryId =
       initial?.categoryId ??
-      profile.categories.firstWhere((item) => item.type == 'expense').id;
+      profile.categories
+          .where((item) => item.type == type && !item.hidden)
+          .firstOrNull
+          ?.id ??
+      '';
   final name = TextEditingController(text: initial?.name ?? ''),
       amount = TextEditingController(
         text: initial == null
@@ -78,9 +83,12 @@ Future<void> _recurringEditor(
         (value) => setLocal(() {
           type = value;
           budgetId = '';
-          categoryId = profile.categories
-              .firstWhere((item) => item.type == type)
-              .id;
+          categoryId =
+              profile.categories
+                  .where((item) => item.type == type && !item.hidden)
+                  .firstOrNull
+                  ?.id ??
+              '';
         }),
       ),
       formSelect(
@@ -101,7 +109,10 @@ Future<void> _recurringEditor(
         'Category',
         categoryId,
         profile.categories
-            .where((item) => item.type == type)
+            .where(
+              (item) =>
+                  item.type == type && (!item.hidden || item.id == categoryId),
+            )
             .map((item) => item.id)
             .toList(),
         (value) => setLocal(() => categoryId = value),
@@ -140,6 +151,16 @@ Future<void> _recurringEditor(
         start,
         (value) => setLocal(() => start = value),
         includeTime: true,
+      ),
+      ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: const Icon(Icons.event_available_outlined),
+        title: const Text('Next due'),
+        subtitle: Text(
+          DateFormat.yMMMd().add_jm().format(
+            initial != null && initial.start == start ? initial.nextDue : start,
+          ),
+        ),
       ),
       SwitchListTile.adaptive(
         contentPadding: EdgeInsets.zero,

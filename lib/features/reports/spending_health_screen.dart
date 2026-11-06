@@ -17,18 +17,28 @@ import '../catalog/category_detail_screen.dart';
 import '../recurring/recurring_editor.dart';
 import '../transactions/transactions_screen.dart';
 
+String _indexSummary(SpendingReview data) => data.ledger.settings.hideAmounts
+    ? 'Index hidden.'
+    : data.pulse.score == null
+    ? 'Index unavailable: fewer than two indicators have data.'
+    : 'Recorded planning index ${data.pulse.score} / 100.';
+
 Future<void> showSpendingMethods(
   BuildContext context,
   SpendingReview data,
 ) => showHowItWorks(
   context,
   title: 'How Spending Review Works',
-  introduction: 'A local record review, not a credit score, bank assessment, financial-health verdict or financial advice. Missing records are unknown. Cash-flow calculations use saved manual reference rates and posted records from included accounts. The index also uses saved opening balances, allocations and current tracker status.',
+  introduction: '${_indexSummary(data)} A local record review, not a credit score, bank assessment, financial-health verdict or financial advice. Missing records are unknown. Cash-flow calculations use saved manual reference rates and posted records from included accounts. The index also uses saved opening balances, allocations and current tracker status.',
   sections: [
     (
       Icons.donut_large,
       'Recorded-data index',
-      '${data.ledger.settings.hideAmounts ? 'Index hidden.' : data.pulse.score == null ? 'Index unavailable: fewer than two indicators have data.' : 'Recorded planning index ${data.pulse.score} / 100.'} The ring is the equal mean of available planning indicators, requiring at least two. Each indicator is bounded to 0–100. ${data.pulse.metrics.map((m) => '${m.label}: ${data.ledger.settings.hideAmounts ? 'hidden' : m.value == null ? 'unavailable' : '${m.value!.toStringAsFixed(1)} / 100'}. ${m.explanation}').join(' ')}',
+      'The ring is the equal mean of available planning indicators, requiring at least two. Each indicator is bounded to 0–100. ${data.pulse.metrics.map((m) => '${m.label}: ${data.ledger.settings.hideAmounts
+          ? 'hidden'
+          : m.value == null
+          ? 'unavailable'
+          : '${m.value!.toStringAsFixed(1)} / 100'}. ${m.explanation}').join(' ')}',
     ),
     (
       Icons.local_fire_department_outlined,

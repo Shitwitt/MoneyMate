@@ -15,7 +15,7 @@ module.exports = async function referenceBatchThree({page, nav, goBack, capture,
   await button('Record a repayment').click(); await pause();
   await fill(/^Repaid \(/, '1');
   await nav('Account entry'); await pause();
-  await page.getByText('Pocket money', {exact: true}).last().click();
+  await page.getByRole('menuitem', {name: 'Pocket money', exact: true}).click();
   await button('Save').click(); await pause();
   await revealText('Payment History'); await shot('loan-history');
   await nav('Repayment · Alex'); await shot('transaction-detail');

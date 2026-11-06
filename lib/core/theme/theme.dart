@@ -73,7 +73,7 @@ ThemeData tinkTheme(
     useMaterial3: true,
     colorScheme: scheme,
     brightness: brightness,
-    fontFamily: 'Quicksand',
+    fontFamily: 'TinkRounded',
     fontFamilyFallback: AppTextStyles.fallback,
     textTheme: text,
   );

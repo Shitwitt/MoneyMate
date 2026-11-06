@@ -17,7 +17,7 @@ abstract final class AppTextStyles {
   ];
   static const tabular = [FontFeature.tabularFigures()];
   static TextStyle ui(double size, FontWeight weight, Color color) => TextStyle(
-    fontFamily: 'Quicksand',
+    fontFamily: 'TinkRounded',
     fontSize: size,
     fontWeight: weight,
     color: color,
@@ -26,7 +26,7 @@ abstract final class AppTextStyles {
   ).copyWith(fontFamilyFallback: fallback);
   static TextStyle data(double size, FontWeight weight, Color color) =>
       TextStyle(
-        fontFamily: 'Quicksand',
+        fontFamily: 'TinkRounded',
         fontSize: size,
         fontWeight: weight,
         color: color,
@@ -34,7 +34,7 @@ abstract final class AppTextStyles {
         fontFeatures: tabular,
       ).copyWith(fontFamilyFallback: fallback);
   static TextStyle display(double size, Color color) => TextStyle(
-    fontFamily: 'Quicksand',
+    fontFamily: 'TinkRounded',
     fontFamilyFallback: fallback,
     fontSize: size,
     fontWeight: FontWeight.w600,

@@ -1,4 +1,6 @@
-# Tink 1.3 reference batch 1 — delivered build evidence
+# Tink 1.3 reference batch 1 — final font-name rebuild in progress
+
+**The last asset audit identified the OFL reserved-name restriction on locally instanced Quicksand fonts. The renamed TinkRounded assets preserve every glyph/metric/layout table. A new native APK is being verified; the links below are the preceding candidate, not the final font-renamed APK.**
 
 **Version 1.3.0+4**, branch `arena/9ea2a134-moneymate`, verified 6 November 2026.
 [The 1.2 build is historical](HISTORICAL_1_2_BUILD.md), not this delivery.

@@ -1,13 +1,18 @@
 # Bundled, offline fonts
 
-Current UI: **Quicksand** regular/medium/semibold/bold (400/500/600/700),
-locally instantiated from the Google Fonts variable TTF. It is a licensed
+Current UI: **TinkRounded** regular/medium/semibold/bold (400/500/600/700),
+locally instantiated from the Google Fonts Quicksand variable TTF and renamed
+in accordance with its SIL OFL Reserved Font Name restriction. These are
+modified fonts, not the upstream Quicksand distribution. Original copyright
+and license notices are retained in the fonts and `OFL-Quicksand.txt`.
+Only naming metadata was changed after instancing; glyphs, metrics and layout
+tables are byte-identical to the previous instanced assets. This is a licensed
 rounded approximation, **not an identified exact font from the references**.
 Amounts request OpenType tabular figures. No font is fetched at runtime.
 
 | Family | Source | License here |
 |---|---|---|
-| Quicksand | `google/fonts`, `ofl/quicksand` | `OFL-Quicksand.txt` |
+| TinkRounded (Quicksand-derived, modified/renamed) | `google/fonts`, `ofl/quicksand` | `OFL-Quicksand.txt` |
 | Noto Sans Thai | `google/fonts`, `ofl/notosansthai` | `OFL-NotoSansThai.txt` |
 | Noto Sans CJK SC (Han, kana, Hangul) | `notofonts/noto-cjk`, Sans/OTF/SimplifiedChinese | `OFL-NotoSansCJK.txt` |
 | Noto Sans + Arabic, Devanagari, Bengali, Gurmukhi, Gujarati, Tamil, Telugu | Google Noto | `OFL.txt` |

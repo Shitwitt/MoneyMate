@@ -56,7 +56,7 @@ Tink/
 
 ## GET YOUR APK NOW
 
-**Version 1.3.0, build 4 — reference batch 1 is ready.**
+**Version 1.3.0, build 4 — final font-name rebuild is being verified.** The reserved-name-compliant TinkRounded assets preserve the previous letter shapes and layout. Links below temporarily identify the preceding candidate until the new native verification completes.
 
 - **[Download the updated Android APK](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42151561328/Tink-Android-release.apk)** — Android 7+; universal arm64/ARMv7/x86_64; 96,865,291 bytes.
 - **[Download the full runnable source ZIP](https://github.com/Shitwitt/MoneyMate/releases/download/apk-release-42151561328/Tink-source.zip)** — includes Android/iOS/web projects, tests, workflows and licensed offline fonts.
@@ -261,7 +261,7 @@ adb shell am start -a android.intent.action.VIEW \
 Version **1.3.0+4** implements the first supplied reference batch. See [scope, genuine deviations and verification](docs/REFERENCE_BATCH_01.md), [design tokens/accessibility](docs/DESIGN_SYSTEM.md) and [build status](docs/BUILD_STATUS.md). Unseen steps 9/11–14 are original Tink layouts, not a claim to know missing screenshots. The earlier [1.2 design](docs/LUXURY_REDESIGN.md) is historical.
 
 - **Color:** coffee `#1A100E`, dark Home `#231A15`, peach `#FFB59A`, muted ink `#D9C4BA`; warm-white light surfaces and tinted cards. Just Black is selectable without Pro. Material You and custom accents remain functional.
-- **Type:** licensed bundled **Quicksand 400–700**, tabular money and Noto Latin/Arabic/Indic/Thai/CJK fallbacks. This is an approximation: the exact reference font has not been identified. [Font licenses and sources](assets/fonts/README.md). No runtime font CDN.
+- **Type:** licensed bundled **TinkRounded 400–700 (Quicksand-derived)**, tabular money and Noto Latin/Arabic/Indic/Thai/CJK fallbacks. This is an approximation: the exact reference font has not been identified. [Font licenses and sources](assets/fonts/README.md). No runtime font CDN.
 - **Components:** flat tonal rounded cards, pills, coffee navigation and brown add FAB, wavy progress, shared feature cards/forms/sheets/dialogs and empty/loading states. Real isolated light feature screens appear inside decorative tour phones, not screenshot backdrops. Tink head/sparkle identity is retained; no copied OS bars, chat heads, proprietary logos or sample user photos.
 - **Motion:** finite ease-out transitions, 280ms theme changes and 500ms chart entrances; reduced-motion-aware reference transitions/progress/charts. Static references do not establish original animation timing. No blanket certification of every native/third-party transition.
 - **Contrast:** new fixed palette pairs are measured in the design document. Foreground variants and text summaries supplement colored financial indicators. Custom/dynamic colors, screen readers, largest text settings and native integrations still need device QA; no blanket AA claim.

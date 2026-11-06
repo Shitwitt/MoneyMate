@@ -20,7 +20,7 @@ This is the **1.3.0+4** source and rebuilt APK, not the historical 1.2 binary. S
 
 ## Implementation
 
-- Coffee surfaces, peach pills, rounded bundled Quicksand typography, original
+- Coffee surfaces, peach pills, rounded bundled TinkRounded (Quicksand-derived) typography, original
   vector icons, tabular money, all existing offline multilingual fallbacks.
 - Real feature screens in decorative phone previews (isolated in-memory data,
   not screenshot backgrounds); no phone status bar imitation.
@@ -53,7 +53,7 @@ This is the **1.3.0+4** source and rebuilt APK, not the historical 1.2 binary. S
 
 ## Deliberate truthful differences
 
-- Licensed bundled Quicksand approximates the rounded typography; the exact screenshot font is unknown.
+- Licensed bundled TinkRounded (Quicksand-derived) approximates the rounded typography; the exact screenshot font is unknown.
 
 - The locked Google Drive item is replaced by **Restore a provider backup**.
   Both restore choices use the OS file picker. Tink neither signs into Google
@@ -97,7 +97,7 @@ All 12 fictional-data browser captures are retained in the web artifact;
 thumbnail evidence was also reviewed for setup, tour, Home and recurring flows.
 
 Native launcher/widget and web-shell colors follow the warm palette.
-Native widgets use system sans/rounded faces, not the Flutter Quicksand asset.
+Native widgets use system sans/rounded faces, not the Flutter TinkRounded asset.
 WidgetKit extension metadata is 1.3.0 build 4; this is not iOS/device proof.
 Native biometrics, notification timing, camera, widgets and installation still
 need physical-device testing. No blanket accessibility certification is made.

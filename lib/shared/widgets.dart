@@ -98,7 +98,7 @@ class AmountText extends ConsumerWidget {
     final effectiveStyle = DefaultTextStyle.of(context).style
         .merge(style)
         .copyWith(
-          fontFamily: 'Quicksand',
+          fontFamily: 'TinkRounded',
           fontFeatures: const [FontFeature.tabularFigures()],
         );
     Widget render(int value) => Text(

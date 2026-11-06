@@ -245,12 +245,7 @@ ProfileData seedProfile({
   data = data.copyWith(
     accounts: accounts,
     transactions: entries,
-    entities: [
-      label,
-      person,
-      place,
-      workLabel,
-    ],
+    entities: [label, person, place, workLabel],
     budgets: [
       Budget(
         id: uuid.v4(),

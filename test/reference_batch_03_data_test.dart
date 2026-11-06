@@ -35,7 +35,10 @@ void main() {
       validateProfile(data);
       final snapshot = AnalyticsSnapshot(book(controller), now);
       expect(snapshot.insights.length, greaterThanOrEqualTo(2));
-      expect(snapshot.unusual.map((e) => e.name), contains('Household repair · demo'));
+      expect(
+        snapshot.unusual.map((e) => e.name),
+        contains('Household repair · demo'),
+      );
       expect(data.transactions.any((e) => e.labelIds.length > 1), isTrue);
       expect(repo.writes, 0);
       await controller.exitDemo();

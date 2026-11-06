@@ -256,7 +256,11 @@ const binary = chromiumModule.default || chromiumModule;
     }
     await page.getByRole('button', {name: 'Continue', exact: true}).click({force: true});
     const name = page.getByRole('textbox', {name: 'What should we call you?', exact: true}).first();
-    await name.click(); await page.keyboard.type('Browser User', {delay: 30}); await page.keyboard.press('Tab');
+    await name.click(); await page.waitForTimeout(400);
+    await page.keyboard.press('ControlOrMeta+A'); await page.keyboard.press('Backspace');
+    await page.keyboard.type('Browser User', {delay: 30});
+    if (await name.inputValue() !== 'Browser User') throw new Error('Onboarding name draft was not received intact');
+    await page.keyboard.press('Tab'); await page.waitForTimeout(200);
     await page.getByRole('button', {name: 'Continue', exact: true}).click({force: true});
     await page.getByRole('button', {name: 'Start using Tink', exact: true}).click({force: true});
     await page.getByText('Browser User', {exact: false}).first().waitFor({timeout: 30000});

@@ -29,7 +29,8 @@ Future<void> showSpendingMethods(
 ) => showHowItWorks(
   context,
   title: 'How Spending Review Works',
-  introduction: '${_indexSummary(data)} A local record review, not a credit score, bank assessment, financial-health verdict or financial advice. Missing records are unknown. Cash-flow calculations use saved manual reference rates and posted records from included accounts. The index also uses saved opening balances, allocations and current tracker status.',
+  introduction:
+      '${_indexSummary(data)} A local record review, not a credit score, bank assessment, financial-health verdict or financial advice. Missing records are unknown. Cash-flow calculations use saved manual reference rates and posted records from included accounts. The index also uses saved opening balances, allocations and current tracker status.',
   sections: [
     (
       Icons.donut_large,
@@ -787,7 +788,8 @@ class _ReviewCalendarState extends State<ReviewCalendar> {
           builder: (context, box) => SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: SizedBox(
-              width: box.maxWidth < 348 ? 348 : box.maxWidth,
+              // Seven 48px controls plus 4px of padding each.
+              width: box.maxWidth < 364 ? 364 : box.maxWidth,
               child: Column(
                 children: [
                   Row(

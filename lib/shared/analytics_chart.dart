@@ -287,10 +287,9 @@ class _AnalyticsPainter extends CustomPainter {
         maxLines: 1,
         ellipsis: '…',
       )..layout(maxWidth: width);
-      final dx = (at.dx - (center ? painter.width / 2 : painter.width)).clamp(
-        0.0,
-        math.max(0.0, size.width - painter.width),
-      ).toDouble();
+      final dx = (at.dx - (center ? painter.width / 2 : painter.width))
+          .clamp(0.0, math.max(0.0, size.width - painter.width))
+          .toDouble();
       painter.paint(canvas, Offset(dx, at.dy));
     }
 

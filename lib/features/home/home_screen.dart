@@ -434,7 +434,7 @@ class _DashboardTile extends StatelessWidget {
           'labels': l.labels,
           'categories': l.categories,
           'places': l.places,
-          'people': 'Person',
+          'people': l.people,
           'score': 'Spending Health',
           'achievements': l.achievements,
         }[id] ??

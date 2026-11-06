@@ -10,6 +10,7 @@ import 'package:paisaclone/features/catalog/catalog_screen.dart';
 import 'package:paisaclone/features/catalog/category_detail_screen.dart';
 import 'package:paisaclone/features/reports/spending_health_screen.dart';
 import 'package:paisaclone/features/transactions/transaction_form.dart';
+import 'package:paisaclone/features/recurring/recurring_editor.dart';
 import 'package:paisaclone/l10n/generated/app_localizations.dart';
 import 'package:paisaclone/shared/analytics_chart.dart';
 import 'package:paisaclone/shared/reference_charts.dart';
@@ -323,6 +324,48 @@ void main() {
       );
       await scrollFour(tester);
       expect(find.textContaining(r'$'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'Possible-repeat review stays unsaved, posting starts off, and cancel retains records',
+    (tester) async {
+      final data = batchFourData();
+      final category = data.categories.firstWhere((c) => c.type == 'expense');
+      final draft = Recurring(
+        id: 'unsaved-candidate',
+        name: 'A reading suggestion',
+        amountMinor: 949,
+        accountId: data.accounts.first.id,
+        categoryId: category.id,
+        start: DateTime(2026, 5, 8),
+        nextDue: DateTime(2026, 11, 8),
+        autoPost: false,
+      );
+      final repo = await pumpFour(
+        tester,
+        Consumer(
+          builder: (context, ref, _) => Scaffold(
+            body: Center(
+              child: FilledButton(
+                onPressed: () => reviewRecurringDraft(context, ref, draft),
+                child: const Text('Review candidate'),
+              ),
+            ),
+          ),
+        ),
+        data: data,
+        scale: 1,
+      );
+      await tester.tap(find.text('Review candidate'));
+      await tester.pumpAndSettle();
+      expect(find.text('Review recurring draft'), findsOneWidget);
+      expect(repo.writes, 0);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(repo.writes, 0);
+      expect(find.text('Review recurring draft'), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );

@@ -23,7 +23,8 @@ Future<void> showSpendingMethods(
 ) => showHowItWorks(
   context,
   title: 'How Spending Review Works',
-  introduction: 'A local record review, not a credit score, bank assessment, financial-health verdict or financial advice. Missing records are unknown. Cash-flow calculations use saved manual reference rates and posted records from included accounts. The index also uses saved opening balances, allocations and current tracker status.',
+  introduction:
+      'A local record review, not a credit score, bank assessment, financial-health verdict or financial advice. Missing records are unknown. Cash-flow calculations use saved manual reference rates and posted records from included accounts. The index also uses saved opening balances, allocations and current tracker status.',
   sections: [
     (
       Icons.donut_large,
@@ -116,8 +117,9 @@ class _SpendingHealthScreenState extends ConsumerState<SpendingHealthScreen> {
               children: [
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.titleLarge
-                      ?.copyWith(color: readableTint(context, scheme.primary)),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: readableTint(context, scheme.primary),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 ...children,
@@ -224,8 +226,9 @@ class _SpendingHealthScreenState extends ConsumerState<SpendingHealthScreen> {
                             : score == null
                             ? '—'
                             : '$score',
-                        style: Theme.of(context).textTheme.displayLarge
-                            ?.copyWith(color: green),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.displayLarge?.copyWith(color: green),
                       ),
                       Text(
                         hidden ? 'Amounts are hidden' : data.pulse.status,
@@ -243,60 +246,83 @@ class _SpendingHealthScreenState extends ConsumerState<SpendingHealthScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
-            SummaryColumns(
-              labels: const ['Buffer', 'Spending', 'Debt'],
-              values: [
-                for (final label in ['Buffer', 'Spending', 'Debt'])
-                  Builder(
-                    builder: (context) {
-                      final m = data.pulse.metrics.firstWhere(
-                        (m) => m.label == label,
-                      );
-                      return InkWell(
-                        onTap: () => showFeatureInfo(
-                          context,
-                          m.label,
-                          '${hidden
-                              ? 'Hidden'
-                              : m.value == null
-                              ? 'Unavailable'
-                              : '${m.value!.toStringAsFixed(1)} / 100'}\n\n${m.explanation}',
-                        ),
-                        onLongPress: () => showFeatureInfo(
-                          context,
-                          m.label,
-                          '${hidden
-                              ? 'Hidden'
-                              : m.value == null
-                              ? 'Unavailable'
-                              : '${m.value!.toStringAsFixed(1)} / 100'}\n\n${m.explanation}',
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text(
-                                hidden
-                                    ? '•••'
-                                    : m.value == null
-                                    ? '—'
-                                    : '${m.value!.round()} / 100',
-                                style: Theme.of(context).textTheme.titleLarge,
+            LayoutBuilder(
+              builder: (context, box) {
+                final columns =
+                    box.maxWidth >= 290 &&
+                        MediaQuery.textScalerOf(context).scale(1) < 1.4
+                    ? 3
+                    : 1;
+                return Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    for (final label in ['Buffer', 'Spending', 'Debt'])
+                      SizedBox(
+                        width: (box.maxWidth - (columns - 1) * 12) / columns,
+                        child: Builder(
+                          builder: (context) {
+                            final m = data.pulse.metrics.firstWhere(
+                              (m) => m.label == label,
+                            );
+                            void inspect() => showFeatureInfo(
+                              context,
+                              m.label,
+                              '${hidden
+                                  ? 'Hidden'
+                                  : m.value == null
+                                  ? 'Unavailable'
+                                  : '${m.value!.toStringAsFixed(1)} / 100'}\n\n${m.explanation}',
+                            );
+                            return InkWell(
+                              onTap: inspect,
+                              onLongPress: inspect,
+                              borderRadius: BorderRadius.circular(12),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Text(
+                                      label,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      hidden
+                                          ? '•••'
+                                          : m.value == null
+                                          ? '—'
+                                          : '${m.value!.round()} / 100',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleLarge,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    if (hidden)
+                                      const Icon(Icons.visibility_off_outlined)
+                                    else if (m.value == null)
+                                      const Text('Unavailable')
+                                    else
+                                      WavyProgress(
+                                        m.value! / 100,
+                                        color: green,
+                                      ),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 12),
-                              if (!hidden)
-                                WavyProgress((m.value ?? 0) / 100, color: green)
-                              else
-                                const Icon(Icons.visibility_off_outlined),
-                            ],
-                          ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-              ],
+                      ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 10),
             TextButton(
@@ -797,9 +823,9 @@ class _ReviewCalendarState extends State<ReviewCalendar> {
                                           : Color.alphaBlend(
                                               (net >= 0 ? positive : negative)
                                                   .withValues(alpha: .22),
-                                              Theme.of(context)
-                                                  .colorScheme
-                                                  .surface,
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.surface,
                                             ),
                                       borderRadius: BorderRadius.circular(12),
                                       child: InkWell(

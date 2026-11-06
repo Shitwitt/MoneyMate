@@ -67,9 +67,8 @@ Widget formDate(
   bool includeTime = false,
 }) => ListTile(
   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-  tileColor: Theme.of(
-    context,
-  ).colorScheme.surfaceContainerHighest.withValues(alpha: .45),
+  tileColor: Theme.of(context).colorScheme.surfaceContainerHighest
+      .withValues(alpha: .45),
   leading: const Icon(Icons.calendar_today_rounded),
   title: Text(title),
   subtitle: Text(

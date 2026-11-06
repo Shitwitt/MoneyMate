@@ -23,8 +23,7 @@ Future<void> showSpendingMethods(
 ) => showHowItWorks(
   context,
   title: 'How Spending Review Works',
-  introduction:
-      'A local record review, not a credit score, bank assessment, financial-health verdict or financial advice. Missing records are unknown. Cash-flow calculations use saved manual reference rates and posted records from included accounts. The index also uses saved opening balances, allocations and current tracker status.',
+  introduction: 'A local record review, not a credit score, bank assessment, financial-health verdict or financial advice. Missing records are unknown. Cash-flow calculations use saved manual reference rates and posted records from included accounts. The index also uses saved opening balances, allocations and current tracker status.',
   sections: [
     (
       Icons.donut_large,
@@ -117,9 +116,8 @@ class _SpendingHealthScreenState extends ConsumerState<SpendingHealthScreen> {
               children: [
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: readableTint(context, scheme.primary),
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge
+                      ?.copyWith(color: readableTint(context, scheme.primary)),
                 ),
                 const SizedBox(height: 20),
                 ...children,
@@ -230,9 +228,8 @@ class _SpendingHealthScreenState extends ConsumerState<SpendingHealthScreen> {
                                 : score == null
                                 ? '—'
                                 : '$score',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.displayLarge?.copyWith(color: green),
+                            style: Theme.of(context).textTheme.displayLarge
+                                ?.copyWith(color: green),
                           ),
                         ),
                       ),
@@ -294,9 +291,9 @@ class _SpendingHealthScreenState extends ConsumerState<SpendingHealthScreen> {
                                   children: [
                                     Text(
                                       label,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodySmall,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall,
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
@@ -305,9 +302,9 @@ class _SpendingHealthScreenState extends ConsumerState<SpendingHealthScreen> {
                                           : m.value == null
                                           ? '—'
                                           : '${m.value!.round()} / 100',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleLarge,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge,
                                     ),
                                     const SizedBox(height: 12),
                                     if (hidden)
@@ -829,9 +826,9 @@ class _ReviewCalendarState extends State<ReviewCalendar> {
                                           : Color.alphaBlend(
                                               (net >= 0 ? positive : negative)
                                                   .withValues(alpha: .22),
-                                              Theme.of(
-                                                context,
-                                              ).colorScheme.surface,
+                                              Theme.of(context)
+                                                  .colorScheme
+                                                  .surface,
                                             ),
                                       borderRadius: BorderRadius.circular(12),
                                       child: InkWell(

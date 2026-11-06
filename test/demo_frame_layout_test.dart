@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:paisaclone/core/models/models.dart';
 import 'package:paisaclone/core/theme/theme.dart';
@@ -15,6 +16,8 @@ void main() {
           tester.view.devicePixelRatio = 1;
           addTearDown(tester.view.resetPhysicalSize);
           addTearDown(tester.view.resetDevicePixelRatio);
+          final handle = tester.ensureSemantics();
+          addTearDown(handle.dispose);
           var exited = false;
           await tester.pumpWidget(
             MaterialApp(
@@ -55,6 +58,19 @@ void main() {
           expect(exitRect.bottom, lessThanOrEqualTo(barRect.top));
           expect(exitRect.width, greaterThanOrEqualTo(48));
           expect(exitRect.height, greaterThanOrEqualTo(48));
+          var accessibleExit = false;
+          void inspect(SemanticsNode node) {
+            if (node.getSemanticsData().label.contains('Exit Demo')) {
+              accessibleExit = true;
+            }
+            node.visitChildren((child) {
+              inspect(child);
+              return true;
+            });
+          }
+
+          inspect(tester.getSemantics(find.byType(DemoFrame)));
+          expect(accessibleExit, isTrue);
           expect(tester.takeException(), isNull);
           await tester.tap(exit);
           expect(exited, isTrue);

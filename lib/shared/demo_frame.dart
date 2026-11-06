@@ -16,42 +16,55 @@ class DemoFrame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!enabled) return child;
-    return ColoredBox(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: Column(
-        children: [
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Center(
-                child: FilledButton.icon(
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size(48, 48),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      child: ColoredBox(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: Column(
+          children: [
+            SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
+                child: Center(
+                  child: FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(48, 48),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                    textStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    onPressed: onExit,
+                    icon: const Icon(Icons.close_rounded),
+                    label: const Text('Exit Demo'),
                   ),
-                  onPressed: onExit,
-                  icon: const Icon(Icons.close_rounded),
-                  label: const Text('Exit Demo'),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: MediaQuery.removePadding(
-              context: context,
-              removeTop: true,
-              child: child,
+            Expanded(
+              // ModalRoute's BlockSemantics must stay inside the navigator's
+              // container, rather than hiding the preceding demo exit button.
+              child: Semantics(
+                container: true,
+                explicitChildNodes: true,
+                child: MediaQuery.removePadding(
+                  context: context,
+                  removeTop: true,
+                  child: child,
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

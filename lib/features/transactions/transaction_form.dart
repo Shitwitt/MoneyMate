@@ -62,6 +62,10 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
     final template = widget.template;
     _type = entry?.type ?? template?.type ?? widget.initialType;
     _budgetId = entry?.budgetId ?? widget.initialBudgetId;
+    if (!profile.budgets.any(
+      (b) => b.id == _budgetId && b.transactionType == _type,
+    ))
+      _budgetId = '';
     if (entry?.type == 'transfer' &&
         profile.categories.any(
           (c) => c.id == entry!.categoryId && c.type == 'transfer',

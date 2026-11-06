@@ -109,6 +109,7 @@ class Account {
   final int color;
   final String icon;
   final String notes;
+  final String holderName, lastDigits, parentId;
   final bool excluded;
   final bool archived;
   final String imageBase64;
@@ -123,6 +124,9 @@ class Account {
     this.color = 0xff916cff,
     this.icon = 'bank',
     this.notes = '',
+    this.holderName = '',
+    this.lastDigits = '',
+    this.parentId = '',
     this.excluded = false,
     this.archived = false,
     this.imageBase64 = '',
@@ -138,6 +142,9 @@ class Account {
     color: readInt(json['color'], 0xff916cff),
     icon: readString(json['icon'], 'bank'),
     notes: readString(json['notes'], ''),
+    holderName: readString(json['holderName'], ''),
+    lastDigits: readString(json['lastDigits'], ''),
+    parentId: readString(json['parentId'], ''),
     excluded: readBool(json['excluded'], false),
     archived: readBool(json['archived'], false),
     imageBase64: readString(json['imageBase64'], ''),
@@ -153,6 +160,9 @@ class Account {
     'color': color,
     'icon': icon,
     'notes': notes,
+    'holderName': holderName,
+    'lastDigits': lastDigits,
+    'parentId': parentId,
     'excluded': excluded,
     'archived': archived,
     'imageBase64': imageBase64,
@@ -168,6 +178,9 @@ class Account {
     int? color,
     String? icon,
     String? notes,
+    String? holderName,
+    String? lastDigits,
+    String? parentId,
     bool? excluded,
     bool? archived,
     String? imageBase64,
@@ -181,6 +194,9 @@ class Account {
     color: color ?? this.color,
     icon: icon ?? this.icon,
     notes: notes ?? this.notes,
+    holderName: holderName ?? this.holderName,
+    lastDigits: lastDigits ?? this.lastDigits,
+    parentId: parentId ?? this.parentId,
     excluded: excluded ?? this.excluded,
     archived: archived ?? this.archived,
     imageBase64: imageBase64 ?? this.imageBase64,
@@ -1166,7 +1182,18 @@ class ExchangeRate {
 
 List<String> _restoreHomeLayout(Json json) {
   final saved = readStrings(json['homeCards'], defaultHomeCards);
-  if (readInt(json['uiRevision']) >= 2) return saved;
+  final revision = readInt(json['uiRevision']);
+  if (revision >= 3) return saved;
+  if (revision == 2)
+    return [
+      ...saved,
+      ...[
+        'heatmap',
+        'trend',
+        'trackedBudgets',
+        'upcoming',
+      ].where((id) => !saved.contains(id)),
+    ];
   const oldDefault = [
     'balance',
     'cashflow',
@@ -1319,7 +1346,7 @@ class AppSettings {
   );
 
   Json toJson() => {
-    'uiRevision': 2,
+    'uiRevision': 3,
     'theme': theme,
     'accent': accent,
     'dynamicColors': dynamicColors,

@@ -750,15 +750,27 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
         status = ledger.budgetStatus(budget, DateTime.now());
     final entries = ledger.budgetEntries(budget, status.window)
       ..sort((a, b) => b.date.compareTo(a.date));
+    final daily = <DateTime, int>{};
+    for (final entry in entries.where((e) => !e.date.isAfter(now))) {
+      daily.update(
+        dayOnly(entry.date),
+        (n) => n + ledger.entryValue(entry),
+        ifAbsent: () => ledger.entryValue(entry),
+      );
+    }
     final flows = List.generate(math.min(366, status.window.days), (i) {
       final date = DateTime(
-        status.window.start.year,
-        status.window.start.month,
-        status.window.start.day + i,
-      );
-      final total = entries
-          .where((e) => dayOnly(e.date) == date && !e.date.isAfter(now))
-          .fold<int>(0, (s, e) => s + ledger.entryValue(e));
+            status.window.start.year,
+            status.window.start.month,
+            status.window.start.day + i,
+          ),
+          total =
+              daily[DateTime(
+                status.window.start.year,
+                status.window.start.month,
+                status.window.start.day + i,
+              )] ??
+              0;
       return DailyFlow(
         date,
         budget.income ? total : 0,

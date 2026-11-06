@@ -41,11 +41,16 @@ Future<void> editRecurring(
   var auto = initial?.autoPost ?? false;
   var reminder = initial?.reminderDays ?? 0;
   var budgetId = initial?.budgetId ?? '', placeId = initial?.placeId ?? '';
+  if (!profile.budgets.any(
+    (b) => b.id == budgetId && b.transactionType == type,
+  ))
+    budgetId = '';
   var labels = {...?initial?.labelIds}, people = {...?initial?.personIds};
   await showEditor(
     context,
     title: initial == null ? 'New recurring' : 'Edit recurring',
-    description: 'All amounts use the selected account currency. Automatic entries are created only when Tink opens or resumes, never by a payment provider.',
+    description:
+        'All amounts use the selected account currency. Automatic entries are created only when Tink opens or resumes, never by a payment provider.',
     fields: (context, setLocal) => [
       formText(name, 'Name', required: true),
       formSelect(
@@ -54,6 +59,7 @@ Future<void> editRecurring(
         ['expense', 'income'],
         (value) => setLocal(() {
           type = value;
+          budgetId = '';
           categoryId = profile.categories
               .firstWhere((item) => item.type == type)
               .id;
@@ -155,7 +161,12 @@ Future<void> editRecurring(
         formSelect(
           'Link a budget',
           budgetId,
-          ['', ...profile.budgets.map((b) => b.id)],
+          [
+            '',
+            ...profile.budgets
+                .where((b) => b.transactionType == type)
+                .map((b) => b.id),
+          ],
           (value) => setLocal(() => budgetId = value),
           display: (id) => id.isEmpty
               ? 'No linked budget'

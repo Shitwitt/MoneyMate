@@ -9,7 +9,6 @@ import '../../core/data/financial_pulse.dart';
 import '../../core/data/ledger.dart';
 import '../../core/data/providers.dart';
 import '../../core/data/recurring_schedule.dart';
-import '../../core/data/reporting.dart';
 import '../../core/utils/constants.dart';
 import '../../core/utils/dates.dart';
 import '../../core/utils/money.dart';
@@ -567,7 +566,7 @@ class _DashboardTile extends StatelessWidget {
           style: const TextStyle(fontSize: 15),
         ),
         const SizedBox(height: 8),
-        moneyValue(ledger.accountsTotal),
+        moneyValue(ledger.accountsTotal, size: 20),
       ],
       'reports' => <Widget>[
         Text(
@@ -994,7 +993,10 @@ class _BalanceOverview extends ConsumerWidget {
     int total(String type, DateWindow window) => ledger.data.transactions
         .where(
           (e) =>
-              e.type == type && window.contains(e.date) && !e.date.isAfter(now),
+              e.type == type &&
+              window.contains(e.date) &&
+              !e.date.isAfter(now) &&
+              !ledger.account(e.accountId).excluded,
         )
         .fold(0, (sum, e) => sum + ledger.entryValue(e));
     final dark = AppColors.dark(context);
@@ -1005,44 +1007,43 @@ class _BalanceOverview extends ConsumerWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(color: ink, fontSize: 14)),
-          const SizedBox(height: 4),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: AlignmentDirectional.centerStart,
-            child: AmountText(
-              amount,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: ink,
-              ),
-            ),
-          ),
-          if (change != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                settings.hideAmounts
-                    ? '••••'
-                    : '${change >= 0 ? '↑' : '↓'} ${change.abs().toStringAsFixed(0)}%',
+          Text(title, style: TextStyle(color: ink, fontSize: 13)),
+          const SizedBox(height: 3),
+          Wrap(
+            spacing: 4,
+            runSpacing: 2,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              AmountText(
+                amount,
                 style: TextStyle(
-                  color: dark ? const Color(0xffF8D0BF) : AppColors.secondary,
-                  fontSize: 13,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: ink,
                 ),
               ),
-            ),
-          const SizedBox(height: 6),
+              if (change != null && !settings.hideAmounts)
+                Text(
+                  '${change >= 0 ? '↑' : '↓'}${change.abs().toStringAsFixed(0)}%',
+                  style: TextStyle(
+                    color: ink,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 4),
           Text(
             settings.hideAmounts
                 ? 'Compared to •••• last month'
-                : last == 0
-                ? 'No previous month amount'
-                : 'Compared to last month',
-            style: TextStyle(fontSize: 12, color: ink.withValues(alpha: .85)),
+                : 'Compared to ${money(last, ledger.currency, locale: settings.locale, indian: settings.numberFormat == 'indian')} last month',
+            style: TextStyle(
+              fontSize: 11,
+              height: 1.35,
+              color: ink.withValues(alpha: .9),
+            ),
           ),
-          if (last != 0 && !settings.hideAmounts)
-            AmountText(last, style: TextStyle(fontSize: 13, color: ink)),
         ],
       );
     }
@@ -1050,22 +1051,40 @@ class _BalanceOverview extends ConsumerWidget {
     return TonalCard(
       radius: 28,
       color: dark ? const Color(0xff72361E) : const Color(0xffFFE1D1),
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (balanceVisible) ...[
+            Text(
+              'Total balance',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: ink,
+              ),
+            ),
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    'Total balance',
-                    style: TextStyle(
-                      fontSize: 19,
-                      fontWeight: FontWeight.w600,
-                      color: ink,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: AmountText(
+                      ledger.accountsTotal,
+                      animate: true,
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w700,
+                        color: ink,
+                      ),
                     ),
                   ),
+                ),
+                IconButton(
+                  tooltip: 'Balance details & safe to spend',
+                  onPressed: () => openPage(context, const NetWorthScreen()),
+                  icon: Icon(Icons.info_outline_rounded, color: ink, size: 18),
                 ),
                 IconButton(
                   tooltip: settings.hideAmounts
@@ -1084,43 +1103,19 @@ class _BalanceOverview extends ConsumerWidget {
                         ? Icons.visibility_off_outlined
                         : Icons.visibility_outlined,
                     color: ink,
-                    size: 23,
+                    size: 22,
                   ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: AlignmentDirectional.centerStart,
-                    child: AmountText(
-                      ledger.accountsTotal,
-                      animate: true,
-                      style: TextStyle(
-                        fontSize: 42,
-                        fontWeight: FontWeight.w700,
-                        color: ink,
-                      ),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'Balance details & safe to spend',
-                  onPressed: () => openPage(context, const NetWorthScreen()),
-                  icon: Icon(Icons.info_outline_rounded, color: ink, size: 20),
                 ),
               ],
             ),
           ],
           if (flowVisible) ...[
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(child: flow(l.income, 'income')),
-                const SizedBox(width: 20),
+                const SizedBox(width: 16),
                 Expanded(child: flow(l.expenses, 'expense')),
               ],
             ),

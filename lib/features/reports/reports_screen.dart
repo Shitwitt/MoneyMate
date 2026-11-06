@@ -414,7 +414,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               padding: EdgeInsets.zero,
               onTap: () => openPage(
                 context,
-                FinancialReportScreen(item.$1, window: window),
+                FinancialReportScreen(item.$1, window: window, filter: filter),
               ),
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(
@@ -828,11 +828,21 @@ class ReportRecordsScreen extends ConsumerWidget {
 class FinancialReportScreen extends ConsumerWidget {
   final String kind;
   final DateWindow window;
-  const FinancialReportScreen(this.kind, {super.key, required this.window});
+  final TransactionFilter filter;
+  const FinancialReportScreen(
+    this.kind, {
+    super.key,
+    required this.window,
+    this.filter = const TransactionFilter(),
+  });
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ledger = ref.watch(ledgerProvider)!,
-        snapshot = ReportSnapshot(ref.watch(ledgerProvider)!, window);
+        snapshot = ReportSnapshot(
+          ref.watch(ledgerProvider)!,
+          window,
+          selection: filterDates(filter, window).apply(ledger),
+        );
     final title = financialReports.where((r) => r.$1 == kind).first.$2;
     return FeaturePage(
       title: title,
@@ -987,7 +997,11 @@ class FinancialReportScreen extends ConsumerWidget {
           OutlinedButton.icon(
             onPressed: () => openPage(
               context,
-              ReportRecordsScreen(title: 'Matching records', window: window),
+              ReportRecordsScreen(
+                title: 'Matching records',
+                window: window,
+                recordIds: snapshot.entries.map((e) => e.id).toSet(),
+              ),
             ),
             icon: const Icon(Icons.receipt_long_outlined),
             label: const Text('Explore posted transactions'),

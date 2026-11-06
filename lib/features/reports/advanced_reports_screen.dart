@@ -379,9 +379,8 @@ class _AdvancedReportsScreenState extends ConsumerState<AdvancedReportsScreen> {
             ..._advanced(context, ledger, entries, window, expense)
           else
             Card(
-              color: Theme.of(
-                context,
-              ).colorScheme.tertiaryContainer.withValues(alpha: .5),
+              color: Theme.of(context).colorScheme.tertiaryContainer
+                  .withValues(alpha: .5),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(

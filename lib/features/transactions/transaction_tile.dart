@@ -6,7 +6,6 @@ import '../../core/data/providers.dart';
 import '../../core/models/models.dart';
 import '../../core/utils/dates.dart';
 import '../../shared/widgets.dart';
-import '../../shared/reference_charts.dart' show referenceMotion;
 import 'receipt_viewer.dart';
 import 'transaction_form.dart';
 
@@ -101,19 +100,19 @@ class TransactionTile extends ConsumerWidget {
             runSpacing: 4,
             children: [
               if (budget != null)
-                _RecordTag(
+                TransactionMetadataTag(
                   budget.name,
                   Color(budget.color),
                   Icons.savings_outlined,
                 ),
               if (loan != null)
-                _RecordTag(
+                TransactionMetadataTag(
                   loan.personName,
                   const Color(0xffD995A4),
                   Icons.handshake_outlined,
                 ),
               for (final entity in entities)
-                _RecordTag(
+                TransactionMetadataTag(
                   entity.name,
                   Color(entity.color),
                   entity.kind == 'person'
@@ -123,7 +122,7 @@ class TransactionTile extends ConsumerWidget {
                       : Icons.label_outline_rounded,
                 ),
               if (future)
-                const _RecordTag(
+                const TransactionMetadataTag(
                   'Scheduled',
                   Color(0xffB7C9E5),
                   Icons.schedule_rounded,
@@ -229,11 +228,11 @@ class TransactionTile extends ConsumerWidget {
   }
 }
 
-class _RecordTag extends StatelessWidget {
+class TransactionMetadataTag extends StatelessWidget {
   final String label;
   final Color color;
   final IconData icon;
-  const _RecordTag(this.label, this.color, this.icon);
+  const TransactionMetadataTag(this.label, this.color, this.icon);
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),

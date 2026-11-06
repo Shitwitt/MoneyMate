@@ -204,13 +204,15 @@ List<UpcomingRecord> upcomingRecords(
       if (entry.date.isAfter(now) && window.contains(entry.date))
         UpcomingRecord(entry.date, entry: entry),
   ];
+  final recorded = {
+    for (final entry in ledger.data.transactions)
+      if (entry.recurringId.isNotEmpty)
+        (entry.recurringId, entry.date.microsecondsSinceEpoch),
+  };
   for (final rule in ledger.data.recurrings.where(recurringActive)) {
     for (final date in projectedOccurrences(rule, window, limit: 120)) {
       if (!date.isAfter(now)) continue;
-      if (ledger.data.transactions.any(
-        (e) => e.recurringId == rule.id && e.date.isAtSameMomentAs(date),
-      ))
-        continue;
+      if (recorded.contains((rule.id, date.microsecondsSinceEpoch))) continue;
       result.add(UpcomingRecord(date, rule: rule));
     }
   }

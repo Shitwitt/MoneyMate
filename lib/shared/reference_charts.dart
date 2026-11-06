@@ -62,7 +62,7 @@ class _ReferenceLineChartState extends State<ReferenceLineChart> {
     final minimum = math.min(0.0, all.fold<double>(0, math.min));
     final high = maximum + (maximum - minimum) * .12;
     final low = minimum < 0 ? minimum - (maximum - minimum) * .06 : 0.0;
-    final index = selected?.clamp(0, math.max(0, count - 1));
+    final index = selected?.clamp(0, math.max(0, count - 1)).toInt();
     String amount(double value) => money(
       value.round(),
       widget.ledger.currency,
@@ -106,9 +106,8 @@ class _ReferenceLineChartState extends State<ReferenceLineChart> {
                       low,
                       high,
                       progress,
-                      Theme.of(
-                        context,
-                      ).colorScheme.outlineVariant.withValues(alpha: .45),
+                      Theme.of(context).colorScheme.outlineVariant
+                          .withValues(alpha: .45),
                       Theme.of(context).textTheme.labelSmall!,
                       widget.start,
                       amount,

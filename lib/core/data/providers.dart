@@ -220,7 +220,8 @@ class AppController extends StateNotifier<AppData> {
   Future<void> deleteAccount(String id) => updateProfile((profile, app) {
     require(profile.accounts.length > 1, 'Keep at least one account');
     require(
-      !profile.transactions.any(
+      !profile.accounts.any((account) => account.parentId == id) &&
+          !profile.transactions.any(
             (entry) => entry.accountId == id || entry.toAccountId == id,
           ) &&
           !profile.goals.any((goal) => goal.accountId == id) &&

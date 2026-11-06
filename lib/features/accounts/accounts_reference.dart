@@ -7,7 +7,6 @@ import '../../core/models/models.dart';
 import '../../core/utils/dates.dart';
 import '../../core/utils/money.dart';
 import '../../shared/widgets.dart';
-import '../../shared/reference_charts.dart' show referenceMotion;
 import '../home/home_screen.dart';
 import '../transactions/transaction_tile.dart';
 import 'accounts_screen.dart';
@@ -219,12 +218,20 @@ class AccountReferenceCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      '${account.currency} ${titleCase(account.type)} Account',
+                      account.holderName.isNotEmpty
+                          ? account.holderName
+                          : '${account.currency} ${account.parentId.isEmpty ? 'Main' : 'Linked'} Account',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
                 ),
               ),
+              if (account.lastDigits.isNotEmpty)
+                SmallTag(
+                  ledger.settings.hideAmounts
+                      ? '••••'
+                      : '•• ${account.lastDigits}',
+                ),
               if (account.archived) const SmallTag('Archived'),
             ],
           ),
@@ -254,6 +261,13 @@ class AccountReferenceCard extends StatelessWidget {
                   SmallTag(
                     account.excluded ? 'Excluded' : titleCase(account.type),
                   ),
+                  if (ledger.data.accounts.any((a) => a.parentId == account.id))
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(start: 6),
+                      child: SmallTag(
+                        '${ledger.data.accounts.where((a) => a.parentId == account.id).length} linked',
+                      ),
+                    ),
                 ],
               ),
             ],

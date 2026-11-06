@@ -35,10 +35,7 @@ class _HomeCalendarHeatmapState extends State<HomeCalendarHeatmap> {
         offset = (start.weekday - ledger.settings.weekStart + 7) % 7;
     final counts = <int, int>{};
     for (final e in ledger.data.transactions.where(
-      (e) =>
-          !e.date.isAfter(DateTime.now()) &&
-          !e.date.isBefore(start) &&
-          e.date.isBefore(end),
+      (e) => !e.date.isBefore(start) && e.date.isBefore(end),
     ))
       counts.update(e.date.day, (n) => n + 1, ifAbsent: () => 1);
     final max = counts.values.fold<int>(1, math.max),
@@ -166,7 +163,7 @@ class _HomeCalendarHeatmapState extends State<HomeCalendarHeatmap> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Recorded activity · brighter means more records',
+            'Recorded activity · brighter means more records; future dates are scheduled',
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
@@ -201,18 +198,19 @@ class HomeCashflowTrend extends StatelessWidget {
           (u) => u.type != 'transfer' && !ledger.account(u.accountId).excluded,
         )
         .toList();
+    final todayIndex = actual.where((d) => !d.future).length - 1;
     final future = List<double?>.generate(actual.length, (i) {
-      if (!actual[i].future)
-        return i == actual.where((d) => !d.future).length - 1 ? running : null;
+      if (i < todayIndex) return null;
       for (final item in pending.where(
         (u) => dayOnly(u.date) == actual[i].date,
-      ))
+      )) {
         running +=
             ledger.inBase(
               item.amountMinor,
               ledger.account(item.accountId).currency,
             ) *
             (item.type == 'income' ? 1 : -1);
+      }
       return running;
     });
     return TonalCard(
@@ -484,13 +482,26 @@ class _UpcomingRuleTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rule = item.rule!, account = ledger.account(item.accountId);
+    final budget = ledger.data.budgets
+        .where((b) => b.id == rule.budgetId)
+        .firstOrNull;
+    final tags = ledger.data.entities.where(
+      (e) =>
+          rule.labelIds.contains(e.id) ||
+          rule.personIds.contains(e.id) ||
+          rule.placeId == e.id,
+    );
     return InkWell(
       onTap: () => openPage(context, RecurringDetailScreen(rule.id)),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Row(
           children: [
-            ColorIcon(rule.icon, rule.color, size: 44),
+            ColorIcon(
+              ledger.category(rule.categoryId)?.icon ?? 'bills',
+              ledger.category(rule.categoryId)?.color ?? 0xffFFB59A,
+              size: 44,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -506,7 +517,33 @@ class _UpcomingRuleTile extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 5),
-                  const SmallTag('Scheduled · not posted'),
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: [
+                      if (budget != null)
+                        TransactionMetadataTag(
+                          budget.name,
+                          Color(budget.color),
+                          Icons.savings_outlined,
+                        ),
+                      for (final tag in tags)
+                        TransactionMetadataTag(
+                          tag.name,
+                          Color(tag.color),
+                          tag.kind == 'place'
+                              ? Icons.place_outlined
+                              : tag.kind == 'person'
+                              ? Icons.person_outline_rounded
+                              : Icons.label_outline_rounded,
+                        ),
+                      const TransactionMetadataTag(
+                        'Scheduled · not posted',
+                        Color(0xffB7C9E5),
+                        Icons.schedule_rounded,
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

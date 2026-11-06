@@ -32,6 +32,21 @@ Future<void> editAccount(
         : fromMinor(initial.openingMinor, initial.currency).toString(),
   );
   final notes = TextEditingController(text: initial?.notes ?? '');
+  final holder = TextEditingController(text: initial?.holderName ?? ''),
+      suffix = TextEditingController(text: initial?.lastDigits ?? '');
+  var parentId = initial?.parentId ?? '';
+  bool canLink(Account account) {
+    var cursor = account.id;
+    final visited = <String>{};
+    while (cursor.isNotEmpty && visited.add(cursor)) {
+      if (cursor == initial?.id) return false;
+      cursor =
+          profile.accounts.where((a) => a.id == cursor).firstOrNull?.parentId ??
+          '';
+    }
+    return true;
+  }
+
   var currency = initial?.currency ?? profile.profile.currency,
       type = initial?.type ?? 'bank',
       icon = initial?.icon ?? 'bank';
@@ -76,6 +91,21 @@ Future<void> editAccount(
         },
       ),
       formText(name, 'Account name', required: true),
+      formText(holder, 'Holder / subtitle (optional)'),
+      formText(suffix, 'Last digits (optional, up to four)', numeric: true),
+      const Text(
+        'Local bookkeeping labels only. Never enter a full card or bank number. Linked-account balances stay separate.',
+        style: TextStyle(fontSize: 12),
+      ),
+      formSelect(
+        'Linked main account (optional)',
+        parentId,
+        ['', ...profile.accounts.where(canLink).map((a) => a.id)],
+        (id) => setLocal(() => parentId = id),
+        display: (id) => id.isEmpty
+            ? 'No linked main account'
+            : profile.accounts.firstWhere((a) => a.id == id).name,
+      ),
       formSelect(
         'Account type',
         type,
@@ -164,6 +194,9 @@ Future<void> editAccount(
               color: color,
               icon: icon,
               notes: notes.text.trim(),
+              holderName: holder.text.trim(),
+              lastDigits: suffix.text.trim(),
+              parentId: parentId,
               excluded: excluded,
               archived: archived,
               imageBase64: image,
@@ -175,6 +208,8 @@ Future<void> editAccount(
   name.dispose();
   opening.dispose();
   notes.dispose();
+  holder.dispose();
+  suffix.dispose();
 }
 
 class AccountsScreen extends StatelessWidget {

@@ -28,9 +28,8 @@ Future<void> showHowItWorks(
               Expanded(
                 child: Text(
                   title,
-                  style: Theme.of(sheet).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(sheet).textTheme.headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               IconButton(
@@ -49,9 +48,8 @@ Future<void> showHowItWorks(
                 children: [
                   Text(
                     introduction,
-                    style: Theme.of(
-                      sheet,
-                    ).textTheme.bodyLarge?.copyWith(height: 1.6),
+                    style: Theme.of(sheet).textTheme.bodyLarge
+                        ?.copyWith(height: 1.6),
                   ),
                   const SizedBox(height: 28),
                   for (final section in sections)
@@ -90,9 +88,8 @@ Future<void> showHowItWorks(
                                 const SizedBox(height: 5),
                                 Text(
                                   section.$3,
-                                  style: Theme.of(
-                                    sheet,
-                                  ).textTheme.bodyLarge?.copyWith(height: 1.55),
+                                  style: Theme.of(sheet).textTheme.bodyLarge
+                                      ?.copyWith(height: 1.55),
                                 ),
                               ],
                             ),
@@ -114,9 +111,8 @@ Future<void> showHowItWorks(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Theme.of(
-                            sheet,
-                          ).scaffoldBackgroundColor.withValues(alpha: 0),
+                          Theme.of(sheet).scaffoldBackgroundColor
+                              .withValues(alpha: 0),
                           Theme.of(sheet).scaffoldBackgroundColor,
                         ],
                       ),

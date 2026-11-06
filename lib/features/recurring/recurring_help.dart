@@ -68,7 +68,6 @@ const recurringHelpSections = [
 Future<void> showRecurringHelp(BuildContext context) => showHowItWorks(
   context,
   title: 'How Recurring Works',
-  introduction:
-      'Recurring transactions help you track subscriptions, bills, and regular payments automatically. They create local records, never bank charges.',
+  introduction: 'Recurring transactions help you track subscriptions, bills, and regular payments automatically. They create local records, never bank charges.',
   sections: recurringHelpSections,
 );

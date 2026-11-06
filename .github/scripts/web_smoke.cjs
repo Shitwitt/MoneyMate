@@ -69,7 +69,7 @@ const binary = chromiumModule.default || chromiumModule;
       const shot = PNG.sync.read(await page.screenshot({type: 'png'}));
       const offset = (110 * shot.width + 4) * 4;
       const rgb = [...shot.data.subarray(offset, offset + 3)];
-      if (rgb.some((value, i) => Math.abs(value - [26, 16, 14][i]) > 6)) {
+      if (rgb.some((value, i) => Math.abs(value - [35, 26, 21][i]) > 6)) {
         throw new Error('Dark palette was not applied/persisted: ' + rgb.join(','));
       }
     }

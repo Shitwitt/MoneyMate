@@ -149,6 +149,21 @@ void validateProfile(ProfileData data) {
       'Invalid account currency or opening balance',
     );
     require(accountTypes.contains(item.type), 'Invalid account type');
+    require(
+      item.holderName.length <= 100 &&
+          (item.lastDigits.isEmpty ||
+              RegExp(r'^[0-9]{1,4}$').hasMatch(item.lastDigits)),
+      'Use a short holder label and at most four identifier digits',
+    );
+    var parent = item.parentId;
+    final ancestors = <String>{item.id};
+    while (parent.isNotEmpty) {
+      require(
+        accounts.containsKey(parent) && ancestors.add(parent),
+        'Linked accounts must exist and cannot contain a cycle',
+      );
+      parent = accounts[parent]?.parentId ?? '';
+    }
   }
   for (final category in data.categories) {
     final visited = <String>{category.id};

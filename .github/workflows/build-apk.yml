@@ -213,3 +213,63 @@ jobs:
           path: build/web/
           if-no-files-found: error
           retention-days: 14
+
+  web-review:
+    name: Additional reference captures (fictional data)
+    needs: web
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Separate review budget: at most 15 x 3 annotations, with no Flutter/native build.
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
+        with:
+          name: Tink-Web-screenshots
+          path: review-shots
+      - name: Require every supplemental capture and thumbnail
+        run: |
+          test -s review-shots/web-home-tools.jpg && test -s review-shots/web-home-tools-thumb.jpg
+          test -s review-shots/web-home-tools-more.jpg && test -s review-shots/web-home-tools-more-thumb.jpg
+          test -s review-shots/web-home-templates.jpg && test -s review-shots/web-home-templates-thumb.jpg
+          test -s review-shots/web-budget-status.jpg && test -s review-shots/web-budget-status-thumb.jpg
+          test -s review-shots/web-budget-breakdown.jpg && test -s review-shots/web-budget-breakdown-thumb.jpg
+          test -s review-shots/web-budget-help.jpg && test -s review-shots/web-budget-help-thumb.jpg
+          test -s review-shots/web-accounts-second.jpg && test -s review-shots/web-accounts-second-thumb.jpg
+          test -s review-shots/web-allocation.jpg && test -s review-shots/web-allocation-thumb.jpg
+          test -s review-shots/web-financial-month.jpg && test -s review-shots/web-financial-month-thumb.jpg
+          test -s review-shots/web-financial-category.jpg && test -s review-shots/web-financial-category-thumb.jpg
+          test -s review-shots/web-financial-budget.jpg && test -s review-shots/web-financial-budget-thumb.jpg
+          test -s review-shots/web-financial-cashflow.jpg && test -s review-shots/web-financial-cashflow-thumb.jpg
+          test -s review-shots/web-financial-goal.jpg && test -s review-shots/web-financial-goal-thumb.jpg
+          test -s review-shots/web-help.jpg && test -s review-shots/web-help-thumb.jpg
+          test -s review-shots/web-help-bottom.jpg && test -s review-shots/web-help-bottom-thumb.jpg
+      - name: Visual evidence — Home — first tool rows (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-home-tools.jpg" "batch2-home-tools"
+      - name: Visual evidence — Home — further tool rows (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-home-tools-more.jpg" "batch2-home-tools-more"
+      - name: Visual evidence — Home — templates (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-home-templates.jpg" "batch2-home-templates"
+      - name: Visual evidence — Budget status carousel (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-budget-status.jpg" "batch2-budget-status"
+      - name: Visual evidence — Budget category breakdown (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-budget-breakdown.jpg" "batch2-budget-breakdown"
+      - name: Visual evidence — Budget help introduction (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-budget-help.jpg" "batch2-budget-help-top"
+      - name: Visual evidence — Second account card (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-accounts-second.jpg" "batch2-accounts-second"
+      - name: Visual evidence — Report category allocation (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-allocation.jpg" "batch2-report-allocation"
+      - name: Visual evidence — Month Summary destination (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-financial-month.jpg" "batch2-financial-month"
+      - name: Visual evidence — Category Breakdown destination (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-financial-category.jpg" "batch2-financial-category"
+      - name: Visual evidence — Budget Performance destination (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-financial-budget.jpg" "batch2-financial-budget"
+      - name: Visual evidence — Cash Flow Analysis destination (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-financial-cashflow.jpg" "batch2-financial-cashflow"
+      - name: Visual evidence — Goal Progress destination (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-financial-goal.jpg" "batch2-financial-goal"
+      - name: Visual evidence — Recurring help introduction (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-help.jpg" "batch2-recurring-help"
+      - name: Visual evidence — Recurring help continuation (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-help-bottom.jpg" "batch2-recurring-help-bottom"

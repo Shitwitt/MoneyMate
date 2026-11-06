@@ -13,7 +13,7 @@ if thumbnail.exists():
     p = thumbnail
 if p.exists():
     text = base64.b64encode(p.read_bytes()).decode()
-    # Twelve <=6.75KB thumbnails leave space for failures in the 50-annotation budget.
+    # Each review job emits at most fifteen <=6.75KB thumbnails (45 annotations).
     chunk_size = 3000
     offset = part * 10
     for index in range(offset, min(offset + 10, (len(text) + chunk_size - 1) // chunk_size)):

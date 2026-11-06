@@ -19,7 +19,7 @@ const binary = chromiumModule.default || chromiumModule;
     const full = await page.screenshot({type: 'jpeg', quality: 60, animations: 'disabled'});
     fs.writeFileSync(name, full);
     // Full-size evidence stays in the artifact. API annotations have a 50-item
-    // job cap: twelve <=6.75KB thumbnails leave room for failure diagnostics.
+    // job cap: bounded <=6.75KB thumbnails are split across two review jobs.
     const thumbnail = await page.evaluate(async encoded => {
       const image = new Image();
       await new Promise((resolve, reject) => { image.onload = resolve; image.onerror = reject; image.src = 'data:image/jpeg;base64,' + encoded; });
@@ -140,10 +140,13 @@ const binary = chromiumModule.default || chromiumModule;
     await page.getByText('Demo User', {exact: false}).first().waitFor({timeout: 30000});
     await page.waitForTimeout(800);
     await capture('web-dashboard.jpg');
-    await page.mouse.move(200, 550); await scroll(1500); await page.waitForTimeout(450);
-    await capture('web-home-grid.jpg');
+    await page.mouse.move(200, 550); await scroll(650); await page.waitForTimeout(450);
+    await capture('web-home-tools.jpg');
+    await scroll(450); await page.waitForTimeout(450); await capture('web-home-tools-more.jpg');
+    await scroll(400); await page.waitForTimeout(450); await capture('web-home-grid.jpg');
     await scroll(3000); await page.waitForTimeout(450);
     await capture('web-home-lower.jpg');
+    await revealText('Templates'); await capture('web-home-templates.jpg');
     await revealText('Calendar heatmap'); await capture('web-home-heatmap.jpg');
     await revealText('Trend'); await capture('web-home-trend.jpg');
     await revealText('Track budgets'); await capture('web-home-budgets.jpg');

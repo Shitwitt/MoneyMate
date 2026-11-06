@@ -272,7 +272,10 @@ void main() {
       of: find.text('Category Breakdown'),
       matching: find.byType(TonalCard),
     );
-    expect(find.descendant(of: card, matching: find.text('6%')), findsOneWidget);
+    expect(
+      find.descendant(of: card, matching: find.text('6%')),
+      findsOneWidget,
+    );
     final wave = tester.widget<WavyProgress>(
       find.descendant(of: card, matching: find.byType(WavyProgress)),
     );

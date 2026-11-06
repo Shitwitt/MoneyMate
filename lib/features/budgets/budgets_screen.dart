@@ -400,7 +400,9 @@ String? budgetAllowanceSummary(
     return 'Starts ${DateFormat.yMMMd().format(budget.start)}';
   if (budget.income || status.remaining < 0) return null;
   final today = dayOnly(now);
-  final from = today.isBefore(status.window.start) ? status.window.start : today;
+  final from = today.isBefore(status.window.start)
+      ? status.window.start
+      : today;
   final days = calendarDaysBetween(from, status.window.end);
   if (days <= 0) return null;
   if (ledger.settings.hideAmounts) return 'Daily allowance hidden';
@@ -536,10 +538,7 @@ class BudgetCard extends ConsumerWidget {
                   icon: Icons.check_circle_outline_rounded,
                 ),
                 if (allowance != null)
-                  Text(
-                    allowance,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                  Text(allowance, style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
             const SizedBox(height: 8),
@@ -896,7 +895,8 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
                     ),
                     AmountText(
                       status.limit,
-                      prefix: '${money(status.spent, ledger.currency, locale: ledger.settings.locale, indian: ledger.settings.numberFormat == 'indian')} of ',
+                      prefix:
+                          '${money(status.spent, ledger.currency, locale: ledger.settings.locale, indian: ledger.settings.numberFormat == 'indian')} of ',
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ],

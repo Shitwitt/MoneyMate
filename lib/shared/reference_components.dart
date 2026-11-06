@@ -326,43 +326,44 @@ class SummaryColumns extends StatelessWidget {
   );
 }
 
-Future<void> showFeatureInfo(
-  BuildContext context,
-  String title,
-  String body,
-) => showModalBottomSheet<void>(
-  context: context,
-  isScrollControlled: true,
-  useSafeArea: true,
-  builder: (context) => SingleChildScrollView(
-    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
+Future<void> showFeatureInfo(BuildContext context, String title, String body) =>
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) => SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Close information',
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close_rounded),
+                ),
+              ],
             ),
-            IconButton(
-              tooltip: 'Close information',
+            const SizedBox(height: 16),
+            Text(
+              body,
+              style: Theme.of(context).textTheme.bodyLarge
+                  ?.copyWith(height: 1.6),
+            ),
+            const SizedBox(height: 24),
+            FilledButton(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.close_rounded),
+              child: const Text('Got it'),
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        Text(
-          body,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
-        ),
-        const SizedBox(height: 24),
-        FilledButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Got it'),
-        ),
-      ],
-    ),
-  ),
-);
+      ),
+    );

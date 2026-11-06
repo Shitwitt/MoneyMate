@@ -380,6 +380,10 @@ void main() {
           .properties
           .onIncrease;
       expect(forward, isNotNull);
+      expect(
+        tester.widget<Semantics>(pointControl).properties.increasedValue,
+        contains('2.00'),
+      );
       forward!();
       await tester.pumpAndSettle();
       expect(

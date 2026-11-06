@@ -681,7 +681,7 @@ class _DashboardTile extends StatelessWidget {
                       child: Text(
                         title,
                         style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(color: ink, fontSize: 17),
+                            ?.copyWith(color: ink, fontSize: 15),
                       ),
                     ),
                     const SizedBox(width: 3),

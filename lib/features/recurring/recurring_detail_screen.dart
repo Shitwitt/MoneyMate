@@ -157,98 +157,163 @@ class _RecurringDetailScreenState extends ConsumerState<RecurringDetailScreen> {
             children: [
               TonalCard(
                 color: hero,
-                padding: const EdgeInsets.all(22),
+                padding: const EdgeInsets.all(18),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ColorIcon(
                           category?.icon ?? 'bills',
                           category?.color ?? 0xfff6bb96,
-                          size: 58,
+                          size: 48,
                         ),
-                        const SizedBox(width: 14),
+                        const SizedBox(width: 12),
                         Expanded(
-                          child: Text(
-                            rule.name,
-                            style: Theme.of(context).textTheme.headlineSmall,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                rule.name,
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: 6),
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 5,
+                                children: [
+                                  SmallTag(recurrenceLabel(rule)),
+                                  SmallTag(
+                                    rule.type == 'income'
+                                        ? 'Income'
+                                        : 'Expense',
+                                    color: AppColors.semantic(
+                                      context,
+                                      rule.type,
+                                    ),
+                                  ),
+                                  if (!active)
+                                    SmallTag(
+                                      rule.archived
+                                          ? 'Archived'
+                                          : 'Paused / ended',
+                                    ),
+                                  if (rule.autoPost)
+                                    const SmallTag('Auto processing'),
+                                ],
+                              ),
+                            ],
                           ),
+                        ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: AmountText(
+                              rule.amountMinor,
+                              currency: account.currency,
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(
+                                    color: AppColors.semantic(
+                                      context,
+                                      rule.type,
+                                    ),
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    const Divider(),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Icon(
+                          due
+                              ? Icons.event_busy_outlined
+                              : Icons.event_outlined,
+                          color: due
+                              ? AppColors.semantic(context, 'expense')
+                              : null,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Next occurrence',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                DateFormat.yMMMd().add_jm().format(
+                                  rule.nextDue,
+                                ),
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SmallTag(
+                          due
+                              ? 'Overdue / due'
+                              : active
+                              ? 'Upcoming'
+                              : 'Inactive',
+                          color: due
+                              ? AppColors.semantic(context, 'expense')
+                              : null,
                         ),
                       ],
                     ),
                     const SizedBox(height: 22),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: AlignmentDirectional.centerStart,
-                      child: AmountText(
-                        rule.amountMinor,
-                        currency: account.currency,
-                        style: Theme.of(context).textTheme.displaySmall,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        SmallTag(recurrenceLabel(rule)),
-                        SmallTag(rule.type == 'income' ? 'Income' : 'Expense'),
-                        SmallTag(
-                          rule.archived
-                              ? 'Archived'
-                              : active
-                              ? 'Active'
-                              : 'Paused / ended',
-                        ),
-                        if (rule.autoPost)
-                          const SmallTag(
-                            'Auto processing',
-                            icon: Icons.auto_awesome_outlined,
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      due
-                          ? (days < 0 ? '${-days} days overdue' : 'Due now')
-                          : !active
-                          ? 'Schedule is not processing'
-                          : days == 0
-                          ? 'Later today'
-                          : 'Next payment in $days days',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 8),
                     WavyProgress(
                       occurrenceProgress(rule, now),
-                      color: Theme.of(context).colorScheme.primary,
+                      color: readableTint(context, tint),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Next occurrence · ${DateFormat.yMMMd().add_jm().format(rule.nextDue)}',
-                      style: Theme.of(context).textTheme.bodySmall,
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            due
+                                ? days < 0
+                                      ? '${-days} ${days == -1 ? 'day' : 'days'} overdue'
+                                      : 'Due now'
+                                : !active
+                                ? 'Not processing'
+                                : days == 0
+                                ? 'Later today'
+                                : 'In $days days',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                        Text(
+                          '${(occurrenceProgress(rule, now) * 100).round()}%',
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                      ],
                     ),
-                    if (active) ...[
-                      const SizedBox(height: 22),
-                      FilledButton.icon(
-                        onPressed: busy || !due
-                            ? null
-                            : () => action(rule, true),
-                        icon: const Icon(Icons.check_rounded),
-                        label: Text(busy ? 'Saving…' : 'Process'),
-                      ),
-                      const SizedBox(height: 10),
-                      OutlinedButton.icon(
-                        onPressed: busy ? null : () => action(rule, false),
-                        icon: const Icon(Icons.skip_next_outlined),
-                        label: const Text('Skip next'),
-                      ),
-                    ],
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              if (active) ...[
+                const SizedBox(height: 12),
+                _RecurringDetailActions(
+                  busy: busy,
+                  due: due,
+                  process: () => action(rule, true),
+                  skip: () => action(rule, false),
+                ),
+              ],
+              const SizedBox(height: 20),
               SectionHeader(
                 'Details',
                 trailing: IconButton(
@@ -257,8 +322,8 @@ class _RecurringDetailScreenState extends ConsumerState<RecurringDetailScreen> {
                   icon: const Icon(Icons.info_outline_rounded),
                 ),
               ),
-              TonalCard(
-                padding: EdgeInsets.zero,
+              Card.outlined(
+                margin: EdgeInsets.zero,
                 child: Column(
                   children: [
                     DetailRow(
@@ -432,4 +497,57 @@ class _Statistics extends StatelessWidget {
       ],
     ),
   );
+}
+
+class _RecurringDetailActions extends StatelessWidget {
+  final bool busy, due;
+  final VoidCallback process, skip;
+  const _RecurringDetailActions({
+    required this.busy,
+    required this.due,
+    required this.process,
+    required this.skip,
+  });
+  @override
+  Widget build(BuildContext context) {
+    final style = TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w700,
+      fontFamily: Theme.of(context).textTheme.labelLarge?.fontFamily,
+    );
+    final first = FilledButton.icon(
+      onPressed: busy || !due ? null : process,
+      style: FilledButton.styleFrom(
+        textStyle: style,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        minimumSize: const Size(0, 52),
+      ),
+      icon: const Icon(Icons.check_circle_outline_rounded, size: 20),
+      label: Text(busy ? 'Saving…' : 'Process'),
+    );
+    final second = OutlinedButton.icon(
+      onPressed: busy ? null : skip,
+      style: OutlinedButton.styleFrom(
+        textStyle: style,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        minimumSize: const Size(0, 52),
+      ),
+      icon: const Icon(Icons.skip_next_outlined, size: 20),
+      label: const Text('Skip next'),
+    );
+    if (MediaQuery.textScalerOf(context).scale(1) > 1.3 ||
+        MediaQuery.sizeOf(context).width < 360) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [first, const SizedBox(height: 10), second],
+      );
+    }
+    return Row(
+      children: [
+        Expanded(child: first),
+        const SizedBox(width: 10),
+        Expanded(child: second),
+      ],
+    );
+  }
 }

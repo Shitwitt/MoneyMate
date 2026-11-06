@@ -36,14 +36,34 @@ const binary = chromiumModule.default || chromiumModule;
       const placeholder = page.locator('flt-semantics-placeholder');
       if (await placeholder.count()) await placeholder.evaluate(element => element.click());
     }
+    async function scroll(delta) {
+      // A capture moves the pointer off cards; wheel over the real scroll body.
+      await page.mouse.move(210, 500);
+      await page.mouse.wheel(0, delta);
+    }
     async function capture(name) {
       await page.mouse.move(2, 2);
       await page.waitForTimeout(180);
-      for (const quality of [40, 25, 14, 8]) {
-        const jpg = await page.screenshot({type: 'jpeg', quality, animations: 'disabled'});
-        fs.writeFileSync(name, jpg);
-        if (jpg.length < 14000) break;
-      }
+      const full = await page.screenshot({type: 'jpeg', quality: 60, animations: 'disabled'});
+      fs.writeFileSync(name, full);
+      // Full-size evidence stays in the artifact. API annotations have a 50-item
+      // job cap: twelve <=9KB thumbnails use at most four chunks each.
+      const thumbnail = await page.evaluate(async encoded => {
+        const image = new Image();
+        await new Promise((resolve, reject) => { image.onload = resolve; image.onerror = reject; image.src = 'data:image/jpeg;base64,' + encoded; });
+        let result;
+        for (const width of [312, 280, 240]) {
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = Math.round(image.height / image.width * width);
+          canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+          for (const quality of [0.20, 0.12, 0.07]) {
+            result = canvas.toDataURL('image/jpeg', quality).split(',')[1];
+            if (result.length <= 12000) return result;
+          }
+        }
+        return result;
+      }, full.toString('base64'));
+      fs.writeFileSync(name.replace('.jpg', '-thumb.jpg'), Buffer.from(thumbnail, 'base64'));
     }
     async function assertDarkPalette() {
       const shot = PNG.sync.read(await page.screenshot({type: 'png'}));
@@ -62,12 +82,12 @@ const binary = chromiumModule.default || chromiumModule;
       // materialize an offscreen SliverGrid item. Scroll its real canvas first.
       if (!await target.isVisible()) {
         await page.mouse.move(200, 440);
-        await page.mouse.wheel(0, -3000);
+        await scroll(-3000);
         await page.waitForTimeout(220);
       }
       for (let attempt = 0; attempt < 8 && !await target.isVisible(); attempt++) {
         await page.mouse.move(200, 440);
-        await page.mouse.wheel(0, 400);
+        await scroll(400);
         await page.waitForTimeout(180);
       }
       // Generated Flutter grouping nodes can overlap semantic buttons in the DOM.
@@ -83,20 +103,20 @@ const binary = chromiumModule.default || chromiumModule;
     await page.getByText('Demo User', {exact: false}).first().waitFor({timeout: 30000});
     await page.waitForTimeout(800);
     await capture('web-dashboard.jpg');
-    await page.mouse.move(200, 550); await page.mouse.wheel(0, 1500); await page.waitForTimeout(450);
+    await page.mouse.move(200, 550); await scroll(1500); await page.waitForTimeout(450);
     await capture('web-home-grid.jpg');
-    await page.mouse.wheel(0, 3000); await page.waitForTimeout(450);
+    await scroll(3000); await page.waitForTimeout(450);
     await capture('web-home-lower.jpg');
-    await page.mouse.wheel(0, -6000); await page.waitForTimeout(300);
+    await scroll(-6000); await page.waitForTimeout(300);
     await nav('Accounts');
     await page.getByText('Your money, in one place', {exact: false}).first().waitFor();
     await capture('web-accounts.jpg');
     await nav('Reports');
     await page.getByText('Your money, a little clearer', {exact: false}).first().waitFor();
     await capture('web-reports.jpg');
-    await page.mouse.move(210, 590); await page.mouse.wheel(0, 1250); await page.waitForTimeout(650);
+    await page.mouse.move(210, 590); await scroll(1250); await page.waitForTimeout(650);
     await capture('web-flow.jpg');
-    await page.mouse.wheel(0, 1000); await page.waitForTimeout(650);
+    await scroll(1000); await page.waitForTimeout(650);
     await capture('web-allocation.jpg');
     await nav('Home');
     await page.getByRole('button', {name: 'All tools', exact: true}).click();
@@ -105,19 +125,20 @@ const binary = chromiumModule.default || chromiumModule;
     await nav('Calendar');
     await page.getByRole('button', {name: 'Next month', exact: true}).click();
     await page.getByRole('button', {name: 'Previous month', exact: true}).click();
+    await scroll(350); await page.waitForTimeout(350);
     await capture('web-calendar.jpg');
     await page.getByRole('button', {name: 'How recurring works', exact: true}).click();
     await capture('web-help.jpg');
-    await page.mouse.move(210, 520); await page.mouse.wheel(0, 1600); await page.waitForTimeout(300);
+    await page.mouse.move(210, 520); await scroll(1600); await page.waitForTimeout(300);
     await capture('web-help-bottom.jpg');
     await page.getByRole('button', {name: 'Got it', exact: true}).click();
     await nav('Due'); await nav('All');
     await nav('Netflix');
     await page.getByRole('button', {name: 'Process', exact: true}).waitFor();
     await capture('web-detail.jpg');
-    await page.mouse.move(210, 600); await page.mouse.wheel(0, 1000); await page.waitForTimeout(400);
+    await page.mouse.move(210, 600); await scroll(1000); await page.waitForTimeout(400);
     await capture('web-history.jpg');
-    await page.mouse.wheel(0, -3000); await page.waitForTimeout(300);
+    await scroll(-3000); await page.waitForTimeout(300);
     await page.getByRole('button', {name: 'Process', exact: true}).click();
     await page.waitForTimeout(500);
     await page.getByRole('button', {name: 'Recurring options', exact: true}).click();

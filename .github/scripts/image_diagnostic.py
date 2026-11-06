@@ -8,9 +8,12 @@ p = Path(sys.argv[2]) if len(sys.argv) > 2 else Path('web-dashboard.jpg')
 prefix = sys.argv[3] if len(sys.argv) > 3 else 'tink-screen'
 if not p.exists() and len(sys.argv) <= 2:
     p = Path('web-failure.jpg')
+thumbnail = p.with_name(p.stem + '-thumb' + p.suffix)
+if thumbnail.exists():
+    p = thumbnail
 if p.exists():
     text = base64.b64encode(p.read_bytes()).decode()
-    # Keep all five captures within the job's annotation budget.
+    # Twelve <=9KB thumbnails fit the job-wide 50-annotation budget.
     chunk_size = 3000
     offset = part * 10
     for index in range(offset, min(offset + 10, (len(text) + chunk_size - 1) // chunk_size)):

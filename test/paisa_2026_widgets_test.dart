@@ -235,20 +235,22 @@ void main() {
       await tester.pumpAndSettle();
       final handle = find.byType(ReorderableDragStartListener).first;
       await tester.ensureVisible(handle);
+      await tester.pumpAndSettle();
       final start = tester.getCenter(handle);
-      final target = tester.getCenter(
-        find.byType(ReorderableDragStartListener).last,
-      );
+      final lastCard = find.byKey(const ValueKey('home-reorder-reports'));
+      final target = Offset(start.dx, tester.getBottomLeft(lastCard).dy + 30);
       final drag = await tester.startGesture(start);
       await tester.pump(const Duration(milliseconds: 80));
-      await drag.moveBy(const Offset(0, 20));
-      await tester.pump(const Duration(milliseconds: 80));
-      await drag.moveTo(target + const Offset(0, 120));
-      await tester.pump(const Duration(milliseconds: 400));
-      await drag.moveBy(const Offset(0, 20));
-      await tester.pump(const Duration(milliseconds: 250));
+      // Real pointer motion traverses the intervening drop slots. A single
+      // teleport can skip the half-item thresholds used by Flutter's list.
+      for (var step = 1; step <= 16; step++) {
+        await drag.moveTo(Offset.lerp(start, target, step / 16)!);
+        await tester.pump(const Duration(milliseconds: 40));
+      }
+      await tester.pump(const Duration(milliseconds: 350));
       await drag.up();
       await tester.pumpAndSettle();
+      expect(repo.persisted, isNotNull, reason: 'The real drag must save once');
       expect(repo.persisted!.settings.homeCards, ['reports', 'accounts']);
       final writes = repo.writes;
       repo.failNext = true;

@@ -92,7 +92,7 @@ const binary = chromiumModule.default || chromiumModule;
       }
       // Generated Flutter grouping nodes can overlap semantic buttons in the DOM.
       // A real canvas-coordinate click still exercises Flutter's pointer hit test.
-      await target.click({timeout: 15000, force: label === 'Dark'});
+      await target.click({timeout: 15000, force: ['Light', 'Dark', 'Just Black', 'System'].includes(label)});
       await page.waitForTimeout(350);
     }
     await page.goto('http://127.0.0.1:8080', {waitUntil: 'domcontentloaded'});

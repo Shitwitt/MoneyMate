@@ -17,6 +17,9 @@ target = subprocess.check_output(['git', 'rev-parse', target], text=True).strip(
 head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
 if target != head:
     raise SystemExit('Source commit does not match the checked-out APK build commit')
+changed = subprocess.check_output(['git', 'diff', '--name-only', 'HEAD', '--'], text=True).strip()
+if changed:
+    raise SystemExit('Tracked source changed after checkout; commit it and rebuild before publication:\n' + changed)
 apk = Path('Tink-Android-release.apk')
 if source.resolve() != apk.resolve():
     shutil.copyfile(source, apk)

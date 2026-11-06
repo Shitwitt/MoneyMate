@@ -53,4 +53,9 @@ if code:
     for index in range(0, len(text), 3000):
         chunk = text[index:index + 3000].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
         print(f'::error title=Build diagnostics {index // 3000 + 1}::{chunk}', flush=True)
+if code == 0 and sys.argv[1:3] == ['flutter', 'test']:
+    # Safe, bounded real-SDK result evidence; never dump test data on success.
+    summaries = re.findall(r'\b\d+ tests? passed(?:, \d+ (?:failed|skipped))?\.?', ''.join(lines))
+    if summaries:
+        print('::notice title=Flutter test summary::' + summaries[-1], flush=True)
 raise SystemExit(code)

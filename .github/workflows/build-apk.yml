@@ -46,6 +46,8 @@ jobs:
       - name: Enforce the strict non-mutating format gate
         if: ${{ always() && steps.dart-format.outcome != 'success' }}
         run: exit 1
+      - name: Require unchanged tracked source and dependency lock
+        run: git diff --exit-code HEAD --
       - name: Package source for download
         run: git archive --format=zip --prefix=Tink/ HEAD -o Tink-source.zip
       - uses: actions/upload-artifact@v5
@@ -61,7 +63,8 @@ jobs:
     name: Release Android APK
     permissions:
       contents: write
-    needs: checks
+    # Never publish ahead of the same-commit browser and complete frame gates.
+    needs: [checks, web, web-review, batch3-review, batch4-review, review-2026]
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -352,12 +355,12 @@ jobs:
           name: Tink-Web-screenshots
           path: review-shots
       - name: Require all 2026 frames and record hashes
-        run: python3 .github/scripts/reference_2026_evidence.py --verify-only
+        run: python3 .github/scripts/checked_command.py python3 .github/scripts/reference_2026_evidence.py --verify-only
       - name: 2026 frames 1–3
-        run: python3 .github/scripts/reference_2026_evidence.py 0
+        run: python3 .github/scripts/checked_command.py python3 .github/scripts/reference_2026_evidence.py 0
       - name: 2026 frames 4–6
-        run: python3 .github/scripts/reference_2026_evidence.py 1
+        run: python3 .github/scripts/checked_command.py python3 .github/scripts/reference_2026_evidence.py 1
       - name: 2026 frames 7–9
-        run: python3 .github/scripts/reference_2026_evidence.py 2
+        run: python3 .github/scripts/checked_command.py python3 .github/scripts/reference_2026_evidence.py 2
       - name: 2026 frames 10–12
-        run: python3 .github/scripts/reference_2026_evidence.py 3
+        run: python3 .github/scripts/checked_command.py python3 .github/scripts/reference_2026_evidence.py 3

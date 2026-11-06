@@ -146,6 +146,9 @@ const binary = chromiumModule.default || chromiumModule;
     await ready();
     await page.getByRole('button', {name: 'Start fresh', exact: true}).waitFor();
     await capture('web-intro.jpg');
+    // Verify a separate 2026 demo first, then preserve the original reference
+    // journeys and 14-step real setup below unchanged. Exit must restore welcome.
+    await require('./reference_2026_smoke.cjs')({page, nav, goBack, capture, scroll, revealText, visibleText});
     await page.getByRole('button', {name: 'Try Demo Mode', exact: true}).click();
     await page.getByText('Demo User', {exact: false}).first().waitFor({timeout: 30000});
     await page.waitForTimeout(800);
@@ -238,7 +241,6 @@ const binary = chromiumModule.default || chromiumModule;
     await require('./reference_batch_04_smoke.cjs')({page, nav, goBack, capture, scroll, revealText, visibleText, swipeCarousel});
     await page.getByRole('button', {name: 'Exit Demo', exact: true}).click();
     await page.getByRole('button', {name: 'Start fresh', exact: true}).waitFor();
-    await require('./reference_2026_smoke.cjs')({page, nav, goBack, capture, scroll, revealText, visibleText});
     // A demo edit must not leave a real profile behind. Now complete all 14 steps.
     await page.getByRole('button', {name: 'Start fresh', exact: true}).click();
     await page.waitForTimeout(350);

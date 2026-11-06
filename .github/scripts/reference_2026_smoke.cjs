@@ -39,8 +39,8 @@ module.exports = async function reference2026({page, nav, goBack, capture, scrol
   await button('Reorder Home cards').click();
   await visibleText('Make Home yours').waitFor(); await shot('home-reorder');
   await button('Move Total balance down').click(); await pause();
-  const first = page.getByLabel('Drag Income & expenses', {exact: true});
-  const second = page.getByLabel('Drag Total balance', {exact: true});
+  const first = page.getByLabel(/^Income & expenses\nDrag Income & expenses(?:\n|$)/);
+  const second = page.getByLabel(/^Total balance\nDrag Total balance(?:\n|$)/);
   const firstBox = await first.boundingBox(), secondBox = await second.boundingBox();
   if (!firstBox || !secondBox || firstBox.y >= secondBox.y) throw new Error('Home order was not updated inline');
   await shot('home-reordered');
@@ -135,5 +135,5 @@ module.exports = async function reference2026({page, nav, goBack, capture, scrol
   if (!fs.readFileSync(originalPath).equals(fixture)) throw new Error('Retained original legacy JSON changed');
   await button('Exit Demo').click();
   await button('Start fresh').waitFor(); // The imported profile must NOT leak out of demo.
-  console.log('::notice title=Tink 2026 browser workflows::PASS: inline Home move, fixed-shape privacy, copied page-only URL, inherited category exclusion with actual CSV rows, real keyboard Next chain without save, portrait/landscape account panes, actual legacy file chooser, explicit currency/direction, preview/cancel/new-profile import, byte-identical retained-original download and isolated demo exit.');
+  console.log('::notice title=Tink 2026 browser workflows::PASS: inline Home move, fixed-shape privacy, copied page-only URL, category exclusion with actual CSV rows, real keyboard Next chain without save, portrait/landscape account panes, actual legacy file chooser, explicit currency/direction, preview/cancel/new-profile import, byte-identical retained-original download and isolated demo exit.');
 };

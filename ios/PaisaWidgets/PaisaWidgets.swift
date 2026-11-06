@@ -25,40 +25,40 @@ struct MoneyProvider: TimelineProvider {
 }
 private extension View {
     @ViewBuilder func paisaBackground() -> some View {
-        if #available(iOS 17.0, *) { self.containerBackground(Color(red: 0.97, green: 0.97, blue: 0.985), for: .widget) }
-        else { self.padding(16).background(Color(red: 0.97, green: 0.97, blue: 0.985)) }
+        if #available(iOS 17.0, *) { self.containerBackground(Color(red: 1.0, green: 0.973, blue: 0.949), for: .widget) }
+        else { self.padding(16).background(Color(red: 1.0, green: 0.973, blue: 0.949)) }
     }
 }
 struct BalanceView: View {
     let entry: MoneyEntry
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label(entry.profile, systemImage: "sparkle").font(.system(.caption, design: .serif))
+            Label(entry.profile, systemImage: "sparkle").font(.system(.caption, design: .rounded))
             Spacer()
-            Text("NET WORTH").font(.system(.caption2, design: .serif)).tracking(2)
-            Text(entry.balance).font(.system(.title2, design: .serif).bold()).monospacedDigit().minimumScaleFactor(0.5).lineLimit(1)
-            Text("Your money. Your device.").font(.system(.caption2, design: .serif))
-        }.foregroundColor(Color(red: 0.043, green: 0.043, blue: 0.059)).paisaBackground().widgetURL(URL(string: "paisa://home"))
+            Text("NET WORTH").font(.system(.caption2, design: .rounded)).tracking(2)
+            Text(entry.balance).font(.system(.title2, design: .rounded).bold()).monospacedDigit().minimumScaleFactor(0.5).lineLimit(1)
+            Text("Your money. Your device.").font(.system(.caption2, design: .rounded))
+        }.foregroundColor(Color(red: 0.176, green: 0.129, blue: 0.102)).paisaBackground().widgetURL(URL(string: "paisa://home"))
     }
 }
 struct BudgetView: View {
     let entry: MoneyEntry
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Budget check-in", systemImage: "chart.pie").font(.system(.caption, design: .serif))
-            Text(entry.budgetName).font(.system(.subheadline, design: .serif).bold()).lineLimit(2)
-            Text(entry.budget).font(.system(.title3, design: .serif).bold())
-            ProgressView(value: min(1, max(0, entry.progress))).tint(Color(red: 0.569, green: 0.424, blue: 1.0))
-        }.foregroundColor(Color(red: 0.043, green: 0.043, blue: 0.059)).paisaBackground().widgetURL(URL(string: "paisa://home"))
+            Label("Budget check-in", systemImage: "chart.pie").font(.system(.caption, design: .rounded))
+            Text(entry.budgetName).font(.system(.subheadline, design: .rounded).bold()).lineLimit(2)
+            Text(entry.budget).font(.system(.title3, design: .rounded).bold())
+            ProgressView(value: min(1, max(0, entry.progress))).tint(Color(red: 0.447, green: 0.212, blue: 0.118))
+        }.foregroundColor(Color(red: 0.176, green: 0.129, blue: 0.102)).paisaBackground().widgetURL(URL(string: "paisa://home"))
     }
 }
 struct QuickView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Image(systemName: "plus.circle.fill").font(.largeTitle)
-            Text("A little entry.").font(.system(.title3, design: .serif).bold())
-            Text("One less thing to remember.").font(.system(.caption, design: .serif))
-        }.foregroundColor(Color(red: 0.043, green: 0.043, blue: 0.059)).paisaBackground().widgetURL(URL(string: "paisa://quick_add"))
+            Text("A little entry.").font(.system(.title3, design: .rounded).bold())
+            Text("One less thing to remember.").font(.system(.caption, design: .rounded))
+        }.foregroundColor(Color(red: 0.176, green: 0.129, blue: 0.102)).paisaBackground().widgetURL(URL(string: "paisa://quick_add"))
     }
 }
 struct BalanceWidget: Widget {

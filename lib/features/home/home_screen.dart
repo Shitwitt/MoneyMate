@@ -1039,7 +1039,7 @@ class _BudgetPeekState extends State<_BudgetPeek> {
     return Column(
       children: [
         SizedBox(
-          height: 132 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 1.6),
+          height: 160 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 1.6),
           child: PageView.builder(
             key: ValueKey(budgets.map((b) => b.id).join()),
             itemCount: budgets.length,

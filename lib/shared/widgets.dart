@@ -16,6 +16,7 @@ export 'luxury_components.dart';
 export 'account_artwork.dart';
 export 'reference_components.dart';
 export 'wavy_ring.dart';
+export 'wavy_progress.dart';
 
 IconData iconFor(String key) => switch (key) {
   'food' => Icons.restaurant_rounded,
@@ -340,14 +341,6 @@ class StatCard extends StatelessWidget {
 }
 
 /// Compatibility wrapper: the premium design uses a clean, rounded track.
-class WavyProgress extends StatelessWidget {
-  final double value;
-  final Color? color;
-  const WavyProgress(this.value, {super.key, this.color});
-  @override
-  Widget build(BuildContext context) => ProgressBar(value, color: color);
-}
-
 class LoadingSkeleton extends StatelessWidget {
   const LoadingSkeleton({super.key});
   @override

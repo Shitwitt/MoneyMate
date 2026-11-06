@@ -95,6 +95,13 @@ const binary = chromiumModule.default || chromiumModule;
       await target.click({timeout: 15000, force: ['Light', 'Dark', 'Just Black', 'System'].includes(label)});
       await page.waitForTimeout(350);
     }
+    async function goBack() {
+      // Consecutive pops must not reuse the departing route's semantics node.
+      // Flutter hides/remounts those nodes during its 300ms route transition.
+      await page.waitForTimeout(350);
+      await page.getByRole('button', {name: 'Back', exact: true}).click();
+      await page.waitForTimeout(350);
+    }
     function visibleText(label) {
       // Read-only chart/card semantics may merge title and values into one label.
       const name = new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
@@ -141,7 +148,7 @@ const binary = chromiumModule.default || chromiumModule;
     await revealText('Upcoming transactions'); await capture('web-home-upcoming.jpg');
     await page.getByRole('button', {name: 'See all', exact: true}).last().click();
     await page.waitForTimeout(350); await capture('web-upcoming-all.jpg');
-    await page.getByRole('button', {name: 'Back', exact: true}).click();
+    await goBack();
     await nav('Budgets'); await capture('web-budgets.jpg');
     await swipeCarousel(180);
     await page.getByText(/^On Track(?:\s|$)/).or(page.getByLabel(/^On Track(?:\s|$)/)).first().waitFor();
@@ -154,8 +161,8 @@ const binary = chromiumModule.default || chromiumModule;
     await visibleText('Budget Progress').waitFor();
     await capture('web-budget-detail.jpg');
     await scroll(700); await page.waitForTimeout(400); await capture('web-budget-breakdown.jpg');
-    await page.getByRole('button', {name: 'Back', exact: true}).click();
-    await page.getByRole('button', {name: 'Back', exact: true}).click();
+    await goBack();
+    await goBack();
     await scroll(-20000); await page.waitForTimeout(300);
     await nav('Accounts');
     await visibleText('Total balance').waitFor();
@@ -175,7 +182,7 @@ const binary = chromiumModule.default || chromiumModule;
       const name = new RegExp('^' + label + '(?:\\s|$)');
       await page.getByText(name).or(page.getByLabel(name)).first().waitFor();
       await capture('web-financial-' + suffix + '.jpg');
-      await page.getByRole('button', {name: 'Back', exact: true}).click();
+      await goBack();
     }
     await nav('Home');
     await page.getByRole('button', {name: 'All tools', exact: true}).click();
@@ -203,7 +210,7 @@ const binary = chromiumModule.default || chromiumModule;
     await page.getByRole('button', {name: 'Recurring options', exact: true}).click();
     await page.getByRole('menuitem', {name: 'Archive', exact: true}).or(page.getByText('Archive', {exact: true})).last().click();
     await page.waitForTimeout(300);
-    await page.getByRole('button', {name: 'Back', exact: true}).click();
+    await goBack();
     await nav('Archived');
     await capture('web-archived.jpg');
     await page.getByRole('button', {name: 'Exit Demo', exact: true}).click();

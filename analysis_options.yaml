@@ -2,6 +2,10 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude:
     - lib/l10n/generated/**
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
   errors:
     deprecated_member_use: ignore
 linter:

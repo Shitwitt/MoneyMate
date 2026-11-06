@@ -14,28 +14,31 @@ class DemoFrame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!enabled) return child;
-    return Stack(
-      children: [
-        Padding(padding: const EdgeInsets.only(top: 58), child: child),
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: SafeArea(
-            bottom: false,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: FilledButton.icon(
-                  onPressed: onExit,
-                  icon: const Icon(Icons.close_rounded),
-                  label: const Text('Exit Demo'),
+    return ColoredBox(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: Stack(
+        children: [
+          Padding(padding: const EdgeInsets.only(top: 58), child: child),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              bottom: false,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: FilledButton.icon(
+                    onPressed: onExit,
+                    icon: const Icon(Icons.close_rounded),
+                    label: const Text('Exit Demo'),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -1,6 +1,8 @@
 /* All financial edits are confined to the fictional, in-memory demo. */
 module.exports = async function referenceBatchThree({page, nav, goBack, capture, scroll, revealText, visibleText, swipeCarousel}) {
-  const pause = () => page.waitForTimeout(400);
+  // Hover tooltips can temporarily duplicate an icon's changed accessible name.
+  // Move away just as a touch user would; never click a tooltip instead.
+  const pause = async () => {await page.mouse.move(1,843); await page.waitForTimeout(400);};
   const button = name => page.getByRole('button', {name, exact: true});
   const shot = async name => {await pause(); await capture('web-batch3-' + name + '.jpg');};
   async function fill(label, text) {
@@ -48,6 +50,7 @@ module.exports = async function referenceBatchThree({page, nav, goBack, capture,
   await visibleText('Emergency fund verified').waitFor();
   await button('Archive goal').click(); await pause();
   await button('Restore goal').click(); await pause();
+  await button('Archive goal').waitFor(); // Persisted restore, not just a click.
   await goBack(); await nav('Completed'); await nav('Archived'); await nav('Active'); await goBack();
 
   await nav('Labels'); await shot('labels');

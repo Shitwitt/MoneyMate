@@ -67,8 +67,7 @@ const budgetHelpSections = <HelpSection>[
 Future<void> showBudgetHelp(BuildContext context) => showHowItWorks(
   context,
   title: 'How Budgets Work',
-  introduction:
-      'Budgets help you set spending limits and track your expenses, or plan income targets. Here’s how to get started.',
+  introduction: 'Budgets help you set spending limits and track your expenses, or plan income targets. Here’s how to get started.',
   sections: budgetHelpSections,
 );
 
@@ -323,7 +322,7 @@ class _BudgetOverviewState extends State<BudgetOverview> {
         SizedBox(
           height: large
               ? 430 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 1.6)
-              : 226,
+              : 252,
           child: PageView(
             onPageChanged: (p) => setState(() => page = p),
             children: [
@@ -358,9 +357,8 @@ class _BudgetOverviewState extends State<BudgetOverview> {
                 height: 8,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: i == page ? 1 : .25),
+                  color: Theme.of(context).colorScheme.primary
+                      .withValues(alpha: i == page ? 1 : .25),
                 ),
               ),
           ],
@@ -407,9 +405,8 @@ class BudgetCard extends ConsumerWidget {
       ),
     );
     final background = Color.alphaBlend(
-      Color(
-        budget.color,
-      ).withValues(alpha: AppColors.dark(context) ? .21 : .13),
+      Color(budget.color)
+          .withValues(alpha: AppColors.dark(context) ? .21 : .13),
       Theme.of(context).colorScheme.surface,
     );
     return BudgetWarningFrame(
@@ -603,8 +600,7 @@ Future<void> editBudget(
   await showEditor(
     context,
     title: initial == null ? 'New budget' : 'Edit budget',
-    description:
-        'Automatic matching or explicit transaction links. Rollover carries signed surplus/deficit; no money is moved.',
+    description: 'Automatic matching or explicit transaction links. Rollover carries signed surplus/deficit; no money is moved.',
     fields: (context, setLocal) => [
       formText(name, 'Budget name', required: true),
       formText(
@@ -622,12 +618,10 @@ Future<void> editBudget(
           categories = {};
         }),
       ),
-      formSelect(
-        'Budget type',
-        overall ? 'overall' : 'category',
-        const ['category', 'overall'],
-        (v) => setLocal(() => overall = v == 'overall'),
-      ),
+      formSelect('Budget type', overall ? 'overall' : 'category', const [
+        'category',
+        'overall',
+      ], (v) => setLocal(() => overall = v == 'overall')),
       formSelect('Budget mode', mode, const [
         'automatic',
         'manual',
@@ -938,9 +932,8 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
               children: [
                 Text(
                   'Budget Progress',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium?.copyWith(color: color),
+                  style: Theme.of(context).textTheme.titleMedium
+                      ?.copyWith(color: color),
                 ),
                 const SizedBox(height: 22),
                 BudgetProgressChart(
@@ -964,9 +957,8 @@ class _BudgetDetailScreenState extends ConsumerState<BudgetDetailScreen> {
               children: [
                 Text(
                   'Category Breakdown',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium?.copyWith(color: color),
+                  style: Theme.of(context).textTheme.titleMedium
+                      ?.copyWith(color: color),
                 ),
                 const SizedBox(height: 18),
                 if (groups.isEmpty)

@@ -63,6 +63,51 @@ Ledger ledgerWith(ProfileData data, List<MoneyTransaction> entries) =>
 
 void main() {
   test(
+    'Account labels and linked accounts persist without fabricated identifiers',
+    () {
+      final data = fixture(), main = fixture().accounts.first;
+      final child = const Account(
+        id: 'child',
+        name: 'Cash',
+        currency: 'USD',
+        holderName: 'Household',
+        lastDigits: '0123',
+      ).copyWith(parentId: main.id);
+      expect(Account.fromJson(child.toJson()).toJson(), child.toJson());
+      expect(
+        Account.fromJson({
+          'id': 'legacy',
+          'name': 'Old',
+          'currency': 'USD',
+        }).lastDigits,
+        '',
+      );
+      validateProfile(data.copyWith(accounts: [main, child]));
+      for (final invalid in [
+        child.copyWith(lastDigits: '12345'),
+        child.copyWith(lastDigits: '12AB'),
+        child.copyWith(parentId: 'missing'),
+        child.copyWith(parentId: child.id),
+      ]) {
+        expect(
+          () => validateProfile(data.copyWith(accounts: [main, invalid])),
+          throwsA(isA<FormatException>()),
+        );
+      }
+      expect(
+        () => validateProfile(
+          data.copyWith(
+            accounts: [
+              main.copyWith(parentId: child.id),
+              child,
+            ],
+          ),
+        ),
+        throwsA(isA<FormatException>()),
+      );
+    },
+  );
+  test(
     'Old budget/category JSON remains compatible; new controls round-trip',
     () {
       final old = Budget.fromJson({
@@ -95,11 +140,8 @@ void main() {
       );
       expect(Category.fromJson(category.toJson()).parentId, 'parent');
       expect(
-        Category.fromJson({
-          'id': 'old',
-          'name': 'Old',
-          'type': 'expense',
-        }).parentId,
+        Category.fromJson({'id': 'old', 'name': 'Old', 'type': 'expense'})
+            .parentId,
         '',
       );
     },
@@ -245,8 +287,7 @@ void main() {
     expect(
       first.spent,
       1500,
-      reason:
-          'Budget starts are calendar dates, not an accidental time-of-day gate',
+      reason: 'Budget starts are calendar dates, not an accidental time-of-day gate',
     );
     final second = ledger.budgetStatus(budget, DateTime(2026, 1, 2, 12));
     expect(second.carry, -500);
@@ -366,70 +407,67 @@ void main() {
       expect(status.spent, 0);
     },
   );
-  test(
-    'Reports omit transfers, excluded accounts, opening balances and unposted dates',
-    () {
-      final data = fixture();
-      final now = DateTime(2026, 11, 6, 12);
-      final profile = data.copyWith(
-        accounts: [
-          ...data.accounts,
-          const Account(
-            id: 'second',
-            name: 'Excluded',
-            currency: 'USD',
-            openingMinor: 999999,
-            excluded: true,
-          ),
-        ],
-      );
-      final ledger = ledgerWith(profile, [
-        record(profile, 'income', 7000, DateTime(2026, 11, 1), type: 'income'),
-        record(profile, 'expense', 6400, DateTime(2026, 11, 3)),
-        record(
-          profile,
-          'excluded',
-          9900,
-          DateTime(2026, 11, 2),
-          account: 'second',
+  test('Reports omit transfers, excluded accounts, opening balances and unposted dates', () {
+    final data = fixture();
+    final now = DateTime(2026, 11, 6, 12);
+    final profile = data.copyWith(
+      accounts: [
+        ...data.accounts,
+        const Account(
+          id: 'second',
+          name: 'Excluded',
+          currency: 'USD',
+          openingMinor: 999999,
+          excluded: true,
         ),
-        record(
-          profile,
-          'transfer',
-          1000,
-          DateTime(2026, 11, 2),
-          type: 'transfer',
-        ),
-        record(profile, 'later today', 500, DateTime(2026, 11, 6, 18)),
-        record(profile, 'next month', 1000, DateTime(2026, 12, 1)),
-      ]);
-      final snapshot = ReportSnapshot(
+      ],
+    );
+    final ledger = ledgerWith(profile, [
+      record(profile, 'income', 7000, DateTime(2026, 11, 1), type: 'income'),
+      record(profile, 'expense', 6400, DateTime(2026, 11, 3)),
+      record(
+        profile,
+        'excluded',
+        9900,
+        DateTime(2026, 11, 2),
+        account: 'second',
+      ),
+      record(
+        profile,
+        'transfer',
+        1000,
+        DateTime(2026, 11, 2),
+        type: 'transfer',
+      ),
+      record(profile, 'later today', 500, DateTime(2026, 11, 6, 18)),
+      record(profile, 'next month', 1000, DateTime(2026, 12, 1)),
+    ]);
+    final snapshot = ReportSnapshot(
+      ledger,
+      DateWindow(DateTime(2026, 11, 1), DateTime(2026, 12, 1)),
+      now: now,
+    );
+    expect(snapshot.entries.map((e) => e.id), ['income', 'expense']);
+    expect(snapshot.income, 7000);
+    expect(snapshot.expense, 6400);
+    expect(snapshot.net, 600);
+    expect(snapshot.dailyAverage, 213);
+    expect(snapshot.averageTransaction, 6400);
+    expect(snapshot.largestExpense?.id, 'expense');
+    expect(snapshot.peakDay, DateTime(2026, 11, 3));
+    expect(snapshot.daily[5].future, isFalse);
+    expect(snapshot.daily[6].future, isTrue);
+    expect(snapshot.daily[2].expense, 6400);
+    expect(
+      ReportSnapshot(
         ledger,
-        DateWindow(DateTime(2026, 11, 1), DateTime(2026, 12, 1)),
+        snapshot.window,
         now: now,
-      );
-      expect(snapshot.entries.map((e) => e.id), ['income', 'expense']);
-      expect(snapshot.income, 7000);
-      expect(snapshot.expense, 6400);
-      expect(snapshot.net, 600);
-      expect(snapshot.dailyAverage, 213);
-      expect(snapshot.averageTransaction, 6400);
-      expect(snapshot.largestExpense?.id, 'expense');
-      expect(snapshot.peakDay, DateTime(2026, 11, 3));
-      expect(snapshot.daily[5].future, isFalse);
-      expect(snapshot.daily[6].future, isTrue);
-      expect(snapshot.daily[2].expense, 6400);
-      expect(
-        ReportSnapshot(
-          ledger,
-          snapshot.window,
-          now: now,
-          selection: [],
-        ).savingsRate,
-        isNull,
-      );
-    },
-  );
+        selection: [],
+      ).savingsRate,
+      isNull,
+    );
+  });
   test(
     'Reports aggregate descendants and convert native amounts at manual rates',
     () {
@@ -497,82 +535,73 @@ void main() {
       ]);
     },
   );
-  test(
-    'Upcoming preview is bounded, deduplicated, disabled/end-aware and read-only',
-    () {
-      final data = fixture();
-      final now = DateTime(2026, 11, 6, 12), due = DateTime(2026, 11, 7, 9);
-      final rule = Recurring(
-        id: 'daily',
-        name: 'Local bill',
-        type: 'expense',
-        amountMinor: 100,
-        accountId: data.accounts.first.id,
-        categoryId: data.categories.first.id,
-        frequency: 'daily',
-        start: DateTime(2020, 1, 1, 9),
-        nextDue: DateTime(2020, 1, 1, 9),
-        end: DateTime(2026, 11, 7, 23, 59),
-      );
-      final entries = [
-        record(data, 'materialized', 100, due, recurring: 'daily'),
-      ];
-      final profile = data.copyWith(
-        transactions: entries,
-        recurrings: [
-          rule,
-          rule.copyWith(id: 'disabled', enabled: false),
-          rule.copyWith(id: 'archived', archived: true),
-        ],
-      );
-      final snapshot = profile.toJson().toString();
-      final upcoming = upcomingRecords(
-        Ledger(profile, const AppSettings()),
-        now,
-        days: 2,
-      );
-      expect(upcoming.length, 1);
-      expect(upcoming.single.entry?.id, 'materialized');
-      expect(profile.toJson().toString(), snapshot);
-      final noSaved = upcomingRecords(
-        Ledger(profile.copyWith(transactions: []), const AppSettings()),
-        now,
-        days: 2,
-      );
-      expect(noSaved.length, 1);
-      expect(noSaved.single.rule?.id, 'daily');
-      expect(noSaved.single.date, due);
-    },
-  );
-  test(
-    'Batch-one layouts append the four new Home sections once, preserving order and hiding',
-    () {
-      final migrated = AppSettings.fromJson({
-        'uiRevision': 2,
-        'homeCards': ['templates', 'accounts', 'balance'],
-        'hiddenCards': ['balance'],
-        'navTabs': ['home', 'more', 'accounts'],
-      });
-      expect(migrated.homeCards, [
-        'templates',
-        'accounts',
-        'balance',
-        'heatmap',
-        'trend',
-        'trackedBudgets',
-        'upcoming',
-      ]);
-      expect(migrated.hiddenCards, ['balance']);
-      expect(migrated.navTabs, ['home', 'more', 'accounts']);
-      expect(
-        AppSettings.fromJson(migrated.toJson()).homeCards,
-        migrated.homeCards,
-      );
-      final current = migrated.copyWith(homeCards: ['templates', 'accounts']);
-      expect(
-        AppSettings.fromJson(current.toJson()).homeCards,
-        current.homeCards,
-      );
-    },
-  );
+  test('Upcoming preview is bounded, deduplicated, disabled/end-aware and read-only', () {
+    final data = fixture();
+    final now = DateTime(2026, 11, 6, 12), due = DateTime(2026, 11, 7, 9);
+    final rule = Recurring(
+      id: 'daily',
+      name: 'Local bill',
+      type: 'expense',
+      amountMinor: 100,
+      accountId: data.accounts.first.id,
+      categoryId: data.categories.first.id,
+      frequency: 'daily',
+      start: DateTime(2020, 1, 1, 9),
+      nextDue: DateTime(2020, 1, 1, 9),
+      end: DateTime(2026, 11, 7, 23, 59),
+    );
+    final entries = [
+      record(data, 'materialized', 100, due, recurring: 'daily'),
+    ];
+    final profile = data.copyWith(
+      transactions: entries,
+      recurrings: [
+        rule,
+        rule.copyWith(id: 'disabled', enabled: false),
+        rule.copyWith(id: 'archived', archived: true),
+      ],
+    );
+    final snapshot = profile.toJson().toString();
+    final upcoming = upcomingRecords(
+      Ledger(profile, const AppSettings()),
+      now,
+      days: 2,
+    );
+    expect(upcoming.length, 1);
+    expect(upcoming.single.entry?.id, 'materialized');
+    expect(profile.toJson().toString(), snapshot);
+    final noSaved = upcomingRecords(
+      Ledger(profile.copyWith(transactions: []), const AppSettings()),
+      now,
+      days: 2,
+    );
+    expect(noSaved.length, 1);
+    expect(noSaved.single.rule?.id, 'daily');
+    expect(noSaved.single.date, due);
+  });
+  test('Batch-one layouts append the four new Home sections once, preserving order and hiding', () {
+    final migrated = AppSettings.fromJson({
+      'uiRevision': 2,
+      'homeCards': ['templates', 'accounts', 'balance'],
+      'hiddenCards': ['balance'],
+      'navTabs': ['home', 'more', 'accounts'],
+    });
+    expect(migrated.homeCards, [
+      'templates',
+      'accounts',
+      'balance',
+      'heatmap',
+      'trend',
+      'trackedBudgets',
+      'upcoming',
+    ]);
+    expect(migrated.hiddenCards, ['balance']);
+    expect(migrated.navTabs, ['home', 'more', 'accounts']);
+    expect(
+      AppSettings.fromJson(migrated.toJson()).homeCards,
+      migrated.homeCards,
+    );
+    final current = migrated.copyWith(homeCards: ['templates', 'accounts']);
+    expect(AppSettings.fromJson(current.toJson()).homeCards, current.homeCards);
+  });
 }

@@ -19,7 +19,7 @@ const binary = chromiumModule.default || chromiumModule;
       await new Promise(resolve => setTimeout(resolve, 100));
     }
     browser = await playwright.launch({executablePath: await binary.executablePath(), args: binary.args, headless: true});
-    const context = await browser.newContext({viewport: {width: 390, height: 844}, deviceScaleFactor: 1, locale: 'en-IN', colorScheme: 'light'});
+    const context = await browser.newContext({viewport: {width: 390, height: 844}, deviceScaleFactor: 1, locale: 'en-IN', colorScheme: 'light', hasTouch: true});
     page = await context.newPage();
     const remoteRequests = new Set();
     page.on('request', request => {
@@ -82,7 +82,7 @@ const binary = chromiumModule.default || chromiumModule;
       // materialize an offscreen SliverGrid item. Scroll its real canvas first.
       if (!await target.isVisible()) {
         await page.mouse.move(200, 440);
-        await scroll(-3000);
+        await scroll(-20000);
         await page.waitForTimeout(220);
       }
       for (let attempt = 0; attempt < 8 && !await target.isVisible(); attempt++) {
@@ -94,6 +94,25 @@ const binary = chromiumModule.default || chromiumModule;
       // A real canvas-coordinate click still exercises Flutter's pointer hit test.
       await target.click({timeout: 15000, force: ['Light', 'Dark', 'Just Black', 'System'].includes(label)});
       await page.waitForTimeout(350);
+    }
+    async function revealText(label) {
+      const target = page.getByText(label, {exact: true}).first();
+      await scroll(-20000); await page.waitForTimeout(220);
+      for (let i = 0; i < 22 && !await target.isVisible(); i++) {
+        await scroll(360); await page.waitForTimeout(180);
+      }
+      await target.waitFor({state: 'visible', timeout: 10000});
+    }
+    const touch = await context.newCDPSession(page);
+    await touch.send('Emulation.setTouchEmulationEnabled', {enabled: true, maxTouchPoints: 1});
+    async function swipeCarousel(y) {
+      await touch.send('Input.dispatchTouchEvent', {type: 'touchStart', touchPoints: [{x: 325, y}]});
+      for (let i = 1; i <= 10; i++) {
+        await touch.send('Input.dispatchTouchEvent', {type: 'touchMove', touchPoints: [{x: 325 - i * 26, y}]});
+        await page.waitForTimeout(25);
+      }
+      await touch.send('Input.dispatchTouchEvent', {type: 'touchEnd', touchPoints: []});
+      await page.waitForTimeout(650);
     }
     await page.goto('http://127.0.0.1:8080', {waitUntil: 'domcontentloaded'});
     await ready();
@@ -107,10 +126,30 @@ const binary = chromiumModule.default || chromiumModule;
     await capture('web-home-grid.jpg');
     await scroll(3000); await page.waitForTimeout(450);
     await capture('web-home-lower.jpg');
-    await scroll(-6000); await page.waitForTimeout(300);
+    await revealText('Calendar heatmap'); await capture('web-home-heatmap.jpg');
+    await revealText('Trend'); await capture('web-home-trend.jpg');
+    await revealText('Track budgets'); await capture('web-home-budgets.jpg');
+    await revealText('Upcoming transactions'); await capture('web-home-upcoming.jpg');
+    await page.getByRole('button', {name: 'See all', exact: true}).last().click();
+    await page.waitForTimeout(350); await capture('web-upcoming-all.jpg');
+    await page.getByRole('button', {name: 'Back', exact: true}).click();
+    await nav('Budgets'); await capture('web-budgets.jpg');
+    await swipeCarousel(180); await capture('web-budget-status.jpg');
+    await page.getByRole('button', {name: 'How budgets work', exact: true}).click();
+    await page.waitForTimeout(350); await capture('web-budget-help.jpg');
+    await scroll(1500); await page.waitForTimeout(350); await capture('web-budget-help-bottom.jpg');
+    await page.getByRole('button', {name: 'Got it', exact: true}).click();
+    await nav('Getting around');
+    await page.getByText('Budget Progress', {exact: true}).waitFor();
+    await capture('web-budget-detail.jpg');
+    await scroll(700); await page.waitForTimeout(400); await capture('web-budget-breakdown.jpg');
+    await page.getByRole('button', {name: 'Back', exact: true}).click();
+    await page.getByRole('button', {name: 'Back', exact: true}).click();
+    await scroll(-20000); await page.waitForTimeout(300);
     await nav('Accounts');
     await page.getByText('Total balance', {exact: false}).first().waitFor();
     await capture('web-accounts.jpg');
+    await swipeCarousel(175); await capture('web-accounts-second.jpg');
     await nav('Reports');
     await page.getByText('Quick Insights', {exact: false}).first().waitFor();
     await capture('web-reports.jpg');
@@ -138,7 +177,7 @@ const binary = chromiumModule.default || chromiumModule;
     await capture('web-detail.jpg');
     await page.mouse.move(210, 600); await scroll(1000); await page.waitForTimeout(400);
     await capture('web-history.jpg');
-    await scroll(-3000); await page.waitForTimeout(300);
+    await scroll(-20000); await page.waitForTimeout(300);
     await page.getByRole('button', {name: 'Process', exact: true}).click();
     await page.waitForTimeout(500);
     await page.getByRole('button', {name: 'Recurring options', exact: true}).click();
@@ -196,7 +235,7 @@ const binary = chromiumModule.default || chromiumModule;
     await assertDarkPalette();
     if (remoteRequests.size) throw new Error('Unexpected runtime network hosts: ' + [...remoteRequests].join(', '));
     if (errors.length) throw new Error('Browser/layout errors: ' + errors.join('\n'));
-    console.log('::notice title=Tink web smoke::PASS: isolated editable demo and exit, real 14-step setup, live feature previews, Home grid, accounts/reports, recurring calendar/help/history/process/archive, theme persistence, offline reload and zero external runtime requests.');
+    console.log('::notice title=Tink web smoke::PASS: isolated editable demo and exit, real 14-step setup, live feature previews, Home grid, Home heatmap/trend/tracked budgets/upcoming, account carousels/month reports, budget overview/status/help/detail, recurring calendar/help/history/process/archive, theme persistence, offline reload and zero external runtime requests.');
   } catch (error) {
     if (page) {
       console.log('Browser errors:', errors);

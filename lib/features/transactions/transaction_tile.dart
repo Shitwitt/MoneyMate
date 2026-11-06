@@ -80,10 +80,8 @@ class TransactionTile extends ConsumerWidget {
           entry.name,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(context).textTheme.titleSmall
+              ?.copyWith(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 5),
         Text(

@@ -61,8 +61,9 @@ class CatalogScreen extends ConsumerWidget {
               itemCount: entities.length,
               itemBuilder: (context, index) {
                 final entity = entities[index];
-                final entries = _filterFor(entity)
-                    .apply(ref.read(ledgerProvider)!);
+                final entries = _filterFor(
+                  entity,
+                ).apply(ref.read(ledgerProvider)!);
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Card(
@@ -194,6 +195,17 @@ Future<void> _editCategory(
   var type = initial?.type ?? initialType, icon = initial?.icon ?? 'category';
   var color = initial?.color ?? palette.first;
   var parentId = initial?.parentId ?? '';
+  bool canParent(Category candidate) {
+    var id = candidate.id;
+    final visited = <String>{};
+    final categories = ref.read(profileProvider)!.categories;
+    while (id.isNotEmpty && visited.add(id)) {
+      if (id == initial?.id) return false;
+      id = categories.where((c) => c.id == id).firstOrNull?.parentId ?? '';
+    }
+    return true;
+  }
+
   await showEditor(
     context,
     title: initial == null ? 'New category' : 'Edit category',
@@ -209,6 +221,8 @@ Future<void> _editCategory(
         }),
       ),
       DropdownButtonFormField<String>(
+        key: ValueKey('category-parent-$type'),
+        isExpanded: true,
         initialValue: parentId,
         decoration: const InputDecoration(labelText: 'Parent category'),
         items: [
@@ -217,7 +231,7 @@ Future<void> _editCategory(
               in ref
                   .read(profileProvider)!
                   .categories
-                  .where((c) => c.type == type && c.id != initial?.id))
+                  .where((c) => c.type == type && canParent(c)))
             DropdownMenuItem(value: category.id, child: Text(category.name)),
         ],
         onChanged: (value) => setLocal(() => parentId = value ?? ''),

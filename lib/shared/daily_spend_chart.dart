@@ -47,6 +47,11 @@ class DailySpendChart extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    if (ledger.settings.hideAmounts)
+      return const SizedBox(
+        height: 94,
+        child: Center(child: Icon(Icons.visibility_off_outlined)),
+      );
     final values = dailyExpenses(ledger, window, now);
     if (cumulative) {
       var total = 0;
@@ -74,7 +79,8 @@ class DailySpendChart extends StatelessWidget {
     }
     final maximum = values.whereType<int>().fold<int>(1, math.max);
     return Semantics(
-      label: 'Daily recorded expenses. Empty outlines are future days, not a prediction.',
+      label:
+          'Daily recorded expenses. Empty outlines are future days, not a prediction.',
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [

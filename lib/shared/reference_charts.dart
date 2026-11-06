@@ -106,8 +106,9 @@ class _ReferenceLineChartState extends State<ReferenceLineChart> {
                       low,
                       high,
                       progress,
-                      Theme.of(context).colorScheme.outlineVariant
-                          .withValues(alpha: .45),
+                      Theme.of(
+                        context,
+                      ).colorScheme.outlineVariant.withValues(alpha: .45),
                       Theme.of(context).textTheme.labelSmall!,
                       widget.start,
                       amount,
@@ -362,7 +363,9 @@ class _ReferenceDonutState extends State<ReferenceDonut> {
             onTapDown: (tap) {
               final center = Offset(box.maxWidth / 2, 135),
                   delta = tap.localPosition - center;
-              if (delta.distance < 62 || delta.distance > 130) return;
+              final radius = math.min(106.0, box.maxWidth / 2 - 30);
+              if (delta.distance < radius - 24 || delta.distance > radius + 24)
+                return;
               final angle =
                   (math.atan2(delta.dy, delta.dx) + math.pi / 2 + math.pi * 2) %
                   (math.pi * 2);
@@ -376,6 +379,12 @@ class _ReferenceDonutState extends State<ReferenceDonut> {
               }
             },
             child: Semantics(
+              onIncrease: () =>
+                  setState(() => selected = (index + 1) % widget.groups.length),
+              onDecrease: () => setState(
+                () => selected =
+                    (index + widget.groups.length - 1) % widget.groups.length,
+              ),
               label:
                   '${group.name}, ${(group.amount / total * 100).toStringAsFixed(1)} percent. ${money(group.amount, widget.ledger.currency)}.',
               child: TweenAnimationBuilder<double>(

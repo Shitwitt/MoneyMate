@@ -69,7 +69,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Accounts').last);
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Add account'));
+    await tester.tap(find.byTooltip('Manage accounts'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Add account').last);
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'Cash envelope');
     // Close the keyboard before scrolling the modal's Save button into view.

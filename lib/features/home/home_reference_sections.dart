@@ -306,8 +306,8 @@ class _HomeTrackedBudgetsState extends State<HomeTrackedBudgets> {
         const SectionHeader('Track budgets'),
         SizedBox(
           height: large
-              ? 310.0 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 1.6)
-              : 196,
+              ? 340.0 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 1.6)
+              : 244,
           child: PageView.builder(
             itemCount: budgets.length,
             onPageChanged: (p) => setState(() => page = p),
@@ -345,7 +345,12 @@ class _HomeTrackedBudgetsState extends State<HomeTrackedBudgets> {
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Row(
                         children: [
-                          Expanded(child: Text(row.$1)),
+                          Expanded(
+                            child: Text(
+                              row.$1,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ),
                           const SizedBox(width: 8),
                           Flexible(
                             child: AmountText(
@@ -382,6 +387,8 @@ class _HomeTrackedBudgetsState extends State<HomeTrackedBudgets> {
                               children: [
                                 Text(
                                   budget.name,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                   style: Theme.of(
                                     context,
                                   ).textTheme.titleMedium,
@@ -427,9 +434,8 @@ class _HomeTrackedBudgetsState extends State<HomeTrackedBudgets> {
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: i == page ? 1 : .25),
+                  color: Theme.of(context).colorScheme.primary
+                      .withValues(alpha: i == page ? 1 : .25),
                 ),
               ),
           ],
@@ -549,13 +555,24 @@ class _UpcomingRuleTile extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Flexible(
-              child: AmountText(
-                rule.amountMinor,
-                currency: account.currency,
-                style: TextStyle(
-                  color: AppColors.semantic(context, rule.type),
-                  fontWeight: FontWeight.w700,
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  AmountText(
+                    rule.amountMinor,
+                    currency: account.currency,
+                    style: TextStyle(
+                      color: AppColors.semantic(context, rule.type),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  if (account.currency != ledger.currency)
+                    AmountText(
+                      ledger.inBase(rule.amountMinor, account.currency),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                ],
               ),
             ),
           ],

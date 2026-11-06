@@ -138,68 +138,68 @@ jobs:
       - name: Visual evidence — failure (fictional data)
         if: always()
         run: |
-          python3 .github/scripts/image_diagnostic.py 0 "web-failure.jpg" "batch1-failure"
-          python3 .github/scripts/image_diagnostic.py 1 "web-failure.jpg" "batch1-failure"
-      - name: Visual evidence — intro (fictional data)
+          python3 .github/scripts/image_diagnostic.py 0 "web-failure.jpg" "batch2-failure"
+          python3 .github/scripts/image_diagnostic.py 1 "web-failure.jpg" "batch2-failure"
+      - name: Visual evidence — home-top (fictional data)
         if: always()
         run: |
-          python3 .github/scripts/image_diagnostic.py 0 "web-intro.jpg" "batch1-intro"
-          python3 .github/scripts/image_diagnostic.py 1 "web-intro.jpg" "batch1-intro"
-      - name: Visual evidence — budget-tour (fictional data)
+          python3 .github/scripts/image_diagnostic.py 0 "web-dashboard.jpg" "batch2-home-top"
+          python3 .github/scripts/image_diagnostic.py 1 "web-dashboard.jpg" "batch2-home-top"
+      - name: Visual evidence — home-grid (fictional data)
         if: always()
         run: |
-          python3 .github/scripts/image_diagnostic.py 0 "web-budget-tour.jpg" "batch1-budget-tour"
-          python3 .github/scripts/image_diagnostic.py 1 "web-budget-tour.jpg" "batch1-budget-tour"
-      - name: Visual evidence — languages (fictional data)
+          python3 .github/scripts/image_diagnostic.py 0 "web-home-grid.jpg" "batch2-home-grid"
+          python3 .github/scripts/image_diagnostic.py 1 "web-home-grid.jpg" "batch2-home-grid"
+      - name: Visual evidence — home-heatmap (fictional data)
         if: always()
         run: |
-          python3 .github/scripts/image_diagnostic.py 0 "web-languages.jpg" "batch1-languages"
-          python3 .github/scripts/image_diagnostic.py 1 "web-languages.jpg" "batch1-languages"
-      - name: Visual evidence — dashboard (fictional data)
+          python3 .github/scripts/image_diagnostic.py 0 "web-home-heatmap.jpg" "batch2-home-heatmap"
+          python3 .github/scripts/image_diagnostic.py 1 "web-home-heatmap.jpg" "batch2-home-heatmap"
+      - name: Visual evidence — home-trend (fictional data)
         if: always()
         run: |
-          python3 .github/scripts/image_diagnostic.py 0 "web-dashboard.jpg" "batch1-dashboard"
-          python3 .github/scripts/image_diagnostic.py 1 "web-dashboard.jpg" "batch1-dashboard"
-      - name: Visual evidence — home-lower (fictional data)
+          python3 .github/scripts/image_diagnostic.py 0 "web-home-trend.jpg" "batch2-home-trend"
+          python3 .github/scripts/image_diagnostic.py 1 "web-home-trend.jpg" "batch2-home-trend"
+      - name: Visual evidence — home-budgets (fictional data)
         if: always()
         run: |
-          python3 .github/scripts/image_diagnostic.py 0 "web-home-lower.jpg" "batch1-home-lower"
-          python3 .github/scripts/image_diagnostic.py 1 "web-home-lower.jpg" "batch1-home-lower"
-      - name: Visual evidence — recurring (fictional data)
+          python3 .github/scripts/image_diagnostic.py 0 "web-home-budgets.jpg" "batch2-home-budgets"
+          python3 .github/scripts/image_diagnostic.py 1 "web-home-budgets.jpg" "batch2-home-budgets"
+      - name: Visual evidence — home-upcoming (fictional data)
         if: always()
         run: |
-          python3 .github/scripts/image_diagnostic.py 0 "web-recurring.jpg" "batch1-recurring"
-          python3 .github/scripts/image_diagnostic.py 1 "web-recurring.jpg" "batch1-recurring"
-      - name: Visual evidence — calendar (fictional data)
+          python3 .github/scripts/image_diagnostic.py 0 "web-home-upcoming.jpg" "batch2-home-upcoming"
+          python3 .github/scripts/image_diagnostic.py 1 "web-home-upcoming.jpg" "batch2-home-upcoming"
+      - name: Visual evidence — accounts (fictional data)
         if: always()
         run: |
-          python3 .github/scripts/image_diagnostic.py 0 "web-calendar.jpg" "batch1-calendar"
-          python3 .github/scripts/image_diagnostic.py 1 "web-calendar.jpg" "batch1-calendar"
-      - name: Visual evidence — detail (fictional data)
+          python3 .github/scripts/image_diagnostic.py 0 "web-accounts.jpg" "batch2-accounts"
+          python3 .github/scripts/image_diagnostic.py 1 "web-accounts.jpg" "batch2-accounts"
+      - name: Visual evidence — reports (fictional data)
         if: always()
         run: |
-          python3 .github/scripts/image_diagnostic.py 0 "web-detail.jpg" "batch1-detail"
-          python3 .github/scripts/image_diagnostic.py 1 "web-detail.jpg" "batch1-detail"
-      - name: Visual evidence — history (fictional data)
+          python3 .github/scripts/image_diagnostic.py 0 "web-reports.jpg" "batch2-reports"
+          python3 .github/scripts/image_diagnostic.py 1 "web-reports.jpg" "batch2-reports"
+      - name: Visual evidence — report-charts (fictional data)
         if: always()
         run: |
-          python3 .github/scripts/image_diagnostic.py 0 "web-history.jpg" "batch1-history"
-          python3 .github/scripts/image_diagnostic.py 1 "web-history.jpg" "batch1-history"
-      - name: Visual evidence — help (fictional data)
+          python3 .github/scripts/image_diagnostic.py 0 "web-flow.jpg" "batch2-report-charts"
+          python3 .github/scripts/image_diagnostic.py 1 "web-flow.jpg" "batch2-report-charts"
+      - name: Visual evidence — budgets (fictional data)
         if: always()
         run: |
-          python3 .github/scripts/image_diagnostic.py 0 "web-help.jpg" "batch1-help"
-          python3 .github/scripts/image_diagnostic.py 1 "web-help.jpg" "batch1-help"
-      - name: Visual evidence — help-bottom (fictional data)
+          python3 .github/scripts/image_diagnostic.py 0 "web-budgets.jpg" "batch2-budgets"
+          python3 .github/scripts/image_diagnostic.py 1 "web-budgets.jpg" "batch2-budgets"
+      - name: Visual evidence — budget-detail (fictional data)
         if: always()
         run: |
-          python3 .github/scripts/image_diagnostic.py 0 "web-help-bottom.jpg" "batch1-help-bottom"
-          python3 .github/scripts/image_diagnostic.py 1 "web-help-bottom.jpg" "batch1-help-bottom"
-      - name: Visual evidence — archived (fictional data)
+          python3 .github/scripts/image_diagnostic.py 0 "web-budget-detail.jpg" "batch2-budget-detail"
+          python3 .github/scripts/image_diagnostic.py 1 "web-budget-detail.jpg" "batch2-budget-detail"
+      - name: Visual evidence — budget-help (fictional data)
         if: always()
         run: |
-          python3 .github/scripts/image_diagnostic.py 0 "web-archived.jpg" "batch1-archived"
-          python3 .github/scripts/image_diagnostic.py 1 "web-archived.jpg" "batch1-archived"
+          python3 .github/scripts/image_diagnostic.py 0 "web-budget-help-bottom.jpg" "batch2-budget-help"
+          python3 .github/scripts/image_diagnostic.py 1 "web-budget-help-bottom.jpg" "batch2-budget-help"
       - uses: actions/upload-artifact@v5
         if: always()
         with:

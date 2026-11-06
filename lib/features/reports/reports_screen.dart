@@ -291,6 +291,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             children: [
               Expanded(
                 child: DropdownButtonFormField<String>(
+                  isExpanded: true,
                   initialValue: chartType,
                   decoration: const InputDecoration(
                     labelText: 'Transaction type',
@@ -305,6 +306,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: DropdownButtonFormField<String>(
+                  isExpanded: true,
                   initialValue: dimension,
                   decoration: const InputDecoration(labelText: 'Group by'),
                   items: const [
@@ -422,9 +424,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   vertical: 12,
                 ),
                 leading: CircleAvatar(
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer,
+                  backgroundColor: Theme.of(context)
+                      .colorScheme
+                      .primaryContainer,
                   child: Icon(item.$4),
                 ),
                 title: Text(
@@ -814,8 +816,7 @@ class ReportRecordsScreen extends ConsumerWidget {
       child: entries.isEmpty
           ? const EmptyState(
               title: 'No matching posted records',
-              message:
-                  'Transfers, excluded accounts and future dates are not included.',
+              message: 'Transfers, excluded accounts and future dates are not included.',
             )
           : ListView(
               padding: const EdgeInsets.only(bottom: 96),

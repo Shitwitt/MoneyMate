@@ -342,9 +342,8 @@ class _HomeGreeting extends StatelessWidget {
           TextSpan(text: ' $earned milestones.'),
         ],
       ),
-      style: Theme.of(
-        context,
-      ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600, height: 1.5),
+      style: Theme.of(context).textTheme.bodyLarge
+          ?.copyWith(fontWeight: FontWeight.w600, height: 1.5),
     );
   }
 }
@@ -478,7 +477,7 @@ class _DashboardTile extends StatelessWidget {
           TextSpan(
             text: '$count',
             style: TextStyle(
-              fontSize: 26,
+              fontSize: 22,
               fontWeight: FontWeight.w700,
               color: valueInk,
             ),
@@ -576,6 +575,7 @@ class _DashboardTile extends StatelessWidget {
         const SizedBox(height: 8),
         moneyValue(
           expenseRecords.fold<int>(0, (s, e) => s + ledger.entryValue(e)),
+          size: 20,
         ),
       ],
       'budgets' => <Widget>[
@@ -832,9 +832,7 @@ class _DashboardTile extends StatelessWidget {
       label: title,
       child: TonalCard(
         radius: 28,
-        color: AppColors.dark(context)
-            ? const Color(0xff271E19)
-            : Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.surface,
         padding: const EdgeInsets.all(16),
         onTap: () => openPage(context, page),
         child: ConstrainedBox(
@@ -853,10 +851,8 @@ class _DashboardTile extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontSize: 15,
-                        color: ink,
-                      ),
+                      style: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(fontSize: 15, color: ink),
                     ),
                   ),
                   if (![
@@ -1197,9 +1193,8 @@ class _SpendingComparison extends StatelessWidget {
           : change == null
           ? 'No previous period amount'
           : '${change >= 0 ? '↗' : '↘'} ${change.abs().toStringAsFixed(1)}% vs previous period',
-      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        color: AppColors.semantic(context, 'expense'),
-      ),
+      style: Theme.of(context).textTheme.bodySmall
+          ?.copyWith(color: AppColors.semantic(context, 'expense')),
     );
   }
 }

@@ -15,11 +15,20 @@ if len(sys.argv) < 2:
 lines = collections.deque(maxlen=1500)
 first_failure = []
 capturing_failure = False
+failure_sections = []
+active_failure = None
 with subprocess.Popen(sys.argv[1:], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                       text=True, encoding='utf-8', errors='replace') as process:
     for line in process.stdout:
         print(line, end='', flush=True)
         lines.append(line)
+        if '::group::❌' in line:
+            active_failure = []
+            failure_sections.append(active_failure)
+        if active_failure is not None and sum(map(len, active_failure)) < 2800:
+            active_failure.append(line)
+        if '::endgroup::' in line:
+            active_failure = None
         if 'EXCEPTION CAUGHT BY' in line:
             capturing_failure = True
         if capturing_failure and len(first_failure) < 160:
@@ -39,6 +48,8 @@ if code:
     text = ''.join(selected)[-27000:]
     if first_failure:
         text = 'First Flutter exception:\n' + ''.join(first_failure)[:9000] + '\nLatest diagnostics:\n' + text[-18000:]
+    if failure_sections:
+        text = 'Failed test details:\n' + ''.join(''.join(section) for section in failure_sections[:16]) + '\n' + text[-12000:]
     for index in range(0, len(text), 3000):
         chunk = text[index:index + 3000].replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
         print(f'::error title=Build diagnostics {index // 3000 + 1}::{chunk}', flush=True)

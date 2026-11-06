@@ -564,6 +564,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
             if (_type != 'transfer' && !widget.templateOnly) ...[
               DropdownButtonFormField<String>(
                 key: ValueKey('transaction-budget-$_type'),
+                isExpanded: true,
                 initialValue:
                     profile.budgets.any(
                       (b) => b.id == _budgetId && b.transactionType == _type,
@@ -576,14 +577,22 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
                 items: [
                   const DropdownMenuItem(
                     value: '',
-                    child: Text('Automatic matching only'),
+                    child: Text(
+                      'Automatic matching only',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   for (final b in profile.budgets.where(
                     (b) => b.transactionType == _type,
                   ))
                     DropdownMenuItem(
                       value: b.id,
-                      child: Text('${b.name} · ${b.mode}'),
+                      child: Text(
+                        '${b.name} · ${b.mode}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                 ],
                 onChanged: (v) => setState(() => _budgetId = v ?? ''),
@@ -753,9 +762,12 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 6),
-                Text(
-                  'Only on your device. Always.',
-                  style: Theme.of(context).textTheme.labelSmall,
+                Flexible(
+                  child: Text(
+                    'Only on your device. Always.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelSmall,
+                  ),
                 ),
               ],
             ),
@@ -814,9 +826,8 @@ class _Calculator extends StatelessWidget {
                     }
                   } else if (key == '=') {
                     try {
-                      controller.text = evaluateAmount(
-                        controller.text,
-                      ).toString();
+                      controller.text = evaluateAmount(controller.text)
+                          .toString();
                     } catch (_) {
                       toast(context, 'Finish the expression first');
                     }

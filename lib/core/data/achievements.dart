@@ -90,7 +90,7 @@ Map<String, int> achievementProgress(
   final ledger = Ledger(data, settings);
   final streak = longestStreak(data);
   final completedBudget = data.budgets.any((budget) {
-    if (budget.start.isAfter(now)) return false;
+    if (budget.start.isAfter(now) || budget.income) return false;
     final previous = budgetWindow(
       budget,
       budgetWindow(
@@ -100,7 +100,8 @@ Map<String, int> achievementProgress(
       ).start.subtract(const Duration(days: 1)),
       settings.weekStart,
     );
-    return !previous.start.isBefore(budget.start) &&
+    return !previous.end.isAfter(now) &&
+        !previous.start.isBefore(dayOnly(budget.start)) &&
         ledger.spentFor(budget, previous) > 0 &&
         ledger.spentFor(budget, previous) <= budget.limitMinor;
   });

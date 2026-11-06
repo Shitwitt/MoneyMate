@@ -180,9 +180,8 @@ class AccountReferenceCard extends StatelessWidget {
         onTap: () => openPage(context, AccountDetailScreen(account.id)),
       );
     final background = Color.alphaBlend(
-      Color(
-        account.color,
-      ).withValues(alpha: AppColors.dark(context) ? .28 : .13),
+      Color(account.color)
+          .withValues(alpha: AppColors.dark(context) ? .28 : .13),
       Theme.of(context).colorScheme.surface,
     );
     Color accent = Color(account.color);
@@ -214,6 +213,8 @@ class AccountReferenceCard extends StatelessWidget {
                   children: [
                     Text(
                       account.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 5),
@@ -221,6 +222,8 @@ class AccountReferenceCard extends StatelessWidget {
                       account.holderName.isNotEmpty
                           ? account.holderName
                           : '${account.currency} ${account.parentId.isEmpty ? 'Main' : 'Linked'} Account',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],

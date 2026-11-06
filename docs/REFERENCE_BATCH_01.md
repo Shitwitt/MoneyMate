@@ -77,3 +77,14 @@ This is the **1.3.0+4** source, not the published 1.2 APK.
   external runtime requests, with fictional-data screenshots.
 - Fresh Android release APK and source ZIP only after checks pass. Android dependency downloads recently returned Maven Central HTTP 429; bounded transient-only retry and latest-push debug concurrency are being verified. Ordinary compile errors are not retried.
 - Physical-device and iOS verification remain unproven unless reported separately.
+
+### Executed regression update
+
+The actual Flutter SDK check job in run **42149679213** passed formatting,
+gen-l10n, analyzer, all Flutter tests, DST reruns and Python packaging tests.
+The complete populated Home feed is tested at 100% and 160% text. Saved/reversed
+balance/cashflow/template positions and deep-route demo exit are covered.
+Native launcher/widget and web-shell colors now follow the warm palette;
+native widgets use system sans/rounded faces, not the Flutter Quicksand asset.
+WidgetKit extension metadata is 1.3.0 build 4. This is not iOS/device proof.
+Browser and fresh Android artifact verification are still pending.

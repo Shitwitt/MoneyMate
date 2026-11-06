@@ -498,6 +498,9 @@ void main() {
       250,
       scrollable: find.byType(Scrollable).first,
     );
+    // ensureVisible can jump synchronously; paint the newly reserved viewport
+    // before measuring/tapping the switch's real hit-test position.
+    await tester.pumpAndSettle();
     await tester.tap(toggle);
     await tester.pumpAndSettle();
     expect(repo.persisted!.profiles.first.budgets.first.showOnHome, isFalse);

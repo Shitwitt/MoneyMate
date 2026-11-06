@@ -42,7 +42,7 @@ class _HomeCalendarHeatmapState extends State<HomeCalendarHeatmap> {
         accent = Theme.of(context).colorScheme.primary;
     final large = MediaQuery.textScalerOf(context).scale(1) > 1.3;
     return TonalCard(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

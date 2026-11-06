@@ -219,7 +219,7 @@ jobs:
     needs: web
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    # Separate review budget: at most 15 x 3 annotations, with no Flutter/native build.
+    # Separate review budget: at most 16 x 3 annotations, with no Flutter/native build.
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -236,6 +236,7 @@ jobs:
           test -s review-shots/web-budget-help.jpg && test -s review-shots/web-budget-help-thumb.jpg
           test -s review-shots/web-accounts-second.jpg && test -s review-shots/web-accounts-second-thumb.jpg
           test -s review-shots/web-allocation.jpg && test -s review-shots/web-allocation-thumb.jpg
+          test -s review-shots/web-report-line.jpg && test -s review-shots/web-report-line-thumb.jpg
           test -s review-shots/web-financial-month.jpg && test -s review-shots/web-financial-month-thumb.jpg
           test -s review-shots/web-financial-category.jpg && test -s review-shots/web-financial-category-thumb.jpg
           test -s review-shots/web-financial-budget.jpg && test -s review-shots/web-financial-budget-thumb.jpg
@@ -257,6 +258,8 @@ jobs:
         run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-budget-help.jpg" "batch2-budget-help-top"
       - name: Visual evidence — Second account card (fictional data)
         run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-accounts-second.jpg" "batch2-accounts-second"
+      - name: Visual evidence — Report daily line toggle (fictional data)
+        run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-report-line.jpg" "batch2-report-line"
       - name: Visual evidence — Report category allocation (fictional data)
         run: python3 .github/scripts/image_diagnostic.py 0 "review-shots/web-allocation.jpg" "batch2-report-allocation"
       - name: Visual evidence — Month Summary destination (fictional data)

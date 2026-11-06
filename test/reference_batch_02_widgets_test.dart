@@ -80,8 +80,9 @@ Future<MemoryRepository> pumpFeature(
   AppSettings settings = const AppSettings(),
   TextDirection direction = TextDirection.ltr,
   double scale = 1.6,
+  double width = 320,
 }) async {
-  tester.view.physicalSize = const Size(320, 844);
+  tester.view.physicalSize = Size(width, 844);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
@@ -103,7 +104,7 @@ Future<MemoryRepository> pumpFeature(
         supportedLocales: AppLocalizations.supportedLocales,
         home: MediaQuery(
           data: MediaQueryData(
-            size: const Size(320, 844),
+            size: Size(width, 844),
             textScaler: TextScaler.linear(scale),
             disableAnimations: true,
           ),
@@ -309,6 +310,27 @@ void main() {
       (w) => w is Semantics && w.properties.label == 'Progress',
     );
     expect(tester.widget<Semantics>(semantics).properties.value, '160 percent');
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('All seven calendar columns fit a regular 390 px Home feed', (
+    tester,
+  ) async {
+    final data = populated();
+    await pumpFeature(
+      tester,
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: HomeCalendarHeatmap(Ledger(data, const AppSettings())),
+      ),
+      data: data,
+      width: 390,
+      scale: 1,
+    );
+    final horizontal = tester
+        .stateList<ScrollableState>(find.byType(Scrollable))
+        .where((state) => state.position.axis == Axis.horizontal)
+        .single;
+    expect(horizontal.position.maxScrollExtent, 0);
     expect(tester.takeException(), isNull);
   });
   testWidgets('Calendar date targets retain 48 pixels on a narrow screen', (

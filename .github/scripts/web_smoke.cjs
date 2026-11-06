@@ -90,6 +90,13 @@ const binary = chromiumModule.default || chromiumModule;
         await scroll(400);
         await page.waitForTimeout(180);
       }
+      // A painted sliver can still be partially behind the toolbar/demo exit.
+      // Frame it with a real scroll, rather than clicking through that overlay.
+      const box = await target.boundingBox();
+      if (box && box.y + box.height / 2 < 96) {
+        await scroll(box.y - 112);
+        await page.waitForTimeout(250);
+      }
       // Generated Flutter grouping nodes can overlap semantic buttons in the DOM.
       // A real canvas-coordinate click still exercises Flutter's pointer hit test.
       await target.click({timeout: 15000, force: ['Light', 'Dark', 'Just Black', 'System'].includes(label)});
@@ -178,9 +185,15 @@ const binary = chromiumModule.default || chromiumModule;
     await nav('Reports');
     await visibleText('Quick Insights').waitFor();
     await capture('web-reports.jpg');
-    await page.mouse.move(210, 590); await scroll(1250); await page.waitForTimeout(650);
+    await revealText('Daily bar chart');
+    await visibleText('Bar chart. Expense, Income.').waitFor();
     await capture('web-flow.jpg');
-    await scroll(1000); await page.waitForTimeout(650);
+    await page.getByRole('button', {name: 'Daily line chart', exact: true}).click();
+    await visibleText('Line chart. Expense, Income.').waitFor();
+    await capture('web-report-line.jpg');
+    await page.getByRole('button', {name: 'Daily bar chart', exact: true}).click();
+    await visibleText('Bar chart. Expense, Income.').waitFor();
+    await scroll(450); await page.waitForTimeout(650);
     await capture('web-allocation.jpg');
     for (const [label, suffix] of [['Month Summary', 'month'], ['Category Breakdown', 'category'], ['Budget Performance', 'budget'], ['Cash Flow Analysis', 'cashflow'], ['Goal Progress', 'goal']]) {
       await nav(label);

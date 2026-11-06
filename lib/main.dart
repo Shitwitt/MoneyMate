@@ -200,6 +200,7 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
   StreamSubscription<Uri>? links;
   final pending = <Uri>[];
   bool processing = false;
+  bool exitingDemo = false;
   String? lastLink;
   DateTime? lastLinkAt;
   @override
@@ -225,6 +226,26 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
         ref.read(profileProvider) != null) {
       unawaited(_catchUp());
       _drainLinks();
+    }
+  }
+
+  Future<void> _exitDemo() async {
+    if (exitingDemo) return;
+    exitingDemo = true;
+    final controller = ref.read(appProvider.notifier);
+    try {
+      // Popped routes still read their providers during the reverse transition.
+      // Dispose those demo editors/pages before restoring a possibly empty ledger.
+      final completed = <Future<dynamic>>[];
+      navigator.currentState?.popUntil((route) {
+        if (route.isFirst) return true;
+        if (route is TransitionRoute<dynamic>) completed.add(route.completed);
+        return false;
+      });
+      await Future.wait(completed);
+      if (mounted) await controller.exitDemo();
+    } finally {
+      exitingDemo = false;
     }
   }
 
@@ -446,10 +467,7 @@ class _PaisaAppState extends ConsumerState<PaisaApp>
         ),
         child: DemoFrame(
           enabled: app.isDemo,
-          onExit: () {
-            navigator.currentState?.popUntil((route) => route.isFirst);
-            ref.read(appProvider.notifier).exitDemo();
-          },
+          onExit: _exitDemo,
           child: SecurityGate(child: child ?? const SizedBox.shrink()),
         ),
       ),

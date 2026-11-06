@@ -45,4 +45,14 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+  testWidgets('Reversed summary cards keep cashflow before balance', (
+    tester,
+  ) async {
+    await pumpHome(tester, ['cashflow', 'balance', 'accounts']);
+    expect(
+      tester.getTopLeft(find.text('Income').first).dy,
+      lessThan(tester.getTopLeft(find.text('Total balance').first).dy),
+    );
+    expect(tester.takeException(), isNull);
+  });
 }

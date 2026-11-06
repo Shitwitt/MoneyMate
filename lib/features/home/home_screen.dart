@@ -61,8 +61,9 @@ class HomeScreen extends ConsumerWidget {
       final id = ids[index];
       if (['balance', 'cashflow'].contains(id)) {
         final together =
+            id == 'balance' &&
             index + 1 < ids.length &&
-            ['balance', 'cashflow'].contains(ids[index + 1]);
+            ids[index + 1] == 'cashflow';
         sections.add(
           Padding(
             padding: const EdgeInsets.only(bottom: 22),
@@ -413,9 +414,8 @@ class _DashboardTile extends StatelessWidget {
     final valueInk = AppColors.dark(context)
         ? Theme.of(context).colorScheme.primary
         : AppColors.primaryInk;
-    final small = Theme.of(
-      context,
-    ).textTheme.bodySmall?.copyWith(color: ink.withValues(alpha: .80));
+    final small = Theme.of(context).textTheme.bodySmall
+        ?.copyWith(color: ink.withValues(alpha: .80));
     Widget money(int value, {double size = 27}) => FittedBox(
       fit: BoxFit.scaleDown,
       alignment: AlignmentDirectional.centerStart,
@@ -1017,9 +1017,8 @@ class _SpendingComparison extends StatelessWidget {
           : change == null
           ? 'No previous period amount'
           : '${change >= 0 ? '↗' : '↘'} ${change.abs().toStringAsFixed(1)}% vs previous period',
-      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-        color: AppColors.semantic(context, 'expense'),
-      ),
+      style: Theme.of(context).textTheme.bodySmall
+          ?.copyWith(color: AppColors.semantic(context, 'expense')),
     );
   }
 }
@@ -1091,9 +1090,8 @@ class _BudgetPeekState extends State<_BudgetPeek> {
                 margin: const EdgeInsets.symmetric(horizontal: 3),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: i == page ? 1 : .25),
+                  color: Theme.of(context).colorScheme.primary
+                      .withValues(alpha: i == page ? 1 : .25),
                 ),
               ),
           ],

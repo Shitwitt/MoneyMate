@@ -112,6 +112,7 @@ module.exports = async function referenceBatchFour({page, nav, goBack, capture, 
   if (savedBox && savedBox.y > 206) {await scroll(savedBox.y - 206); await pause();}
   await savedRecord.click(); await pause();
   await visibleText('Batch four coffee verified').waitFor();
+  await visibleText('$2.50').waitFor();
   await revealText('Notes'); await visibleText('A local ledger note').waitFor();
   await scroll(-20000); await shot('transaction-saved');
   await button('Close transaction details').click(); await pause();

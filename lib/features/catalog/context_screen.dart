@@ -183,7 +183,16 @@ class _ContextScreenState extends ConsumerState<ContextScreen> {
                                 const SizedBox(width: 12),
                                 Expanded(child: text),
                                 const SizedBox(width: 12),
-                                Flexible(child: value),
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 110,
+                                  ),
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: AlignmentDirectional.centerEnd,
+                                    child: value,
+                                  ),
+                                ),
                               ],
                             )
                           : Column(

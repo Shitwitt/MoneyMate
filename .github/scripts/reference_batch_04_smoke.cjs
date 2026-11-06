@@ -22,7 +22,10 @@ module.exports = async function referenceBatchFour({page, nav, goBack, capture, 
     const x = box.x + Math.min(box.width - 10, 42 + (box.width - 48) * fraction);
     const y = box.y + Math.min(box.height / 2, 100);
     await page.mouse.move(x,y); await page.mouse.down();
-    await page.waitForTimeout(700); await page.mouse.up(); await pause();
+    // Tappable web semantics delay pointerdown by 200ms before Flutter starts
+    // its 500ms long-press deadline. 700ms races that boundary and can become
+    // a tap; stay physically pressed beyond both timers, without firing actions.
+    await page.waitForTimeout(1100); await page.mouse.up(); await pause();
   }
 
   // These views are already exercised for real process/archive/history in the

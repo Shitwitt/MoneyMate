@@ -516,9 +516,8 @@ class _RecurringDetailHeading extends StatelessWidget {
       children: [
         Text(
           rule.name,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          style: Theme.of(context).textTheme.titleMedium
+              ?.copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 6),
         Wrap(

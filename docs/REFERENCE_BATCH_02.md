@@ -123,35 +123,28 @@ storage encryption. Pro is a persisted local simulation, never a payment.
 
 ## Verification status
 
-- Source SDK analysis passed in the preliminary UI-only run
-  [42159028007](https://github.com/Shitwitt/MoneyMate/actions/runs/42159028007).
-- Budget, hierarchy, rollover, reporting/filtering, manual FX and read-only
-  schedule-preview tests passed there. That preliminary run **was not a final
-  pass**: layout/old-navigation/test-locale regressions were found and repaired.
-- Added 320px / 160% LTR and RTL screen traversal, manual-budget-without-labels,
-  successful/failed Show Budget persistence and chart inspection/privacy checks.
-- Expanded the browser harness to exercise Home lower sections, account swipes,
-  budget overview/status/help/detail and the existing onboarding/recurring/theme/
-  offline flows. Full captures are artifacts; twelve bounded thumbnails are used
-  for review. The follow-up run
-  [42161047823](https://github.com/Shitwitt/MoneyMate/actions/runs/42161047823)
-  passed analysis, all Flutter tests, DST regressions and the Python suite; only
-  SDK formatting remained. That formatting is reconciled. Further coverage now
-  traverses all five financial-report destinations in both directions and checks
-  future budget windows and filtered, posted budget-report rollover. Their rerun
-  and the first Batch 2 browser review are pending.
-- The follow-up SDK check at
-  [42160047038](https://github.com/Shitwitt/MoneyMate/actions/runs/42160047038)
-  passed analysis and **112 tests**, with three remaining large-type layout
-  failures: a tracked-budget ring label and the Reports insight header in both
-  directions. Those are now repaired; their rerun is pending. The narrow budget,
-  account, budget-detail, transaction-link and live-tour regressions passed there.
-- Calendar day targets now retain a minimum 48px width/height, scrolling
-  horizontally at narrow widths rather than shrinking touch targets. Cell text
-  selects black/white against its actual blended background. Added a size test.
-- The record-derived Home pulse now excludes excluded-account income/expense and
-  coverage without discarding transfers needed for included balances. Added a
-  numerical regression. Long-range chart wrappers disclose the 366-day plot cap;
-  full-period totals remain unchanged.
-- Both native jobs are skipped under the build hold. **No Batch 2 APK, Android
+- [Source check 42165662511](https://github.com/Shitwitt/MoneyMate/actions/runs/42165662511/job/127721439255)
+  at `3fe13ab`: **PASS** — strict, non-mutating SDK formatting; localization
+  generation; analyzer; the complete Flutter suite; calendar/DST reruns; Python
+  regressions; and runnable source packaging. Flutter stable 3.47.9 is pinned.
+- Coverage includes budget hierarchy/type/modes/period anchors and signed
+  rollover, future starts, manual links without labels, account metadata,
+  reporting exclusions/manual FX, retained filtered rollover history, read-only
+  recurring projection, 320px / 160% LTR and RTL traversal of all five financial
+  reports and primary screens, chart inspection/privacy, and persistence failure
+  rollback. The 14-step live tour and full Home traversal pass.
+- Calendar date targets retain at least 48px width/height and use contextual
+  black/white date ink. Additional regression coverage now verifies 48px
+  icon-only dock targets and the functional New → layout shortcut. Tracked rings
+  use finite thicker status-colored waves; income achievement is not treated as
+  expense overspending. The tablet navigation scale also honors reduced motion.
+- The first Batch 2 browser attempt compiled successfully and reported **no app
+  runtime/layout errors**, but its new inspector timed out on a Flutter heading
+  exposed as an ARIA group instead of DOM text. It is **not** a browser pass.
+  The driver now handles either representation, frames the section below the
+  toolbar, and asserts that account/budget swipes actually change visible pages.
+  First Home/grid renders were reviewed; the complete browser rerun is pending.
+- Full-size fictional-data captures remain artifacts. Twelve bounded review
+  thumbnails plus a failure thumbnail fit within the API annotation budget.
+- Both native jobs are **SKIPPED** under the build hold. **No Batch 2 APK, Android
   device, signing, installation or iOS verification is claimed.**

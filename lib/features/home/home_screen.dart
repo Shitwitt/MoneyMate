@@ -160,6 +160,34 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         toolbarHeight: 56,
         automaticallyImplyLeading: false,
+        leadingWidth: 80,
+        leading: Tooltip(
+          message: 'Customize home layout',
+          child: TextButton(
+            onPressed: () => openPage(context, const LayoutScreen()),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'New',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
         actions: [
           IconButton(
             tooltip: 'All tools',

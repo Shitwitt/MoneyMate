@@ -197,7 +197,7 @@ class ReferenceNavigationDock extends StatelessWidget {
                     onTap: () => onSelect(id),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                        vertical: 6,
+                        vertical: 8,
                         horizontal: 2,
                       ),
                       child: Column(

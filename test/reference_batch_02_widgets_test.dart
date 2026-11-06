@@ -9,6 +9,8 @@ import 'package:paisaclone/core/utils/dates.dart';
 import 'package:paisaclone/features/accounts/accounts_screen.dart';
 import 'package:paisaclone/features/budgets/budgets_screen.dart';
 import 'package:paisaclone/features/home/home_reference_sections.dart';
+import 'package:paisaclone/features/home/home_screen.dart';
+import 'package:paisaclone/shared/reference_components.dart';
 import 'package:paisaclone/features/reports/reports_screen.dart';
 import 'package:paisaclone/features/transactions/transaction_form.dart';
 import 'package:paisaclone/l10n/generated/app_localizations.dart';
@@ -148,6 +150,56 @@ void main() {
       expect(size.width, greaterThanOrEqualTo(48));
       expect(size.height, greaterThanOrEqualTo(48));
     }
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('Icon-only dock keeps full-sized touch targets', (tester) async {
+    String selected = 'home';
+    await pumpFeature(
+      tester,
+      ReferenceNavigationDock(
+        tabs: const ['home', 'accounts', 'reports', 'search', 'more'],
+        selected: selected,
+        labels: const {
+          'home': 'Home',
+          'accounts': 'Accounts',
+          'reports': 'Reports',
+          'search': 'Search',
+          'more': 'More',
+        },
+        icons: const {
+          'home': Icons.home_outlined,
+          'accounts': Icons.account_balance_outlined,
+          'reports': Icons.bar_chart_outlined,
+          'search': Icons.search,
+          'more': Icons.more_horiz,
+        },
+        showLabels: false,
+        onSelect: (value) => selected = value,
+      ),
+      scale: 1,
+    );
+    final targets = find.descendant(
+      of: find.byType(ReferenceNavigationDock),
+      matching: find.byType(InkWell),
+    );
+    expect(targets, findsNWidgets(5));
+    for (var i = 0; i < 5; i++) {
+      final size = tester.getSize(targets.at(i));
+      expect(size.width, greaterThanOrEqualTo(48));
+      expect(size.height, greaterThanOrEqualTo(48));
+    }
+    await tester.tap(targets.at(2));
+    expect(selected, 'reports');
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('Home New opens the saved layout controls', (tester) async {
+    final repo = await pumpFeature(tester, const HomeScreen());
+    await tester.tap(find.byTooltip('Customize home layout'));
+    await tester.pumpAndSettle();
+    expect(find.text('A home that feels like yours'), findsOneWidget);
+    expect(find.text('Home cards'), findsOneWidget);
+    expect(find.text('Navigation'), findsOneWidget);
+    expect(repo.writes, 0);
     expect(tester.takeException(), isNull);
   });
   for (final direction in TextDirection.values) {

@@ -13,6 +13,30 @@ const binary = chromiumModule.default || chromiumModule;
   const server = spawn('python3', ['-m', 'http.server', '8080', '--bind', '0.0.0.0', '--directory', 'build/web'], {stdio: 'ignore'});
   let browser, page;
   const errors = [];
+  async function capture(name) {
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(180);
+    const full = await page.screenshot({type: 'jpeg', quality: 60, animations: 'disabled'});
+    fs.writeFileSync(name, full);
+    // Full-size evidence stays in the artifact. API annotations have a 50-item
+    // job cap: twelve <=6.75KB thumbnails leave room for failure diagnostics.
+    const thumbnail = await page.evaluate(async encoded => {
+      const image = new Image();
+      await new Promise((resolve, reject) => { image.onload = resolve; image.onerror = reject; image.src = 'data:image/jpeg;base64,' + encoded; });
+      let result;
+      for (const width of [312, 280, 240]) {
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = Math.round(image.height / image.width * width);
+        canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+        for (const quality of [0.20, 0.12, 0.07]) {
+          result = canvas.toDataURL('image/jpeg', quality).split(',')[1];
+          if (result.length <= 9000) return result;
+        }
+      }
+      return result;
+    }, full.toString('base64'));
+    fs.writeFileSync(name.replace('.jpg', '-thumb.jpg'), Buffer.from(thumbnail, 'base64'));
+  }
   try {
     for (let i = 0; i < 40; i++) {
       try { if ((await fetch('http://127.0.0.1:8080')).ok) break; } catch (_) {}
@@ -40,30 +64,6 @@ const binary = chromiumModule.default || chromiumModule;
       // A capture moves the pointer off cards; wheel over the real scroll body.
       await page.mouse.move(210, 500);
       await page.mouse.wheel(0, delta);
-    }
-    async function capture(name) {
-      await page.mouse.move(2, 2);
-      await page.waitForTimeout(180);
-      const full = await page.screenshot({type: 'jpeg', quality: 60, animations: 'disabled'});
-      fs.writeFileSync(name, full);
-      // Full-size evidence stays in the artifact. API annotations have a 50-item
-      // job cap: twelve <=9KB thumbnails use at most four chunks each.
-      const thumbnail = await page.evaluate(async encoded => {
-        const image = new Image();
-        await new Promise((resolve, reject) => { image.onload = resolve; image.onerror = reject; image.src = 'data:image/jpeg;base64,' + encoded; });
-        let result;
-        for (const width of [312, 280, 240]) {
-          const canvas = document.createElement('canvas');
-          canvas.width = width; canvas.height = Math.round(image.height / image.width * width);
-          canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
-          for (const quality of [0.20, 0.12, 0.07]) {
-            result = canvas.toDataURL('image/jpeg', quality).split(',')[1];
-            if (result.length <= 12000) return result;
-          }
-        }
-        return result;
-      }, full.toString('base64'));
-      fs.writeFileSync(name.replace('.jpg', '-thumb.jpg'), Buffer.from(thumbnail, 'base64'));
     }
     async function assertDarkPalette() {
       const shot = PNG.sync.read(await page.screenshot({type: 'png'}));
@@ -96,12 +96,16 @@ const binary = chromiumModule.default || chromiumModule;
       await page.waitForTimeout(350);
     }
     async function revealText(label) {
-      const target = page.getByText(label, {exact: true}).first();
+      // Flutter can expose a heading as an aria-labeled group, not DOM text.
+      const name = new RegExp('^' + label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:\\s|$)');
+      const target = page.getByText(label, {exact: true}).or(page.getByLabel(name)).first();
       await scroll(-20000); await page.waitForTimeout(220);
       for (let i = 0; i < 22 && !await target.isVisible(); i++) {
         await scroll(360); await page.waitForTimeout(180);
       }
       await target.waitFor({state: 'visible', timeout: 10000});
+      const box = await target.boundingBox();
+      if (box && box.y > 95) { await scroll(box.y - 95); await page.waitForTimeout(250); }
     }
     const touch = await context.newCDPSession(page);
     await touch.send('Emulation.setTouchEmulationEnabled', {enabled: true, maxTouchPoints: 1});
@@ -134,7 +138,9 @@ const binary = chromiumModule.default || chromiumModule;
     await page.waitForTimeout(350); await capture('web-upcoming-all.jpg');
     await page.getByRole('button', {name: 'Back', exact: true}).click();
     await nav('Budgets'); await capture('web-budgets.jpg');
-    await swipeCarousel(180); await capture('web-budget-status.jpg');
+    await swipeCarousel(180);
+    await page.getByText('On Track', {exact: true}).or(page.getByLabel(/^On Track(?:\s|$)/)).first().waitFor();
+    await capture('web-budget-status.jpg');
     await page.getByRole('button', {name: 'How budgets work', exact: true}).click();
     await page.waitForTimeout(350); await capture('web-budget-help.jpg');
     await scroll(1500); await page.waitForTimeout(350); await capture('web-budget-help-bottom.jpg');
@@ -149,7 +155,9 @@ const binary = chromiumModule.default || chromiumModule;
     await nav('Accounts');
     await page.getByText('Total balance', {exact: false}).first().waitFor();
     await capture('web-accounts.jpg');
-    await swipeCarousel(175); await capture('web-accounts-second.jpg');
+    await swipeCarousel(175);
+    await page.getByText('Pocket money', {exact: true}).or(page.getByLabel(/^Pocket money(?:\s|$)/)).first().waitFor();
+    await capture('web-accounts-second.jpg');
     await nav('Reports');
     await page.getByText('Quick Insights', {exact: false}).first().waitFor();
     await capture('web-reports.jpg');
@@ -242,7 +250,7 @@ const binary = chromiumModule.default || chromiumModule;
       console.log('Page text:', (await page.locator('body').innerText().catch(() => '')).slice(-8000));
       console.log('Aria labels:', JSON.stringify(await page.locator('[aria-label]').evaluateAll(nodes => nodes.map(n => ({role: n.getAttribute('role'), label: n.getAttribute('aria-label')})).filter(n => n.label).slice(-60)).catch(() => [])));
       console.log('Demo input diagnostics:', await page.locator('input').evaluateAll(inputs => inputs.map(input => ({label: input.getAttribute('aria-label'), value: input.value, type: input.type}))).catch(() => []));
-      await page.screenshot({path: 'web-failure.jpg', type: 'jpeg', quality: 30}).catch(() => {});
+      await capture('web-failure.jpg').catch(() => {});
     }
     console.error(error);
     process.exitCode = 1;

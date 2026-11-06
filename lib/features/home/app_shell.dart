@@ -84,7 +84,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                   NavigationRailDestination(
                     icon: AnimatedScale(
                       scale: active == id ? 1.08 : 1,
-                      duration: const Duration(milliseconds: 150),
+                      duration: referenceMotion(context, 150),
                       child: Icon(tabIcons[id]),
                     ),
                     label: Text(labels[id]!),

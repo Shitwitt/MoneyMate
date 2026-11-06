@@ -5,13 +5,14 @@ import 'package:flutter/material.dart';
 import 'reference_components.dart';
 
 class WavyRing extends StatelessWidget {
-  final double value, size;
+  final double value, size, strokeWidth;
   final Color? color;
   final Widget? child;
   const WavyRing(
     this.value, {
     super.key,
     this.size = 60,
+    this.strokeWidth = 3.5,
     this.color,
     this.child,
   });
@@ -28,6 +29,7 @@ class WavyRing extends StatelessWidget {
           painter: _WavyRingPainter(
             progress,
             color ?? Theme.of(context).colorScheme.primary,
+            strokeWidth,
           ),
           child: Center(child: child),
         ),
@@ -37,17 +39,18 @@ class WavyRing extends StatelessWidget {
 }
 
 class _WavyRingPainter extends CustomPainter {
-  final double value;
+  final double value, strokeWidth;
   final Color color;
-  _WavyRingPainter(this.value, this.color);
+  _WavyRingPainter(this.value, this.color, this.strokeWidth);
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2),
-        radius = size.shortestSide / 2 - 4;
+        waveSize = strokeWidth * .28,
+        radius = size.shortestSide / 2 - strokeWidth / 2 - waveSize - 1;
     final paint = Paint()
       ..color = color.withValues(alpha: .13)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3
+      ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
     canvas.drawCircle(center, radius, paint);
     if (value <= 0) return;
@@ -55,7 +58,7 @@ class _WavyRingPainter extends CustomPainter {
     final samples = math.max(2, (value * 180).ceil());
     for (var i = 0; i <= samples; i++) {
       final angle = i / samples * value * math.pi * 2 - math.pi / 2;
-      final wave = radius + math.sin((angle + math.pi / 2) * 12) * 1.2;
+      final wave = radius + math.sin((angle + math.pi / 2) * 12) * waveSize;
       final point =
           center + Offset(math.cos(angle) * wave, math.sin(angle) * wave);
       if (i == 0) {
@@ -69,5 +72,7 @@ class _WavyRingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_WavyRingPainter oldDelegate) =>
-      oldDelegate.value != value || oldDelegate.color != color;
+      oldDelegate.value != value ||
+      oldDelegate.color != color ||
+      oldDelegate.strokeWidth != strokeWidth;
 }

@@ -335,7 +335,16 @@ class _HomeTrackedBudgetsState extends State<HomeTrackedBudgets> {
               final ring = WavyRing(
                 status.progress,
                 size: 94 * ringScale,
-                color: color,
+                strokeWidth: 7 * ringScale,
+                color: budget.income
+                    ? status.progress >= 1
+                          ? AppColors.income
+                          : color
+                    : status.remaining < 0
+                    ? AppColors.expense
+                    : status.progress >= .8
+                    ? AppColors.warning
+                    : const Color(0xff74B85B),
                 child: SizedBox.square(
                   dimension: 72 * ringScale,
                   child: FittedBox(

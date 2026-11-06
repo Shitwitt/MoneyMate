@@ -73,10 +73,10 @@ const binary = chromiumModule.default || chromiumModule;
         throw new Error('Dark palette was not applied/persisted: ' + rgb.join(','));
       }
     }
-    async function nav(label) {
+    async function nav(label, contains = false) {
       // Do not wheel a newly pushed route while Flutter's 300ms transition hides semantics.
       await page.waitForTimeout(350);
-      const name = new RegExp('^' + label);
+      const name = new RegExp((contains ? '' : '^') + label);
       const target = page.getByRole('button', {name}).or(page.getByRole('tab', {name})).or(page.getByLabel(name)).or(page.getByText(name)).last();
       // Flutter only exposes painted semantics nodes; DOM scrollIntoView cannot
       // materialize an offscreen SliverGrid item. Scroll its real canvas first.

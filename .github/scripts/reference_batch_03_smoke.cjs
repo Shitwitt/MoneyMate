@@ -18,7 +18,7 @@ module.exports = async function referenceBatchThree({page, nav, goBack, capture,
   await page.getByRole('menuitem', {name: 'Pocket money', exact: true}).click();
   await button('Save').click(); await pause();
   await revealText('Payment History'); await shot('loan-history');
-  await nav('Repayment · Alex'); await shot('transaction-detail');
+  await nav('Repayment · Alex', true); await shot('transaction-detail');
   await button('Copy').click(); await pause();
   await page.getByRole('textbox', {name: 'What was it for?', exact: true}).waitFor();
   await goBack(); // Copy is an unsaved draft, not an immediate duplicate.

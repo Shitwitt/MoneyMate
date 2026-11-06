@@ -23,19 +23,7 @@ import '../transactions/filter_sheet.dart';
 import '../transactions/transactions_screen.dart';
 
 TransactionFilter filterDates(TransactionFilter filter, DateWindow? dates) =>
-    TransactionFilter(
-      query: filter.query,
-      dates: dates,
-      accounts: filter.accounts,
-      categories: filter.categories,
-      labels: filter.labels,
-      people: filter.people,
-      places: filter.places,
-      type: filter.type,
-      minMinor: filter.minMinor,
-      maxMinor: filter.maxMinor,
-      sort: filter.sort,
-    );
+    filter.withDates(dates);
 
 class AdvancedReportsScreen extends ConsumerStatefulWidget {
   const AdvancedReportsScreen({super.key});

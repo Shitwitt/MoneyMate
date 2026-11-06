@@ -6,6 +6,7 @@ import 'package:printing/printing.dart';
 import '../../core/data/ledger.dart';
 import '../../core/data/providers.dart';
 import '../../core/data/reporting.dart';
+import '../../core/models/models.dart';
 import '../../core/services/csv_service.dart';
 import '../../core/services/file_service.dart';
 import '../../core/services/pdf_service.dart';
@@ -424,9 +425,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   vertical: 12,
                 ),
                 leading: CircleAvatar(
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer,
+                  backgroundColor: Theme.of(context)
+                      .colorScheme
+                      .primaryContainer,
                   child: Icon(item.$4),
                 ),
                 title: Text(
@@ -833,8 +834,7 @@ class ReportRecordsScreen extends ConsumerWidget {
       child: entries.isEmpty
           ? const EmptyState(
               title: 'No matching posted records',
-              message:
-                  'Transfers, excluded accounts and future dates are not included.',
+              message: 'Transfers, excluded accounts and future dates are not included.',
             )
           : ListView(
               padding: const EdgeInsets.only(bottom: 96),
@@ -862,6 +862,9 @@ class FinancialReportScreen extends ConsumerWidget {
           window,
           selection: filterDates(filter, window).apply(ledger),
         );
+    final budgetReport = kind == 'budget'
+        ? BudgetPerformanceSnapshot(ledger, window, filter: filter)
+        : null;
     final title = financialReports.where((r) => r.$1 == kind).first.$2;
     return FeaturePage(
       title: title,
@@ -927,24 +930,46 @@ class FinancialReportScreen extends ConsumerWidget {
               child: const Text('Longer-term patterns & comparisons'),
             ),
           ],
-          if (kind == 'budget') ...[
-            const Text(
-              'Current budget configurations evaluated in this period. Historical edits to limits are not reconstructed.',
+          if (kind == 'budget' && budgetReport != null) ...[
+            Text(
+              'Budget cycles as of ${DateFormat.yMMMd().format(budgetReport.asOf)}. Posted activity only; transfers, excluded accounts and future entries do not count. Transaction filters also scope rollover history. Historical edits to limits are not reconstructed.',
             ),
             const SizedBox(height: 16),
-            if (ledger.data.budgets.isEmpty)
+            if (!budgetReport.periodStarted)
+              const Text(
+                'This period has not started; no posted performance yet.',
+              ),
+            if (budgetReport.periodStarted && ledger.data.budgets.isEmpty)
               const Text(
                 'Create a budget to compare its allowance and recorded spending.',
               ),
-            for (final b in ledger.data.budgets)
+            for (final b
+                in budgetReport.periodStarted
+                    ? ledger.data.budgets
+                    : <Budget>[])
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Builder(
                   builder: (context) {
-                    final status = ledger.budgetStatus(
-                      b,
-                      window.end.subtract(const Duration(days: 1)),
-                    );
+                    if (dayOnly(b.start).isAfter(dayOnly(budgetReport.asOf)))
+                      return TonalCard(
+                        onTap: () =>
+                            openPage(context, BudgetDetailScreen(b.id)),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              b.name,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Not started as of this date · starts ${DateFormat.yMMMd().format(b.start)}',
+                            ),
+                          ],
+                        ),
+                      );
+                    final status = budgetReport.status(b);
                     return TonalCard(
                       onTap: () => openPage(context, BudgetDetailScreen(b.id)),
                       child: Column(
@@ -953,6 +978,11 @@ class FinancialReportScreen extends ConsumerWidget {
                           Text(
                             b.name,
                             style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${DateFormat.yMMMd().format(status.window.start)} – ${DateFormat.yMMMd().format(status.window.end.subtract(const Duration(microseconds: 1)))}',
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                           const SizedBox(height: 14),
                           WavyProgress(status.progress),
@@ -978,7 +1008,7 @@ class FinancialReportScreen extends ConsumerWidget {
           ],
           if (kind == 'goal') ...[
             const Text(
-              'Current goal progress, not reconstructed historical balances.',
+              'Current progress across all goals, not reconstructed historical balances. Transaction filters and the selected period do not change saved goal contributions.',
             ),
             const SizedBox(height: 16),
             if (ledger.data.goals.isEmpty)

@@ -48,8 +48,11 @@ photos are review inputs only; they are not bundled as app artwork or backdrops.
   descendants. Multi-label/person groups can overlap, and the UI explains that.
 - Month summary, category breakdown and cash-flow destinations retain the selected
   transaction scope. Goal progress is explicitly current, not reconstructed
-  history. Budget performance evaluates current configurations in the chosen
-  period; it does not pretend to know previous edits to a limit.
+  history. Budget performance shows each cycle as of today or the selected range's end,
+  whichever is earlier. Its posted amounts exclude future entries/excluded
+  accounts, retain non-date transaction filters and retain prior filtered history
+  for signed rollover. Cycle dates and this scope are shown on screen; prior edits
+  to limits are not reconstructed.
 - Forecast previews never save transactions. Upcoming uses saved future entries
   and enabled, non-archived recurrence occurrences, honors end dates, and avoids
   double-counting a materialized rule/date. The Home trend's dashed upcoming
@@ -84,6 +87,9 @@ photos are review inputs only; they are not bundled as app artwork or backdrops.
 - Saved future entries reserve part of an active budget allowance; its chart
   plots only posted activity and distinguishes future dates. Projections of an
   unsaved recurring occurrence do not spend the budget before processing it.
+- Before a plan starts, its first anchored period is shown as Upcoming, not a
+  spendable allowance in a period before its start. Historical Budget Performance
+  identifies plans that had not started in the selected period.
 - Show Budget persists the Home-carousel preference. Deleting a budget clears
   links but preserves transactions and recurrence history. Income targets cannot
   earn the expense-only balanced-budget badge just by remaining below target.
@@ -127,7 +133,13 @@ storage encryption. Pro is a persisted local simulation, never a payment.
 - Expanded the browser harness to exercise Home lower sections, account swipes,
   budget overview/status/help/detail and the existing onboarding/recurring/theme/
   offline flows. Full captures are artifacts; twelve bounded thumbnails are used
-  for review. Final SDK/browser results will be recorded after they finish.
+  for review. The follow-up run
+  [42161047823](https://github.com/Shitwitt/MoneyMate/actions/runs/42161047823)
+  passed analysis, all Flutter tests, DST regressions and the Python suite; only
+  SDK formatting remained. That formatting is reconciled. Further coverage now
+  traverses all five financial-report destinations in both directions and checks
+  future budget windows and filtered, posted budget-report rollover. Their rerun
+  and the first Batch 2 browser review are pending.
 - The follow-up SDK check at
   [42160047038](https://github.com/Shitwitt/MoneyMate/actions/runs/42160047038)
   passed analysis and **112 tests**, with three remaining large-type layout

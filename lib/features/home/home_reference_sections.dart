@@ -329,9 +329,9 @@ class _HomeTrackedBudgetsState extends State<HomeTrackedBudgets> {
               final budget = budgets[index],
                   status = ledger.budgetStatus(budget, DateTime.now()),
                   color = readableTint(context, Color(budget.color));
-              final ringScale = MediaQuery.textScalerOf(
-                context,
-              ).scale(1).clamp(1.0, 1.6);
+              final ringScale = MediaQuery.textScalerOf(context)
+                  .scale(1)
+                  .clamp(1.0, 1.6);
               final ring = WavyRing(
                 status.progress,
                 size: 94 * ringScale,
@@ -457,9 +457,8 @@ class _HomeTrackedBudgetsState extends State<HomeTrackedBudgets> {
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: i == page ? 1 : .25),
+                  color: Theme.of(context).colorScheme.primary
+                      .withValues(alpha: i == page ? 1 : .25),
                 ),
               ),
           ],

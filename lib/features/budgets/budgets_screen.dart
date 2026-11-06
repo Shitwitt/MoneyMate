@@ -55,7 +55,7 @@ const budgetHelpSections = <HelpSection>[
   (
     Icons.insights_rounded,
     'Tracking',
-    'Cards show the recorded amount, adjusted allowance or target, remaining amount and real progress. Expense status is On Track, Warning at 80%, or Exceeded. Income status shows progress toward its target.',
+    'Cards show the recorded amount, adjusted allowance or target, remaining amount and real progress. Before its start a plan is Upcoming. Active expense status is Good, Warning at 80%, or Exceeded. Income status shows progress toward its target.',
   ),
   (
     Icons.home_outlined,
@@ -376,15 +376,19 @@ class _BudgetOverviewState extends State<BudgetOverview> {
   }
 }
 
-String budgetStatusLabel(Budget budget, BudgetStatus status) => budget.income
-    ? status.remaining <= 0
-          ? 'Reached'
-          : 'In progress'
-    : status.remaining < 0
-    ? 'Exceeded'
-    : status.progress >= .8
-    ? 'Warning'
-    : 'Good';
+String budgetStatusLabel(Budget budget, BudgetStatus status) {
+  if (dayOnly(DateTime.now()).isBefore(dayOnly(budget.start)))
+    return 'Upcoming';
+  return budget.income
+      ? status.remaining <= 0
+            ? 'Reached'
+            : 'In progress'
+      : status.remaining < 0
+      ? 'Exceeded'
+      : status.progress >= .8
+      ? 'Warning'
+      : 'Good';
+}
 
 class BudgetCard extends ConsumerWidget {
   final Budget budget;
@@ -395,12 +399,14 @@ class BudgetCard extends ConsumerWidget {
     final ledger = ref.watch(ledgerProvider)!, now = DateTime.now();
     final status = ledger.budgetStatus(budget, now),
         color = readableTint(context, Color(budget.color));
+    final upcoming = dayOnly(now).isBefore(dayOnly(budget.start));
+    final activeFrom = upcoming ? dayOnly(budget.start) : dayOnly(now);
     final days = math.max(
       0,
       calendarDaysBetween(
-        dayOnly(now).isBefore(status.window.start)
+        activeFrom.isBefore(status.window.start)
             ? status.window.start
-            : dayOnly(now),
+            : activeFrom,
         status.window.end,
       ),
     );
@@ -516,7 +522,15 @@ class BudgetCard extends ConsumerWidget {
                   '${(status.progress * 100).round()}% · ${budgetStatusLabel(budget, status)}',
                   icon: Icons.check_circle_outline_rounded,
                 ),
-                if (!budget.income && days > 0 && status.remaining >= 0)
+                if (upcoming)
+                  Text(
+                    'Starts ${DateFormat.yMMMd().format(budget.start)}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                if (!upcoming &&
+                    !budget.income &&
+                    days > 0 &&
+                    status.remaining >= 0)
                   Text(
                     ledger.settings.hideAmounts
                         ? 'Daily allowance hidden'

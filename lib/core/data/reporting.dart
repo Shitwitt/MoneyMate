@@ -5,6 +5,43 @@ import '../utils/dates.dart';
 import 'ledger.dart';
 import 'recurring_schedule.dart';
 
+/// Budget cycles as of today or the selected range's end, whichever is earlier.
+/// Date selectors choose the report window; other selectors also scope historical
+/// records so rollover is not accidentally calculated from an empty history.
+class BudgetPerformanceSnapshot {
+  final Ledger ledger;
+  final DateTime asOf;
+  final bool periodStarted;
+  factory BudgetPerformanceSnapshot(
+    Ledger source,
+    DateWindow window, {
+    TransactionFilter filter = const TransactionFilter(),
+    DateTime? now,
+  }) {
+    final clock = now ?? DateTime.now();
+    final cutoff = clock.isBefore(window.end)
+        ? clock
+        : window.end.subtract(const Duration(microseconds: 1));
+    final records = filter
+        .withDates(null)
+        .apply(source)
+        .where(
+          (entry) =>
+              entry.type != 'transfer' &&
+              !entry.date.isAfter(cutoff) &&
+              !source.account(entry.accountId).excluded,
+        )
+        .toList();
+    return BudgetPerformanceSnapshot._(
+      Ledger(source.data.copyWith(transactions: records), source.settings),
+      cutoff,
+      !window.start.isAfter(clock),
+    );
+  }
+  const BudgetPerformanceSnapshot._(this.ledger, this.asOf, this.periodStarted);
+  BudgetStatus status(Budget budget) => ledger.budgetStatus(budget, asOf);
+}
+
 /// Reports never count opening balances, transfers, excluded accounts or
 /// future-dated records as posted income/expense. Rates remain user-supplied.
 class ReportSnapshot {

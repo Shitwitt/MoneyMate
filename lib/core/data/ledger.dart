@@ -199,7 +199,11 @@ class Ledger {
   ).fold(0, (sum, entry) => sum + entryValue(entry));
 
   BudgetStatus budgetStatus(Budget budget, DateTime now) {
-    final window = budgetWindow(budget, now, settings.weekStart);
+    final window = budgetWindow(
+      budget,
+      dayOnly(now).isBefore(dayOnly(budget.start)) ? budget.start : now,
+      settings.weekStart,
+    );
     var carry = 0;
     if (budget.rollover &&
         budget.period != 'custom' &&
@@ -332,6 +336,22 @@ class TransactionFilter {
     this.maxMinor,
     this.sort = 'newest',
   });
+
+  /// Changes just the report window, preserving every transaction selector.
+  TransactionFilter withDates(DateWindow? value) => TransactionFilter(
+    query: query,
+    dates: value,
+    accounts: accounts,
+    categories: categories,
+    labels: labels,
+    people: people,
+    places: places,
+    type: type,
+    minMinor: minMinor,
+    maxMinor: maxMinor,
+    sort: sort,
+  );
+
   bool get active =>
       dates != null ||
       accounts.isNotEmpty ||

@@ -601,4 +601,93 @@ void main() {
     final current = migrated.copyWith(homeCards: ['templates', 'accounts']);
     expect(AppSettings.fromJson(current.toJson()).homeCards, current.homeCards);
   });
+  test('Future plans use their first anchored period', () {
+    final data = fixture();
+    final ledger = ledgerWith(data, [
+      record(data, 'scheduled', 200, DateTime(2026, 2, 10)),
+    ]);
+    final now = DateTime(2026, 1, 2);
+    for (final period in ['daily', 'weekly', 'monthly', 'yearly']) {
+      final b = plan(
+        period: period,
+        start: DateTime(2026, 2, 10),
+        rollover: true,
+      );
+      final status = ledger.budgetStatus(b, now);
+      final first = budgetWindow(b, b.start, ledger.settings.weekStart);
+      expect(status.window.start, first.start, reason: period);
+      expect(status.window.end, first.end, reason: period);
+      expect(status.spent, 0, reason: period);
+      expect(status.carry, 0, reason: period);
+      expect(status.limit, b.limitMinor, reason: period);
+    }
+  });
+  test('Budget reports keep filtered rollover history', () {
+    final data = fixture();
+    final budget = plan(rollover: true);
+    final account = data.accounts.first.id;
+    final outside = data.accounts.first.copyWith(id: 'outside', excluded: true);
+    final other = data.accounts.first.copyWith(id: 'other');
+    final entries = [
+      record(data, 'prior', 200, DateTime(2026, 1, 5)),
+      record(data, 'current', 100, DateTime(2026, 2, 5)),
+      record(data, 'later-today', 900, DateTime(2026, 2, 6, 18)),
+      record(data, 'future', 900, DateTime(2026, 2, 20)),
+      record(data, 'excluded', 800, DateTime(2026, 2, 5), account: outside.id),
+      record(data, 'other', 700, DateTime(2026, 2, 5), account: other.id),
+      record(data, 'transfer', 500, DateTime(2026, 2, 5), type: 'transfer'),
+    ];
+    final ledger = Ledger(
+      data.copyWith(
+        accounts: [...data.accounts, outside, other],
+        transactions: entries,
+      ),
+      const AppSettings(),
+    );
+    final window = DateWindow(DateTime(2026, 2, 1), DateTime(2026, 3, 1));
+    final report = BudgetPerformanceSnapshot(
+      ledger,
+      window,
+      now: DateTime(2026, 2, 6, 12),
+      filter: TransactionFilter(accounts: {account}, dates: window),
+    );
+    final status = report.status(budget);
+    expect(status.carry, 800);
+    expect(status.spent, 100);
+    expect(status.limit, 1800);
+    expect(status.window.start, DateTime(2026, 2, 1));
+    expect(report.ledger.data.transactions.map((e) => e.id).toSet(), {
+      'prior',
+      'current',
+    });
+    expect(ledger.data.transactions, hasLength(7));
+    final all = BudgetPerformanceSnapshot(
+      ledger,
+      window,
+      now: DateTime(2026, 2, 6, 12),
+    );
+    expect(all.status(budget).spent, 800);
+  });
+  test('Past budget reports stop at the selected date', () {
+    final data = fixture();
+    final ledger = ledgerWith(data, [
+      record(data, 'inside', 200, DateTime(2026, 1, 30, 23, 59)),
+      record(data, 'after', 900, DateTime(2026, 2, 1)),
+    ]);
+    final window = DateWindow(DateTime(2026, 1, 1), DateTime(2026, 2, 1));
+    final report = BudgetPerformanceSnapshot(
+      ledger,
+      window,
+      now: DateTime(2026, 3, 1),
+    );
+    expect(report.status(plan()).spent, 200);
+    expect(report.asOf.isBefore(window.end), isTrue);
+    expect(report.status(plan()).window.start, DateTime(2026, 1, 1));
+    final future = BudgetPerformanceSnapshot(
+      ledger,
+      DateWindow(DateTime(2026, 4, 1), DateTime(2026, 5, 1)),
+      now: DateTime(2026, 3, 1),
+    );
+    expect(future.periodStarted, isFalse);
+  });
 }

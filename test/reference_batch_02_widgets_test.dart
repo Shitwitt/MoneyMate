@@ -5,6 +5,7 @@ import 'package:paisaclone/core/data/ledger.dart';
 import 'package:paisaclone/core/data/providers.dart';
 import 'package:paisaclone/core/models/models.dart';
 import 'package:paisaclone/core/theme/theme.dart';
+import 'package:paisaclone/core/utils/dates.dart';
 import 'package:paisaclone/features/accounts/accounts_screen.dart';
 import 'package:paisaclone/features/budgets/budgets_screen.dart';
 import 'package:paisaclone/features/home/home_reference_sections.dart';
@@ -126,39 +127,41 @@ Future<void> inspectScroll(WidgetTester tester) async {
 }
 
 void main() {
+  testWidgets('Calendar date targets retain 48 pixels on a narrow screen', (
+    tester,
+  ) async {
+    final data = populated();
+    await pumpFeature(
+      tester,
+      HomeCalendarHeatmap(Ledger(data, const AppSettings())),
+      data: data,
+    );
+    final targets = find.byWidgetPredicate(
+      (w) =>
+          w is Semantics &&
+          (w.properties.label?.contains('recorded transactions') ?? false),
+    );
+    final now = DateTime.now();
+    expect(targets, findsNWidgets(DateTime(now.year, now.month + 1, 0).day));
+    for (final element in targets.evaluate()) {
+      final size = tester.getSize(find.byWidget(element.widget));
+      expect(size.width, greaterThanOrEqualTo(48));
+      expect(size.height, greaterThanOrEqualTo(48));
+    }
+    expect(tester.takeException(), isNull);
+  });
   for (final direction in TextDirection.values) {
     for (final page in <String, Widget>{
       'accounts': const AccountsScreen(),
       'reports': const ReportsScreen(),
       'budgets': const BudgetsScreen(),
       'budget details': const BudgetDetailScreen('manual'),
+      for (final kind in ['month', 'category', 'budget', 'cashflow', 'goal'])
+        'report $kind': FinancialReportScreen(
+          kind,
+          window: financialMonth(DateTime.now(), 1),
+        ),
     }.entries) {
-      testWidgets('Calendar date targets retain 48 pixels on a narrow screen', (
-        tester,
-      ) async {
-        final data = populated();
-        await pumpFeature(
-          tester,
-          HomeCalendarHeatmap(Ledger(data, const AppSettings())),
-          data: data,
-        );
-        final targets = find.byWidgetPredicate(
-          (w) =>
-              w is Semantics &&
-              (w.properties.label?.contains('recorded transactions') ?? false),
-        );
-        final now = DateTime.now();
-        expect(
-          targets,
-          findsNWidgets(DateTime(now.year, now.month + 1, 0).day),
-        );
-        for (final element in targets.evaluate()) {
-          final size = tester.getSize(find.byWidget(element.widget));
-          expect(size.width, greaterThanOrEqualTo(48));
-          expect(size.height, greaterThanOrEqualTo(48));
-        }
-        expect(tester.takeException(), isNull);
-      });
       testWidgets('${page.key} reflows at 320 px / 1.6× in $direction', (
         tester,
       ) async {

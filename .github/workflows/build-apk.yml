@@ -56,8 +56,8 @@ jobs:
           retention-days: 30
 
   release:
-    # Harness-only verification reuses the already-verified application binary.
-    if: ${{ !contains(github.event.head_commit.message, '[web-check]') }}
+    # Explicit opt-in only: the user requested UI work without APK builds.
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build-apk]') || contains(github.event.head_commit.message, '[apk-download]')
     name: Release Android APK
     permissions:
       contents: write

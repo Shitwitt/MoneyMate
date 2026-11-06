@@ -61,8 +61,9 @@ class CatalogScreen extends ConsumerWidget {
               itemCount: entities.length,
               itemBuilder: (context, index) {
                 final entity = entities[index];
-                final entries = _filterFor(entity)
-                    .apply(ref.read(ledgerProvider)!);
+                final entries = _filterFor(
+                  entity,
+                ).apply(ref.read(ledgerProvider)!);
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Card(
@@ -193,16 +194,36 @@ Future<void> _editCategory(
   final name = TextEditingController(text: initial?.name ?? '');
   var type = initial?.type ?? initialType, icon = initial?.icon ?? 'category';
   var color = initial?.color ?? palette.first;
+  var parentId = initial?.parentId ?? '';
   await showEditor(
     context,
     title: initial == null ? 'New category' : 'Edit category',
     fields: (context, setLocal) => [
       formText(name, 'Name', required: true),
-      formSelect('Type', type, [
-        'expense',
-        'income',
-        'transfer',
-      ], (value) => setLocal(() => type = value)),
+      formSelect(
+        'Type',
+        type,
+        ['expense', 'income', 'transfer'],
+        (value) => setLocal(() {
+          type = value;
+          parentId = '';
+        }),
+      ),
+      DropdownButtonFormField<String>(
+        initialValue: parentId,
+        decoration: const InputDecoration(labelText: 'Parent category'),
+        items: [
+          const DropdownMenuItem(value: '', child: Text('None · top-level')),
+          for (final category
+              in ref
+                  .read(profileProvider)!
+                  .categories
+                  .where((c) => c.type == type && c.id != initial?.id))
+            DropdownMenuItem(value: category.id, child: Text(category.name)),
+        ],
+        onChanged: (value) => setLocal(() => parentId = value ?? ''),
+      ),
+      const SizedBox(height: 16),
       formColors(color, (value) => setLocal(() => color = value)),
       formIcons(icon, (value) => setLocal(() => icon = value)),
     ],
@@ -215,6 +236,7 @@ Future<void> _editCategory(
             type: type,
             icon: icon,
             color: color,
+            parentId: parentId,
             hidden: initial?.hidden ?? false,
             order:
                 initial?.order ?? ref.read(profileProvider)!.categories.length,

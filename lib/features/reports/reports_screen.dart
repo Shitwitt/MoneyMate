@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -7,35 +5,21 @@ import 'package:printing/printing.dart';
 
 import '../../core/data/ledger.dart';
 import '../../core/data/providers.dart';
-import '../../core/models/models.dart';
+import '../../core/data/reporting.dart';
 import '../../core/services/csv_service.dart';
 import '../../core/services/file_service.dart';
 import '../../core/services/pdf_service.dart';
 import '../../core/utils/dates.dart';
 import '../../core/utils/money.dart';
 import '../../shared/actions.dart';
-import '../../shared/charts.dart';
-import '../../shared/cashflow_composition.dart';
-import '../../shared/pulse_charts.dart';
+import '../../shared/reference_charts.dart';
 import '../../shared/widgets.dart';
-import '../settings/premium_screen.dart';
+import '../budgets/budgets_screen.dart';
+import '../goals/goals_screen.dart';
+import '../home/home_screen.dart';
 import '../transactions/filter_sheet.dart';
-import '../transactions/transactions_screen.dart';
-
-TransactionFilter filterDates(TransactionFilter filter, DateWindow? dates) =>
-    TransactionFilter(
-      query: filter.query,
-      dates: dates,
-      accounts: filter.accounts,
-      categories: filter.categories,
-      labels: filter.labels,
-      people: filter.people,
-      places: filter.places,
-      type: filter.type,
-      minMinor: filter.minMinor,
-      maxMinor: filter.maxMinor,
-      sort: filter.sort,
-    );
+import '../transactions/transaction_tile.dart';
+import 'advanced_reports_screen.dart';
 
 class ReportsScreen extends ConsumerStatefulWidget {
   const ReportsScreen({super.key});
@@ -44,618 +28,971 @@ class ReportsScreen extends ConsumerStatefulWidget {
 }
 
 class _ReportsScreenState extends ConsumerState<ReportsScreen> {
+  late DateWindow window;
   TransactionFilter filter = const TransactionFilter();
-  bool line = false;
-  String chartType = 'expense';
+  bool bars = true, descending = true;
+  String chartType = 'expense', dimension = 'category';
   @override
   void initState() {
     super.initState();
-    final settings = ref.read(appProvider).settings;
-    final windows = monthlyWindows(DateTime.now(), settings.monthStart, 6);
-    filter = TransactionFilter(
-      dates: DateWindow(windows.first.start, windows.last.end),
+    window = financialMonth(
+      DateTime.now(),
+      ref.read(appProvider).settings.monthStart,
     );
   }
 
-  Future<void> _filters() async {
+  Future<void> filters() async {
     final result = await showTransactionFilters(
       context,
       ref.read(profileProvider)!,
-      filter,
+      filterDates(filter, window),
     );
-    if (mounted && result != null) setState(() => filter = result);
+    if (result != null && mounted)
+      setState(() {
+        filter = result;
+        if (result.dates != null) window = result.dates!;
+      });
   }
 
-  Future<void> _export(String kind) async {
-    await runSafe(context, () async {
-      final ledger = ref.read(ledgerProvider)!;
-      final entries = filter.apply(ledger);
-      if (kind == 'csv') {
-        await FileService.save(
-          CsvService.export(ledger, entries),
-          'Tink-report.csv',
-          mime: 'text/csv',
+  Future<void> export(String kind) => runSafe(context, () async {
+    final ledger = ref.read(ledgerProvider)!,
+        snapshot = ReportSnapshot(
+          ref.read(ledgerProvider)!,
+          window,
+          selection: filterDates(
+            filter,
+            window,
+          ).apply(ref.read(ledgerProvider)!),
         );
-        return;
-      }
-      if (!ref.read(appProvider).settings.isPro) {
-        throw const PremiumRequired('PDF reports');
-      }
-      final bytes = await PdfService.report(
-        ledger,
-        entries,
-        'Your money, a little clearer',
+    if (kind == 'csv') {
+      await FileService.save(
+        CsvService.export(ledger, snapshot.entries),
+        'Tink-report.csv',
+        mime: 'text/csv',
       );
-      if (kind == 'print') {
-        await Printing.layoutPdf(
-          onLayout: (_) async => bytes,
-          name: 'Tink-report.pdf',
-        );
-      } else {
-        await FileService.save(
-          bytes,
-          'Tink-report.pdf',
-          mime: 'application/pdf',
-        );
-      }
-    });
-  }
-
+      return;
+    }
+    if (!ledger.settings.isPro) throw const PremiumRequired('PDF reports');
+    final bytes = await PdfService.report(
+      ledger,
+      snapshot.entries,
+      'Month Summary',
+    );
+    if (kind == 'print') {
+      await Printing.layoutPdf(
+        onLayout: (_) async => bytes,
+        name: 'Tink-report.pdf',
+      );
+    } else {
+      await FileService.save(bytes, 'Tink-report.pdf', mime: 'application/pdf');
+    }
+  }).then((_) {});
   @override
   Widget build(BuildContext context) {
     final ledger = ref.watch(ledgerProvider)!;
-    final entries = filter.apply(ledger);
-    final expenses = entries.where((entry) => entry.type == 'expense').toList();
-    final income = entries
-        .where((entry) => entry.type == 'income')
-        .fold<int>(0, (sum, entry) => sum + ledger.entryValue(entry));
-    final expense = expenses.fold<int>(
-      0,
-      (sum, entry) => sum + ledger.entryValue(entry),
+    final snapshot = ReportSnapshot(
+      ledger,
+      window,
+      selection: filterDates(filter, window).apply(ledger),
     );
-    final window =
-        filter.dates ??
-        DateWindow(DateTime(1970), DateTime.now().add(const Duration(days: 1)));
-    final end = window.end.subtract(const Duration(days: 1));
-    final firstPeriod = financialMonth(
-      window.start,
+    final months = monthlyWindows(
+      DateTime.now(),
       ledger.settings.monthStart,
-    ).start;
-    final lastPeriod = financialMonth(end, ledger.settings.monthStart).start;
-    final chartMonths = math.max(
-      1,
-      math.min(
-        12,
-        (lastPeriod.year - firstPeriod.year) * 12 +
-            lastPeriod.month -
-            firstPeriod.month +
-            1,
-      ),
+      12,
+    ).reversed.toList();
+    final regular = financialMonth(window.start, ledger.settings.monthStart);
+    final previousWindow =
+        regular.start == window.start && regular.end == window.end
+        ? previousMonth(window.start, ledger.settings.monthStart)
+        : DateWindow(
+            DateTime(
+              window.start.year,
+              window.start.month,
+              window.start.day - window.days,
+            ),
+            window.start,
+          );
+    final previous = ReportSnapshot(
+      ledger,
+      previousWindow,
+      selection: filterDates(filter, previousWindow).apply(ledger),
     );
-    final chartLedger = Ledger(
-      ledger.data.copyWith(transactions: entries),
-      ledger.settings,
-    );
+    final groups = snapshot.groups(type: chartType, dimension: dimension);
+    final rows = descending ? groups : groups.reversed.toList();
+    final total = chartType == 'expense' ? snapshot.expense : snapshot.income;
     return FeaturePage(
-      title: 'Your money, a little clearer',
+      title: 'Reports',
       actions: [
         IconButton(
           tooltip: 'Filter reports',
-          onPressed: _filters,
+          onPressed: filters,
           icon: Badge(
             isLabelVisible: filter.active,
             child: const Icon(Icons.tune_rounded),
           ),
         ),
         PopupMenuButton<String>(
-          tooltip: 'Export report (contains full amounts)',
-          onSelected: _export,
+          tooltip: 'Report actions',
+          onSelected: (v) {
+            if (v == 'advanced')
+              openPage(context, const AdvancedReportsScreen());
+            else
+              export(v);
+          },
           itemBuilder: (_) => const [
-            PopupMenuItem(value: 'csv', child: Text('Export filtered CSV')),
+            PopupMenuItem(
+              value: 'advanced',
+              child: Text('Advanced reports & comparisons'),
+            ),
+            PopupMenuItem(
+              value: 'csv',
+              child: Text('Export matching CSV · full amounts'),
+            ),
             PopupMenuItem(value: 'pdf', child: Text('Save PDF · Pro')),
             PopupMenuItem(value: 'print', child: Text('Print report · Pro')),
           ],
+        ),
+        IconButton(
+          tooltip: 'Profiles & settings',
+          onPressed: () => showProfileMenu(context, ref),
+          icon: const Icon(Icons.person_outline_rounded),
         ),
       ],
       child: ListView(
         padding: const EdgeInsets.only(bottom: 110),
         children: [
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            children: [
-              ActionChip(
-                avatar: const Icon(Icons.date_range_rounded, size: 16),
-                label: Text(
-                  filter.dates == null
-                      ? 'All dates'
-                      : '${DateFormat.yMMMd().format(window.start)} — ${DateFormat.yMMMd().format(end)}',
-                ),
-                onPressed: _filters,
-              ),
-              for (final months in [1, 6, 12])
-                ActionChip(
-                  label: Text(months == 1 ? 'This month' : '$months months'),
-                  onPressed: () {
-                    final now = DateTime.now();
-                    final current = financialMonth(
-                      now,
-                      ledger.settings.monthStart,
-                    );
-                    setState(
-                      () => filter = filterDates(
-                        filter,
-                        DateWindow(
-                          safeMonth(
-                            current.start.year,
-                            current.start.month - months + 1,
-                            ledger.settings.monthStart,
-                          ),
-                          current.end,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              if (filter.active)
-                ActionChip(
-                  label: const Text('All data / clear'),
-                  onPressed: () =>
-                      setState(() => filter = const TransactionFilter()),
-                ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          FinancialPulsePanel(ledger, expanded: true),
-          const SizedBox(height: 24),
-          ActivityHeatmap(entries, anchor: end),
-          const SizedBox(height: 24),
-          LayoutBuilder(
-            builder: (context, constraints) => Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                for (final stat in [
-                  ('Income', income, Icons.south_west_rounded),
-                  ('Expenses', expense, Icons.north_east_rounded),
-                  ('Net cash flow', income - expense, Icons.waves_rounded),
-                ])
-                  SizedBox(
-                    width: constraints.maxWidth > 650
-                        ? (constraints.maxWidth - 24) / 3
-                        : (constraints.maxWidth - 12) / 2,
-                    child: StatCard(
-                      title: stat.$1,
-                      value: AmountText(
-                        stat.$2,
-                        style: TextStyle(
-                          color: AppColors.semantic(
-                            context,
-                            stat.$1 == 'Income'
-                                ? 'income'
-                                : stat.$1 == 'Expenses'
-                                ? 'expense'
-                                : stat.$2 >= 0
-                                ? 'income'
-                                : 'expense',
-                          ),
-                        ),
-                        compact: constraints.maxWidth < 650,
-                      ),
-                      icon: stat.$3,
-                      color: AppColors.semantic(
-                        context,
-                        stat.$1 == 'Income'
-                            ? 'income'
-                            : stat.$1 == 'Expenses'
-                            ? 'expense'
-                            : stat.$2 >= 0
-                            ? 'income'
-                            : 'expense',
-                      ),
-                      caption: stat.$1 == 'Net cash flow'
-                          ? '${income > 0 ? ((income - expense) / income * 100).toStringAsFixed(1) : '0'}% savings rate'
-                          : '${entries.where((entry) => entry.type == (stat.$1 == 'Income' ? 'income' : 'expense')).length} entries',
+          SizedBox(
+            height: 60,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: months.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 5),
+              itemBuilder: (context, i) {
+                final month = months[i],
+                    selected =
+                        month.start == window.start && month.end == window.end;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: ChoiceChip(
+                    label: Text(
+                      DateFormat(
+                        "MMM yy",
+                        ledger.settings.locale,
+                      ).format(month.start),
                     ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          ShineSurface(
-            child: CashflowComposition(
-              chartLedger,
-              months: chartMonths,
-              anchor: end,
-            ),
-          ),
-          const SizedBox(height: 28),
-          SectionHeader(
-            'The bigger picture',
-            trailing: SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(
-                  value: false,
-                  icon: Icon(Icons.bar_chart_rounded),
-                ),
-                ButtonSegment(
-                  value: true,
-                  icon: Icon(Icons.show_chart_rounded),
-                ),
-              ],
-              selected: {line},
-              showSelectedIcon: false,
-              onSelectionChanged: (value) => setState(() => line = value.first),
-            ),
-          ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(22),
-              child: Column(
-                children: [
-                  TrendChart(
-                    chartLedger,
-                    line: line,
-                    months: chartMonths,
-                    anchor: end,
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Monthly buckets for this selection · transfers excluded',
-                    style: TextStyle(fontSize: 11),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          SectionHeader(
-            'Where it all goes',
-            trailing: DropdownButton<String>(
-              value: chartType,
-              underline: const SizedBox.shrink(),
-              items: const [
-                DropdownMenuItem(value: 'expense', child: Text('Expenses')),
-                DropdownMenuItem(value: 'income', child: Text('Income')),
-              ],
-              onChanged: (value) => setState(() => chartType = value!),
-            ),
-          ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(22),
-              child: CategoryChart(
-                ledger,
-                entries.where((entry) => entry.type == chartType).toList(),
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          const SectionHeader('By account'),
-          _breakdown(context, ledger.breakdown(expenses, 'account'), expense),
-          const SizedBox(height: 24),
-          const SectionHeader('Your regular favourites'),
-          _breakdown(
-            context,
-            ledger.breakdown(expenses, 'name'),
-            expense,
-            limit: 8,
-          ),
-          for (final kind in ['label', 'person', 'place'])
-            if (ledger.data.entities.any((entity) => entity.kind == kind)) ...[
-              const SizedBox(height: 24),
-              SectionHeader(
-                'Spending by ${kind == 'person' ? 'person' : kind}',
-              ),
-              _breakdown(context, {
-                for (final entity in ledger.data.entities.where(
-                  (entity) => entity.kind == kind,
-                ))
-                  entity.name: expenses
-                      .where(
-                        (entry) => kind == 'label'
-                            ? entry.labelIds.contains(entity.id)
-                            : kind == 'person'
-                            ? entry.personIds.contains(entity.id)
-                            : entry.placeId == entity.id,
-                      )
-                      .fold<int>(
-                        0,
-                        (sum, entry) => sum + ledger.entryValue(entry),
-                      ),
-              }, expense),
-              if (kind != 'place')
-                const Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Text(
-                    'Multi-tagged entries appear in each matching group.',
-                    style: TextStyle(fontSize: 10),
-                  ),
-                ),
-            ],
-          const SizedBox(height: 24),
-          if (ledger.settings.isPro)
-            ..._advanced(context, ledger, entries, window, expense)
-          else
-            Card(
-              color: Theme.of(context).colorScheme.tertiaryContainer
-                  .withValues(alpha: .5),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.auto_awesome_rounded),
-                    const SizedBox(height: 12),
-                    Text(
-                      'A little more perspective',
-                      style: Theme.of(context).textTheme.titleLarge,
+                    selected: selected,
+                    showCheckmark: false,
+                    selectedColor: Theme.of(context).colorScheme.primary,
+                    backgroundColor: AppColors.dark(context)
+                        ? const Color(0xff494314)
+                        : const Color(0xffEEE6BC),
+                    labelStyle: TextStyle(
+                      color: selected
+                          ? AppColors.ink
+                          : Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Spending velocity, period comparisons, seasonal patterns, and beautiful PDF reports.',
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(selected ? 40 : 6),
                     ),
-                    const SizedBox(height: 18),
-                    OutlinedButton(
-                      onPressed: () => openPage(context, const PremiumScreen()),
-                      child: const Text('Explore Tink Pro'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          const SizedBox(height: 20),
-          OutlinedButton.icon(
-            onPressed: () => openPage(
-              context,
-              TransactionsScreen(
-                title: 'Report transactions',
-                initialFilter: filter,
-              ),
-            ),
-            icon: const Icon(Icons.receipt_long_outlined),
-            label: Text('Explore ${entries.length} matching transactions'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _breakdown(
-    BuildContext context,
-    Map<String, int> values,
-    int total, {
-    int limit = 10,
-  }) {
-    final sorted = values.entries.where((entry) => entry.value > 0).toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    if (sorted.isEmpty) {
-      return const Card(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Text('No matching activity in this selection.'),
-        ),
-      );
-    }
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            for (final entry in sorted.take(limit))
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(child: Text(entry.key)),
-                        AmountText(
-                          entry.value,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    LinearProgressIndicator(
-                      value: total > 0 ? (entry.value / total).clamp(0, 1) : 0,
-                      minHeight: 4,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  List<Widget> _advanced(
-    BuildContext context,
-    Ledger ledger,
-    List<MoneyTransaction> entries,
-    DateWindow window,
-    int expense,
-  ) {
-    final now = DateTime.now();
-    final elapsed = math.max(
-      1,
-      math.min(window.days, calendarDaysBetween(window.start, now) + 1),
-    );
-    final pace = (expense / elapsed).round();
-    final previous = DateWindow(
-      window.start.subtract(window.end.difference(window.start)),
-      window.start,
-    );
-    final pastEntries = filterDates(filter, previous).apply(ledger);
-    final past = pastEntries
-        .where((entry) => entry.type == 'expense')
-        .fold<int>(0, (sum, entry) => sum + ledger.entryValue(entry));
-    final yearly = DateWindow(
-      safeMonth(window.start.year - 1, window.start.month, window.start.day),
-      safeMonth(window.end.year - 1, window.end.month, window.end.day),
-    );
-    final lastYear = filterDates(filter, yearly)
-        .apply(ledger)
-        .where((entry) => entry.type == 'expense')
-        .fold<int>(0, (sum, entry) => sum + ledger.entryValue(entry));
-    final week = <String, int>{
-      for (var i = 0; i < 7; i++)
-        DateFormat.EEEE().format(
-          DateTime(2024, 1, 1 + (ledger.settings.weekStart - 1 + i) % 7),
-        ): entries
-            .where(
-              (entry) =>
-                  entry.type == 'expense' &&
-                  entry.date.weekday ==
-                      (ledger.settings.weekStart - 1 + i) % 7 + 1,
-            )
-            .fold<int>(0, (sum, entry) => sum + ledger.entryValue(entry)),
-    };
-    return [
-      const SectionHeader('Your spending velocity'),
-      Row(
-        children: [
-          Expanded(
-            child: StatCard(
-              title: 'Daily pace',
-              value: AmountText(pace, compact: true),
-              icon: Icons.speed_rounded,
-              caption: '$elapsed elapsed days',
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: StatCard(
-              title: 'Projected period',
-              value: AmountText(pace * window.days, compact: true),
-              icon: Icons.timeline_rounded,
-              caption: 'At this pace · not a prediction',
-            ),
-          ),
-        ],
-      ),
-      const SizedBox(height: 24),
-      const SectionHeader('A little perspective'),
-      Card(
-        child: Padding(
-          padding: const EdgeInsets.all(22),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  const Expanded(child: Text('Previous equal-length period')),
-                  AmountText(past),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  const Expanded(child: Text('Same window, last year')),
-                  AmountText(lastYear),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                past == 0
-                    ? 'Your next chapter starts with this data.'
-                    : '${((expense - past) / past * 100).abs().toStringAsFixed(1)}% ${expense > past ? 'more' : 'less'} spending than the previous period',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ],
-          ),
-        ),
-      ),
-      const SizedBox(height: 24),
-      const SectionHeader('The shape of your week'),
-      _breakdown(context, week, expense),
-      const SizedBox(height: 24),
-      const SectionHeader('Daily spending heatmap'),
-      _heatmap(
-        context,
-        ledger,
-        entries,
-        window.end.subtract(const Duration(days: 1)),
-      ),
-    ];
-  }
-
-  Widget _heatmap(
-    BuildContext context,
-    Ledger ledger,
-    List<MoneyTransaction> entries,
-    DateTime month,
-  ) {
-    final first = DateTime(month.year, month.month),
-        days = DateTime(month.year, month.month + 1, 0).day;
-    final offset = (first.weekday - ledger.settings.weekStart + 7) % 7;
-    final values = List.generate(
-      days,
-      (i) => entries
-          .where(
-            (entry) =>
-                entry.type == 'expense' &&
-                dayOnly(entry.date) == DateTime(month.year, month.month, i + 1),
-          )
-          .fold<int>(0, (sum, entry) => sum + ledger.entryValue(entry)),
-    );
-    final max = values.fold<int>(1, math.max);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Text(DateFormat.yMMMM().format(first)),
-            const SizedBox(height: 14),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 7,
-                mainAxisSpacing: 6,
-                crossAxisSpacing: 6,
-                childAspectRatio: 1.6,
-              ),
-              itemCount: days + offset,
-              itemBuilder: (context, index) {
-                if (index < offset) return const SizedBox.shrink();
-                final day = index - offset;
-                return Entrance(
-                  index: day % 7,
-                  child: Tooltip(
-                    message: money(
-                      values[day],
-                      ledger.currency,
-                      hidden: ledger.settings.hideAmounts,
-                    ),
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary.withValues(
-                          alpha: ledger.settings.hideAmounts
-                              ? .08
-                              : .06 + values[day] / max * .6,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '${day + 1}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.dark(context)
-                              ? Colors.white
-                              : AppColors.ink,
-                          fontFeatures: AppTextStyles.tabular,
-                        ),
-                      ),
-                    ),
+                    onSelected: (_) => setState(() => window = month),
                   ),
                 );
               },
             ),
+          ),
+          if (ledger.settings.monthStart != 1 || window.days > 31)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                '${DateFormat.yMMMd().format(window.start)} – ${DateFormat.yMMMd().format(window.end.subtract(const Duration(days: 1)))}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          const SizedBox(height: 22),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Total balance',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              Flexible(
+                child: AmountText(
+                  snapshot.net,
+                  animate: true,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _ReportTotal(
+                  'Income',
+                  snapshot.income,
+                  previous.income,
+                  income: true,
+                  ledger: ledger,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _ReportTotal(
+                  'Expense',
+                  snapshot.expense,
+                  previous.expense,
+                  income: false,
+                  ledger: ledger,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          QuickInsights(snapshot),
+          const SizedBox(height: 22),
+          TonalCard(
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Reports',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ),
+                    IconButton.filledTonal(
+                      tooltip: 'Daily bar chart',
+                      isSelected: bars,
+                      onPressed: () => setState(() => bars = true),
+                      icon: const Icon(Icons.bar_chart_rounded),
+                    ),
+                    const SizedBox(width: 6),
+                    IconButton.filledTonal(
+                      tooltip: 'Daily line chart',
+                      isSelected: !bars,
+                      onPressed: () => setState(() => bars = false),
+                      icon: const Icon(Icons.show_chart_rounded),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                ReportDailyChart(snapshot, bars: bars),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  initialValue: chartType,
+                  decoration: const InputDecoration(
+                    labelText: 'Transaction type',
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'expense', child: Text('Expense')),
+                    DropdownMenuItem(value: 'income', child: Text('Income')),
+                  ],
+                  onChanged: (v) => setState(() => chartType = v!),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  initialValue: dimension,
+                  decoration: const InputDecoration(labelText: 'Group by'),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'category',
+                      child: Text('Category'),
+                    ),
+                    DropdownMenuItem(value: 'account', child: Text('Account')),
+                    DropdownMenuItem(value: 'label', child: Text('Label')),
+                    DropdownMenuItem(value: 'person', child: Text('Person')),
+                    DropdownMenuItem(value: 'place', child: Text('Place')),
+                  ],
+                  onChanged: (v) => setState(() => dimension = v!),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          ReferenceDonut(groups, ledger),
+          if (dimension == 'label' || dimension == 'person')
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(
+                'Multiple tags can include the same record. Donut percentages use the sum of group totals, not distinct cash flow.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          const SizedBox(height: 26),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  chartType == 'expense' ? 'Expense' : 'Income',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              IconButton(
+                tooltip: 'Reverse breakdown order',
+                onPressed: () => setState(() => descending = !descending),
+                icon: const Icon(Icons.unfold_more_rounded),
+              ),
+              Flexible(
+                child: AmountText(
+                  total,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          for (final group in rows)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: TonalCard(
+                color: Color.alphaBlend(
+                  Color(group.color).withValues(alpha: .2),
+                  Theme.of(context).colorScheme.surface,
+                ),
+                onTap: () => openPage(
+                  context,
+                  ReportRecordsScreen(
+                    title: group.name,
+                    window: window,
+                    recordIds: group.entries.map((e) => e.id).toSet(),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    ColorIcon(group.icon, group.color, size: 42),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${group.name} (${total > 0 ? (group.amount / total * 100).toStringAsFixed(1) : '0'}%)',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            '${group.entries.length} ${group.entries.length == 1 ? 'transaction' : 'transactions'}',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          if (dimension == 'category' &&
+                              ledger.data.categories.any(
+                                (c) => c.parentId == group.id,
+                              ))
+                            const Text(
+                              'Includes sub-categories',
+                              style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                fontSize: 12,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          const SizedBox(height: 20),
+          SectionHeader('Financial Reports'),
+          for (final item in financialReports)
+            TonalCard(
+              radius: 12,
+              padding: EdgeInsets.zero,
+              onTap: () => openPage(
+                context,
+                FinancialReportScreen(item.$1, window: window),
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                leading: CircleAvatar(
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer,
+                  child: Icon(item.$4),
+                ),
+                title: Text(
+                  item.$2,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(item.$3),
+                ),
+                trailing: const Icon(Icons.chevron_right_rounded),
+              ),
+            ),
+          const SizedBox(height: 26),
+          Text('*Note', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 6),
+          const Text(
+            'Overview details show posted income and expense transactions from included accounts. Excluded accounts, transfers, future-dated records and opening balances are not counted. Initial account balances remain visible in Accounts. Values use your manual reference rates.',
+          ),
+          const SizedBox(height: 18),
+          OutlinedButton.icon(
+            onPressed: () => openPage(
+              context,
+              ReportRecordsScreen(
+                title: 'Report transactions',
+                window: window,
+                recordIds: snapshot.entries.map((e) => e.id).toSet(),
+              ),
+            ),
+            icon: const Icon(Icons.receipt_long_outlined),
+            label: Text(
+              'Explore ${snapshot.entries.length} matching transactions',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReportTotal extends StatelessWidget {
+  final String title;
+  final int amount, previous;
+  final bool income;
+  final Ledger ledger;
+  const _ReportTotal(
+    this.title,
+    this.amount,
+    this.previous, {
+    required this.income,
+    required this.ledger,
+  });
+  @override
+  Widget build(BuildContext context) {
+    final change = previous == 0 ? null : (amount - previous) / previous * 100;
+    final color = AppColors.semantic(context, income ? 'income' : 'expense');
+    return TonalCard(
+      color: Color.alphaBlend(
+        color.withValues(alpha: .09),
+        Theme.of(context).colorScheme.surface,
+      ),
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+              ),
+              const SizedBox(width: 6),
+              Expanded(child: Text(title)),
+              if (change != null && !ledger.settings.hideAmounts)
+                Text(
+                  '${change >= 0 ? '+' : ''}${change.toStringAsFixed(0)}%',
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          AmountText(
+            amount,
+            animate: true,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 5),
+          AmountText(
+            previous,
+            prefix: 'was ',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class QuickInsights extends StatelessWidget {
+  final ReportSnapshot snapshot;
+  const QuickInsights(this.snapshot, {super.key});
+  @override
+  Widget build(BuildContext context) {
+    final top = snapshot.groups().firstOrNull,
+        largest = snapshot.largestExpense,
+        peak = snapshot.peakDay;
+    final hidden = snapshot.ledger.settings.hideAmounts;
+    final rate = snapshot.savingsRate;
+    final cells = <Widget>[
+      _Insight(
+        'Savings Rate',
+        Icons.savings_outlined,
+        Text(
+          hidden
+              ? '••••'
+              : rate == null
+              ? '—'
+              : '${rate >= 0 ? '+' : ''}${rate.toStringAsFixed(1)}%',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: AppColors.semantic(
+              context,
+              rate != null && rate < 0 ? 'expense' : 'income',
+            ),
+          ),
+        ),
+        rate == null ? 'No income baseline' : 'Net income after expenses',
+      ),
+      _Insight(
+        'Avg. Daily',
+        Icons.calendar_today_outlined,
+        AmountText(
+          snapshot.dailyAverage,
+          style: const TextStyle(fontSize: 23, fontWeight: FontWeight.w700),
+        ),
+        '${(snapshot.entries.length / snapshot.window.days).toStringAsFixed(1)} / day · full period',
+      ),
+      _Insight(
+        'Average Transaction',
+        Icons.receipt_long_outlined,
+        AmountText(
+          snapshot.averageTransaction,
+          style: const TextStyle(fontSize: 23, fontWeight: FontWeight.w700),
+        ),
+        '${snapshot.expenses.length} expenses',
+      ),
+      _Insight(
+        'Peak Spending Day',
+        Icons.trending_up_rounded,
+        Text(
+          peak == null ? '—' : DateFormat('EEE, MMM d').format(peak),
+          style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+        ),
+        peak == null
+            ? 'No expense records'
+            : hidden
+            ? 'Amount hidden'
+            : money(
+                snapshot.dailyExpenses[peak] ?? 0,
+                snapshot.ledger.currency,
+                locale: snapshot.ledger.settings.locale,
+              ),
+      ),
+    ];
+    return TonalCard(
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.auto_graph_rounded,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Quick Insights',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              SmallTag('${snapshot.entries.length} Transactions'),
+            ],
+          ),
+          const SizedBox(height: 16),
+          LayoutBuilder(
+            builder: (context, box) {
+              final one =
+                  box.maxWidth < 310 ||
+                  MediaQuery.textScalerOf(context).scale(1) > 1.3;
+              return Column(
+                children: [
+                  for (var i = 0; i < cells.length; i += one ? 1 : 2)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: one
+                          ? cells[i]
+                          : IntrinsicHeight(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Expanded(child: cells[i]),
+                                  const SizedBox(width: 10),
+                                  Expanded(child: cells[i + 1]),
+                                ],
+                              ),
+                            ),
+                    ),
+                ],
+              );
+            },
+          ),
+          if (top != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: TonalCard(
+                color: Color.alphaBlend(
+                  Color(top.color).withValues(alpha: .16),
+                  Theme.of(context).colorScheme.surface,
+                ),
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    ColorIcon(top.icon, top.color, size: 40),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Top Category',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Text(
+                            top.name,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Flexible(
+                      child: AmountText(
+                        top.amount,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          if (largest != null)
+            TonalCard(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  ColorIcon(
+                    snapshot.ledger.category(largest.categoryId)?.icon ??
+                        'expense',
+                    snapshot.ledger.category(largest.categoryId)?.color ??
+                        0xffEEB5B8,
+                    size: 40,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Largest Expense',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        Text(
+                          largest.name,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        Text(
+                          DateFormat.yMMMd().format(largest.date),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: AmountText(snapshot.ledger.entryValue(largest)),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Insight extends StatelessWidget {
+  final String title, caption;
+  final IconData icon;
+  final Widget value;
+  const _Insight(this.title, this.icon, this.value, this.caption);
+  @override
+  Widget build(BuildContext context) => TonalCard(
+    color: Theme.of(context).scaffoldBackgroundColor,
+    padding: const EdgeInsets.all(12),
+    radius: 18,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 7),
+            Expanded(
+              child: Text(title, style: Theme.of(context).textTheme.bodySmall),
+            ),
           ],
         ),
+        const SizedBox(height: 14),
+        value,
+        const SizedBox(height: 7),
+        Text(caption, style: Theme.of(context).textTheme.bodySmall),
+      ],
+    ),
+  );
+}
+
+const financialReports = <(String, String, String, IconData)>[
+  (
+    'month',
+    'Month Summary',
+    'Quick overview of income, expenses, and net balance for the selected month',
+    Icons.bar_chart_rounded,
+  ),
+  (
+    'category',
+    'Category Breakdown',
+    'Detailed spending analysis by category with visual charts',
+    Icons.pie_chart_outline_rounded,
+  ),
+  (
+    'budget',
+    'Budget Performance',
+    'Track budget vs actual spending with performance indicators',
+    Icons.track_changes_rounded,
+  ),
+  (
+    'cashflow',
+    'Cash Flow Analysis',
+    'Money flow trends and patterns over time',
+    Icons.payments_outlined,
+  ),
+  (
+    'goal',
+    'Goal Progress',
+    'Financial goals tracking with milestone progress',
+    Icons.emoji_events_outlined,
+  ),
+];
+
+class ReportRecordsScreen extends ConsumerWidget {
+  final String title;
+  final DateWindow window;
+  final Set<String>? recordIds;
+  const ReportRecordsScreen({
+    super.key,
+    required this.title,
+    required this.window,
+    this.recordIds,
+  });
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ledger = ref.watch(ledgerProvider)!;
+    final entries =
+        ReportSnapshot(ledger, window).entries
+            .where((e) => recordIds == null || recordIds!.contains(e.id))
+            .toList()
+          ..sort((a, b) => b.date.compareTo(a.date));
+    return FeaturePage(
+      title: title,
+      child: entries.isEmpty
+          ? const EmptyState(
+              title: 'No matching posted records',
+              message:
+                  'Transfers, excluded accounts and future dates are not included.',
+            )
+          : ListView(
+              padding: const EdgeInsets.only(bottom: 96),
+              children: [for (final entry in entries) TransactionTile(entry)],
+            ),
+    );
+  }
+}
+
+class FinancialReportScreen extends ConsumerWidget {
+  final String kind;
+  final DateWindow window;
+  const FinancialReportScreen(this.kind, {super.key, required this.window});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ledger = ref.watch(ledgerProvider)!,
+        snapshot = ReportSnapshot(ref.watch(ledgerProvider)!, window);
+    final title = financialReports.where((r) => r.$1 == kind).first.$2;
+    return FeaturePage(
+      title: title,
+      child: ListView(
+        padding: const EdgeInsets.only(bottom: 96),
+        children: [
+          Text(
+            '${DateFormat.yMMMd().format(window.start)} – ${DateFormat.yMMMd().format(window.end.subtract(const Duration(days: 1)))}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 18),
+          if (kind == 'month') ...[
+            QuickInsights(snapshot),
+            const SizedBox(height: 20),
+            ReportDailyChart(snapshot),
+            const SizedBox(height: 20),
+            SummaryColumns(
+              labels: const ['Income', 'Expense', 'Net'],
+              values: [
+                AmountText(snapshot.income),
+                AmountText(snapshot.expense),
+                AmountText(snapshot.net),
+              ],
+            ),
+          ],
+          if (kind == 'category') ...[
+            ReferenceDonut(snapshot.groups(), ledger),
+            const SizedBox(height: 18),
+            for (final group in snapshot.groups())
+              ListTile(
+                leading: ColorIcon(group.icon, group.color, size: 36),
+                title: Text(group.name),
+                subtitle: Text('${group.entries.length} transactions'),
+                trailing: AmountText(group.amount),
+                onTap: () => openPage(
+                  context,
+                  ReportRecordsScreen(
+                    title: group.name,
+                    window: window,
+                    recordIds: group.entries.map((e) => e.id).toSet(),
+                  ),
+                ),
+              ),
+          ],
+          if (kind == 'cashflow') ...[
+            ReportDailyChart(snapshot, bars: false),
+            const SizedBox(height: 20),
+            SummaryColumns(
+              labels: const ['Income', 'Outgoings', 'Net cash flow'],
+              values: [
+                AmountText(snapshot.income),
+                AmountText(snapshot.expense),
+                AmountText(snapshot.net),
+              ],
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Posted income minus expense, excluding transfers, opening balances and excluded accounts. No bank feeds or predictions.',
+            ),
+            const SizedBox(height: 20),
+            OutlinedButton(
+              onPressed: () => openPage(context, const AdvancedReportsScreen()),
+              child: const Text('Longer-term patterns & comparisons'),
+            ),
+          ],
+          if (kind == 'budget') ...[
+            const Text(
+              'Current budget configurations evaluated in this period. Historical edits to limits are not reconstructed.',
+            ),
+            const SizedBox(height: 16),
+            if (ledger.data.budgets.isEmpty)
+              const Text(
+                'Create a budget to compare its allowance and recorded spending.',
+              ),
+            for (final b in ledger.data.budgets)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Builder(
+                  builder: (context) {
+                    final status = ledger.budgetStatus(
+                      b,
+                      window.end.subtract(const Duration(days: 1)),
+                    );
+                    return TonalCard(
+                      onTap: () => openPage(context, BudgetDetailScreen(b.id)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            b.name,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 14),
+                          WavyProgress(status.progress),
+                          const SizedBox(height: 14),
+                          SummaryColumns(
+                            labels: const [
+                              'Recorded',
+                              'Allowance',
+                              'Remaining',
+                            ],
+                            values: [
+                              AmountText(status.spent),
+                              AmountText(status.limit),
+                              AmountText(status.remaining),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+          ],
+          if (kind == 'goal') ...[
+            const Text(
+              'Current goal progress, not reconstructed historical balances.',
+            ),
+            const SizedBox(height: 16),
+            if (ledger.data.goals.isEmpty)
+              const Text(
+                'Create a goal and record contributions to see progress.',
+              ),
+            for (final goal in ledger.data.goals)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: TonalCard(
+                  onTap: () => openPage(context, const GoalsScreen()),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        goal.name,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      WavyProgress(ledger.goalSaved(goal) / goal.targetMinor),
+                      const SizedBox(height: 12),
+                      SummaryColumns(
+                        labels: const ['Saved', 'Target'],
+                        values: [
+                          AmountText(ledger.goalSaved(goal)),
+                          AmountText(goal.targetMinor),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+          const SizedBox(height: 24),
+          OutlinedButton.icon(
+            onPressed: () => openPage(
+              context,
+              ReportRecordsScreen(title: 'Matching records', window: window),
+            ),
+            icon: const Icon(Icons.receipt_long_outlined),
+            label: const Text('Explore posted transactions'),
+          ),
+        ],
       ),
     );
   }

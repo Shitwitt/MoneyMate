@@ -20,6 +20,7 @@ class TransactionForm extends ConsumerStatefulWidget {
   final TransactionTemplate? template;
   final String? accountId;
   final String initialType;
+  final String initialBudgetId;
   final bool templateOnly;
   const TransactionForm({
     super.key,
@@ -27,6 +28,7 @@ class TransactionForm extends ConsumerStatefulWidget {
     this.template,
     this.accountId,
     this.initialType = 'expense',
+    this.initialBudgetId = '',
     this.templateOnly = false,
   });
   @override
@@ -43,6 +45,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
   late String _type, _accountId, _categoryId;
   String _toAccountId = '', _placeId = '', _goalId = '', _loanId = '';
   String _transferCategoryId = '';
+  String _budgetId = '';
   DateTime _date = DateTime.now();
   Set<String> _labels = {}, _people = {};
   List<Receipt> _receipts = [];
@@ -58,6 +61,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
     final entry = widget.initial;
     final template = widget.template;
     _type = entry?.type ?? template?.type ?? widget.initialType;
+    _budgetId = entry?.budgetId ?? widget.initialBudgetId;
     if (entry?.type == 'transfer' &&
         profile.categories.any(
           (c) => c.id == entry!.categoryId && c.type == 'transfer',
@@ -214,7 +218,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
           loanId: _loanId,
           receipts: _receipts,
           recurringId: widget.initial?.recurringId ?? '',
-          budgetId: widget.initial?.budgetId ?? '',
+          budgetId: _type == 'transfer' ? '' : _budgetId,
           createdAt: widget.initial?.createdAt ?? DateTime.now(),
         );
         await controller.saveTransaction(
@@ -329,6 +333,7 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
               onSelectionChanged: (value) {
                 setState(() {
                   _type = value.first;
+                  _budgetId = '';
                   if (_type != 'transfer') {
                     _categoryId = profile.categories
                         .firstWhere((item) => item.type == _type)
@@ -551,6 +556,36 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
             ],
             const SizedBox(height: 16),
             formText(_notes, 'A little note (optional)', lines: 3),
+            const SizedBox(height: 20),
+            if (_type != 'transfer' && !widget.templateOnly) ...[
+              DropdownButtonFormField<String>(
+                key: ValueKey('transaction-budget-$_type'),
+                initialValue:
+                    profile.budgets.any(
+                      (b) => b.id == _budgetId && b.transactionType == _type,
+                    )
+                    ? _budgetId
+                    : '',
+                decoration: const InputDecoration(
+                  labelText: 'Budget (optional)',
+                ),
+                items: [
+                  const DropdownMenuItem(
+                    value: '',
+                    child: Text('Automatic matching only'),
+                  ),
+                  for (final b in profile.budgets.where(
+                    (b) => b.transactionType == _type,
+                  ))
+                    DropdownMenuItem(
+                      value: b.id,
+                      child: Text('${b.name} · ${b.mode}'),
+                    ),
+                ],
+                onChanged: (v) => setState(() => _budgetId = v ?? ''),
+              ),
+              const SizedBox(height: 16),
+            ],
             if (profile.entities.any((item) => item.kind == 'label')) ...[
               const SizedBox(height: 20),
               formChips(
@@ -775,8 +810,9 @@ class _Calculator extends StatelessWidget {
                     }
                   } else if (key == '=') {
                     try {
-                      controller.text = evaluateAmount(controller.text)
-                          .toString();
+                      controller.text = evaluateAmount(
+                        controller.text,
+                      ).toString();
                     } catch (_) {
                       toast(context, 'Finish the expression first');
                     }
@@ -797,6 +833,7 @@ class _Calculator extends StatelessWidget {
 Future<void> openTransactionSheet(
   BuildContext context, {
   String initialType = 'expense',
+  String initialBudgetId = '',
   TransactionTemplate? template,
 }) => showModalBottomSheet<void>(
   context: context,
@@ -812,7 +849,11 @@ Future<void> openTransactionSheet(
     borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
     child: SizedBox(
       height: MediaQuery.sizeOf(context).height * .94,
-      child: TransactionForm(initialType: initialType, template: template),
+      child: TransactionForm(
+        initialType: initialType,
+        initialBudgetId: initialBudgetId,
+        template: template,
+      ),
     ),
   ),
 );

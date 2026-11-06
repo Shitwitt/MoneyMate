@@ -52,6 +52,7 @@ DateWindow budgetWindow(Budget budget, DateTime date, int weekStart) {
       nextDay(budget.end ?? budget.start),
     );
   }
+  if (budget.period == 'daily') return DateWindow(day, nextDay(day));
   if (budget.period == 'weekly') {
     final offset = (day.weekday - weekStart + 7) % 7;
     final start = DateTime(day.year, day.month, day.day - offset);

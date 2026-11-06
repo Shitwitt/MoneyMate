@@ -12,8 +12,8 @@ abstract final class AppColors {
   static const outline = Color(0xFFE8D9CF);
   static const background = Color(0xFFFFF8F2);
   static const card = Color(0xFFFFFDF9);
-  static const darkSurface = Color(0xFF1A100E);
-  static const darkCard = Color(0xFF231A15);
+  static const darkSurface = Color(0xFF231A15);
+  static const darkCard = Color(0xFF271E19);
   static const darkDivider = Color(0xFF514238);
   static const darkSecondary = Color(0xFFD9C4BA);
   static const darkAccent = primary;

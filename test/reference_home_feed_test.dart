@@ -38,16 +38,20 @@ void main() {
       expect(tester.takeException(), isNull, reason: 'Initial Home at $scale');
       final scrollable = find.byType(Scrollable).first;
       final position = tester.state<ScrollableState>(scrollable).position;
+      var sawTemplates = find.text('Templates').evaluate().isNotEmpty;
       for (var index = 0; index < 40; index++) {
         final next = (position.pixels + 500)
             .clamp(0.0, position.maxScrollExtent)
             .toDouble();
         position.jumpTo(next);
         await tester.pumpAndSettle();
+        sawTemplates =
+            sawTemplates || find.text('Templates').evaluate().isNotEmpty;
         expect(tester.takeException(), isNull, reason: 'Home section $index');
         if (position.pixels >= position.maxScrollExtent - 1) break;
       }
-      expect(find.text('Templates'), findsOneWidget);
+      expect(sawTemplates, isTrue);
+      expect(find.text('Upcoming transactions'), findsOneWidget);
       expect(repo.writes, 0);
     });
   }

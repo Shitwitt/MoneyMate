@@ -161,43 +161,73 @@ class Ledger {
                   (entry) => entry.goalId == goal.id && entry.type == 'income',
                 )
                 .fold(0, (sum, entry) => sum + entryValue(entry));
-  int spentFor(Budget budget, DateWindow window) => data.transactions
+
+  /// Explicit links override automatic category matching; manual budgets count
+  /// only linked records. Transfers can never fund an income/expense budget.
+  bool matchesBudget(Budget budget, MoneyTransaction entry) {
+    if (entry.type != budget.transactionType ||
+        entry.date.isBefore(dayOnly(budget.start)))
+      return false;
+    if (budget.mode == 'manual') return entry.budgetId == budget.id;
+    if (entry.budgetId == budget.id) return true;
+    var categoryId = entry.categoryId;
+    final visited = <String>{};
+    var matches = budget.categoryIds.isEmpty;
+    while (categoryId.isNotEmpty && visited.add(categoryId)) {
+      if (budget.categoryIds.contains(categoryId)) {
+        matches = true;
+        break;
+      }
+      if (!budget.includeSubcategories) break;
+      categoryId = category(categoryId)?.parentId ?? '';
+    }
+    return budget.excludeCategories
+        ? !matches || budget.categoryIds.isEmpty
+        : matches;
+  }
+
+  List<MoneyTransaction> budgetEntries(Budget budget, DateWindow window) => data
+      .transactions
       .where(
-        (entry) =>
-            entry.type == 'expense' &&
-            window.contains(entry.date) &&
-            !entry.date.isBefore(dayOnly(budget.start)) &&
-            (entry.budgetId == budget.id ||
-                budget.categoryIds.isEmpty ||
-                budget.categoryIds.contains(entry.categoryId)),
+        (entry) => window.contains(entry.date) && matchesBudget(budget, entry),
       )
-      .fold(0, (sum, entry) => sum + entryValue(entry));
+      .toList();
+
+  int spentFor(Budget budget, DateWindow window) => budgetEntries(
+    budget,
+    window,
+  ).fold(0, (sum, entry) => sum + entryValue(entry));
 
   BudgetStatus budgetStatus(Budget budget, DateTime now) {
     final window = budgetWindow(budget, now, settings.weekStart);
     var carry = 0;
-    // Rollover is the sum of prior limits minus actual spend, including overspend.
-    // Walk forward from inception; using signed carry avoids "forgiving" debt.
     if (budget.rollover &&
         budget.period != 'custom' &&
-        !now.isBefore(budget.start)) {
-      var cursor = budgetWindow(budget, budget.start, settings.weekStart);
-      while (cursor.end.isBefore(window.start) ||
-          cursor.end.isAtSameMomentAs(window.start)) {
-        carry += budget.limitMinor - spentFor(budget, cursor);
-        cursor = budgetWindow(
-          budget,
-          cursor.end.add(const Duration(hours: 12)),
-          settings.weekStart,
-        );
-      }
+        !dayOnly(now).isBefore(dayOnly(budget.start))) {
+      final first = budgetWindow(budget, budget.start, settings.weekStart);
+      final count = switch (budget.period) {
+        'daily' => calendarDaysBetween(first.start, window.start),
+        'weekly' => calendarDaysBetween(first.start, window.start) ~/ 7,
+        'yearly' => window.start.year - first.start.year,
+        _ =>
+          (window.start.year - first.start.year) * 12 +
+              window.start.month -
+              first.start.month,
+      };
+      // Equivalent to summing every prior period; bounded by records rather
+      // than iterating decades of daily periods. Signed deficits are retained.
+      if (count > 0)
+        carry =
+            count * budget.limitMinor -
+            spentFor(budget, DateWindow(dayOnly(budget.start), window.start));
     }
-    final spent = now.isBefore(budget.start) ? 0 : spentFor(budget, window);
-    final limit = budget.limitMinor + carry;
+    final spent = dayOnly(now).isBefore(dayOnly(budget.start))
+        ? 0
+        : spentFor(budget, window);
     return BudgetStatus(
       window: window,
       spent: spent,
-      limit: limit,
+      limit: budget.limitMinor + carry,
       carry: carry,
     );
   }

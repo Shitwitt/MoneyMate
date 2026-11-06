@@ -151,6 +151,16 @@ void validateProfile(ProfileData data) {
     require(accountTypes.contains(item.type), 'Invalid account type');
   }
   for (final category in data.categories) {
+    final visited = <String>{category.id};
+    var parent = category.parentId;
+    while (parent.isNotEmpty) {
+      require(visited.add(parent), 'Category hierarchy cannot contain a cycle');
+      require(
+        categories[parent]?.type == category.type,
+        'Parent category must exist and match its type',
+      );
+      parent = categories[parent]?.parentId ?? '';
+    }
     require(
       category.name.trim().isNotEmpty &&
           ['expense', 'income', 'transfer'].contains(category.type),
@@ -235,12 +245,17 @@ void validateProfile(ProfileData data) {
           item.limitMinor > 0 &&
           validMoney(item.limitMinor) &&
           periods.contains(item.period) &&
-          validDate(item.start),
+          validDate(item.start) &&
+          ['expense', 'income'].contains(item.transactionType) &&
+          ['automatic', 'manual'].contains(item.mode) &&
+          item.icon.trim().isNotEmpty,
       'Invalid budget',
     );
     require(
-      item.categoryIds.every((id) => categories[id]?.type == 'expense'),
-      'Budget categories must be expenses',
+      item.categoryIds.every(
+        (id) => categories[id]?.type == item.transactionType,
+      ),
+      'Budget categories must match its income or expense type',
     );
     require(
       item.period != 'custom' ||

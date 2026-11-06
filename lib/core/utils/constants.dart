@@ -28,6 +28,10 @@ const defaultHomeCards = [
   'achievements',
   'recent',
   'templates',
+  'heatmap',
+  'trend',
+  'trackedBudgets',
+  'upcoming',
 ];
 const homeCardNames = <String, String>{
   'balance': 'Total balance',
@@ -51,7 +55,10 @@ const homeCardNames = <String, String>{
   'achievements': 'Achievements',
   'recent': 'Last earned',
   'templates': 'Templates',
-  'trend': 'Cash flow',
+  'heatmap': 'Calendar heatmap',
+  'trend': 'Trend',
+  'trackedBudgets': 'Track budgets',
+  'upcoming': 'Upcoming transactions',
   'premium': 'Tink Pro',
 };
 const accountTypes = [
@@ -72,7 +79,7 @@ const assetTypes = [
   'vehicle',
   'other',
 ];
-const periods = ['weekly', 'monthly', 'yearly', 'custom'];
+const periods = ['daily', 'weekly', 'monthly', 'yearly', 'custom'];
 const frequencies = [
   'daily',
   'weekly',

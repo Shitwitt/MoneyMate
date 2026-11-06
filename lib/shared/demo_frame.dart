@@ -18,7 +18,7 @@ class DemoFrame extends StatelessWidget {
       color: Theme.of(context).scaffoldBackgroundColor,
       child: Stack(
         children: [
-          Padding(padding: const EdgeInsets.only(top: 58), child: child),
+          child,
           Positioned(
             top: 0,
             left: 0,
@@ -29,6 +29,17 @@ class DemoFrame extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(48, 48),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                     onPressed: onExit,
                     icon: const Icon(Icons.close_rounded),
                     label: const Text('Exit Demo'),

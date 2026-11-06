@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../shared/how_it_works_sheet.dart';
+
 const recurringHelpSections = [
   (
     Icons.repeat_rounded,
@@ -63,93 +65,10 @@ const recurringHelpSections = [
   ),
 ];
 
-Future<void> showRecurringHelp(BuildContext context) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: false,
-      builder: (context) => SafeArea(
-        top: false,
-        child: SizedBox(
-          height: MediaQuery.sizeOf(context).height * .88,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 10, 6),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'How recurring works',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'Close recurring help',
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close_rounded),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                  itemCount: recurringHelpSections.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 24),
-                  itemBuilder: (context, index) {
-                    final section = recurringHelpSections[index];
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CircleAvatar(
-                          radius: 23,
-                          backgroundColor: Theme.of(context)
-                              .colorScheme
-                              .primaryContainer,
-                          child: Icon(
-                            section.$1,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer,
-                            size: 22,
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                section.$2,
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                section.$3,
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(height: 1.5),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 12, 24, 18),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Got it'),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+Future<void> showRecurringHelp(BuildContext context) => showHowItWorks(
+  context,
+  title: 'How Recurring Works',
+  introduction:
+      'Recurring transactions help you track subscriptions, bills, and regular payments automatically. They create local records, never bank charges.',
+  sections: recurringHelpSections,
+);

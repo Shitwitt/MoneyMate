@@ -255,7 +255,8 @@ class AppController extends StateNotifier<AppData> {
   );
   Future<void> deleteCategory(String id) => updateProfile((profile, app) {
     require(
-      !profile.transactions.any((entry) => entry.categoryId == id) &&
+      !profile.categories.any((category) => category.parentId == id) &&
+          !profile.transactions.any((entry) => entry.categoryId == id) &&
           !profile.budgets.any((budget) => budget.categoryIds.contains(id)) &&
           !profile.recurrings.any((rule) => rule.categoryId == id) &&
           !profile.templates.any((template) => template.categoryId == id),

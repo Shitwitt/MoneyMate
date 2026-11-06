@@ -16,6 +16,7 @@ import '../../shared/forms.dart';
 import '../../shared/widgets.dart';
 import '../transactions/transaction_form.dart';
 import '../transactions/transactions_screen.dart';
+import 'accounts_reference.dart';
 
 Future<void> editAccount(
   BuildContext context,
@@ -42,7 +43,8 @@ Future<void> editAccount(
   await showEditor(
     context,
     title: initial == null ? 'A home for your money' : 'Edit account',
-    description: 'Use a negative opening balance for credit card debt. Changing an opening balance adjusts the ledger without creating a transaction.',
+    description:
+        'Use a negative opening balance for credit card debt. Changing an opening balance adjusts the ledger without creating a transaction.',
     fields: (context, setLocal) => [
       AnimatedBuilder(
         animation: Listenable.merge([name, opening]),
@@ -175,13 +177,19 @@ Future<void> editAccount(
   notes.dispose();
 }
 
-class AccountsScreen extends ConsumerStatefulWidget {
+class AccountsScreen extends StatelessWidget {
   const AccountsScreen({super.key});
   @override
-  ConsumerState<AccountsScreen> createState() => _AccountsScreenState();
+  Widget build(BuildContext context) => const AccountsReferenceScreen();
 }
 
-class _AccountsScreenState extends ConsumerState<AccountsScreen> {
+class AccountsListScreen extends ConsumerStatefulWidget {
+  const AccountsListScreen({super.key});
+  @override
+  ConsumerState<AccountsListScreen> createState() => _AccountsListScreenState();
+}
+
+class _AccountsListScreenState extends ConsumerState<AccountsListScreen> {
   String? selectedId;
   @override
   Widget build(BuildContext context) {

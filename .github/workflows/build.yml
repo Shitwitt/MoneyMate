@@ -15,6 +15,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   debug-apk:
+    # UI-reference work must not build an APK until explicitly requested.
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build-apk]') || contains(github.event.head_commit.message, '[debug-download]')
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:

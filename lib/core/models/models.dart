@@ -193,6 +193,7 @@ class Category {
   final String name;
   final String type;
   final String icon;
+  final String parentId;
   final int color;
   final bool hidden;
   final int order;
@@ -202,6 +203,7 @@ class Category {
     required this.name,
     this.type = 'expense',
     this.icon = 'category',
+    this.parentId = '',
     this.color = 0xff916cff,
     this.hidden = false,
     this.order = 0,
@@ -212,6 +214,7 @@ class Category {
     name: readString(json['name']),
     type: readString(json['type'], 'expense'),
     icon: readString(json['icon'], 'category'),
+    parentId: readString(json['parentId'], ''),
     color: readInt(json['color'], 0xff916cff),
     hidden: readBool(json['hidden'], false),
     order: readInt(json['order'], 0),
@@ -222,6 +225,7 @@ class Category {
     'name': name,
     'type': type,
     'icon': icon,
+    'parentId': parentId,
     'color': color,
     'hidden': hidden,
     'order': order,
@@ -232,6 +236,7 @@ class Category {
     String? name,
     String? type,
     String? icon,
+    String? parentId,
     int? color,
     bool? hidden,
     int? order,
@@ -240,6 +245,7 @@ class Category {
     name: name ?? this.name,
     type: type ?? this.type,
     icon: icon ?? this.icon,
+    parentId: parentId ?? this.parentId,
     color: color ?? this.color,
     hidden: hidden ?? this.hidden,
     order: order ?? this.order,
@@ -408,15 +414,12 @@ class MoneyTransaction {
 }
 
 class Budget {
-  final String id;
-  final String name;
-  final int limitMinor;
+  final String id, name, period, transactionType, mode, icon;
+  final int limitMinor, color;
   final DateTime start;
-  final List<String> categoryIds;
-  final String period;
   final DateTime? end;
-  final bool rollover;
-  final int color;
+  final List<String> categoryIds;
+  final bool rollover, excludeCategories, includeSubcategories, showOnHome;
 
   const Budget({
     required this.id,
@@ -428,7 +431,16 @@ class Budget {
     this.end,
     this.rollover = false,
     this.color = 0xff916cff,
+    this.transactionType = 'expense',
+    this.mode = 'automatic',
+    this.excludeCategories = false,
+    this.includeSubcategories = true,
+    this.showOnHome = true,
+    this.icon = 'savings',
   });
+
+  bool get overall => excludeCategories || categoryIds.isEmpty;
+  bool get income => transactionType == 'income';
 
   factory Budget.fromJson(Json json) => Budget(
     id: readString(json['id']),
@@ -440,6 +452,12 @@ class Budget {
     end: readOptionalDate(json['end']),
     rollover: readBool(json['rollover'], false),
     color: readInt(json['color'], 0xff916cff),
+    transactionType: readString(json['transactionType'], 'expense'),
+    mode: readString(json['mode'], 'automatic'),
+    excludeCategories: readBool(json['excludeCategories'], false),
+    includeSubcategories: readBool(json['includeSubcategories'], true),
+    showOnHome: readBool(json['showOnHome'], true),
+    icon: readString(json['icon'], 'savings'),
   );
 
   Json toJson() => {
@@ -452,6 +470,12 @@ class Budget {
     'end': end?.toIso8601String(),
     'rollover': rollover,
     'color': color,
+    'transactionType': transactionType,
+    'mode': mode,
+    'excludeCategories': excludeCategories,
+    'includeSubcategories': includeSubcategories,
+    'showOnHome': showOnHome,
+    'icon': icon,
   };
 
   Budget copyWith({
@@ -464,6 +488,12 @@ class Budget {
     DateTime? end,
     bool? rollover,
     int? color,
+    String? transactionType,
+    String? mode,
+    bool? excludeCategories,
+    bool? includeSubcategories,
+    bool? showOnHome,
+    String? icon,
   }) => Budget(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -474,6 +504,12 @@ class Budget {
     end: end ?? this.end,
     rollover: rollover ?? this.rollover,
     color: color ?? this.color,
+    transactionType: transactionType ?? this.transactionType,
+    mode: mode ?? this.mode,
+    excludeCategories: excludeCategories ?? this.excludeCategories,
+    includeSubcategories: includeSubcategories ?? this.includeSubcategories,
+    showOnHome: showOnHome ?? this.showOnHome,
+    icon: icon ?? this.icon,
   );
 }
 
@@ -1224,6 +1260,10 @@ class AppSettings {
       'achievements',
       'recent',
       'templates',
+      'heatmap',
+      'trend',
+      'trackedBudgets',
+      'upcoming',
     ],
     this.hiddenCards = const [],
     this.navTabs = const ['home', 'accounts', 'reports', 'search'],

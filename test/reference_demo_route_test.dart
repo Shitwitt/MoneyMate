@@ -14,6 +14,12 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    final handler = FlutterError.onError;
+    FlutterError.onError = (details) {
+      FlutterError.dumpErrorToConsole(details, forceReport: true);
+      handler?.call(details);
+    };
+    addTearDown(() => FlutterError.onError = handler);
     final repo = MemoryRepository(const AppData());
     await tester.pumpWidget(
       ProviderScope(
@@ -22,8 +28,10 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull, reason: 'Initial setup');
     await tester.tap(find.text('Try Demo Mode'));
     await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull, reason: 'Populated demo Home');
     final navigator = tester.state<NavigatorState>(
       find.byType(Navigator).first,
     );
@@ -31,6 +39,7 @@ void main() {
       MaterialPageRoute(builder: (_) => const RecurringScreen()),
     );
     await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull, reason: 'Populated recurring route');
     await tester.tap(find.text('Exit Demo'));
     await tester.pump();
     expect(tester.takeException(), isNull);

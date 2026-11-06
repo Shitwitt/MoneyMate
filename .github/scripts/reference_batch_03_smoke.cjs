@@ -59,7 +59,7 @@ module.exports = async function referenceBatchThree({page, nav, goBack, capture,
   await button('How Labels Work').click(); await shot('labels-help'); await button('Got it').click();
   await nav('Everyday'); await shot('label-detail');
   for (const label of ['Weekly', 'Monthly', 'Yearly', 'Daily']) {await nav(label);}
-  await button('Edit label').click(); await pause(); await fill('Name', 'Everyday verified');
+  await page.getByRole('button', {name: /^Edit label(?:\s|$)/}).click(); await pause(); await fill('Name', 'Everyday verified');
   await button('Update label').click(); await pause(); await visibleText('Everyday verified').waitFor();
   await goBack(); await goBack();
 

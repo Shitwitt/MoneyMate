@@ -110,6 +110,8 @@ class _AnalyticsChartState extends State<AnalyticsChart> {
               ),
             );
             return Semantics(
+              // The plot is its own adjustable node, not part of a merged card label.
+              container: true,
               label: '${widget.label} ${widget.bars ? 'bar' : 'line'} chart',
               value: index == null
                   ? List.generate(widget.values.length, summary).join('. ')

@@ -50,6 +50,9 @@ Future<void> showTransactionDetail(
         final goal = ledger.data.goals
             .where((g) => g.id == entry.goalId)
             .firstOrNull;
+        final payment = loan?.repayments
+            .where((e) => e.transactionId == entry.id)
+            .firstOrNull;
         final budget = ledger.data.budgets
             .where((b) => b.id == entry.budgetId)
             .firstOrNull;
@@ -140,18 +143,18 @@ Future<void> showTransactionDetail(
                                 children: [
                                   Text(
                                     entry.name,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleLarge,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge,
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
                                     DateFormat.yMMMEd().add_jm().format(
                                       entry.date,
                                     ),
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall,
                                   ),
                                   if (!wide) ...[
                                     const SizedBox(height: 12),
@@ -245,6 +248,26 @@ Future<void> showTransactionDetail(
                         Icons.savings_outlined,
                         'budget:${budget.id}',
                         budget.color,
+                      ),
+                    if (payment != null)
+                      ListTile(
+                        contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                        leading: const Icon(Icons.payments_outlined),
+                        title: Text(
+                          payment.date.isAfter(DateTime.now())
+                              ? 'Scheduled repayment (not yet paid)'
+                              : 'Tracked repayment',
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AmountText(payment.amountMinor),
+                            const Text(
+                              'Agreed base amount. Current-rate conversion above may differ.',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        ),
                       ),
                     if (entry.notes.isNotEmpty)
                       row('Notes', entry.notes, Icons.notes_rounded),

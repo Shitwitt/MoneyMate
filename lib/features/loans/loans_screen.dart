@@ -21,8 +21,7 @@ import '../transactions/transactions_screen.dart';
 Future<void> showLoansHelp(BuildContext context) => showHowItWorks(
   context,
   title: 'How Loans Work',
-  introduction:
-      'Loans help you track money you have lent to others or borrowed, with payment progress.',
+  introduction: 'Loans help you track money you have lent to others or borrowed, with payment progress.',
   sections: const [
     (
       Icons.swap_vert,
@@ -286,10 +285,12 @@ Future<void> editLoan(
       accountId = initial?.accountId ?? '',
       categoryId = initial?.categoryId ?? '',
       icon = initial?.icon ?? 'loan';
+  final categoryDrafts = <String, String>{direction: categoryId};
   var color = initial?.color ?? 0xffe91e63;
   DateTime? start =
       initial?.start ?? (initial == null ? dayOnly(DateTime.now()) : null);
-  var due = initial?.due ?? DateTime.now().add(const Duration(days: 30));
+  final today = dayOnly(DateTime.now());
+  var due = initial?.due ?? DateTime(today.year, today.month, today.day + 30);
   await showReferenceEditor(
     context,
     title: 'Loan',
@@ -300,10 +301,15 @@ Future<void> editLoan(
     header: (context, setLocal) => PillTabs(
       labels: const ['Lending', 'Borrowing'],
       selected: direction == 'lent' ? 0 : 1,
-      onSelected: (n) => setLocal(() {
-        direction = n == 0 ? 'lent' : 'borrowed';
-        categoryId = '';
-      }),
+      onSelected: (n) {
+        final next = n == 0 ? 'lent' : 'borrowed';
+        if (next == direction) return;
+        setLocal(() {
+          categoryDrafts[direction] = categoryId;
+          direction = next;
+          categoryId = categoryDrafts[direction] ?? '';
+        });
+      },
     ),
     fields: (context, setLocal) {
       final profile = ref.read(profileProvider)!;

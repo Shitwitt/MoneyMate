@@ -38,7 +38,7 @@ This batch uses the 20 originals `Screenshot_20261106_<time>_Paisa.jpg` provided
 - Linked goals use the whole account book balance, including opening, withdrawals, transfers and scheduled records, using saved FX. This preserves existing Tink behavior while removing the misleading zero floor. It is **not deposit-only tracking**. Manual allocations remain saved when linked but are not double-counted; unlinking restores their use. Unlinked progress remains manual allocations plus tagged income.
 - Labels are many-to-many. Book totals include saved scheduled records; income minus expense is net, transfers contribute zero. Different labels overlap and must not be added together as a consolidated total. Deleting a tag retains every transaction and other tags.
 - Analytics uses posted expenses, saved FX and included accounts only. No transfers, opening balances, future records or fabricated scores. Current-month comparisons explicitly name the prior **whole** financial month. Zero baseline percentages are unavailable, not fake 100% increases.
-- Velocity uses elapsed calendar days including today; remaining excludes today. Predictions are transparent low-confidence estimates, not AI advice. Outlier flags are not fraud detection. Empty/sparse data remains empty/unavailable.
+- Velocity uses elapsed calendar days including today; remaining excludes today. Each category forecast equally blends its six-completed-month average and current pace, with a floor at that category’s posted spending; without a category baseline it uses pace alone. The overall prediction is the sum of those category forecasts, so the panels reconcile. Predictions are transparent low-confidence estimates, not AI advice. Outlier flags are not fraud detection. Empty/sparse data remains empty/unavailable.
 - All writes keep validate → durable save → publish. Editors await their own route exit before controller disposal and close their own route even when an achievement overlays it. Copying a record opens a new draft and never silently posts money.
 
 ## Motion, accessibility and platform limits
@@ -47,12 +47,16 @@ Shared rounded coffee/peach theme, finite/reduced-motion wave/line/bar transitio
 
 Exact proprietary font outlines and motion timing cannot be certified from still images. Detailed forms/help remain mostly English, alongside the existing 36 starter core locales; this is not a complete-translation claim. Gallery selection and physical-device/iOS execution need platform testing. Local data/backups remain unencrypted; PIN is not database encryption.
 
-## Verification plan (results pending)
+## Verification (in progress)
+
+Run `42176720069` at `d374c68` passed Flutter analysis, the full Flutter test suite (including the repaired chart semantics), the America/New_York calendar run and all 12 offline-packaging Python tests. The run remained red solely on strict SDK formatting; its exact SDK patch has been applied. New calendar-date boundaries, retained direction-specific category drafts and explicit repayment conversion disclosure are being rechecked. Browser journeys and screenshot review are still pending; no completion claim is made.
+
+Required remaining coverage:
 
 - New deterministic data tests: migrations, repayments/FX/edit/delete/atomic failures, manual close/reopen, signed goals/transfers, tags/deletion, grouping/DST, analytics exclusions/rates/calendar/forecasts/outliers/empty baselines.
 - New widget regressions: 320px/160% LTR and RTL across seven screens; privacy, type-dependent choices, custom hex save, lifecycle/disposal, help, label filters/grid, copy drafts, reduced-motion carousel and rounded Edit controls.
 - Existing full analyzer, localization, Flutter, calendar and offline-packaging suites remain required. Exact SDK formatting is authoritative; the local WASM formatter is only a syntax/preformat aid.
-- Chromium adds the connected Batch 3 demo journey and all twenty reference coverage frames. Existing Batch 1/2 journeys, theme persistence, offline reload and zero external runtime requests remain required.
+- Chromium adds the connected Batch 3 demo journey and 27 Batch 3 coverage frames (including a separate swipe result and palette continuation). Existing Batch 1/2 journeys, theme persistence, offline reload and zero external runtime requests remain required.
 - Four screenshot-only review jobs require the new full frames and bounded thumbnails for close review; previous Batch 2 evidence does not verify this batch.
 
 **APK hold remains active.** No APK/AAB/native compilation is requested or authorized. Both native workflow jobs remain explicitly opt-in; source/web checks run on UI-only pushes. No next image batch will be requested until implementation and these checks/review are completed.

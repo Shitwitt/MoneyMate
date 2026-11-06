@@ -15,8 +15,7 @@ import 'catalog_screen.dart';
 Future<void> showLabelsHelp(BuildContext context) => showHowItWorks(
   context,
   title: 'How Labels Work',
-  introduction:
-      'Labels add context to your transactions and help you organize your money.',
+  introduction: 'Labels add context to your transactions and help you organize your money.',
   sections: const [
     (
       Icons.label_outline,
@@ -278,9 +277,9 @@ class _LabelDetailScreenState extends ConsumerState<LabelDetailScreen> {
                                 child: ColoredBox(
                                   color: chartInk(
                                     AppColors.semantic(context, 'income'),
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.surfaceContainerHighest,
+                                    Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainerHighest,
                                   ),
                                   child: const SizedBox.expand(),
                                 ),
@@ -291,9 +290,9 @@ class _LabelDetailScreenState extends ConsumerState<LabelDetailScreen> {
                                 child: ColoredBox(
                                   color: chartInk(
                                     AppColors.semantic(context, 'expense'),
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.surfaceContainerHighest,
+                                    Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainerHighest,
                                   ),
                                   child: const SizedBox.expand(),
                                 ),
@@ -330,9 +329,9 @@ class _LabelDetailScreenState extends ConsumerState<LabelDetailScreen> {
                                     context,
                                     kind,
                                   ).withValues(alpha: type == kind ? .25 : .12),
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.surfaceContainerHighest,
+                                  Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest,
                                 ),
                                 onTap: () => setState(
                                   () => type = type == kind ? 'all' : kind,

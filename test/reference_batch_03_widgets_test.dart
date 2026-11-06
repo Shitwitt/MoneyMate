@@ -201,12 +201,27 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Update Loan'), findsOneWidget);
       expect(find.byType(ReferenceColorPicker), findsOneWidget);
-      await tester.tap(find.text('Borrowing'));
-      await tester.pumpAndSettle();
-      final choices = tester.widget<ReferenceChoices>(
+      ReferenceChoices categoryChoices() => tester.widget<ReferenceChoices>(
         find.byType(ReferenceChoices).last,
       );
-      expect(choices.choices.values, contains('Salary'));
+      final expenseCategory = categoryChoices().choices.keys.last;
+      categoryChoices().onChanged(expenseCategory);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Lending'));
+      await tester.pumpAndSettle();
+      expect(categoryChoices().selected, expenseCategory);
+      await tester.tap(find.text('Borrowing'));
+      await tester.pumpAndSettle();
+      expect(categoryChoices().choices.values, contains('Salary'));
+      final incomeCategory = categoryChoices().choices.keys.last;
+      categoryChoices().onChanged(incomeCategory);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Lending'));
+      await tester.pumpAndSettle();
+      expect(categoryChoices().selected, expenseCategory);
+      await tester.tap(find.text('Borrowing'));
+      await tester.pumpAndSettle();
+      expect(categoryChoices().selected, incomeCategory);
       await tester.pageBack();
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);

@@ -262,8 +262,7 @@ class _ReferenceColorPickerState extends State<ReferenceColorPicker> {
         else ...[
           Center(
             child: Semantics(
-              label:
-                  'Hue and saturation wheel. Sliders below provide accessible controls.',
+              label: 'Hue and saturation wheel. Sliders below provide accessible controls.',
               child: GestureDetector(
                 onPanDown: (event) => wheel(event.localPosition),
                 onPanUpdate: (event) => wheel(event.localPosition),
@@ -461,9 +460,8 @@ class ReferenceDatePair extends StatelessWidget {
                   subtitle: Text(
                     first && start == null
                         ? 'Not recorded'
-                        : MaterialLocalizations.of(
-                            context,
-                          ).formatMediumDate(first ? start! : end),
+                        : MaterialLocalizations.of(context)
+                              .formatMediumDate(first ? start! : end),
                   ),
                   onTap: () async {
                     final chosen = await showDatePicker(

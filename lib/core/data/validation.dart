@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../models/models.dart';
 import '../utils/constants.dart';
+import '../utils/dates.dart';
 import '../utils/image_headers.dart';
 
 void require(bool condition, String message) {
@@ -283,7 +284,7 @@ void validateProfile(ProfileData data) {
   for (final goal in data.goals) {
     require(
       goal.start == null ||
-          validDate(goal.start!) && !goal.deadline.isBefore(goal.start!),
+          validDate(goal.start!) && !dayOnly(goal.deadline).isBefore(dayOnly(goal.start!)),
       'Goal end date must not precede its start',
     );
     require(
@@ -337,7 +338,7 @@ void validateProfile(ProfileData data) {
     }
     require(
       loan.start == null ||
-          validDate(loan.start!) && !loan.due.isBefore(loan.start!),
+          validDate(loan.start!) && !dayOnly(loan.due).isBefore(dayOnly(loan.start!)),
       'Loan end date must not precede its start',
     );
     require(

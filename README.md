@@ -54,7 +54,7 @@ Tink/
     └── publish-source.yml       # Refresh docs/source ZIP; enforces same app revision
 ```
 
-## Current UI work — APK builds on hold
+## Current UI work — test APK requested
 
 The branch preserves the verified first two batches and completes **Batch 3**
 (Loans, Goals, Labels and Analytics) and **all 20 supplied Batch 4 references**
@@ -81,10 +81,11 @@ choices, retained selection across search changes, restored carousel pages after
 scrolling, canonical `tink://` plus legacy automation and `description` notes
 compatibility. [Whole-app public-reference audit and source/licence boundary](docs/PAISA_REFERENCE_AUDIT.md).
 
-**No new APK is compiled or published until the user explicitly says “make APK.”**
-Both Android jobs are now opt-in; ordinary pushes only run source checks/web.
-The downloads below are the verified **Batch 1** packages, not this newer UI.
-Their release source ZIP is intentionally not relabeled as the current branch.
+**A new Android test APK was explicitly requested on 6 November 2026.**
+Build **1.3.0+5** is being compiled and verified; its download will be recorded
+only after success. Both Android paths remain opt-in for future pushes.
+The downloads below are still the historical **Batch 1** packages until the
+new build is verified. They must not be relabeled as the requested new APK.
 
 ## GET YOUR APK NOW
 

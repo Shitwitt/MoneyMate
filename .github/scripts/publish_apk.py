@@ -30,7 +30,7 @@ subprocess.run(['git', 'archive', '--format=zip', '--prefix=Tink/', 'HEAD', '-o'
 version = re.search(r'^version:\s*([^+\s]+)\+(\d+)', Path('pubspec.yaml').read_text(), re.M)
 if not version:
     raise SystemExit('Missing application version in pubspec.yaml')
-notes = (f'Tink {version[1]} build {version[2]}. Coffee/peach reference batch 1. '
+notes = (f'Tink {version[1]} build {version[2]}. Test build including the coffee/peach reference batches 1–4 and whole-app reference review. '
          'Optimized, verified Android 7/API 24+ APK with ARM64, ARMv7 and x86-64 payloads and no Internet permission. '
          'Test/debug-key signed unless a persistent keystore was configured. Export and verify a backup before uninstalling an older differently signed build. '
          'Source and public certificate/checksum metadata included. See README for device QA, translation scope, design differences and platform limits.')
@@ -49,7 +49,7 @@ def run(args):
 for attempt in range(5):
     if run(['gh', 'release', 'view', tag]):
         break
-    if run(['gh', 'release', 'create', tag, '--target', target, '--prerelease', '--title', f'Tink {version[1]} — reference batch 1', '--notes', notes]):
+    if run(['gh', 'release', 'create', tag, '--target', target, '--prerelease', '--title', f'Tink {version[1]}+{version[2]} — Android test build', '--notes', notes]):
         break
     time.sleep(8 * (attempt + 1))
 else:

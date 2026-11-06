@@ -1,8 +1,29 @@
 # Tink 1.3 — current source verification and historical Batch 1 binaries
 
-**Version 1.3.0+4**, branch `arena/9ea2a134-moneymate`, verified 6 November 2026.
+**Current requested test build: 1.3.0+5**, branch `arena/9ea2a134-moneymate`, verified 6 November 2026.
 [The 1.2 build is historical](HISTORICAL_1_2_BUILD.md), not this delivery.
 The historical Batch 1 binaries below and the newer source/browser revisions are deliberately distinguished.
+
+## Requested Android test APK — build in progress
+
+On 6 November 2026 the user explicitly requested an APK for testing, lifting
+the prior build hold for this build. Version code is incremented to **5**
+(`1.3.0+5`); the iOS widget source version is kept aligned, without claiming an
+iOS build. No finance/UI behavior is changed from the verified source below.
+
+The optimized release-mode APK and the separate direct-Gradle debug path are
+explicitly opted in for this verification. Only the optimized APK is selected
+for a public download. This section will record its actual run, checksums and
+certificate after successful compilation and inspection. The historical APK
+below is **not** the requested new build.
+
+Signing defaults to an Android test/debug key unless a persistent keystore is
+configured in CI. A successful compilation is not physical-device testing;
+biometrics, camera/gallery, notification delivery, widgets and native link
+handling still need installation/device QA. Export and verify a backup before
+uninstalling any older differently signed installation: uninstalling deletes
+local data. Local data/backups remain unencrypted; PIN is not DB encryption.
+Future ordinary pushes still skip native builds unless explicitly opted in.
 
 ## Batch 4 and whole-app reference review — complete source/browser verification
 

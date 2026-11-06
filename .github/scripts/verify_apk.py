@@ -25,8 +25,9 @@ if 'android.permission.INTERNET' in permissions:
     raise SystemExit('Offline release must not request Internet permission')
 with zipfile.ZipFile(apk) as archive:
     abis = sorted({name.split('/')[1] for name in archive.namelist() if name.endswith('/libapp.so')})
-    if 'arm64-v8a' not in abis:
-        raise SystemExit('Missing ARM64 Flutter native app')
+    required_abis = {'arm64-v8a', 'armeabi-v7a', 'x86_64'}
+    if not required_abis.issubset(abis):
+        raise SystemExit(f'Missing Flutter native payloads: {sorted(required_abis - set(abis))}')
 signer = aapt.parent/'apksigner'
 cert = subprocess.check_output([str(signer), 'verify', '--print-certs', str(apk)], text=True)
 report = '\n'.join([f'Tink {version[1]}+{version[2]}', f'APK size: {apk.stat().st_size:,} bytes', f'Native ABIs: {", ".join(abis)}', 'No Internet permission: verified', 'Android minimum: API 24 (Android 7)', '', badging.splitlines()[0], cert])

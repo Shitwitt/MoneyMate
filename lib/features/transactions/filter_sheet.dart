@@ -17,6 +17,12 @@ Future<TransactionFilter?> showTransactionFilters(
       people = {...initial.people},
       places = {...initial.places};
   var type = initial.type, sort = initial.sort;
+  var posted = initial.postedOnly,
+      included = initial.includedOnly,
+      cashFlow = initial.cashFlowOnly,
+      lastWeek = initial.lastWeekOfMonth;
+  var weekday = initial.weekday;
+  final exact = TextEditingController(text: initial.exactName);
   var dates = initial.dates;
   final min = TextEditingController(
     text: initial.minMinor == null
@@ -34,6 +40,44 @@ Future<TransactionFilter?> showTransactionFilters(
     title: 'Find exactly what matters',
     saveLabel: 'Apply filters',
     fields: (context, setLocal) => [
+      SwitchListTile.adaptive(
+        title: const Text('Posted records only'),
+        value: posted,
+        onChanged: (v) => setLocal(() => posted = v),
+      ),
+      SwitchListTile.adaptive(
+        title: const Text('Included accounts only'),
+        value: included,
+        onChanged: (v) => setLocal(() => included = v),
+      ),
+      SwitchListTile.adaptive(
+        title: const Text('Income and expense only'),
+        value: cashFlow,
+        onChanged: (v) => setLocal(() => cashFlow = v),
+      ),
+      SwitchListTile.adaptive(
+        title: const Text('Final seven calendar days of each month'),
+        value: lastWeek,
+        onChanged: (v) => setLocal(() => lastWeek = v),
+      ),
+      formSelect(
+        'Weekday',
+        weekday?.toString() ?? '',
+        ['', for (var i = 0; i < 7; i++) '$i'],
+        (v) => setLocal(() => weekday = int.tryParse(v)),
+        display: (v) => v.isEmpty
+            ? 'Any weekday'
+            : const [
+                'Sunday',
+                'Monday',
+                'Tuesday',
+                'Wednesday',
+                'Thursday',
+                'Friday',
+                'Saturday',
+              ][int.parse(v)],
+      ),
+      formText(exact, 'Exact transaction name (optional)'),
       formSelect('Transaction type', type, [
         'all',
         'expense',
@@ -134,6 +178,12 @@ Future<TransactionFilter?> showTransactionFilters(
       ], (value) => setLocal(() => sort = value)),
       TextButton(
         onPressed: () => setLocal(() {
+          exact.clear();
+          posted = false;
+          included = false;
+          cashFlow = false;
+          lastWeek = false;
+          weekday = null;
           accounts = {};
           categories = {};
           labels = {};
@@ -164,6 +214,12 @@ Future<TransactionFilter?> showTransactionFilters(
       }
       result = TransactionFilter(
         query: initial.query,
+        exactName: exact.text,
+        postedOnly: posted,
+        includedOnly: included,
+        cashFlowOnly: cashFlow,
+        lastWeekOfMonth: lastWeek,
+        weekday: weekday,
         dates: dates,
         accounts: accounts,
         categories: categories,
@@ -177,6 +233,7 @@ Future<TransactionFilter?> showTransactionFilters(
       );
     },
   );
+  exact.dispose();
   min.dispose();
   max.dispose();
   return result;

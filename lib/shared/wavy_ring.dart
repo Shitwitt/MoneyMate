@@ -7,6 +7,7 @@ import 'reference_components.dart';
 class WavyRing extends StatelessWidget {
   final double value, size, strokeWidth;
   final Color? color;
+  final String? semanticsLabel;
   final Widget? child;
   const WavyRing(
     this.value, {
@@ -14,11 +15,12 @@ class WavyRing extends StatelessWidget {
     this.size = 60,
     this.strokeWidth = 3.5,
     this.color,
+    this.semanticsLabel,
     this.child,
   });
   @override
   Widget build(BuildContext context) => Semantics(
-    value: '${(value * 100).round()} percent of target',
+    value: semanticsLabel ?? '${(value * 100).round()} percent of target',
     child: TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: value.clamp(0, 1)),
       duration: referenceMotion(context, 500),
@@ -58,7 +60,9 @@ class _WavyRingPainter extends CustomPainter {
     final samples = math.max(2, (value * 180).ceil());
     for (var i = 0; i <= samples; i++) {
       final angle = i / samples * value * math.pi * 2 - math.pi / 2;
-      final wave = radius + math.sin((angle + math.pi / 2) * 12) * waveSize;
+      final wave =
+          radius +
+          math.sin((angle + math.pi / 2) * 12 + value * math.pi * 2) * waveSize;
       final point =
           center + Offset(math.cos(angle) * wave, math.sin(angle) * wave);
       if (i == 0) {

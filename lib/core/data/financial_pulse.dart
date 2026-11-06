@@ -63,18 +63,21 @@ class FinancialPulse {
     final records = eligible;
     final start = DateTime(now.year, now.month, now.day - 27);
     final days = records
-        .where((t) => !dayOnly(t.date).isBefore(start))
-        .map((t) => dayOnly(t.date))
+        .where((t) => !dayOnly(t.date.toLocal()).isBefore(start))
+        .map((t) => dayOnly(t.date.toLocal()))
         .toSet()
         .length;
+    final payable = ledger.data.loans
+        .where((l) => l.direction == 'borrowed')
+        .fold<int>(0, (s, l) => s + ledger.loanRemaining(l, now: now));
     final recorded =
-        records.isNotEmpty || liquid > 0 || ledger.toPay > 0 || creditDebt > 0;
+        records.isNotEmpty || liquid > 0 || payable > 0 || creditDebt > 0;
     double bounded(double v) => v.clamp(0.0, 100.0).toDouble();
     return FinancialPulse([
       PulseMetric(
         'Buffer',
         averageSpend > 0 ? bounded(liquid / (averageSpend * 3) * 100) : null,
-        'Positive included liquid-account balances divided by three months of the recorded three-month average expense. Savings accounts included; investments excluded.',
+        'Positive included liquid-account balances divided by three times the monthly recorded-expense mean of the current partial financial month and two prior months. Dividing by three assumes a complete log, which may overstate the buffer when history is missing. Savings included; investments and positive credit-card balances excluded.',
       ),
       PulseMetric(
         'Spending',
@@ -100,12 +103,10 @@ class FinancialPulse {
       PulseMetric(
         'Debt',
         recorded
-            ? creditDebt + ledger.toPay == 0
+            ? creditDebt + payable == 0
                   ? 100.0
                   : bounded(
-                      liquid /
-                          math.max(1, liquid + creditDebt + ledger.toPay) *
-                          100,
+                      liquid / math.max(1, liquid + creditDebt + payable) * 100,
                     )
             : null,
         'Included positive liquid balances as a share of those balances plus recorded negative account balances and outstanding borrowed loans. No recorded debt maps to 100 when records exist. Not an assessment of unrecorded debt.',

@@ -50,8 +50,10 @@ class Ledger {
   int loanPaid(Loan loan, {DateTime? now}) => loan.repayments
       .where((event) => !event.date.isAfter(now ?? DateTime.now()))
       .fold<int>(0, (sum, event) => sum + event.amountMinor);
-  int loanUnpaid(Loan loan) => math.max(0, loanTotal(loan) - loanPaid(loan));
-  int loanRemaining(Loan loan) => loan.completed ? 0 : loanUnpaid(loan);
+  int loanUnpaid(Loan loan, {DateTime? now}) =>
+      math.max(0, loanTotal(loan) - loanPaid(loan, now: now));
+  int loanRemaining(Loan loan, {DateTime? now}) =>
+      loan.completed ? 0 : loanUnpaid(loan, now: now);
   int get toReceive => data.loans
       .where((loan) => loan.direction == 'lent')
       .fold(0, (sum, loan) => sum + loanRemaining(loan));
@@ -111,7 +113,7 @@ class Ledger {
         .fold<int>(0, (sum, entry) => sum + entryValue(entry));
     final loans = data.loans
         .where((loan) => loan.direction == 'borrowed' && loan.due.isBefore(end))
-        .fold<int>(0, (sum, loan) => sum + loanRemaining(loan));
+        .fold<int>(0, (sum, loan) => sum + loanRemaining(loan, now: now));
     final goals = data.goals
         .where((goal) => goal.accountId.isEmpty && !goal.archived)
         .fold<int>(
@@ -308,7 +310,9 @@ class BudgetStatus {
 }
 
 class TransactionFilter {
-  final String query;
+  final String query, exactName;
+  final bool postedOnly, includedOnly, cashFlowOnly, lastWeekOfMonth;
+  final int? weekday;
   final DateWindow? dates;
   final Set<String> accounts;
   final Set<String> categories;
@@ -321,6 +325,12 @@ class TransactionFilter {
   final String sort;
   const TransactionFilter({
     this.query = '',
+    this.exactName = '',
+    this.postedOnly = false,
+    this.includedOnly = false,
+    this.cashFlowOnly = false,
+    this.lastWeekOfMonth = false,
+    this.weekday,
     this.dates,
     this.accounts = const {},
     this.categories = const {},
@@ -336,6 +346,12 @@ class TransactionFilter {
   /// Changes just the report window, preserving every transaction selector.
   TransactionFilter withDates(DateWindow? value) => TransactionFilter(
     query: query,
+    exactName: exactName,
+    postedOnly: postedOnly,
+    includedOnly: includedOnly,
+    cashFlowOnly: cashFlowOnly,
+    lastWeekOfMonth: lastWeekOfMonth,
+    weekday: weekday,
     dates: value,
     accounts: accounts,
     categories: categories,
@@ -349,6 +365,12 @@ class TransactionFilter {
   );
 
   bool get active =>
+      postedOnly ||
+      includedOnly ||
+      cashFlowOnly ||
+      lastWeekOfMonth ||
+      weekday != null ||
+      exactName.trim().isNotEmpty ||
       dates != null ||
       accounts.isNotEmpty ||
       categories.isNotEmpty ||
@@ -358,9 +380,23 @@ class TransactionFilter {
       type != 'all' ||
       minMinor != null ||
       maxMinor != null;
-  List<MoneyTransaction> apply(Ledger ledger) {
+  List<MoneyTransaction> apply(Ledger ledger, {DateTime? now}) {
+    final asOf = now ?? DateTime.now();
+    String nameKey(String name) =>
+        name.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+    final exact = nameKey(exactName);
     final needle = query.trim().toLowerCase();
     final result = ledger.data.transactions.where((entry) {
+      if (postedOnly && entry.date.isAfter(asOf)) return false;
+      if (includedOnly && ledger.account(entry.accountId).excluded)
+        return false;
+      if (cashFlowOnly && entry.type == 'transfer') return false;
+      if (exact.isNotEmpty && nameKey(entry.name) != exact) return false;
+      final local = entry.date.toLocal();
+      if (weekday != null && local.weekday % 7 != weekday) return false;
+      if (lastWeekOfMonth &&
+          local.day <= DateTime(local.year, local.month + 1, 0).day - 7)
+        return false;
       if (dates != null && !dates!.contains(entry.date)) return false;
       if (accounts.isNotEmpty &&
           !accounts.contains(entry.accountId) &&

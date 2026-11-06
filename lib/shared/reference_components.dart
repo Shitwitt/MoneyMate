@@ -8,10 +8,10 @@ Duration referenceMotion(BuildContext context, [int milliseconds = 240]) =>
     : Duration(milliseconds: milliseconds);
 
 /// Flat, tactile cards, not gradients or screenshot backgrounds.
-class TonalCard extends StatelessWidget {
+class TonalCard extends StatefulWidget {
   final Widget child;
   final Color? color;
-  final VoidCallback? onTap;
+  final VoidCallback? onTap, onLongPress;
   final EdgeInsetsGeometry padding;
   final double radius;
   const TonalCard({
@@ -19,17 +19,44 @@ class TonalCard extends StatelessWidget {
     required this.child,
     this.color,
     this.onTap,
+    this.onLongPress,
     this.padding = const EdgeInsets.all(20),
     this.radius = 24,
   });
   @override
-  Widget build(BuildContext context) => Material(
-    color: color ?? Theme.of(context).colorScheme.surface,
-    borderRadius: BorderRadius.circular(radius),
-    clipBehavior: Clip.antiAlias,
-    child: InkWell(
-      onTap: onTap,
-      child: Padding(padding: padding, child: child),
+  State<TonalCard> createState() => _TonalCardState();
+}
+
+class _TonalCardState extends State<TonalCard> {
+  bool pressed = false;
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0, end: 1),
+    duration: referenceMotion(context, 500),
+    curve: Curves.easeOutCubic,
+    builder: (context, value, child) => Opacity(
+      opacity: value,
+      child: Transform.scale(scale: .98 + .02 * value, child: child),
+    ),
+    child: AnimatedScale(
+      scale: pressed ? .985 : 1,
+      duration: referenceMotion(context, 160),
+      curve: Curves.easeOutCubic,
+      child: Material(
+        color: widget.color ?? Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(widget.radius),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: widget.onTap,
+          onLongPress: widget.onLongPress,
+          onHighlightChanged: widget.onTap == null && widget.onLongPress == null
+              ? null
+              : (v) {
+                  if (mounted) setState(() => pressed = v);
+                },
+          child: Padding(padding: widget.padding, child: widget.child),
+        ),
+      ),
     ),
   );
 }
@@ -158,8 +185,9 @@ class SmallTag extends StatelessWidget {
           Flexible(
             child: Text(
               text,
-              style: Theme.of(context).textTheme.labelSmall
-                  ?.copyWith(color: color ?? scheme.onSurfaceVariant),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: color ?? scheme.onSurfaceVariant,
+              ),
             ),
           ),
         ],
@@ -234,9 +262,9 @@ class ReferenceNavigationDock extends StatelessWidget {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(24),
                               color: selected == id
-                                  ? Theme.of(context)
-                                        .colorScheme
-                                        .primaryContainer
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.primaryContainer
                                   : Colors.transparent,
                             ),
                             child: Icon(
@@ -246,9 +274,9 @@ class ReferenceNavigationDock extends StatelessWidget {
                                   ? (AppColors.dark(context)
                                         ? AppColors.primary
                                         : AppColors.primaryInk)
-                                  : Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                           if (showLabels) ...[
@@ -351,44 +379,43 @@ class SummaryColumns extends StatelessWidget {
   );
 }
 
-Future<void> showFeatureInfo(BuildContext context, String title, String body) =>
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) => SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+Future<void> showFeatureInfo(
+  BuildContext context,
+  String title,
+  String body,
+) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  useSafeArea: true,
+  builder: (context) => SingleChildScrollView(
+    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'Close information',
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close_rounded),
-                ),
-              ],
+            Expanded(
+              child: Text(title, style: Theme.of(context).textTheme.titleLarge),
             ),
-            const SizedBox(height: 16),
-            Text(
-              body,
-              style: Theme.of(context).textTheme.bodyLarge
-                  ?.copyWith(height: 1.6),
-            ),
-            const SizedBox(height: 24),
-            FilledButton(
+            IconButton(
+              tooltip: 'Close information',
               onPressed: () => Navigator.pop(context),
-              child: const Text('Got it'),
+              icon: const Icon(Icons.close_rounded),
             ),
           ],
         ),
-      ),
-    );
+        const SizedBox(height: 16),
+        Text(
+          body,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.6),
+        ),
+        const SizedBox(height: 24),
+        FilledButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Got it'),
+        ),
+      ],
+    ),
+  ),
+);

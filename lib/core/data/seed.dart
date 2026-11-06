@@ -392,6 +392,31 @@ ProfileData seedProfile({
     ),
   ];
   final history = <MoneyTransaction>[];
+  // An explicit fictional unconfirmed repeating purchase exercises review-only
+  // suggestions. It is not a saved subscription or an injected insight.
+  for (var month = 6; month >= 1; month--) {
+    history.add(
+      MoneyTransaction(
+        id: uuid.v4(),
+        name: 'Reading circle · demo',
+        type: 'expense',
+        amountMinor: amount(750),
+        accountId: everyday.id,
+        categoryId: entertainment.id,
+        date: DateTime(now.year, now.month - month, 8),
+        notes: 'Fictional historical purchase. Not a confirmed subscription.',
+      ),
+    );
+  }
+  final coffee = Category(
+    id: uuid.v4(),
+    name: 'Coffee breaks',
+    type: 'expense',
+    parentId: food.id,
+    icon: 'food',
+    color: 0xffc8a888,
+    order: categories.length,
+  );
   for (final rule in rules) {
     for (var i = 4; i > 0; i--) {
       final date = safeMonth(
@@ -418,6 +443,13 @@ ProfileData seedProfile({
   }
   return data.copyWith(
     recurrings: rules,
-    transactions: [...data.transactions, ...history],
+    categories: [...categories, coffee],
+    transactions: [
+      ...data.transactions.map(
+        (e) =>
+            e.name == 'Morning coffee' ? e.copyWith(categoryId: coffee.id) : e,
+      ),
+      ...history,
+    ],
   );
 }

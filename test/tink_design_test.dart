@@ -168,12 +168,18 @@ void main() {
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
     expect(find.byType(BottomSheet), findsOneWidget);
-    await tester.enterText(find.byType(TextFormField).first, '120+30');
-    await tester.enterText(find.byType(TextFormField).at(1), 'Evening chai');
+    await tester.enterText(
+      find.byKey(const ValueKey('transaction-amount')),
+      '120+30',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('transaction-name')),
+      'Evening chai',
+    );
     tester.testTextInput.hide();
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
-      find.text('Save transaction'),
+      find.widgetWithText(PrimaryButton, 'Add transaction'),
       350,
       scrollable: find
           .descendant(
@@ -183,7 +189,7 @@ void main() {
           .first,
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Save transaction'));
+    await tester.tap(find.widgetWithText(PrimaryButton, 'Add transaction'));
     // Wait for this route, not for every decorative particle ticker to settle.
     final formFinder = find.byType(TransactionForm);
     for (var i = 0; i < 20 && formFinder.evaluate().isNotEmpty; i++) {

@@ -44,6 +44,22 @@ class ReferenceLineChart extends StatefulWidget {
 
 class _ReferenceLineChartState extends State<ReferenceLineChart> {
   int? selected;
+  void selectAt(double x, double width) {
+    final count = widget.series.fold<int>(
+      0,
+      (n, s) => math.max(n, s.values.length),
+    );
+    if (count == 0) return;
+    final fraction = ((x - 44) / math.max(1, width - 52)).clamp(0.0, 1.0);
+    final index =
+        (widget.bars
+                ? (fraction * count).floor()
+                : (fraction * (count - 1)).round())
+            .clamp(0, count - 1)
+            .toInt();
+    setState(() => selected = index);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.ledger.settings.hideAmounts)
@@ -111,16 +127,15 @@ class _ReferenceLineChartState extends State<ReferenceLineChart> {
             increasedValue: count == 0 ? '' : pointSummary(nextPoint),
             decreasedValue: count == 0 ? '' : pointSummary(previousPoint),
             label:
-                '${widget.bars ? 'Bar' : 'Line'} chart. ${widget.series.map((s) => s.name).join(', ')}. Tap a day to inspect recorded values.',
+                '${widget.bars ? 'Bar' : 'Line'} chart. ${widget.series.map((s) => s.name).join(', ')}. Hold and drag, tap, or use the arrows to inspect recorded values.',
             child: GestureDetector(
-              onTapDown: (event) => setState(
-                () => selected =
-                    (((event.localPosition.dx - 44) /
-                                math.max(1, box.maxWidth - 52)) *
-                            math.max(0, count - 1))
-                        .round()
-                        .clamp(0, math.max(0, count - 1)),
-              ),
+              onTapDown: (e) => selectAt(e.localPosition.dx, box.maxWidth),
+              onLongPressStart: (e) =>
+                  selectAt(e.localPosition.dx, box.maxWidth),
+              onLongPressMoveUpdate: (e) =>
+                  selectAt(e.localPosition.dx, box.maxWidth),
+              onHorizontalDragUpdate: (e) =>
+                  selectAt(e.localPosition.dx, box.maxWidth),
               child: TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: 1),
                 duration: referenceMotion(context, 600),
@@ -133,8 +148,9 @@ class _ReferenceLineChartState extends State<ReferenceLineChart> {
                       low,
                       high,
                       progress,
-                      Theme.of(context).colorScheme.outlineVariant
-                          .withValues(alpha: .45),
+                      Theme.of(
+                        context,
+                      ).colorScheme.outlineVariant.withValues(alpha: .45),
                       Theme.of(context).textTheme.labelSmall!,
                       widget.start,
                       amount,
@@ -377,6 +393,25 @@ class ReferenceDonut extends StatefulWidget {
 
 class _ReferenceDonutState extends State<ReferenceDonut> {
   int selected = 0;
+  void selectAt(Offset position, double width) {
+    final total = widget.groups.fold<int>(0, (s, g) => s + g.amount);
+    if (total <= 0) return;
+    final center = Offset(width / 2, 135), delta = position - center;
+    final radius = math.min(106.0, width / 2 - 30);
+    if (delta.distance < radius - 24 || delta.distance > radius + 24) return;
+    final angle =
+        (math.atan2(delta.dy, delta.dx) + math.pi / 2 + math.pi * 2) %
+        (math.pi * 2);
+    var cursor = 0.0;
+    for (var i = 0; i < widget.groups.length; i++) {
+      cursor += widget.groups[i].amount / total * math.pi * 2;
+      if (angle <= cursor) {
+        setState(() => selected = i);
+        break;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.ledger.settings.hideAmounts)
@@ -399,24 +434,12 @@ class _ReferenceDonutState extends State<ReferenceDonut> {
       children: [
         LayoutBuilder(
           builder: (context, box) => GestureDetector(
-            onTapDown: (tap) {
-              final center = Offset(box.maxWidth / 2, 135),
-                  delta = tap.localPosition - center;
-              final radius = math.min(106.0, box.maxWidth / 2 - 30);
-              if (delta.distance < radius - 24 || delta.distance > radius + 24)
-                return;
-              final angle =
-                  (math.atan2(delta.dy, delta.dx) + math.pi / 2 + math.pi * 2) %
-                  (math.pi * 2);
-              var cursor = 0.0;
-              for (var i = 0; i < widget.groups.length; i++) {
-                cursor += widget.groups[i].amount / total * math.pi * 2;
-                if (angle <= cursor) {
-                  setState(() => selected = i);
-                  break;
-                }
-              }
-            },
+            onTapDown: (e) => selectAt(e.localPosition, box.maxWidth),
+            onLongPressStart: (e) => selectAt(e.localPosition, box.maxWidth),
+            onLongPressMoveUpdate: (e) =>
+                selectAt(e.localPosition, box.maxWidth),
+            onHorizontalDragUpdate: (e) =>
+                selectAt(e.localPosition, box.maxWidth),
             child: Semantics(
               onIncrease: () =>
                   setState(() => selected = (index + 1) % widget.groups.length),
@@ -424,8 +447,15 @@ class _ReferenceDonutState extends State<ReferenceDonut> {
                 () => selected =
                     (index + widget.groups.length - 1) % widget.groups.length,
               ),
-              label:
-                  '${group.name}, ${(group.amount / total * 100).toStringAsFixed(1)} percent. ${money(group.amount, widget.ledger.currency)}.',
+              label: 'Category allocation. Hold and drag to inspect segments.',
+              value:
+                  '${group.name}, ${(group.amount / total * 100).toStringAsFixed(1)} percent. ${money(group.amount, widget.ledger.currency, locale: widget.ledger.settings.locale)}.',
+              increasedValue:
+                  widget.groups[(index + 1) % widget.groups.length].name,
+              decreasedValue: widget
+                  .groups[(index + widget.groups.length - 1) %
+                      widget.groups.length]
+                  .name,
               child: TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: 1),
                 duration: referenceMotion(context, 650),
@@ -434,19 +464,14 @@ class _ReferenceDonutState extends State<ReferenceDonut> {
                   height: 270,
                   width: double.infinity,
                   child: CustomPaint(
-                    painter: _DonutPainter(
-                      widget.groups,
-                      total,
-                      progress,
-                      index,
-                      [
-                        for (final group in widget.groups)
-                          chartInk(
-                            Color(group.color),
-                            Theme.of(context).colorScheme.surface,
-                          ),
-                      ],
-                    ),
+                    painter:
+                        _DonutPainter(widget.groups, total, progress, index, [
+                          for (final group in widget.groups)
+                            chartInk(
+                              Color(group.color),
+                              Theme.of(context).colorScheme.surface,
+                            ),
+                        ]),
                   ),
                 ),
               ),
@@ -454,6 +479,26 @@ class _ReferenceDonutState extends State<ReferenceDonut> {
           ),
         ),
         const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              tooltip: 'Previous allocation segment',
+              onPressed: () => setState(
+                () => selected =
+                    (index + widget.groups.length - 1) % widget.groups.length,
+              ),
+              icon: const Icon(Icons.chevron_left),
+            ),
+            Text('${index + 1} / ${widget.groups.length}'),
+            IconButton(
+              tooltip: 'Next allocation segment',
+              onPressed: () =>
+                  setState(() => selected = (index + 1) % widget.groups.length),
+              icon: const Icon(Icons.chevron_right),
+            ),
+          ],
+        ),
         Text(
           '${group.name} · ${(group.amount / total * 100).toStringAsFixed(1)}%',
           textAlign: TextAlign.center,

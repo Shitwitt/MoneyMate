@@ -12,7 +12,20 @@ Future<void> editRecurring(
   BuildContext context,
   WidgetRef ref, [
   Recurring? initial,
-]) async {
+]) => _recurringEditor(context, ref, initial);
+
+Future<void> reviewRecurringDraft(
+  BuildContext context,
+  WidgetRef ref,
+  Recurring draft,
+) => _recurringEditor(context, ref, draft, isDraft: true);
+
+Future<void> _recurringEditor(
+  BuildContext context,
+  WidgetRef ref,
+  Recurring? initial, {
+  bool isDraft = false,
+}) async {
   final profile = ref.read(profileProvider)!;
   var accountId =
           initial?.accountId ??
@@ -48,8 +61,14 @@ Future<void> editRecurring(
   var labels = {...?initial?.labelIds}, people = {...?initial?.personIds};
   await showEditor(
     context,
-    title: initial == null ? 'New recurring' : 'Edit recurring',
-    description: 'All amounts use the selected account currency. Automatic entries are created only when Tink opens or resumes, never by a payment provider.',
+    title: isDraft
+        ? 'Review recurring draft'
+        : initial == null
+        ? 'New recurring'
+        : 'Edit recurring',
+    description: isDraft
+        ? 'Unsaved monthly reminder suggestion. No rule or payment exists until you choose Save. Automatic posting starts off. The original start preserves its calendar-day anchor; Next due controls where processing begins.'
+        : 'All amounts use the selected account currency. Automatic entries are created only when Tink opens or resumes, never by a payment provider.',
     fields: (context, setLocal) => [
       formText(name, 'Name', required: true),
       formSelect(
@@ -217,7 +236,7 @@ Future<void> editRecurring(
           .read(appProvider.notifier)
           .upsertRecurring(
             Recurring(
-              id: initial?.id ?? uuid.v4(),
+              id: isDraft ? uuid.v4() : initial?.id ?? uuid.v4(),
               name: name.text.trim(),
               amountMinor: toMinor(evaluateAmount(amount.text), currency),
               accountId: accountId,

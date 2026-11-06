@@ -27,6 +27,8 @@ import '../loans/loans_screen.dart';
 import '../recurring/recurring_screen.dart';
 import '../reports/reports_screen.dart';
 import '../reports/analytics_screen.dart';
+import '../reports/spending_health_screen.dart';
+import '../../core/data/spending_review.dart';
 import '../settings/help_screen.dart';
 import '../settings/layout_screen.dart';
 import '../settings/premium_screen.dart';
@@ -371,8 +373,9 @@ class _HomeGreeting extends StatelessWidget {
           TextSpan(text: ' $earned milestones.'),
         ],
       ),
-      style: Theme.of(context).textTheme.bodyLarge
-          ?.copyWith(fontWeight: FontWeight.w600, height: 1.5),
+      style: Theme.of(
+        context,
+      ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600, height: 1.5),
     );
   }
 }
@@ -433,7 +436,7 @@ class _DashboardTile extends StatelessWidget {
           'categories': l.categories,
           'places': l.places,
           'people': 'Person',
-          'score': 'Analytics',
+          'score': 'Spending Health',
           'achievements': l.achievements,
         }[id] ??
         homeCardNames[id] ??
@@ -460,6 +463,7 @@ class _DashboardTile extends StatelessWidget {
     };
     final page = switch (id) {
       'analytics' => const AnalyticsScreen(),
+      'score' => const SpendingHealthScreen(),
       'accounts' => const AccountsScreen(),
       'budgets' => const BudgetsScreen(),
       'assets' => const AssetsScreen(),
@@ -788,7 +792,9 @@ class _DashboardTile extends StatelessWidget {
       ],
       'score' => <Widget>[
         Text(
-          baseline <= 0
+          ledger.settings.hideAmounts
+              ? 'Recorded-day pattern hidden'
+              : baseline <= 0
               ? 'Add history for comparisons'
               : '$under days under average!',
           style: small?.copyWith(color: AppColors.warning),
@@ -797,11 +803,20 @@ class _DashboardTile extends StatelessWidget {
         Row(
           children: [
             WavyRing(
-              (pulse.score ?? 0) / 100,
+              ledger.settings.hideAmounts ? 0 : (pulse.score ?? 0) / 100,
+              semanticsLabel: ledger.settings.hideAmounts
+                  ? 'Recorded-data index hidden'
+                  : pulse.score == null
+                  ? 'Recorded-data index unavailable'
+                  : 'Local planning index ${pulse.score} out of 100, not a financial-health assessment',
               size: 58,
               color: const Color(0xffB5D978),
               child: Text(
-                pulse.score == null ? '—' : '${pulse.score}',
+                ledger.settings.hideAmounts
+                    ? '•••'
+                    : pulse.score == null
+                    ? '—'
+                    : '${pulse.score}',
                 style: const TextStyle(
                   fontSize: 23,
                   fontWeight: FontWeight.w700,
@@ -865,6 +880,9 @@ class _DashboardTile extends StatelessWidget {
         color: Theme.of(context).colorScheme.surface,
         padding: const EdgeInsets.all(16),
         onTap: () => openPage(context, page),
+        onLongPress: id == 'score'
+            ? () => showSpendingMethods(context, SpendingReview(ledger, now))
+            : null,
         child: ConstrainedBox(
           constraints: BoxConstraints(
             minHeight:
@@ -881,8 +899,10 @@ class _DashboardTile extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: Theme.of(context).textTheme.titleMedium
-                          ?.copyWith(fontSize: 15, color: ink),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontSize: 15,
+                        color: ink,
+                      ),
                     ),
                   ),
                   if (![
@@ -1223,8 +1243,9 @@ class _SpendingComparison extends StatelessWidget {
           : change == null
           ? 'No previous period amount'
           : '${change >= 0 ? '↗' : '↘'} ${change.abs().toStringAsFixed(1)}% vs previous period',
-      style: Theme.of(context).textTheme.bodySmall
-          ?.copyWith(color: AppColors.semantic(context, 'expense')),
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+        color: AppColors.semantic(context, 'expense'),
+      ),
     );
   }
 }

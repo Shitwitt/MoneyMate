@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/data/providers.dart';
+import '../../core/data/catalog_insights.dart';
 import '../../core/data/seed.dart';
 import '../../core/models/models.dart';
 import '../../core/services/receipt_service.dart';
@@ -12,6 +13,12 @@ import '../../core/utils/money.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../shared/actions.dart';
 import '../../shared/forms.dart';
+import '../../shared/reference_editor.dart';
+import '../accounts/accounts_screen.dart';
+import '../budgets/budgets_screen.dart';
+import '../catalog/catalog_screen.dart';
+import '../goals/goals_screen.dart';
+import '../loans/loans_screen.dart';
 import '../../shared/widgets.dart';
 import 'receipt_viewer.dart';
 
@@ -24,6 +31,8 @@ class TransactionForm extends ConsumerStatefulWidget {
   final String initialBudgetId;
   final List<String> initialLabelIds;
   final String initialGoalId;
+  final String initialCategoryId, initialPlaceId;
+  final List<String> initialPersonIds;
   final bool templateOnly;
   const TransactionForm({
     super.key,
@@ -35,6 +44,9 @@ class TransactionForm extends ConsumerStatefulWidget {
     this.initialBudgetId = '',
     this.initialLabelIds = const [],
     this.initialGoalId = '',
+    this.initialCategoryId = '',
+    this.initialPlaceId = '',
+    this.initialPersonIds = const [],
     this.templateOnly = false,
   });
   @override
@@ -91,12 +103,14 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
     _categoryId =
         entry?.categoryId ??
         template?.categoryId ??
+        (widget.initialCategoryId.isNotEmpty
+            ? widget.initialCategoryId
+            : null) ??
         profile.categories
-            .firstWhere(
-              (item) => item.type == (_type == 'transfer' ? 'expense' : _type),
-              orElse: () => profile.categories.first,
-            )
-            .id;
+            .where((c) => c.type == _type && !c.hidden)
+            .firstOrNull
+            ?.id ??
+        '';
     _toAccountId =
         entry?.toAccountId ??
         profile.accounts
@@ -122,12 +136,19 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
       ...?template?.labelIds,
     };
     _goalId = widget.initialGoalId;
+    _people = widget.initialPersonIds.toSet();
+    _placeId = widget.initialPlaceId;
+    if (_type == 'transfer' &&
+        profile.categories.any(
+          (c) => c.id == widget.initialCategoryId && c.type == 'transfer',
+        ))
+      _transferCategoryId = widget.initialCategoryId;
     if (entry != null) {
       _people = entry.personIds.toSet();
       _placeId = entry.placeId;
       _goalId = entry.goalId;
       _loanId = entry.loanId;
-      _date = entry.date;
+      _date = entry.date.toLocal();
       _receipts = [...entry.receipts];
       if (entry.toAccountId.isNotEmpty) {
         _receive.text =
@@ -183,7 +204,12 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
   }
 
   Future<void> _save() async {
-    if (!_form.currentState!.validate()) return;
+    if (_busy) return;
+    FocusScope.of(context).unfocus();
+    if (!_form.currentState!.validate()) {
+      toast(context, 'Check the required name and amount above.', error: true);
+      return;
+    }
     setState(() => _busy = true);
     final controller = ref.read(appProvider.notifier);
     final saved = await runSafe(context, () async {
@@ -193,6 +219,14 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
           .currency;
       final amount = toMinor(evaluateAmount(_amount.text), currency);
       if (amount <= 0) throw const FormatException('Amount rounds to zero');
+      if (_type != 'transfer' &&
+          !profile.categories.any(
+            (c) => c.id == _categoryId && c.type == _type,
+          )) {
+        throw const FormatException(
+          'Choose or add a category that matches this transaction type.',
+        );
+      }
       if (widget.templateOnly) {
         await controller.saveTemplate(
           TransactionTemplate(
@@ -291,496 +325,735 @@ class _TransactionFormState extends ConsumerState<TransactionForm> {
     });
   }
 
+  bool _expandAll = true;
+  final _categorySection = GlobalKey();
+
+  Future<void> _pickTemplate() async {
+    FocusScope.of(context).unfocus();
+    final profile = ref.read(profileProvider)!;
+    final template = await showModalBottomSheet<TransactionTemplate>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (sheet) => SafeArea(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(sheet).height * .7,
+          ),
+          child: ListView(
+            shrinkWrap: true,
+            padding: const EdgeInsets.all(20),
+            children: [
+              const SectionHeader('Quick templates'),
+              if (profile.templates.isEmpty)
+                const Text(
+                  'No templates yet. Save a transaction as a quick template, or create one from Your toolkit.',
+                ),
+              for (final t in profile.templates)
+                ListTile(
+                  leading: const Icon(Icons.bookmark_outline),
+                  title: Text(t.name),
+                  subtitle: Text(
+                    '${t.type} · ${profile.accounts.where((a) => a.id == t.accountId).firstOrNull?.name ?? 'Missing account'}',
+                  ),
+                  onTap: () => Navigator.pop(sheet, t),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (template == null || !mounted) return;
+    if ((_name.text.trim().isNotEmpty || _amount.text.trim().isNotEmpty) &&
+        !await confirm(
+          context,
+          'Use this template?',
+          'Replace this draft’s name, amount, type, account, category, notes and labels. Other links, date and receipts stay unchanged. No saved record is modified.',
+          confirmLabel: 'Use template',
+        ))
+      return;
+    if (!mounted) return;
+    final account = profile.accounts
+        .where((a) => a.id == template.accountId)
+        .firstOrNull;
+    if (account == null) {
+      toast(context, 'The template account no longer exists.', error: true);
+      return;
+    }
+    setState(() {
+      _type = template.type;
+      _accountId = account.id;
+      _categoryId = template.categoryId;
+      if (!profile.budgets.any(
+        (b) => b.id == _budgetId && b.transactionType == _type,
+      ))
+        _budgetId = '';
+      _name.text = template.name;
+      _amount.text = fromMinor(
+        template.amountMinor,
+        account.currency,
+      ).toStringAsFixed(decimalsFor(account.currency));
+      _notes.text = template.notes;
+      _labels = template.labelIds.toSet();
+    });
+    _updateReceive();
+  }
+
+  Widget _choice(
+    String title,
+    String selected,
+    Map<String, String> values,
+    ValueChanged<String> change, {
+    VoidCallback? add,
+  }) => ReferenceChoices(
+    key: ValueKey('transaction-$title-$_expandAll'),
+    title: title,
+    selected: selected,
+    choices: values,
+    expanded: _expandAll,
+    onChanged: (v) {
+      if (!_busy) change(v);
+    },
+    onAdd: add,
+  );
+  Widget _many(
+    String title,
+    Set<String> selected,
+    Map<String, String> values,
+    ValueChanged<Set<String>> change,
+    VoidCallback add,
+  ) => ExpansionTile(
+    key: ValueKey('transaction-$title-$_expandAll'),
+    initiallyExpanded: _expandAll,
+    maintainState: true,
+    tilePadding: EdgeInsets.zero,
+    title: Text(title),
+    subtitle: Text(
+      selected.isEmpty
+          ? 'None'
+          : selected.map((id) => values[id] ?? 'Removed tag').join(', '),
+    ),
+    children: [
+      Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final e in values.entries)
+              FilterChip(
+                label: Text(e.value),
+                selected: selected.contains(e.key),
+                onSelected: (on) {
+                  if (_busy) return;
+                  final next = {...selected};
+                  on ? next.add(e.key) : next.remove(e.key);
+                  change(next);
+                },
+              ),
+            ActionChip(
+              avatar: const Icon(Icons.add_circle_outline),
+              label: const Text('Add'),
+              onPressed: add,
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 16),
+    ],
+  );
+  Future<void> _addEntity(String kind) async {
+    FocusScope.of(context).unfocus();
+    await editCatalogEntity(context, ref, kind);
+    if (mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final profile = ref.watch(profileProvider)!;
-    final account = profile.accounts.firstWhere(
-      (item) => item.id == _accountId,
-    );
-    final categories =
-        profile.categories
-            .where(
-              (item) =>
-                  item.type == _type &&
-                  (!item.hidden || item.id == _categoryId),
-            )
-            .toList()
-          ..sort((a, b) => a.order.compareTo(b.order));
+    final account = profile.accounts.firstWhere((a) => a.id == _accountId);
+    final category = profile.categories
+        .where(
+          (c) =>
+              c.id == (_type == 'transfer' ? _transferCategoryId : _categoryId),
+        )
+        .firstOrNull;
+    var root = category;
+    final visited = <String>{};
+    while (root != null && root.parentId.isNotEmpty && visited.add(root.id)) {
+      final parent = profile.categories
+          .where((c) => c.id == root!.parentId)
+          .firstOrNull;
+      if (parent == null) break;
+      root = parent;
+    }
+    final rootId = root?.id ?? '';
+    final descendants =
+        rootId.isEmpty ? <String>{} : categorySubtree(profile, rootId)
+          ..remove(rootId);
     final suggestions = <String, int>{};
-    for (final entry in profile.transactions) {
-      suggestions[entry.name] = (suggestions[entry.name] ?? 0) + 1;
+    for (final e in profile.transactions) {
+      suggestions[e.name] = (suggestions[e.name] ?? 0) + 1;
     }
     final frequent = suggestions.keys.toList()
       ..sort((a, b) => suggestions[b]!.compareTo(suggestions[a]!));
     final l = AppLocalizations.of(context);
+    final nameField = RawAutocomplete<String>(
+      textEditingController: _name,
+      focusNode: _nameFocus,
+      optionsBuilder: (value) => frequent
+          .where(
+            (name) =>
+                value.text.isEmpty ||
+                name.toLowerCase().contains(value.text.toLowerCase()),
+          )
+          .take(6),
+      fieldViewBuilder: (context, controller, focus, submit) => TextFormField(
+        key: const ValueKey('transaction-name'),
+        enabled: !_busy,
+        controller: controller,
+        focusNode: focus,
+        textCapitalization: TextCapitalization.sentences,
+        decoration: const InputDecoration(
+          labelText: 'What was it for?',
+          prefixIcon: Icon(Icons.edit_note_rounded),
+        ),
+        validator: requiredText,
+      ),
+      optionsViewBuilder: (context, selected, options) => Align(
+        alignment: AlignmentDirectional.topStart,
+        child: Material(
+          elevation: 5,
+          borderRadius: BorderRadius.circular(18),
+          clipBehavior: Clip.antiAlias,
+          child: SizedBox(
+            width: mathMin(MediaQuery.sizeOf(context).width - 48, 480),
+            child: ListView(
+              shrinkWrap: true,
+              padding: const EdgeInsets.all(8),
+              children: options
+                  .map(
+                    (option) => ListTile(
+                      dense: true,
+                      title: Text(option),
+                      leading: const Icon(Icons.history_rounded, size: 18),
+                      onTap: () => selected(option),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        ),
+      ),
+    );
+    final linkedRepayment =
+        widget.initial != null &&
+        profile.loans.any(
+          (loan) =>
+              loan.repayments.any((p) => p.transactionId == widget.initial!.id),
+        );
+    final saveLabel = widget.templateOnly
+        ? 'Save template'
+        : widget.initial == null
+        ? l.addTransaction
+        : 'Save transaction';
     return FeaturePage(
       title: widget.templateOnly
           ? (widget.template == null ? 'New template' : 'Edit template')
           : widget.initial == null
           ? l.addTransaction
           : 'Edit transaction',
+      bottomBar: SafeArea(
+        top: false,
+        minimum: const EdgeInsets.fromLTRB(20, 10, 20, 14),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: PrimaryButton(
+                    label: saveLabel,
+                    loading: _busy && !_saved,
+                    success: _saved,
+                    onPressed:
+                        _busy || (_type == 'transfer' && _toAccountId.isEmpty)
+                        ? null
+                        : _save,
+                    icon: Icons.check_rounded,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton.filledTonal(
+                  tooltip: _expandAll
+                      ? 'Collapse extra fields'
+                      : 'Expand extra fields',
+                  onPressed: _busy
+                      ? null
+                      : () => setState(() => _expandAll = !_expandAll),
+                  icon: Icon(
+                    _expandAll ? Icons.unfold_less : Icons.unfold_more,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Only on your device. No real payment.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+          ],
+        ),
+      ),
       child: Form(
         key: _form,
-        child: ListView(
-          padding: const EdgeInsets.only(bottom: 32),
-          children: [
-            SegmentedButton<String>(
-              segments: [
-                ButtonSegment(
-                  value: 'expense',
-                  label: Text(l.expenses),
-                  icon: const Icon(Icons.north_east_rounded, size: 16),
-                ),
-                ButtonSegment(
-                  value: 'income',
-                  label: Text(l.income),
-                  icon: const Icon(Icons.south_west_rounded, size: 16),
-                ),
-                if (!widget.templateOnly)
-                  ButtonSegment(
-                    value: 'transfer',
-                    label: Text(l.transfer),
-                    icon: const Icon(Icons.swap_horiz_rounded, size: 16),
-                  ),
-              ],
-              selected: {_type},
-              showSelectedIcon: false,
-              onSelectionChanged: (value) {
-                setState(() {
-                  _type = value.first;
-                  _budgetId = '';
-                  if (_type != 'transfer') {
-                    _categoryId = profile.categories
-                        .firstWhere((item) => item.type == _type)
-                        .id;
-                  }
-                });
-                _updateReceive();
-              },
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'AMOUNT · ${account.currency}',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                letterSpacing: 2,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-            TextFormField(
-              controller: _amount,
-              autofocus: widget.initial == null && widget.template == null,
-              style: Theme.of(context).textTheme.displaySmall
-                  ?.copyWith(fontFeatures: AppTextStyles.tabular),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              decoration: InputDecoration(
-                prefixText:
-                    '${currencySymbols[account.currency] ?? account.currency} ',
-                hintText: '0',
-                fillColor: Colors.transparent,
-                contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                suffixIcon: IconButton(
-                  tooltip: 'Calculator',
-                  onPressed: () => setState(() => _calculator = !_calculator),
-                  icon: const Icon(Icons.calculate_outlined),
-                ),
-              ),
-              validator: (value) {
-                try {
-                  evaluateAmount(value ?? '');
-                  return null;
-                } catch (_) {
-                  return 'Enter a positive amount or expression';
-                }
-              },
-            ),
-            if (_calculator) ...[
-              _Calculator(controller: _amount),
-              const SizedBox(height: 16),
-            ],
-            RawAutocomplete<String>(
-              textEditingController: _name,
-              focusNode: _nameFocus,
-              optionsBuilder: (value) => frequent
-                  .where(
-                    (name) =>
-                        value.text.isEmpty ||
-                        name.toLowerCase().contains(value.text.toLowerCase()),
-                  )
-                  .take(6),
-              fieldViewBuilder: (context, controller, focus, submit) =>
-                  TextFormField(
-                    controller: controller,
-                    focusNode: focus,
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(
-                      labelText: 'What was it for?',
-                      prefixIcon: Icon(Icons.edit_note_rounded),
-                    ),
-                    validator: requiredText,
-                  ),
-              optionsViewBuilder: (context, selected, options) => Align(
-                alignment: Alignment.topLeft,
-                child: Material(
-                  elevation: 5,
-                  borderRadius: BorderRadius.circular(18),
-                  clipBehavior: Clip.antiAlias,
-                  child: SizedBox(
-                    width: mathMin(MediaQuery.sizeOf(context).width - 48, 480),
-                    child: ListView(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.all(8),
-                      children: options
-                          .map(
-                            (option) => ListTile(
-                              dense: true,
-                              title: Text(option),
-                              leading: const Icon(
-                                Icons.history_rounded,
-                                size: 18,
-                              ),
-                              onTap: () => selected(option),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            formSelect(
-              'From account',
-              _accountId,
-              profile.accounts
-                  .where((item) => !item.archived || item.id == _accountId)
-                  .map((item) => item.id)
-                  .toList(),
-              (id) {
-                setState(() {
-                  _accountId = id;
-                  if (_toAccountId == id) {
-                    _toAccountId =
-                        profile.accounts
-                            .where((item) => item.id != id && !item.archived)
-                            .firstOrNull
-                            ?.id ??
-                        '';
-                  }
-                });
-                _updateReceive();
-              },
-              display: (id) {
-                final item = profile.accounts.firstWhere(
-                  (item) => item.id == id,
-                );
-                return '${item.name} · ${item.currency}';
-              },
-            ),
-            if (_type == 'transfer') ...[
-              const SizedBox(height: 16),
-              if (profile.accounts
-                  .where((item) => item.id != _accountId && !item.archived)
-                  .isEmpty)
-                const Text(
-                  'Create a second account before recording a transfer.',
-                )
-              else
-                formSelect(
-                  'To account',
-                  _toAccountId,
-                  profile.accounts
-                      .where((item) => item.id != _accountId && !item.archived)
-                      .map((item) => item.id)
-                      .toList(),
-                  (id) {
-                    setState(() => _toAccountId = id);
+        child: AbsorbPointer(
+          absorbing: _busy,
+          child: SingleChildScrollView(
+            key: const ValueKey('transaction-editor-scroll'),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.only(bottom: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                PillTabs(
+                  labels: [
+                    l.expenses,
+                    l.income,
+                    if (!widget.templateOnly) l.transfer,
+                  ],
+                  selected: _type == 'expense'
+                      ? 0
+                      : _type == 'income'
+                      ? 1
+                      : 2,
+                  onSelected: (index) {
+                    if (_busy) return;
+                    if (linkedRepayment) {
+                      toast(
+                        context,
+                        'Keep a dedicated repayment’s direction. Its loan controls lending/borrowing.',
+                      );
+                      return;
+                    }
+                    setState(() {
+                      _type = ['expense', 'income', 'transfer'][index];
+                      _budgetId = '';
+                      if (_type != 'transfer')
+                        _categoryId =
+                            profile.categories
+                                .where((c) => c.type == _type && !c.hidden)
+                                .firstOrNull
+                                ?.id ??
+                            '';
+                    });
                     _updateReceive();
                   },
-                  display: (id) =>
-                      '${profile.accounts.firstWhere((item) => item.id == id).name} · ${profile.accounts.firstWhere((item) => item.id == id).currency}',
                 ),
-              const SizedBox(height: 16),
-              formText(
-                _receive,
-                'Receiving amount (editable conversion)',
-                required: true,
-                numeric: true,
-              ),
-            ],
-            if (_type == 'transfer' &&
-                profile.categories.any((c) => c.type == 'transfer')) ...[
-              const SizedBox(height: 16),
-              formSelect(
-                'Transfer category (optional)',
-                _transferCategoryId,
-                [
-                  '',
-                  ...profile.categories
-                      .where(
+                const SizedBox(height: 18),
+                if (widget.initial == null && !widget.templateOnly)
+                  Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: TextButton.icon(
+                      onPressed: _busy ? null : _pickTemplate,
+                      icon: const Icon(Icons.bookmark_outline),
+                      label: const Text('Templates'),
+                    ),
+                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Tooltip(
+                      message: 'Selected category',
+                      child: ColorIcon(
+                        category?.icon ?? _type,
+                        category?.color ?? 0xffffb59a,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(child: nameField),
+                  ],
+                ),
+                if (_type != 'transfer' && category == null)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 12),
+                    child: Text(
+                      'No matching category selected. Choose one below, or use Add in the Category section.',
+                    ),
+                  ),
+                const SizedBox(height: 18),
+                Text(
+                  'AMOUNT · ${account.currency}',
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+                TextFormField(
+                  key: const ValueKey('transaction-amount'),
+                  controller: _amount,
+                  enabled: !_busy,
+                  autofocus: false,
+                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                    fontFeatures: AppTextStyles.tabular,
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Amount (${account.currency})',
+                    prefixText:
+                        '${currencySymbols[account.currency] ?? account.currency} ',
+                    hintText: '0',
+                    fillColor: Colors.transparent,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                    suffixIcon: IconButton(
+                      tooltip: 'Calculator',
+                      onPressed: () =>
+                          setState(() => _calculator = !_calculator),
+                      icon: const Icon(Icons.calculate_outlined),
+                    ),
+                  ),
+                  validator: (value) {
+                    try {
+                      evaluateAmount(value ?? '');
+                      return null;
+                    } catch (_) {
+                      return 'Enter a positive amount or expression';
+                    }
+                  },
+                ),
+                if (_calculator) ...[
+                  _Calculator(controller: _amount),
+                  const SizedBox(height: 16),
+                ],
+                const SizedBox(height: 16),
+                formText(_notes, 'A little note (optional)', lines: 3),
+                const SizedBox(height: 16),
+                if (!widget.templateOnly)
+                  formDate(
+                    context,
+                    'When',
+                    _date,
+                    (v) => setState(() => _date = v),
+                    includeTime: true,
+                  ),
+                const SizedBox(height: 20),
+                _choice(
+                  'From account',
+                  _accountId,
+                  {
+                    for (final a in profile.accounts.where(
+                      (a) => !a.archived || a.id == _accountId,
+                    ))
+                      a.id: '${a.name} · ${a.currency}',
+                  },
+                  (id) {
+                    setState(() {
+                      _accountId = id;
+                      if (_toAccountId == id)
+                        _toAccountId =
+                            profile.accounts
+                                .where((a) => a.id != id && !a.archived)
+                                .firstOrNull
+                                ?.id ??
+                            '';
+                    });
+                    _updateReceive();
+                  },
+                  add: () async {
+                    FocusScope.of(context).unfocus();
+                    await editAccount(context, ref);
+                    if (mounted) setState(() {});
+                  },
+                ),
+                if (_type == 'transfer') ...[
+                  _choice(
+                    'To account',
+                    _toAccountId,
+                    {
+                      for (final a in profile.accounts.where(
+                        (a) => a.id != _accountId && !a.archived,
+                      ))
+                        a.id: '${a.name} · ${a.currency}',
+                    },
+                    (v) {
+                      setState(() => _toAccountId = v);
+                      _updateReceive();
+                    },
+                    add: () async {
+                      await editAccount(context, ref);
+                      if (mounted) setState(() {});
+                    },
+                  ),
+                  if (_toAccountId.isEmpty)
+                    const Text(
+                      'Create a second account before recording a transfer.',
+                    ),
+                  const SizedBox(height: 16),
+                  formText(
+                    _receive,
+                    'Receiving amount (editable conversion)',
+                    required: true,
+                    numeric: true,
+                  ),
+                  _choice(
+                    'Transfer category (optional)',
+                    _transferCategoryId,
+                    {
+                      '': 'No transfer category',
+                      for (final c in profile.categories.where(
                         (c) =>
                             c.type == 'transfer' &&
                             (!c.hidden || c.id == _transferCategoryId),
-                      )
-                      .map((c) => c.id),
-                ],
-                (value) => setState(() => _transferCategoryId = value),
-                display: (id) => id.isEmpty
-                    ? 'Uncategorized transfer'
-                    : profile.categories.firstWhere((c) => c.id == id).name,
-              ),
-            ],
-            if (_type != 'transfer') ...[
-              const SizedBox(height: 20),
-              Text('Category', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 6,
-                children: categories
-                    .map(
-                      (category) => ChoiceChip(
-                        avatar: Icon(
-                          iconFor(category.icon),
-                          size: 18,
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? Color(category.color)
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                        label: Text(category.name),
-                        selected: _categoryId == category.id,
-                        onSelected: (_) =>
-                            setState(() => _categoryId = category.id),
-                      ),
-                    )
-                    .toList(),
-              ),
-            ],
-            if (!widget.templateOnly) ...[
-              const SizedBox(height: 20),
-              formDate(
-                context,
-                'When',
-                _date,
-                (date) => setState(() => _date = date),
-                includeTime: true,
-              ),
-            ],
-            const SizedBox(height: 16),
-            formText(_notes, 'A little note (optional)', lines: 3),
-            const SizedBox(height: 20),
-            if (_type != 'transfer' && !widget.templateOnly) ...[
-              DropdownButtonFormField<String>(
-                key: ValueKey('transaction-budget-$_type'),
-                isExpanded: true,
-                initialValue:
-                    profile.budgets.any(
-                      (b) => b.id == _budgetId && b.transactionType == _type,
-                    )
-                    ? _budgetId
-                    : '',
-                decoration: const InputDecoration(
-                  labelText: 'Budget (optional)',
-                ),
-                items: [
-                  const DropdownMenuItem(
-                    value: '',
-                    child: Text(
-                      'Automatic matching only',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      ))
+                        c.id: categoryPath(profile, c.id),
+                    },
+                    (v) => setState(() => _transferCategoryId = v),
+                    add: () async {
+                      await editCatalogCategory(context, ref, null, 'transfer');
+                      if (mounted) setState(() {});
+                    },
+                  ),
+                ] else ...[
+                  KeyedSubtree(
+                    key: _categorySection,
+                    child: _choice(
+                      'Category',
+                      rootId,
+                      {
+                        for (final c in profile.categories.where(
+                          (c) =>
+                              c.type == _type &&
+                              (!c.hidden || c.id == rootId) &&
+                              (c.parentId.isEmpty || c.id == rootId),
+                        ))
+                          c.id: c.name,
+                      },
+                      (v) => setState(() => _categoryId = v),
+                      add: () async {
+                        await editCatalogCategory(context, ref, null, _type);
+                        if (mounted) setState(() {});
+                      },
                     ),
                   ),
-                  for (final b in profile.budgets.where(
-                    (b) => b.transactionType == _type,
-                  ))
-                    DropdownMenuItem(
-                      value: b.id,
-                      child: Text(
-                        '${b.name} · ${b.mode}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
+                  _choice(
+                    'Subcategory',
+                    _categoryId == rootId ? '' : _categoryId,
+                    {
+                      '': 'No subcategory · use parent',
+                      for (final c in profile.categories.where(
+                        (c) =>
+                            descendants.contains(c.id) &&
+                            (!c.hidden || c.id == _categoryId),
+                      ))
+                        c.id: categoryPath(profile, c.id),
+                    },
+                    (v) => setState(() => _categoryId = v.isEmpty ? rootId : v),
+                    add: () async {
+                      await editCatalogCategory(context, ref, null, _type);
+                      if (mounted) setState(() {});
+                    },
+                  ),
                 ],
-                onChanged: (v) => setState(() => _budgetId = v ?? ''),
-              ),
-              const SizedBox(height: 16),
-            ],
-            if (profile.entities.any((item) => item.kind == 'label')) ...[
-              const SizedBox(height: 20),
-              formChips(
-                'Labels',
-                {
-                  for (final item in profile.entities.where(
-                    (item) => item.kind == 'label',
-                  ))
-                    item.id: item.name,
-                },
-                _labels,
-                (values) => setState(() => _labels = values),
-              ),
-            ],
-            if (!widget.templateOnly) ...[
-              if (profile.entities.any((item) => item.kind == 'person')) ...[
-                const SizedBox(height: 20),
-                formChips(
-                  'People',
-                  {
-                    for (final item in profile.entities.where(
-                      (item) => item.kind == 'person',
-                    ))
-                      item.id: item.name,
-                  },
-                  _people,
-                  (values) => setState(() => _people = values),
-                ),
-              ],
-              if (profile.entities.any((item) => item.kind == 'place')) ...[
-                const SizedBox(height: 16),
-                formSelect(
-                  'Place',
-                  _placeId,
-                  [
-                    '',
-                    ...profile.entities
-                        .where((item) => item.kind == 'place')
-                        .map((item) => item.id),
-                  ],
-                  (id) => setState(() => _placeId = id),
-                  display: (id) => id.isEmpty
-                      ? 'None'
-                      : profile.entities
-                            .firstWhere((item) => item.id == id)
-                            .name,
-                ),
-              ],
-              if (profile.goals.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                formSelect(
-                  'Link a goal (income adds to progress)',
-                  _goalId,
-                  ['', ...profile.goals.map((item) => item.id)],
-                  (id) => setState(() => _goalId = id),
-                  display: (id) => id.isEmpty
-                      ? 'None'
-                      : profile.goals.firstWhere((item) => item.id == id).name,
-                ),
-              ],
-              if (profile.loans.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                formSelect(
-                  'Link a loan (tag only)',
-                  _loanId,
-                  ['', ...profile.loans.map((item) => item.id)],
-                  (id) => setState(() => _loanId = id),
-                  display: (id) => id.isEmpty
-                      ? 'None'
-                      : profile.loans
-                            .firstWhere((item) => item.id == id)
-                            .personName,
-                ),
-              ],
-              const SizedBox(height: 20),
-              const SectionHeader('Keep the receipt'),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  for (var i = 0; i < _receipts.length; i++)
-                    Stack(
-                      children: [
-                        InkWell(
-                          onTap: () => openPage(
-                            context,
-                            ReceiptViewer(_receipts, initialIndex: i),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(14),
-                            child: Image.memory(
-                              base64Decode(_receipts[i].data),
-                              width: 82,
-                              height: 82,
-                              fit: BoxFit.cover,
-                              semanticLabel: 'Receipt ${i + 1}',
+                if (_type != 'transfer' && !widget.templateOnly)
+                  ExpansionTile(
+                    key: ValueKey('transaction-Budget-$_expandAll-$_type'),
+                    initiallyExpanded: _expandAll,
+                    maintainState: true,
+                    tilePadding: EdgeInsets.zero,
+                    title: const Text('Budget'),
+                    subtitle: Text(
+                      profile.budgets
+                              .where((b) => b.id == _budgetId)
+                              .firstOrNull
+                              ?.name ??
+                          'Automatic matching only',
+                    ),
+                    children: [
+                      DropdownButtonFormField<String>(
+                        key: ValueKey('transaction-budget-$_type'),
+                        isExpanded: true,
+                        initialValue:
+                            profile.budgets.any(
+                              (b) =>
+                                  b.id == _budgetId &&
+                                  b.transactionType == _type,
+                            )
+                            ? _budgetId
+                            : '',
+                        decoration: const InputDecoration(
+                          labelText: 'Budget (optional)',
+                        ),
+                        items: [
+                          const DropdownMenuItem(
+                            value: '',
+                            child: Text(
+                              'Automatic matching only',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          for (final b in profile.budgets.where(
+                            (b) => b.transactionType == _type,
+                          ))
+                            DropdownMenuItem(
+                              value: b.id,
+                              child: Text(
+                                '${b.name} · ${b.mode}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                        ],
+                        onChanged: (v) => setState(() => _budgetId = v ?? ''),
+                      ),
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: TextButton.icon(
+                          onPressed: () async {
+                            await editBudget(context, ref);
+                            if (mounted) setState(() {});
+                          },
+                          icon: const Icon(Icons.add_circle_outline),
+                          label: const Text('Add budget'),
                         ),
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          child: IconButton.filled(
-                            tooltip: 'Remove receipt',
-                            visualDensity: VisualDensity.compact,
-                            icon: const Icon(Icons.close, size: 14),
-                            onPressed: () =>
-                                setState(() => _receipts.removeAt(i)),
-                          ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                  ),
+                _many(
+                  'Labels',
+                  _labels,
+                  {
+                    for (final e in profile.entities.where(
+                      (e) => e.kind == 'label',
+                    ))
+                      e.id: e.name,
+                  },
+                  (v) => setState(() => _labels = v),
+                  () => _addEntity('label'),
+                ),
+                if (!widget.templateOnly) ...[
+                  _many(
+                    'People / payee',
+                    _people,
+                    {
+                      for (final e in profile.entities.where(
+                        (e) => e.kind == 'person',
+                      ))
+                        e.id: e.name,
+                    },
+                    (v) => setState(() => _people = v),
+                    () => _addEntity('person'),
+                  ),
+                  _choice(
+                    'Place',
+                    _placeId,
+                    {
+                      '': 'None',
+                      for (final e in profile.entities.where(
+                        (e) => e.kind == 'place',
+                      ))
+                        e.id: e.name,
+                    },
+                    (v) => setState(() => _placeId = v),
+                    add: () => _addEntity('place'),
+                  ),
+                  _choice(
+                    'Link a loan (tag only)',
+                    _loanId,
+                    {
+                      '': 'None',
+                      for (final loan in profile.loans)
+                        loan.id: loan.personName,
+                    },
+                    (v) => setState(() => _loanId = v),
+                    add: () async {
+                      await editLoan(context, ref);
+                      if (mounted) setState(() {});
+                    },
+                  ),
+                  _choice(
+                    'Link a goal (income adds to progress)',
+                    _goalId,
+                    {'': 'None', for (final g in profile.goals) g.id: g.name},
+                    (v) => setState(() => _goalId = v),
+                    add: () async {
+                      await editGoal(context, ref);
+                      if (mounted) setState(() {});
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  const SectionHeader('Keep the receipt'),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      for (var i = 0; i < _receipts.length; i++)
+                        Stack(
+                          children: [
+                            InkWell(
+                              onTap: () => openPage(
+                                context,
+                                ReceiptViewer(_receipts, initialIndex: i),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: Image.memory(
+                                  base64Decode(_receipts[i].data),
+                                  width: 82,
+                                  height: 82,
+                                  fit: BoxFit.cover,
+                                  semanticLabel: 'Receipt ${i + 1}',
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              right: 0,
+                              top: 0,
+                              child: IconButton.filled(
+                                tooltip: 'Remove receipt',
+
+                                icon: const Icon(Icons.close, size: 14),
+                                onPressed: () =>
+                                    setState(() => _receipts.removeAt(i)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (_receipts.length < 5) ...[
+                        IconButton.outlined(
+                          tooltip: 'Choose receipt photo',
+                          onPressed: () => _receipt(ImageSource.gallery),
+                          icon: const Icon(Icons.add_photo_alternate_outlined),
+                        ),
+                        IconButton.outlined(
+                          tooltip: 'Photograph receipt',
+                          onPressed: () => _receipt(ImageSource.camera),
+                          icon: const Icon(Icons.photo_camera_outlined),
                         ),
                       ],
-                    ),
-                  if (_receipts.length < 5) ...[
-                    IconButton.outlined(
-                      tooltip: 'Choose receipt photo',
-                      onPressed: () => _receipt(ImageSource.gallery),
-                      icon: const Icon(Icons.add_photo_alternate_outlined),
-                    ),
-                    IconButton.outlined(
-                      tooltip: 'Photograph receipt',
-                      onPressed: () => _receipt(ImageSource.camera),
-                      icon: const Icon(Icons.photo_camera_outlined),
-                    ),
-                  ],
-                ],
-              ),
-              const SizedBox(height: 12),
-              if (_type != 'transfer')
-                SwitchListTile.adaptive(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('Save as a quick template'),
-                  value: _template,
-                  onChanged: (value) => setState(() => _template = value),
-                ),
-              if (widget.initial == null)
-                SwitchListTile.adaptive(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('Keep adding'),
-                  subtitle: const Text('Stay here for your next entry'),
-                  value: _sequential,
-                  onChanged: (value) => setState(() => _sequential = value),
-                ),
-            ],
-            const SizedBox(height: 24),
-            PrimaryButton(
-              label: widget.templateOnly ? 'Save template' : 'Save transaction',
-              loading: _busy && !_saved,
-              success: _saved,
-              onPressed: _busy || (_type == 'transfer' && _toAccountId.isEmpty)
-                  ? null
-                  : _save,
-              icon: Icons.check_rounded,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.lock_outline_rounded,
-                  size: 14,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 6),
-                Flexible(
-                  child: Text(
-                    'Only on your device. Always.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.labelSmall,
+                    ],
                   ),
-                ),
+                  const SizedBox(height: 12),
+                  if (_type != 'transfer')
+                    SwitchListTile.adaptive(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Save as a quick template'),
+                      value: _template,
+                      onChanged: (v) => setState(() => _template = v),
+                    ),
+                  if (widget.initial == null)
+                    SwitchListTile.adaptive(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Keep adding'),
+                      subtitle: const Text('Stay here for your next entry'),
+                      value: _sequential,
+                      onChanged: (v) => setState(() => _sequential = v),
+                    ),
+                ],
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -835,8 +1108,9 @@ class _Calculator extends StatelessWidget {
                     }
                   } else if (key == '=') {
                     try {
-                      controller.text = evaluateAmount(controller.text)
-                          .toString();
+                      controller.text = evaluateAmount(
+                        controller.text,
+                      ).toString();
                     } catch (_) {
                       toast(context, 'Finish the expression first');
                     }

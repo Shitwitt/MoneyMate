@@ -4,20 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../core/data/ledger.dart';
 import '../../core/data/providers.dart';
 import '../../core/data/seed.dart';
 import '../../core/models/models.dart';
 import '../../core/services/receipt_service.dart';
 import '../../core/utils/constants.dart';
 import '../../shared/actions.dart';
-import '../../shared/charts.dart';
 import '../../shared/forms.dart';
 import '../../shared/reference_editor.dart';
 import '../../shared/widgets.dart';
-import '../transactions/transactions_screen.dart';
 import 'categories_screen.dart';
 import 'labels_screen.dart';
+import 'context_screen.dart';
+import 'category_detail_screen.dart';
+
+export 'category_detail_screen.dart' show CategoryDetailScreen;
 
 class CatalogScreen extends ConsumerWidget {
   final String kind;
@@ -30,104 +31,15 @@ class CatalogScreen extends ConsumerWidget {
   };
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profile = ref.watch(profileProvider)!;
     if (kind == 'label') return const LabelsScreen();
-    if (kind == 'category') {
+    if (kind == 'category')
       return CategoriesScreen(
         onEdit: (initial, type) => _editCategory(context, ref, initial, type),
-        onOpen: (category) =>
-            openPage(context, CategoryDetailScreen(category.id)),
+        onOpen: (c) => openPage(context, CategoryDetailScreen(c.id)),
       );
-    }
-    final entities = profile.entities
-        .where((item) => item.kind == kind)
-        .toList();
-    return FeaturePage(
-      title: title,
-      actions: [
-        IconButton(
-          tooltip: 'Add $kind',
-          onPressed: () => _editEntity(context, ref),
-          icon: const Icon(Icons.add_rounded),
-        ),
-      ],
-      child: entities.isEmpty
-          ? EmptyState(
-              title: 'A little more context',
-              message:
-                  'Organize your money with $title. Filter any report or activity by them.',
-              icon: iconFor(kind),
-              action: 'Add $kind',
-              onAction: () => _editEntity(context, ref),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.only(bottom: 110),
-              itemCount: entities.length,
-              itemBuilder: (context, index) {
-                final entity = entities[index];
-                final entries = _filterFor(entity)
-                    .apply(ref.read(ledgerProvider)!);
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Card(
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(16),
-                      leading: entity.photoBase64.isEmpty
-                          ? ColorIcon(kind, entity.color)
-                          : CircleAvatar(
-                              backgroundImage: MemoryImage(
-                                base64Decode(entity.photoBase64),
-                              ),
-                            ),
-                      title: Text(entity.name),
-                      subtitle: Text(
-                        '${entries.length} transactions${entity.notes.isEmpty ? '' : ' · ${entity.notes}'}',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      onTap: () => openPage(
-                        context,
-                        TransactionsScreen(
-                          title: entity.name,
-                          initialFilter: _filterFor(entity),
-                        ),
-                      ),
-                      trailing: PopupMenuButton<String>(
-                        onSelected: (action) async {
-                          if (action == 'edit') {
-                            _editEntity(context, ref, entity);
-                          } else if (await confirm(
-                                context,
-                                'Delete ${entity.name}?',
-                                'This removes its tags from transactions, not the transactions themselves.',
-                              ) &&
-                              context.mounted) {
-                            await runSafe(
-                              context,
-                              () => ref
-                                  .read(appProvider.notifier)
-                                  .deleteEntity(entity.id),
-                            );
-                          }
-                        },
-                        itemBuilder: (_) => const [
-                          PopupMenuItem(value: 'edit', child: Text('Edit')),
-                          PopupMenuItem(value: 'delete', child: Text('Delete')),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-    );
+    return ContextScreen(kind);
   }
 
-  TransactionFilter _filterFor(NamedEntity entity) => TransactionFilter(
-    labels: kind == 'label' ? {entity.id} : {},
-    people: kind == 'person' ? {entity.id} : {},
-    places: kind == 'place' ? {entity.id} : {},
-  );
   Future<void> _editEntity(
     BuildContext context,
     WidgetRef ref, [
@@ -273,59 +185,6 @@ Future<void> _editCategory(
         ),
   );
   name.dispose();
-}
-
-class CategoryDetailScreen extends ConsumerWidget {
-  final String id;
-  const CategoryDetailScreen(this.id);
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final ledger = ref.watch(ledgerProvider)!;
-    final category = ledger.category(id);
-    if (category == null) return const SizedBox.shrink();
-    final entries = ledger.data.transactions
-        .where((entry) => entry.categoryId == id)
-        .toList();
-    return FeaturePage(
-      title: category.name,
-      actions: [
-        IconButton(
-          tooltip: 'Edit category',
-          onPressed: () => _editCategory(context, ref, category),
-          icon: const Icon(Icons.edit_outlined),
-        ),
-      ],
-      padded: false,
-      child: Column(
-        children: [
-          SizedBox(
-            height: 260,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: TrendChart(
-                    Ledger(
-                      ledger.data.copyWith(transactions: entries),
-                      ledger.settings,
-                    ),
-                    line: true,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: TransactionsScreen(
-              title: 'Category activity',
-              initialFilter: TransactionFilter(categories: {id}),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 Future<void> editCatalogEntity(

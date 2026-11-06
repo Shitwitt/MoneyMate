@@ -51,7 +51,7 @@ const homeCardNames = <String, String>{
   'last30': 'Last 30 days',
   'places': 'Places',
   'people': 'People',
-  'score': 'Record indicators',
+  'score': 'Spending Health',
   'achievements': 'Achievements',
   'recent': 'Last earned',
   'templates': 'Templates',

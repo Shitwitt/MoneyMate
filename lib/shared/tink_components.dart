@@ -118,19 +118,32 @@ class CategoryIcon extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    final dark = AppColors.dark(context);
-    final foreground = dark
-        ? Color.lerp(color, Colors.white, .35)!
-        : Color.lerp(color, AppColors.ink, .40)!;
-    return Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: dark ? .18 : .12),
-        borderRadius: BorderRadius.circular(size * .32),
+    final background = Color.alphaBlend(
+      color,
+      Theme.of(context).colorScheme.surface,
+    );
+    final foreground = 1.05 / (background.computeLuminance() + .05) >= 4.5
+        ? Colors.white
+        : Colors.black;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, _) => Container(
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(size * (.5 - .25 * value)),
+        ),
+        child: Transform.scale(
+          scale: .85 + .15 * value,
+          child: Icon(icon, color: foreground, size: size * .46),
+        ),
       ),
-      child: Icon(icon, color: foreground, size: size * .46),
     );
   }
 }

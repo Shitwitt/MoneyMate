@@ -115,7 +115,7 @@ class AnalyticsSnapshot {
   List<int> get lastSeven => List.generate(7, (i) {
     final day = DateTime(now.year, now.month, now.day - 6 + i);
     return history
-        .where((e) => dayOnly(e.date) == day)
+        .where((e) => dayOnly(e.date.toLocal()) == day)
         .fold<int>(0, (s, e) => s + ledger.entryValue(e));
   });
   List<AnalyticsCategory> get trends =>
@@ -128,7 +128,7 @@ class AnalyticsSnapshot {
   List<int> get weekdays => List.generate(
     7,
     (i) => history
-        .where((e) => e.date.weekday % 7 == i)
+        .where((e) => e.date.toLocal().weekday % 7 == i)
         .fold<int>(0, (s, e) => s + ledger.entryValue(e)),
   );
   int? get peakWeekday =>

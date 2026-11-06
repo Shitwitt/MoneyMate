@@ -40,6 +40,12 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
 
   TransactionFilter get current => TransactionFilter(
     query: query.text,
+    exactName: filter.exactName,
+    postedOnly: filter.postedOnly,
+    includedOnly: filter.includedOnly,
+    cashFlowOnly: filter.cashFlowOnly,
+    lastWeekOfMonth: filter.lastWeekOfMonth,
+    weekday: filter.weekday,
     dates: filter.dates,
     accounts: filter.accounts,
     categories: filter.categories,
@@ -368,8 +374,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           const SizedBox(height: 8),
           AmountText(
             amount,
-            style: Theme.of(context).textTheme.titleMedium
-                ?.copyWith(color: color, fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ],
       ),

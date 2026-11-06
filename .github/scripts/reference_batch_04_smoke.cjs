@@ -38,7 +38,7 @@ module.exports = async function referenceBatchFour({page, nav, goBack, capture, 
   for (const type of ['Income','Transfer','Expense']) await nav(type);
   await nav('Food & Dining'); await shot('category-breakdown');
   await button('Show category donut').click(); await pause();
-  await button('Next allocation segment').click(); await shot('category-donut');
+  await button('Next allocation segment').click(); await scroll(170); await shot('category-donut');
   await button('Show stacked category breakdown').click();
   await revealText('Monthly Spending Trend'); await shot('category-monthly');
   const monthly = page.getByLabel('Recorded spending line chart', {exact: true});

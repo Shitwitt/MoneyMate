@@ -36,9 +36,8 @@ void main() {
         exportFixture(),
         const AppSettings(hideAmounts: true),
       );
-      final records = const TransactionFilter(
-        query: 'Selected coffee',
-      ).apply(ledger);
+      final records = const TransactionFilter(query: 'Selected coffee')
+          .apply(ledger);
       final result = await TransactionExportService.create(
         ledger,
         records,
@@ -57,9 +56,8 @@ void main() {
 
   test('PDF produces a real local report from the captured selection', () async {
     final ledger = Ledger(exportFixture(), const AppSettings());
-    final records = const TransactionFilter(
-      query: 'Selected coffee',
-    ).apply(ledger);
+    final records = const TransactionFilter(query: 'Selected coffee')
+        .apply(ledger);
     final pending = TransactionExportService.create(
       ledger,
       records,

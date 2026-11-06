@@ -319,7 +319,17 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                                       children: [
                                         Expanded(child: identity),
                                         const SizedBox(width: 12),
-                                        Flexible(child: amount),
+                                        ConstrainedBox(
+                                          constraints: const BoxConstraints(
+                                            maxWidth: 110,
+                                          ),
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            alignment:
+                                                AlignmentDirectional.centerEnd,
+                                            child: amount,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   if (children.isNotEmpty) ...[

@@ -99,7 +99,10 @@ class PdfService {
           if (scopeNote != null && scopeNote.isNotEmpty)
             pw.Padding(
               padding: const pw.EdgeInsets.only(top: 12),
-              child: pw.Text(scopeNote, style: const pw.TextStyle(fontSize: 10)),
+              child: pw.Text(
+                scopeNote,
+                style: const pw.TextStyle(fontSize: 10),
+              ),
             ),
           pw.SizedBox(height: 20),
           pw.Container(
@@ -114,9 +117,7 @@ class PdfService {
                 pw.Text('Income: ${amount(income)}'),
                 pw.Text('Expenses: ${amount(expense)}'),
                 pw.Text('Net cash flow: ${amount(income - expense)}'),
-                pw.Text(
-                  'Savings rate: $savings',
-                ),
+                pw.Text('Savings rate: $savings'),
               ],
             ),
           ),

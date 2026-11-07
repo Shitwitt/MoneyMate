@@ -1,9 +1,9 @@
 # MoneyMate — Android test build
 
-**File:** `apk/MoneyMate-1.0-debug.apk` (4.05 MB, debug-signed)
-**SHA-256:** `05ccb728fd599e812bec2236f87b3f5d58eb34732317429afe2567629046e422`
+**File:** `apk/MoneyMate-1.0-debug.apk` (4.07 MB / 3.88 MiB, debug-signed)
+**SHA-256:** `e0c253581d22c11ee737a95dbe78933ac01fbb3cd060c6b4b145a66185d3ce8a`
 **Package:** `com.moneymate.app` · minSdk 22 (Android 5.1+) · targetSdk 34
-**Built from:** branch `arena/d91b14b6-moneymate` @ `aa74682` via GitHub Actions
+**Built from:** branch `arena/d91b14b6-moneymate` @ `4955eeb` via GitHub Actions
 
 ## Install on your phone
 
@@ -43,11 +43,14 @@ Everything built so far runs fully offline inside a WebView:
   balances + settle-up) and Loans (lending/borrowing/completed, partial and
   full payments, auto-completion, due-date countdowns), plus a global
   light/dark theme engine.
-- **Step 4** — Ledger-backed loan details/editor (payment history, quick log,
-  multi-currency rows, *Mark as Done*, colour/category/account pickers), Goals
-  (Active/Completed/Archived, wavy progress, grouped transactions,
-  contributions, daily→yearly tabs, colour editor), *How Goals Work*, full CRUD
-  with `localStorage` persistence, and the *Exit Demo* / *Start Fresh* dialog.
+- **Live overhaul** — Demo mode is removed. One persisted reactive store drives
+  every input, button, calculation and eight touch/mouse-scrubbed SVG charts.
+  The profile modal edits **Raj**, base currency `₹/$/€/£` and offers
+  **Reset / Clear All Data**. Universal transaction, account, budget, asset,
+  bill, loan, goal and template editors are fully live; future-dated rows appear
+  under **Upcoming transactions**. Reports unlock all five donut dimensions and
+  live month filtering. Linked loan repayments/charges, goal deposits and bill
+  payments recompute summaries and progress immediately.
 
 ## Notes
 

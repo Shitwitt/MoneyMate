@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
 import 'core/l10n/app_strings.dart';
@@ -28,6 +29,11 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  // Date labels go through `intl` with an explicit locale (`en_IN` by default,
+  // so grouping is Indian). Without this call `DateFormat` throws
+  // `LocaleDataException` the first time a screen formats a date.
+  await initializeDateFormatting();
 
   final HiveStorage storage = HiveStorage.instance;
   await storage.init();

@@ -10,8 +10,21 @@ class DateTimeFormat {
 
   static final Map<String, DateFormat> _cache = <String, DateFormat>{};
 
+  /// A [DateFormat] for [pattern] in [locale], cached.
+  ///
+  /// `intl` only ships data for the locales loaded into it — `initializeDateFormatting()`
+  /// is awaited in `main()`. If a caller formats a date before that (a unit test,
+  /// a locale intl has no data for) the plain English pattern is used instead of
+  /// throwing `LocaleDataException`: a missing month name must never take down a
+  /// screen full of the user's money.
   static DateFormat _pattern(String pattern, String locale) =>
-      _cache.putIfAbsent('$pattern|$locale', () => DateFormat(pattern, locale));
+      _cache.putIfAbsent('$pattern|$locale', () {
+        try {
+          return DateFormat(pattern, locale);
+        } on LocaleDataException {
+          return DateFormat(pattern);
+        }
+      });
 
   /// `07 Nov 2026` — the canonical ledger date.
   static String date(DateTime value, {String locale = 'en_IN'}) =>

@@ -18,11 +18,40 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
 
 MAX_BODY = 60000  # GitHub's commit-comment limit is 65536 characters.
+
+# Frames like `#42     RenderObject.layout (package:flutter/...` carry no
+# information for a human reading a failure summary and would push the actual
+# test names out of the comment.
+_STACK_FRAME = re.compile(r"^#\d+\s+\S")
+_NOISE = re.compile(
+    r"^(When the exception was thrown|The relevant error-causing widget was|"
+    r"\s*$|::group::|::endgroup::)"
+)
+_NUMBERED_FRAME_BLOCK = re.compile(r"^#\d+\s.*$", re.MULTILINE)
+
+
+def condense(text: str, per_file_lines: int = 60) -> str:
+    """Keep the interesting parts of a `flutter test` log."""
+    # Drop whole stack-frame blocks (`#0 ...` through the last `#NNN ...`).
+    lines = text.splitlines()
+    kept, frames = [], 0
+    for line in lines:
+        if _STACK_FRAME.match(line):
+            frames += 1
+            if frames == 1:
+                kept.append("    … stack frames omitted …")
+            continue
+        frames = 0
+        if _NOISE.match(line):
+            continue
+        kept.append(line)
+    return "\n".join(kept)
 
 
 def post_comment(url: str, token: str, body: str) -> None:
@@ -50,6 +79,10 @@ def main(argv: list[str]) -> int:
     with open(argv[1], encoding="utf-8", errors="replace") as handle:
         report = handle.read()
 
+    if os.environ.get("CONDENSE"):
+        report = condense(report)
+    title = os.environ.get("REPORT_TITLE", "flutter analyze report")
+
     token = os.environ.get("GITHUB_TOKEN")
     url = os.environ.get("COMMIT_COMMENT_URL")
     if not token or not url:
@@ -57,7 +90,7 @@ def main(argv: list[str]) -> int:
         print("note: GITHUB_TOKEN/COMMIT_COMMENT_URL unset; report printed only")
         return 0
 
-    body = ("flutter analyze report\n\n```\n" + report + "\n```")[:MAX_BODY]
+    body = (title + "\n\n```\n" + report + "\n```")[:MAX_BODY]
     try:
         post_comment(url, token, body)
     except urllib.error.URLError as error:  # network down, permissions, etc.

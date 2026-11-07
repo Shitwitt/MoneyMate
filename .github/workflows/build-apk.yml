@@ -127,9 +127,10 @@ jobs:
             fi
           done
           echo "--- summary ---"
-          grep -E "^(=== |[0-9]+:[0-9]+ )" tests.txt | tail -n 40
+          grep -E "^(=== |\+[0-9]+|Some tests failed|All tests passed)" tests.txt | tail -n 60
           if [ "$failed" -ne 0 ]; then
-            python3 tool/report_analyzer.py tests.txt
+            CONDENSE=1 REPORT_TITLE="flutter test report" \
+              python3 tool/report_analyzer.py tests.txt
             exit 1
           fi
           echo "all suites passed"

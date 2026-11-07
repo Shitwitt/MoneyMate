@@ -25,6 +25,19 @@ class DateTimeFormat {
   static String monthYear(DateTime value, {String locale = 'en_IN'}) =>
       _pattern('MMM yyyy', locale).format(value);
 
+  /// `Nov` — chart axis labels and month chips.
+  static String monthShort(DateTime value, {String locale = 'en_IN'}) =>
+      _pattern('MMM', locale).format(value);
+
+  /// `Mon` — the weekly line chart's x axis.
+  static String weekdayShort(DateTime value, {String locale = 'en_IN'}) =>
+      _pattern('E', locale).format(value);
+
+  /// `Mon, 02 Nov` — chart tooltip date line.
+  static String weekdayDate(DateTime value, {String locale = 'en_IN'}) =>
+      '${_pattern('E', locale).format(value)}, '
+      '${_pattern('dd MMM', locale).format(value)}';
+
   /// `07:30 PM` — the time shown in a transaction subtitle.
   static String time(DateTime value, {String locale = 'en_IN'}) =>
       _pattern('hh:mm a', locale).format(value);
@@ -101,6 +114,28 @@ class DateTimeFormat {
         time.minute,
         time.second,
       );
+
+  /// Axis label for one day of a chart window.
+  ///
+  /// * a single-week window shows weekday initials (`M`, `T`, `W`),
+  /// * a month window shows the day number (`1`, `15`, `30`),
+  /// * anything longer shows the day with its month (`07 Nov`).
+  ///
+  /// [start] and [end] describe the whole window, so every label in one chart
+  /// is formatted the same way.
+  static String dayAxisLabel(
+    DateTime day,
+    DateTime start,
+    DateTime end, {
+    String locale = 'en_IN',
+  }) {
+    final int span = end.difference(start).inDays + 1;
+    if (span <= 7) {
+      return _pattern('EEEEE', locale).format(day).toUpperCase();
+    }
+    if (span <= 31) return day.day.toString();
+    return _pattern('dd MMM', locale).format(day);
+  }
 
   /// `12:05` axis labels for the charts (24h, no AM/PM clutter).
   static String axisTime(DateTime value) =>

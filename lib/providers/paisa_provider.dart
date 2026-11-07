@@ -2,13 +2,16 @@ import 'package:flutter/foundation.dart';
 
 import '../core/constants/avatars.dart';
 import '../core/constants/currencies.dart';
+import '../core/constants/icons.dart';
 import '../core/enum/filter_enums.dart';
 import '../core/theme/seed_color.dart';
 import '../core/theme/theme_preference.dart';
 import '../core/utils/currency_formatter.dart';
+import '../core/utils/date_time_format.dart';
 import '../core/utils/id_generator.dart';
 import '../data/local/hive_storage.dart';
 import '../data/models/account_model.dart';
+import '../data/models/analytics_models.dart';
 import '../data/models/category_budget_stat.dart';
 import '../data/models/category_model.dart';
 import '../data/models/debt_model.dart';
@@ -1228,17 +1231,517 @@ class PaisaProvider extends ChangeNotifier {
   }
 
   // ---------------------------------------------------------------------
-  // BACKUP
+  // ANALYTICS & REPORTS
+  //
+  // Every chart on the Overview tab is built from these getters, so the UI
+  // never hardcodes a point. Transactions are bucketed here, once, using the
+  // same money rules as the rest of the app (transfers excluded, linked debt
+  // mirrors excluded so a loan repayment is reported once).
   // ---------------------------------------------------------------------
 
+  static const String _analyticsRangeKey = 'analytics_range';
+  static const String _analyticsTypeKey = 'analytics_type';
+
+  /// The analytics tab's time window (persisted so it survives a restart).
+  AnalyticsRange get analyticsRange {
+    final String? stored = _storage.readFlag<String>(_analyticsRangeKey);
+    if (stored == null) return AnalyticsRange.thisMonth;
+    return AnalyticsRange.fromKey(stored);
+  }
+
+  /// The analytics tab's transaction-type filter (persisted like the range).
+  AnalyticsTypeFilter get analyticsType {
+    final String? stored = _storage.readFlag<String>(_analyticsTypeKey);
+    if (stored == null) return AnalyticsTypeFilter.all;
+    return AnalyticsTypeFilter.fromKey(stored);
+  }
+
+  Future<void> setAnalyticsRange(AnalyticsRange range) async {
+    await _storage.writeFlag(_analyticsRangeKey, range.key);
+    notifyListeners();
+  }
+
+  Future<void> setAnalyticsType(AnalyticsTypeFilter type) async {
+    await _storage.writeFlag(_analyticsTypeKey, type.key);
+    notifyListeners();
+  }
+
+  /// Earliest day with any transaction, or `null` for an empty ledger.
+  DateTime? get firstTransactionDay {
+    final DateTime? oldest = _oldestTransactionDate;
+    if (oldest == null) return null;
+    return DateTime(oldest.year, oldest.month, oldest.day);
+  }
+
+  /// How many months the grouped bar chart spans for [range].
+  ///
+  /// Six months stays readable on a phone; a whole year or the full history
+  /// gets twelve. One constant, one place to change it.
+  int monthsForRange(AnalyticsRange range) =>
+      range.isLongWindow ? 12 : 6;
+
+  /// The synthetic bucket uncategorised transactions are reported under.
+  ///
+  /// Real categories always win; this only appears when a record lost its
+  /// category (an old backup, or a category deleted while its rows stayed).
+  static final CategoryModel uncategorisedCategory = CategoryModel(
+    id: 'uncategorised',
+    name: 'Uncategorised',
+    icon: ICONS.fallback.codePoint,
+    color: 0xFF78909C,
+  );
+
+  /// Resolves a transaction's category, folding unknown ids into
+  /// [uncategorisedCategory].
+  CategoryModel categoryForTransaction(TransactionModel transaction) {
+    final CategoryModel? category = categoryById(transaction.categoryId);
+    if (category != null) return category;
+    return uncategorisedCategory;
+  }
+
+  /// Every counted transaction in [range] under [type] — transfers and linked
+  /// debt mirrors removed.
+  List<TransactionModel> analyticsTransactions(
+    AnalyticsRange range,
+    AnalyticsTypeFilter type, {
+    DateTime? now,
+  }) {
+    final (DateTime, DateTime) window = range.resolve(
+      now: now ?? DateTime.now(),
+      oldest: firstTransactionDay,
+      weekStartsMonday: _settings.weeklyStartMonday,
+    );
+    final DateTime start =
+        DateTime(window.$1.year, window.$1.month, window.$1.day);
+    final DateTime end = DateTime(
+      window.$2.year,
+      window.$2.month,
+      window.$2.day,
+      23,
+      59,
+      59,
+      999,
+    );
+    final List<TransactionModel> result = <TransactionModel>[];
+    for (final TransactionModel transaction in _transactions) {
+      if (isLinkedDebtTransaction(transaction)) continue;
+      if (transaction.time.isBefore(start) || transaction.time.isAfter(end)) {
+        continue;
+      }
+      if (transaction.type == TransactionType.transfer) {
+        // A transfer only moves money between the user's own accounts.
+        continue;
+      }
+      if (transaction.type == TransactionType.income && !type.includesIncome) {
+        continue;
+      }
+      if (transaction.type == TransactionType.expense && !type.includesExpense) {
+        continue;
+      }
+      result.add(transaction);
+    }
+    result.sort((TransactionModel a, TransactionModel b) =>
+        a.time.compareTo(b.time));
+    return result;
+  }
+
+  /// Builds every number, point and slice the analytics screen draws.
+  ///
+  /// [monthsShown] overrides the bar-chart span (used by the "6 / 12 months"
+  /// toggle); when omitted it follows [monthsForRange].
+  AnalyticsSnapshot analyticsSnapshot({
+    AnalyticsRange? range,
+    AnalyticsTypeFilter? type,
+    int? monthsShown,
+    DateTime? now,
+  }) {
+    final AnalyticsRange activeRange = range ?? analyticsRange;
+    final AnalyticsTypeFilter activeType = type ?? analyticsType;
+    final DateTime reference = now ?? DateTime.now();
+    final DateTime today =
+        DateTime(reference.year, reference.month, reference.day);
+    final (DateTime, DateTime) window = activeRange.resolve(
+      now: reference,
+      oldest: firstTransactionDay,
+      weekStartsMonday: _settings.weeklyStartMonday,
+    );
+    final DateTime start =
+        DateTime(window.$1.year, window.$1.month, window.$1.day);
+    final DateTime endRaw = DateTime(window.$2.year, window.$2.month, window.$2.day);
+    // A window never runs into the future: unfinished days would drag the
+    // daily average down and draw a long flat tail on the line chart.
+    final DateTime end = endRaw.isAfter(today) ? today : endRaw;
+
+    final List<TransactionModel> rows =
+        analyticsTransactions(activeRange, activeType, now: reference);
+
+    double income = 0;
+    double expense = 0;
+    for (final TransactionModel transaction in rows) {
+      if (transaction.type == TransactionType.income) {
+        income += transaction.amount;
+      } else if (transaction.type == TransactionType.expense) {
+        expense += transaction.amount;
+      }
+    }
+
+    // ---- Line chart buckets -------------------------------------------------
+    final int spanDays = end.difference(start).inDays + 1;
+    final bool byMonth = activeRange.isLongWindow || spanDays > 62;
+    final List<FlowPoint> points = byMonth
+        ? _monthlyFlowPoints(rows, start, end)
+        : _dailyFlowPoints(rows, start, end);
+
+    // ---- Highest spending day ----------------------------------------------
+    // Computed straight from the rows (not from the capped daily buckets) so a
+    // multi-year "All Time" window still finds the true peak.
+    final Map<int, double> spendPerDay = <int, double>{};
+    final Map<int, DateTime> dayByKey = <int, DateTime>{};
+    for (final TransactionModel transaction in rows) {
+      if (transaction.type != TransactionType.expense) continue;
+      final DateTime day = DateTime(
+        transaction.time.year,
+        transaction.time.month,
+        transaction.time.day,
+      );
+      final int key = _dayKey(day);
+      spendPerDay[key] = (spendPerDay[key] ?? 0) + transaction.amount;
+      dayByKey[key] = day;
+    }
+    FlowPoint? highest;
+    DateTime? peakDay;
+    double peakAmount = 0;
+    for (final MapEntry<int, double> entry in spendPerDay.entries) {
+      if (entry.value <= peakAmount) continue;
+      peakAmount = entry.value;
+      peakDay = dayByKey[entry.key];
+    }
+    if (peakDay != null) {
+      highest = FlowPoint(
+        date: peakDay,
+        label: DateTimeFormat.dayAxisLabel(peakDay, start, end),
+        expense: peakAmount,
+      );
+    }
+
+    // ---- Category donut ----------------------------------------------------
+    final Map<String, double> amountByCategory = <String, double>{};
+    final Map<String, int> countByCategory = <String, int>{};
+    double distributable = 0;
+    // The donut always distributes *outflow* unless the user asked for income
+    // only, in which case it distributes income by category instead.
+    final bool distributeIncome = activeType == AnalyticsTypeFilter.income;
+    for (final TransactionModel transaction in rows) {
+      if (transaction.type == TransactionType.transfer) continue;
+      final bool counted = distributeIncome
+          ? transaction.type == TransactionType.income
+          : transaction.type == TransactionType.expense;
+      if (!counted) continue;
+      final CategoryModel category = categoryForTransaction(transaction);
+      amountByCategory[category.id] =
+          (amountByCategory[category.id] ?? 0) + transaction.amount;
+      countByCategory[category.id] = (countByCategory[category.id] ?? 0) + 1;
+      distributable += transaction.amount;
+    }
+    final List<CategorySlice> slices = <CategorySlice>[];
+    amountByCategory.forEach((String id, double amount) {
+      final CategoryModel category = id == uncategorisedCategory.id
+          ? uncategorisedCategory
+          : categoryById(id) ?? uncategorisedCategory;
+      slices.add(
+        CategorySlice(
+          category: category,
+          amount: amount,
+          count: countByCategory[id] ?? 0,
+          share: distributable <= 0
+              ? 0
+              : (amount / distributable).clamp(0.0, 1.0),
+        ),
+      );
+    });
+    slices.sort((CategorySlice a, CategorySlice b) => b.amount.compareTo(a.amount));
+
+    // ---- Monthly grouped bars ---------------------------------------------
+    final int monthSpan = monthsShown ?? monthsForRange(activeRange);
+    final List<MonthlyFlow> months = _monthlyFlows(
+      monthSpan,
+      reference: reference,
+      type: activeType,
+    );
+
+    // ---- Account distribution ---------------------------------------------
+    final Map<String, double> amountByAccount = <String, double>{};
+    final Map<String, int> countByAccount = <String, int>{};
+    double accountTotal = 0;
+    for (final TransactionModel transaction in rows) {
+      if (transaction.type == TransactionType.transfer) continue;
+      final String key = transaction.accountId;
+      amountByAccount[key] = (amountByAccount[key] ?? 0) + transaction.amount;
+      countByAccount[key] = (countByAccount[key] ?? 0) + 1;
+      accountTotal += transaction.amount;
+    }
+    final List<AccountShare> shares = <AccountShare>[];
+    amountByAccount.forEach((String accountId, double amount) {
+      final AccountModel? account = accountById(accountId);
+      shares.add(
+        AccountShare(
+          accountId: accountId,
+          title: account?.title ?? 'Deleted account',
+          type: account?.cardType ?? AccountType.cash,
+          colorValue: account?.color ?? 0xFF78909C,
+          amount: amount,
+          count: countByAccount[accountId] ?? 0,
+          share: accountTotal <= 0 ? 0 : (amount / accountTotal).clamp(0.0, 1.0),
+        ),
+      );
+    });
+    shares.sort((AccountShare a, AccountShare b) => b.amount.compareTo(a.amount));
+
+    final Map<AccountType, double> amountByType = <AccountType, double>{};
+    for (final AccountShare share in shares) {
+      amountByType[share.type] =
+          (amountByType[share.type] ?? 0) + share.amount;
+    }
+    final List<AccountTypeShare> typeShares = <AccountTypeShare>[
+      for (final AccountType accountType in AccountType.values)
+        AccountTypeShare(
+          type: accountType,
+          amount: amountByType[accountType] ?? 0,
+          share: accountTotal <= 0
+              ? 0
+              : ((amountByType[accountType] ?? 0) / accountTotal)
+                  .clamp(0.0, 1.0),
+        ),
+    ];
+
+    final int elapsed = end.difference(start).inDays + 1;
+
+    return AnalyticsSnapshot(
+      range: activeRange,
+      type: activeType,
+      start: start,
+      end: end,
+      income: income,
+      expense: expense,
+      transactionCount: rows.length,
+      elapsedDays: elapsed < 1 ? 1 : elapsed,
+      highestSpendingDay: highest,
+      flowPoints: points,
+      categorySlices: slices,
+      monthlyFlows: months,
+      accountShares: shares,
+      typeShares: typeShares,
+      monthsShown: monthSpan,
+      scopeLabel: _scopeLabel(activeRange, start, end, rows.length),
+    );
+  }
+
+  /// One bucket per day from [start] to [end] inclusive.
+  List<FlowPoint> _dailyFlowPoints(
+    List<TransactionModel> rows,
+    DateTime start,
+    DateTime end,
+  ) {
+    final int dayCount = end.difference(start).inDays + 1;
+    final int capped = dayCount.clamp(1, 400);
+    final List<FlowPoint> points = <FlowPoint>[];
+    for (int i = 0; i < capped; i++) {
+      final DateTime day = start.add(Duration(days: i));
+      points.add(
+        FlowPoint(
+          date: day,
+          label: DateTimeFormat.dayAxisLabel(day, start, end),
+        ),
+      );
+    }
+    final Map<int, int> indexByDay = <int, int>{
+      for (int i = 0; i < points.length; i++) _dayKey(points[i].date): i,
+    };
+    for (final TransactionModel transaction in rows) {
+      final int? index = indexByDay[_dayKey(transaction.time)];
+      if (index == null) continue;
+      final FlowPoint current = points[index];
+      points[index] = transaction.type == TransactionType.income
+          ? current.copyWith(income: current.income + transaction.amount)
+          : current.copyWith(expense: current.expense + transaction.amount);
+    }
+    return points;
+  }
+
+  /// One bucket per month from [start] to [end] inclusive.
+  List<FlowPoint> _monthlyFlowPoints(
+    List<TransactionModel> rows,
+    DateTime start,
+    DateTime end,
+  ) {
+    final List<FlowPoint> points = <FlowPoint>[];
+    final Map<int, int> indexByMonth = <int, int>{};
+    DateTime cursor = DateTime(start.year, start.month);
+    final DateTime last = DateTime(end.year, end.month);
+    while (!cursor.isAfter(last)) {
+      indexByMonth[cursor.year * 100 + cursor.month] = points.length;
+      points.add(
+        FlowPoint(
+          date: cursor,
+          label: DateTimeFormat.monthShort(cursor, locale: locale),
+          monthBucket: true,
+        ),
+      );
+      cursor = DateTime(cursor.year, cursor.month + 1);
+    }
+    for (final TransactionModel transaction in rows) {
+      final int? index = indexByMonth[
+          transaction.time.year * 100 + transaction.time.month];
+      if (index == null) continue;
+      final FlowPoint current = points[index];
+      points[index] = transaction.type == TransactionType.income
+          ? current.copyWith(income: current.income + transaction.amount)
+          : current.copyWith(expense: current.expense + transaction.amount);
+    }
+    return points;
+  }
+
+  /// The last [count] calendar months (including the current one), oldest
+  /// first — the grouped bar chart's groups.
+  List<MonthlyFlow> _monthlyFlows(
+    int count, {
+    required DateTime reference,
+    required AnalyticsTypeFilter type,
+  }) {
+    final int span = count.clamp(1, 24);
+    final List<MonthlyFlow> flows = <MonthlyFlow>[];
+    final Map<int, int> indexByMonth = <int, int>{};
+    for (int i = span - 1; i >= 0; i--) {
+      final DateTime month = DateTime(reference.year, reference.month - i);
+      indexByMonth[month.year * 100 + month.month] = flows.length;
+      flows.add(
+        MonthlyFlow(
+          month: month,
+          label: DateTimeFormat.monthShort(month, locale: locale),
+        ),
+      );
+    }
+    for (final TransactionModel transaction in _transactions) {
+      if (isLinkedDebtTransaction(transaction)) continue;
+      if (transaction.type == TransactionType.transfer) continue;
+      if (transaction.type == TransactionType.income && !type.includesIncome) {
+        continue;
+      }
+      if (transaction.type == TransactionType.expense && !type.includesExpense) {
+        continue;
+      }
+      final int? index =
+          indexByMonth[transaction.time.year * 100 + transaction.time.month];
+      if (index == null) continue;
+      final MonthlyFlow current = flows[index];
+      flows[index] = transaction.type == TransactionType.income
+          ? MonthlyFlow(
+              month: current.month,
+              label: current.label,
+              income: current.income + transaction.amount,
+              expense: current.expense,
+            )
+          : MonthlyFlow(
+              month: current.month,
+              label: current.label,
+              income: current.income,
+              expense: current.expense + transaction.amount,
+            );
+    }
+    return flows;
+  }
+
+  /// `01 Nov – 30 Nov` style description of the analysed window, with the
+  /// transaction count appended so the header always explains what is plotted.
+  String _scopeLabel(
+    AnalyticsRange range,
+    DateTime start,
+    DateTime end,
+    int count,
+  ) {
+    final String records = count == 1 ? '1 record' : '$count records';
+    if (range == AnalyticsRange.allTime) {
+      if (count == 0) return 'No records yet';
+      return 'Since ${DateTimeFormat.monthYear(start, locale: locale)} · '
+          '$records';
+    }
+    final String from = DateTimeFormat.shortDate(start, locale: locale);
+    final String to = DateTimeFormat.shortDate(end, locale: locale);
+    return '$from – $to · $records';
+  }
+
+  // ---------------------------------------------------------------------
+  // DATA MANAGEMENT (backup / restore / CSV / wipe)
+  // ---------------------------------------------------------------------
+
+  /// Pretty-printed full backup document (accounts, categories, transactions,
+  /// debts, installments and settings) ready to be written to a `.json` file.
   String exportBackupJson() => _storage.exportBackupAsJson();
 
+  /// Restores a backup document and reports how many records were imported.
+  ///
+  /// Throws [FormatException] for a file that is not a MoneyMate backup; the UI
+  /// catches it and shows the message instead of wiping the ledger.
   Future<int> restoreBackupJson(String json) async {
     return _guard<int>(() async {
       final int count = await _storage.restoreBackupFromJson(json);
       _settings = _storage.loadSettings();
       return count;
     });
+  }
+
+  /// Total user records across the five data boxes (shown in the danger zone).
+  int get totalRecordCount => _storage.totalRecordCount;
+
+  /// RFC-4180 CSV export of the whole ledger, newest first.
+  ///
+  /// Columns: `Date,Title,Type,Category,Account,Amount,Notes`. Amounts are
+  /// written as plain decimals (no symbol, no grouping) so a spreadsheet reads
+  /// them as numbers, and every field is quoted-escaped.
+  String exportTransactionsCsv() {
+    final List<TransactionModel> rows = <TransactionModel>[..._transactions]
+      ..sort((TransactionModel a, TransactionModel b) =>
+          b.time.compareTo(a.time));
+
+    String cell(String value) {
+      final String escaped = value.replaceAll('"', '""');
+      final bool needsQuotes = escaped.contains(',') ||
+          escaped.contains('"') ||
+          escaped.contains('
+') ||
+          escaped.contains('
+');
+      return needsQuotes ? '"$escaped"' : escaped;
+    }
+
+    final StringBuffer buffer = StringBuffer()
+      ..writeln('Date,Title,Type,Category,Account,Amount,Notes');
+    for (final TransactionModel transaction in rows) {
+      final String accountLabel = transaction.type == TransactionType.transfer
+          ? '${accountName(transaction.accountId)} → '
+              '${accountName(transaction.toAccountId)}'
+          : accountName(transaction.accountId);
+      final String categoryLabel =
+          transaction.type == TransactionType.transfer
+              ? 'Transfer'
+              : categoryName(transaction.categoryId);
+      buffer
+        ..write(cell(DateTimeFormat.date(transaction.time, locale: locale)))
+        ..write(',')
+        ..write(cell(transaction.name))
+        ..write(',')
+        ..write(cell(transaction.type.label))
+        ..write(',')
+        ..write(cell(categoryLabel))
+        ..write(',')
+        ..write(cell(accountLabel))
+        ..write(',')
+        ..write(transaction.amount.toStringAsFixed(2))
+        ..write(',')
+        ..write(cell(transaction.description ?? ''))
+        ..writeln();
+    }
+    return buffer.toString();
   }
 
   /// Full app reset used by Settings › Danger zone.

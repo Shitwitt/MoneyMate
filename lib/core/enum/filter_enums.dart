@@ -213,3 +213,152 @@ extension FilterExpenseX on FilterExpense {
     }
   }
 }
+
+/// Which transaction types an analytics view counts.
+///
+/// The analytics screen needs a *type* filter on top of the time filter: a user
+/// studying spending wants expenses only, while someone reconciling a salary
+/// wants income only. Transfers are always excluded from money-flow maths (they
+/// only move money between the user's own accounts), so they are never a
+/// choice here.
+enum AnalyticsTypeFilter {
+  /// Both income and expense transactions.
+  all,
+
+  /// Expenses only.
+  expense,
+
+  /// Income only.
+  income,
+}
+
+extension AnalyticsTypeFilterX on AnalyticsTypeFilter {
+  String get key => name;
+
+  static AnalyticsTypeFilter fromKey(String? key) {
+    return AnalyticsTypeFilter.values.firstWhere(
+      (AnalyticsTypeFilter value) => value.name == key,
+      orElse: () => AnalyticsTypeFilter.all,
+    );
+  }
+
+  /// Segmented-button label.
+  String get label {
+    switch (this) {
+      case AnalyticsTypeFilter.all:
+        return 'All';
+      case AnalyticsTypeFilter.expense:
+        return 'Expense Only';
+      case AnalyticsTypeFilter.income:
+        return 'Income Only';
+    }
+  }
+
+  /// Short label for tight layouts.
+  String get shortLabel {
+    switch (this) {
+      case AnalyticsTypeFilter.all:
+        return 'All';
+      case AnalyticsTypeFilter.expense:
+        return 'Expense';
+      case AnalyticsTypeFilter.income:
+        return 'Income';
+    }
+  }
+
+  /// Whether income records are counted.
+  bool get includesIncome => this != AnalyticsTypeFilter.expense;
+
+  /// Whether expense records are counted.
+  bool get includesExpense => this != AnalyticsTypeFilter.income;
+}
+
+/// The four time windows offered by the analytics filter bar.
+///
+/// Deliberately coarse: the charts aggregate by day or by month, so a
+/// "yesterday" style window would produce a single unreadable point. Each
+/// window knows how to resolve itself into an inclusive `(start, end)` range so
+/// the provider can bucket transactions without the UI doing date maths.
+enum AnalyticsRange {
+  thisWeek,
+  thisMonth,
+  thisYear,
+  allTime;
+
+  String get key => name;
+
+  static AnalyticsRange fromKey(String? key) {
+    return AnalyticsRange.values.firstWhere(
+      (AnalyticsRange value) => value.name == key,
+      orElse: () => AnalyticsRange.thisMonth,
+    );
+  }
+
+  /// Chip label, e.g. `This Month`.
+  String get label {
+    switch (this) {
+      case AnalyticsRange.thisWeek:
+        return 'This Week';
+      case AnalyticsRange.thisMonth:
+        return 'This Month';
+      case AnalyticsRange.thisYear:
+        return 'This Year';
+      case AnalyticsRange.allTime:
+        return 'All Time';
+    }
+  }
+
+  /// Icon shown on the chart legend / filter summary.
+  IconData get icon {
+    switch (this) {
+      case AnalyticsRange.thisWeek:
+        return Icons.view_week_rounded;
+      case AnalyticsRange.thisMonth:
+        return Icons.calendar_month_rounded;
+      case AnalyticsRange.thisYear:
+        return Icons.calendar_today_rounded;
+      case AnalyticsRange.allTime:
+        return Icons.all_inclusive_rounded;
+    }
+  }
+
+  /// Whether this is a rolling multi-month window (used to decide whether the
+  /// line chart plots days or months).
+  bool get isLongWindow =>
+      this == AnalyticsRange.thisYear || this == AnalyticsRange.allTime;
+}
+
+extension AnalyticsRangeRange on AnalyticsRange {
+  /// Inclusive `(start, end)` day window ending today.
+  ///
+  /// [oldest] is the earliest transaction date the caller knows about; it only
+  /// matters for [AnalyticsRange.allTime], which falls back to the first day of
+  /// the current month when the ledger is empty (so an empty state still has a
+  /// sensible axis instead of a 1970-style span).
+  (DateTime, DateTime) resolve({
+    required DateTime now,
+    DateTime? oldest,
+    bool weekStartsMonday = true,
+  }) {
+    final DateTime today = DateTime(now.year, now.month, now.day);
+    switch (this) {
+      case AnalyticsRange.thisWeek:
+        final int weekday = today.weekday; // Mon = 1 … Sun = 7
+        final int offset = weekStartsMonday ? weekday - 1 : weekday % 7;
+        final DateTime start = today.subtract(Duration(days: offset));
+        return (start, start.add(const Duration(days: 6)));
+      case AnalyticsRange.thisMonth:
+        return (
+          DateTime(today.year, today.month),
+          DateTime(today.year, today.month + 1, 0),
+        );
+      case AnalyticsRange.thisYear:
+        return (DateTime(today.year), DateTime(today.year, 12, 31));
+      case AnalyticsRange.allTime:
+        final DateTime first = oldest == null
+            ? DateTime(today.year, today.month)
+            : DateTime(oldest.year, oldest.month);
+        return (first, today);
+    }
+  }
+}

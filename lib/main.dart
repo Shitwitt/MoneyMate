@@ -8,6 +8,7 @@ import 'data/local/hive_storage.dart';
 import 'data/models/settings_model.dart';
 import 'providers/paisa_provider.dart';
 import 'screens/main_shell.dart';
+import 'widgets/app_lock_gate.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 
 /// Boots Hive, loads settings, then hands over to [MoneyMateApp].
@@ -94,7 +95,9 @@ class _AppRoot extends StatelessWidget {
           builder: (BuildContext context, Widget? child) {
             return TranslationScope(
               languageCode: provider.languageCode,
-              child: child ?? const SizedBox.shrink(),
+              child: AppLockGate(
+                child: child ?? const SizedBox.shrink(),
+              ),
             );
           },
           home: const _EntryPoint(),

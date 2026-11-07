@@ -14,10 +14,10 @@ device and can be exported / restored as a JSON backup.
 | 2 | Currency engine, financial state provider, onboarding intro flow | ✅ done |
 | 3 | App shell, home dashboard, search & transaction engine | ✅ done |
 | 4 | Accounts carousel, loans/EMIs, categories & budgets | ✅ done |
-| 5 | Analytics & charts, history filters, exports | ⏳ |
-| 6 | Settings hardening, biometric lock, backup & restore, polish | ⏳ |
+| 5 | Analytics & charts, history filters, exports | ✅ done |
+| 6 | Final polish pass, packaging & release tooling | ⏳ |
 
-## What steps 1–4 deliver
+## What steps 1–5 deliver
 
 ```
 lib/
@@ -27,15 +27,19 @@ lib/
 │   │   ├── avatars.dart               # 12 built-in profile avatars
 │   │   ├── currencies.dart            # 40+ currencies, INR pinned, grouping metadata
 │   │   └── icons.dart                 # tree-shake-safe icon registry
-│   ├── enum/filter_enums.dart         # TransactionType, AccountType, DebtType, FilterExpense
+│   ├── enum/filter_enums.dart         # TransactionType, AccountType, DebtType,
+│   │                                  # FilterExpense, AnalyticsRange, AnalyticsTypeFilter
 │   ├── l10n/app_strings.dart          # en / hi / de / es / fr + TranslationScope
 │   ├── theme/                         # Material You engine (step 1)
 │   └── utils/
+│       ├── app_lock.dart              # local_auth biometric / PIN prompt
+│       ├── backup_service.dart        # real file I/O: share JSON/CSV, pick backup
 │       ├── currency_formatter.dart    # ₹1,25,450.00, ₹1.5L, parsing, masking
 │       └── id_generator.dart
 ├── data/
 │   ├── local/hive_storage.dart        # 6 boxes, CRUD, seeding, backup/restore
-│   └── models/                        # 5 persisted models + settings + budget stat + joins
+│   └── models/                        # 5 persisted models + settings + budget stat
+│                                      # + analytics snapshot & chart point models
 ├── domain/default_data.dart           # seeded Indian categories & accounts
 ├── providers/paisa_provider.dart      # the financial engine (see below)
 ├── screens/
@@ -46,14 +50,16 @@ lib/
 │   ├── accounts/                      # carousel + account editor
 │   ├── debts/                         # loans/EMIs + record editor
 │   ├── budgets/                       # overview, category cards, category editor
-│   ├── overview/                      # analytics
-│   ├── settings/                      # profile, theme, currency & data settings
+│   ├── overview/                      # analytics & reports (4 live charts)
+│   ├── settings/                      # profile, appearance, currency, security, data
 │   └── onboarding/                    # 5-step intro flow
 │       ├── onboarding_screen.dart     # orchestration + single Hive write at the end
 │       ├── onboarding_state.dart      # in-memory draft, presets, 12 categories
 │       ├── pages/                     # welcome, profile, accounts, categories, currency
 │       └── widgets/                   # lava lamp backdrop, shared scaffold
 └── widgets/
+    ├── analytics_charts.dart          # line / donut / bar / stacked-bar charts
+    ├── app_lock_gate.dart             # launch & resume lock screen
     ├── avatar_view.dart               # photo-or-tile avatar with on-disk fallback
     ├── transaction_tile.dart          # 48×48 squircle row + day headers
     ├── period_summary.dart            # hero balance card, animated counter, chips
@@ -130,6 +136,67 @@ lib/
   picker grid, a twelve-colour palette, a `Set Monthly Budget` `SwitchListTile`
   with an animated amount field, and delete.
 
+### Step 5 — analytics & reports, settings, backup
+
+**Overview tab — four fully dynamic charts.** `overview_screen.dart` is now the
+analytics screen. A sticky filter bar pins the title, the live scope line
+(`01 Nov – 30 Nov · 5 records`), the four time chips (`This Week / This Month /
+This Year / All Time`) and a custom three-way segment (`All / Expense Only /
+Income Only`, sliding tonal pill, full labels). Both filters persist in the
+settings box, so the tab reopens the way it was left.
+
+Every point on the screen comes from `PaisaProvider.analyticsSnapshot()`, which
+buckets the real ledger for the selected window and type:
+
+| Chart | Widget | Data |
+| --- | --- | --- |
+| Net cashflow & savings rate | `_NetCashflowCard` | net, savings rate, average daily spend, highest spending day, `AnimatedAmount` + privacy toggle |
+| 1. Income vs expense | `IncomeExpenseLineChart` | curved `LineChart` (`isCurved`, `preventCurveOverShooting`), gradient area fill, dotted grid, per-bucket tooltips with the weekday date and formatted amounts |
+| 2. Category donut | `CategoryDonut` + `_CategoryLeaderboard` | `PieChart` of real categories/colours; a tap grows the slice `58 → 70` and swaps the centre hole to the category name + share; ranked leaderboard (icon, name, txn count, amount, %, mini bar) |
+| 3. Monthly comparison | `MonthlyFlowBarChart` | grouped `BarChart` of the last 6 (or 12) months, gradient rods, dimming on touch, month tooltip |
+| 4. Account distribution | `AccountDistributionBar` + `AccountTypeCaption` | one stacked 100% bar per account, ranked breakdown with mini bars, `Cash / Bank / Cards` percentage chips |
+
+Bucketing rules (all in the provider, unit-tested):
+
+* day buckets for week/month windows, month buckets for year/all-time;
+* transfers never count as income or expense; linked loan-installment mirrors are
+  excluded so a repayment is reported once;
+* the window is clamped to today so an unfinished week never plots empty future
+  days or drags the daily average down;
+* the donut distributes outflow (or income, in `Income Only` mode) and folds
+  orphaned categories into a synthetic `Uncategorised` slice.
+
+**Settings — profile, appearance, money, security, data.** `settings_screen.dart`
+is rebuilt around five groups:
+
+* **Profile** — gradient card with avatar (tap to pick a real image, or choose one
+  of the twelve built-in tiles), inline name editing and live record / account /
+  category / loan counts.
+* **Appearance** — four theme cards (`System / Light / Dark / AMOLED`), an AMOLED
+  pitch-black switch, a Material You switch and an accent-colour modal with the
+  twelve seeds (enabled only when Material You is off).
+* **Currency & language** — a searchable currency sheet with symbol, code and a
+  live `sampleAmount` preview; changing it reformats the entire app instantly.
+* **Security** — `App lock` via `local_auth`: enabling asks the device to confirm
+  first, and `AppLockGate` (wrapped around `MaterialApp.home`) re-locks on launch
+  and on every resume. Device PIN/pattern works as the fallback, and a platform
+  with no screen lock stays open with an explanation rather than locking the
+  owner out.
+* **Data & backup** —
+  * **Export full backup** → `BackupService.shareBackup()` writes
+    `paisa_backup_YYYYMMDD.json` (accounts, categories, transactions, debts,
+    installments, settings) into the app sandbox and hands it to the platform
+    share sheet; the timestamp is stored as `lastBackupAt`.
+  * **Restore** → confirmation → `file_picker` → `restoreBackupJson()`, which
+    re-validates every record through its model and reports how many came back;
+    a foreign or damaged file throws `FormatException` **before** anything is
+    wiped.
+  * **CSV export** → `paisa_transactions_YYYYMMDD.csv` with the exact header
+    `Date,Title,Type,Category,Account,Amount,Notes`, RFC-4180 escaping, plain
+    decimal amounts and `HDFC Savings → Cash in Hand` for transfers.
+  * **Clear all data** → destructive confirmation that states the record count,
+    then `resetEverything()`.
+
 ### The financial engine (`PaisaProvider`)
 
 Every number the UI shows is derived, never stored:
@@ -142,6 +209,8 @@ Every number the UI shows is derived, never stored:
 | transfers | **never** counted as income or expense — surfaced separately as `periodTransferVolume` |
 | budget | `spent / budget`, `remaining`, `remaining / daysLeftInMonth` per category |
 | loan | `paid = Σ installments`, `remaining = amount − paid`, `progress = (paid / amount).clamp(0,1)` |
+| analytics | `analyticsSnapshot()` buckets the window by day or month; `savingsRate = net / income`, `averageDailySpend = expense / elapsedDays` |
+| CSV | `exportTransactionsCsv()` — quoted, decimal amounts, newest first |
 
 **Installments move real money.** Recording an installment with an account
 writes a linked ledger row: `DebtType.debt` (someone repaying you) → **income**;
@@ -233,3 +302,4 @@ Tests: `flutter test`
 | `search_filter_test.dart` | title / notes / amount / category matching, filter composition |
 | `add_transaction_test.dart` | validation, expense save, transfer rules, edit mode |
 | `step4_accounts_debts_budgets_test.dart` | card masking, 12 card themes, account totals, installments → income/expense + delete cascade, overdue, budget maths and the three editors |
+| `step5_analytics_settings_test.dart` | snapshot buckets for all four ranges, type filters, savings rate / daily average / peak day, ranked slices, account split, 6-vs-12-month bars, filter persistence, backup round-trip, corrupt-file rejection, CSV header + row shape, currency switch, settings reload, and the Overview/Settings widgets (all four `fl_chart` types render and the chips recompute) |

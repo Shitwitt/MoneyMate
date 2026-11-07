@@ -21,6 +21,7 @@
   "devDependencies": {
     "@capacitor/cli": "^6.2.3",
     "@vitejs/plugin-react": "^4.3.4",
+    "qrcode": "^1.5.4",
     "vite": "^5.4.11"
   }
 }

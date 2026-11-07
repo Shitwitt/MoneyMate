@@ -1,0 +1,42 @@
+# MoneyMate — Android test build
+
+**File:** `apk/MoneyMate-1.0-debug.apk` (3.9 MB, debug-signed)
+**Package:** `com.moneymate.app` · minSdk 22 (Android 5.1+) · targetSdk 34
+**Built from:** branch `arena/d91b14b6-moneymate` @ `dfb6301` via GitHub Actions
+
+## Install on your phone
+
+**Option A — QR / direct link (fastest)**
+
+1. Scan `apk/install-qr.png` with your phone, or open:
+   <https://github.com/Shitwitt/MoneyMate/raw/apk-builds/MoneyMate-latest.apk>
+2. Chrome asks to download the file → tap it → *Install anyway* when prompted
+   ("unsafe app blocked" appears because the build is debug-signed, not from the Play Store).
+3. If the install is refused, enable **Settings → Apps → Special access → Install unknown apps → Chrome**.
+
+**Option B — artifact from the Actions run**
+
+Actions → *Build APK* → latest run → **Artifacts → MoneyMate-debug-apk** (requires GitHub login).
+
+**Option C — rebuild locally** (needs JDK 17 + Android SDK)
+
+```bash
+npm install
+npm run android:apk          # build web + cap sync + gradlew assembleDebug
+# output: android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+## What's inside
+
+The full Step‑1 Home Dashboard runs fully offline inside a WebView: hero balance
+card, all 17 bento widgets, templates, calendar heatmap, trend chart, track‑budgets
+carousel, multi‑currency upcoming list, FAB and floating pill navigation.
+Privacy masking, both budget carousels and the greeting tokens work as on the web preview.
+
+## Notes
+
+- The APK is **debug-signed** (auto-generated debug keystore) — perfect for testing,
+  not for Play Store distribution. Say the word when you want a release build and I'll
+  wire a signed, minified release APK (keystore generated in CI, stored as a base64 secret).
+- Each push to this branch rebuilds and refreshes `MoneyMate-latest.apk` on the
+  `apk-builds` branch automatically.

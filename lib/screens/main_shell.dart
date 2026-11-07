@@ -180,30 +180,30 @@ class _MainShellState extends State<MainShell> {
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         backgroundColor: scheme.surfaceContainer,
         indicatorColor: scheme.primaryContainer,
-        destinations: <NavigationDestination>[
+        destinations: const <NavigationDestination>[
           NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            selectedIcon: const Icon(Icons.home_rounded),
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded),
             label: 'Home',
           ),
           NavigationDestination(
-            icon: const Icon(Icons.account_balance_wallet_outlined),
-            selectedIcon: const Icon(Icons.account_balance_wallet_rounded),
+            icon: Icon(Icons.account_balance_wallet_outlined),
+            selectedIcon: Icon(Icons.account_balance_wallet_rounded),
             label: 'Accounts',
           ),
           NavigationDestination(
-            icon: const Icon(Icons.donut_large_outlined),
-            selectedIcon: const Icon(Icons.donut_large_rounded),
+            icon: Icon(Icons.donut_large_outlined),
+            selectedIcon: Icon(Icons.donut_large_rounded),
             label: 'Overview',
           ),
           NavigationDestination(
-            icon: const Icon(Icons.handshake_outlined),
-            selectedIcon: const Icon(Icons.handshake_rounded),
+            icon: Icon(Icons.handshake_outlined),
+            selectedIcon: Icon(Icons.handshake_rounded),
             label: 'Debts',
           ),
           NavigationDestination(
-            icon: const Icon(Icons.pie_chart_outline_rounded),
-            selectedIcon: const Icon(Icons.pie_chart_rounded),
+            icon: Icon(Icons.pie_chart_outline_rounded),
+            selectedIcon: Icon(Icons.pie_chart_rounded),
             label: 'Budgets',
           ),
         ],

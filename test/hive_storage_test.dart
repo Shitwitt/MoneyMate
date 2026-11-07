@@ -9,6 +9,7 @@ import 'package:moneymate/data/local/hive_storage.dart';
 import 'package:moneymate/data/models/account_model.dart';
 import 'package:moneymate/data/models/category_model.dart';
 import 'package:moneymate/data/models/debt_model.dart';
+import 'package:moneymate/data/models/debt_summary.dart';
 import 'package:moneymate/data/models/debt_transaction_model.dart';
 import 'package:moneymate/data/models/settings_model.dart';
 import 'package:moneymate/data/models/transaction_model.dart';

@@ -34,7 +34,7 @@ void main() {
       expect(theme.brightness, Brightness.light);
       expect(theme.cardTheme.elevation, 0);
       expect(theme.cardTheme.shadowColor, Colors.transparent);
-      final OutlinedBorder? shape = theme.cardTheme.shape;
+      final ShapeBorder? shape = theme.cardTheme.shape;
       expect(shape, isA<RoundedRectangleBorder>());
       expect(
         (shape! as RoundedRectangleBorder).borderRadius,

@@ -130,7 +130,7 @@ enum AccountPreset { cash, bank, card }
 
 extension AccountPresetX on AccountPreset {
   /// Deterministic id so re-running onboarding cannot duplicate the account.
-  String get accountId => 'onboarding-account-${name}';
+  String get accountId => 'onboarding-account-$name';
 
   String get defaultTitle {
     switch (this) {

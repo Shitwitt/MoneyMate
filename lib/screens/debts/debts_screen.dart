@@ -340,7 +340,7 @@ class _DebtCardState extends State<DebtCard> {
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(PaisaTheme.cardRadius),
         border: Border.all(
-          color: overdue ? colors.expense.withValues(alpha: 0.55) : Colors.transparent,
+          color: overdue ? colors.expense.withOpacity(0.55) : Colors.transparent,
           width: 1.4,
         ),
       ),
@@ -366,7 +366,7 @@ class _DebtCardState extends State<DebtCard> {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: accent.withValues(alpha: 0.16),
+                      color: accent.withOpacity(0.16),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Icon(
@@ -448,7 +448,7 @@ class _DebtCardState extends State<DebtCard> {
                   ),
                 ],
               ),
-            ),
+          ),
 
             // ---------------- Money ----------------
             Padding(
@@ -479,6 +479,7 @@ class _DebtCardState extends State<DebtCard> {
                 ],
               ),
             ),
+
 
             // ---------------- Progress ----------------
             Padding(
@@ -537,7 +538,7 @@ class _DebtCardState extends State<DebtCard> {
                     style: FilledButton.styleFrom(
                       backgroundColor: settled
                           ? scheme.surfaceContainerHighest
-                          : accent.withValues(alpha: 0.16),
+                          : accent.withOpacity(0.16),
                       foregroundColor: settled ? scheme.onSurfaceVariant : accent,
                     ),
                     icon: Icon(
@@ -581,10 +582,7 @@ class _DebtCardState extends State<DebtCard> {
                 ? CrossFadeState.showSecond
                 : CrossFadeState.showFirst,
             firstChild: const SizedBox(width: double.infinity),
-            secondChild: _InstallmentHistory(
-              installments: installments,
-              parentId: summary.id,
-            ),
+            secondChild: _InstallmentHistory(installments: installments),
           ),
         ],
       ),
@@ -719,7 +717,7 @@ class _InstallmentRow extends StatelessWidget {
             width: 30,
             height: 30,
             decoration: BoxDecoration(
-              color: colors.success.withValues(alpha: 0.14),
+              color: colors.success.withOpacity(0.14),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -902,7 +900,7 @@ class _DebtPaymentSheetState extends State<_DebtPaymentSheet> {
                     height: 40,
                     decoration: BoxDecoration(
                       color: (lent ? colors.income : colors.expense)
-                          .withValues(alpha: 0.16),
+                          .withOpacity(0.16),
                       borderRadius: BorderRadius.circular(13),
                     ),
                     child: Icon(
@@ -1135,7 +1133,7 @@ class _Badge extends StatelessWidget {
       margin: const EdgeInsets.only(left: 6),
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.14),
+        color: color.withOpacity(0.14),
         borderRadius: BorderRadius.circular(7),
       ),
       child: Text(

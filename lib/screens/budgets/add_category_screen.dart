@@ -274,7 +274,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
             const SizedBox(height: 20),
 
             // ---------------- Icon picker ----------------
-            _SectionLabel(label: 'Icon'),
+            const _SectionLabel(label: 'Icon'),
             const SizedBox(height: 10),
             CategoryIconGrid(
               selectedKey: _iconKey,
@@ -284,7 +284,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
             const SizedBox(height: 20),
 
             // ---------------- Colour picker ----------------
-            _SectionLabel(label: 'Colour'),
+            const _SectionLabel(label: 'Colour'),
             const SizedBox(height: 10),
             ColorPalettePicker(
               selected: _color,

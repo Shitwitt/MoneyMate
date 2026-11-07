@@ -34,7 +34,7 @@ class AccountStyle {
   final Color accent;
 
   /// The value persisted in [AccountModel.color] for this theme.
-  int get value => start.value;
+  int get value => start.toARGB32();
 
   /// The twelve card themes, in picker order.
   static const List<AccountStyle> palette = <AccountStyle>[
@@ -130,7 +130,7 @@ class AccountStyle {
   static AccountStyle forColor(int? value) {
     if (value == null) return fallback;
     for (final AccountStyle style in palette) {
-      if (style.start.value == value) return style;
+      if (style.start.toARGB32() == value) return style;
     }
     // Closest match in RGB space — keeps custom colours recognisable.
     final Color target = Color(value);

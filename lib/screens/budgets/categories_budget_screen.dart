@@ -502,7 +502,7 @@ class CategoryBudgetCard extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(top: 3),
                         child: Text(
-                          '${formatter.formatWhole(budget)}',
+                          formatter.formatWhole(budget),
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: scheme.onSurfaceVariant,
                           ),

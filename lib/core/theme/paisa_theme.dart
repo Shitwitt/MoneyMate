@@ -238,10 +238,10 @@ class PaisaTheme {
     final RoundedRectangleBorder cardShape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(cardRadius),
     );
-    final RoundedRectangleBorder dialogShape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(cardRadius),
+    const RoundedRectangleBorder dialogShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(cardRadius)),
     );
-    final RoundedRectangleBorder sheetShape = RoundedRectangleBorder(
+    const RoundedRectangleBorder sheetShape = RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
         top: Radius.circular(sheetRadius),
       ),

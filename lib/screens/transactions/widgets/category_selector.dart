@@ -142,7 +142,6 @@ class _AddCategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final ColorScheme scheme = theme.colorScheme;
     final PaisaColors colors = PaisaColors.of(context);
 
     return InkWell(

@@ -259,7 +259,9 @@ class IncomeExpenseLineChart extends StatelessWidget {
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 26,
-                interval: _bottomInterval(),
+                // `interval` is a double?; keep the label logic on the int
+                // divisor it was written against.
+                interval: _bottomInterval().toDouble(),
                 getTitlesWidget: (double value, TitleMeta meta) {
                   final int index = value.round();
                   if (index < 0 || index >= points.length) {

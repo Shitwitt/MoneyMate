@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/enum/filter_enums.dart';
+import '../../core/constants/icons.dart';
 import '../../core/theme/paisa_colors.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/date_time_format.dart';
@@ -1021,10 +1022,9 @@ class _CategoryLeaderboard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
-                          IconData(
-                            slices[i].iconCodePoint,
-                            fontFamily: 'MaterialIcons',
-                          ),
+                          // Resolved through the const registry: building
+                          // `IconData(...)` at runtime breaks the icon tree-shaker.
+                          ICONS.byCodePoint(slices[i].iconCodePoint),
                           size: 18,
                           color: Color(slices[i].colorValue),
                         ),

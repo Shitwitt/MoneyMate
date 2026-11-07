@@ -385,12 +385,18 @@ class CategoryBudgetCard extends StatelessWidget {
 
   final int transactionCount;
 
+  /// Opens this category's transactions. `null` hides the chevron.
+  final VoidCallback? onShowTransactions;
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme scheme = theme.colorScheme;
     final PaisaColors colors = PaisaColors.of(context);
     final CurrencyFormatter formatter = context.watch<PaisaProvider>().formatter;
+    // A public `final` field does not type-promote through a null check, so the
+    // handler is copied into a local before it is tested and used.
+    final VoidCallback? showTransactions = onShowTransactions;
 
     final Color tint = Color(category.color);
     final double spent = stat?.spent ?? 0;
@@ -504,12 +510,12 @@ class CategoryBudgetCard extends StatelessWidget {
                       ),
                   ],
                 ),
-                if (onShowTransactions != null) ...<Widget>[
+                if (showTransactions != null) ...<Widget>[
                   const SizedBox(width: 2),
                   IconButton(
                     tooltip: 'View transactions',
                     visualDensity: VisualDensity.compact,
-                    onPressed: onShowTransactions,
+                    onPressed: showTransactions,
                     icon: Icon(
                       Icons.chevron_right_rounded,
                       size: 20,

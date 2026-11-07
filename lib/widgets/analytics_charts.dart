@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../core/enum/filter_enums.dart';
+import '../core/constants/icons.dart';
 import '../core/theme/paisa_colors.dart';
 import '../core/theme/paisa_theme.dart';
 import '../core/utils/currency_formatter.dart';
@@ -584,10 +585,7 @@ class CategoryDonut extends StatelessWidget {
                       borderRadius: BorderRadius.circular(9),
                     ),
                     child: Icon(
-                      IconData(
-                        selected.iconCodePoint,
-                        fontFamily: 'MaterialIcons',
-                      ),
+                      ICONS.byCodePoint(selected.iconCodePoint),
                       size: 15,
                       color: Color(selected.colorValue),
                     ),

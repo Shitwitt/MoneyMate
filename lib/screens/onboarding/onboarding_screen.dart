@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/constants/currencies.dart';
 import '../../core/l10n/app_strings.dart';
 import '../../data/models/account_model.dart';
 import '../../data/models/category_model.dart';

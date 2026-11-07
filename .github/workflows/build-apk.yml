@@ -73,20 +73,24 @@ jobs:
       # Compile errors block the APK. Warnings/infos are printed and mirrored as
       # annotations so they stay visible, but they do not gate the build: a
       # deprecation notice is not a reason to ship no APK.
+      #
+      # The full report is also posted as a commit comment when there are
+      # errors, because Actions job logs are not always retrievable through the
+      # API and the terminal output is truncated per step.
       - name: Analyze Dart Sources
         run: |
           set +e
           flutter analyze > analyze.txt 2>&1
           status=$?
           cat analyze.txt
-          errors=$(grep -cE "^\s*error\s+•" analyze.txt)
-          warnings=$(grep -cE "^\s*warning\s+•" analyze.txt)
-          infos=$(grep -cE "^\s*info\s+•" analyze.txt)
-          grep -E "^\s*(error|warning)\s+•" analyze.txt | head -80 | while IFS= read -r line; do
-            echo "::error::${line}"
-          done
+          errors=$(grep -cE "^[[:space:]]*error[[:space:]]+•" analyze.txt)
+          warnings=$(grep -cE "^[[:space:]]*warning[[:space:]]+•" analyze.txt)
+          infos=$(grep -cE "^[[:space:]]*info[[:space:]]+•" analyze.txt)
+          grep -E "^[[:space:]]*(error|warning)[[:space:]]+•" analyze.txt | head -80 |
+            while IFS= read -r line; do echo "::error::${line}"; done
           echo "analyzer: ${errors} error(s), ${warnings} warning(s), ${infos} info(s)"
           if [ "$errors" -gt 0 ]; then
+            python3 tool/report_analyzer.py analyze.txt
             echo "::error::flutter analyze reported ${errors} compile error(s)"
             exit 1
           fi
@@ -94,6 +98,9 @@ jobs:
             echo "::warning::flutter analyze exited ${status} (lint-only findings above)"
           fi
           exit 0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_COMMENT_URL: ${{ github.api_url }}/repos/${{ github.repository }}/commits/${{ github.event.pull_request.head.sha || github.sha }}/comments
 
       - name: Run Test Suite
         run: flutter test

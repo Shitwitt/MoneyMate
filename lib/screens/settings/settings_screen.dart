@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/enum/filter_enums.dart';
 import '../../core/constants/avatars.dart';
 import '../../core/constants/currencies.dart';
 import '../../core/l10n/app_strings.dart';

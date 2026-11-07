@@ -2,12 +2,13 @@ import 'package:flutter/foundation.dart';
 
 import 'map_utils.dart';
 
-/// One installment / repayment against a [DebtModel].
+/// One installment / repayment against a `DebtModel`.
 ///
-/// For [DebtType.credit] (money borrowed) this is a payment made *to* the
-/// lender, so it debits [accountId]. For [DebtType.debt] (money lent) this is
-/// money received *back*, so it credits [accountId]. The owning
-/// `DebtModel.debtType` decides the direction — this row only records facts.
+/// For `DebtType.credit` (money borrowed) this is a payment made *to* the
+/// lender, so it debits [accountId]. For `DebtType.debt` (money lent) this is
+/// money received *back*, so it credits [accountId]. The owning debt's type
+/// decides the direction — this row only records facts, and
+/// `PaisaProvider.addDebtInstallment` writes the matching income/expense row.
 @immutable
 class DebtTransactionModel {
   const DebtTransactionModel({

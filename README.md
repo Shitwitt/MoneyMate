@@ -11,35 +11,79 @@ device and can be exported / restored as a JSON backup.
 | Step | Scope | Status |
 | ---- | ----- | ------ |
 | 1 | Architecture, Material 3 theme engine, offline Hive database | ✅ done |
-| 2 | App shell, navigation, onboarding, home dashboard | ⏳ |
+| 2 | Currency engine, financial state provider, onboarding intro flow | ✅ done |
 | 3 | Transaction entry sheet, ledger & filters, charts | ⏳ |
 | 4 | Accounts & categories management | ⏳ |
 | 5 | Debts / loans / EMIs + installments | ⏳ |
 | 6 | Settings, biometric lock, backup & restore, polish | ⏳ |
 
-## What step 1 delivers
+## What steps 1–2 deliver
 
 ```
 lib/
-├── main.dart                          # bootstrap + provider wiring + step-1 harness
+├── main.dart                          # Hive boot → provider → onboarding/shell switch
 ├── core/
-│   ├── constants/icons.dart           # tree-shake-safe icon registry (persisted codePoints)
+│   ├── constants/
+│   │   ├── avatars.dart               # 12 built-in profile avatars
+│   │   ├── currencies.dart            # 40+ currencies, INR pinned, grouping metadata
+│   │   └── icons.dart                 # tree-shake-safe icon registry
 │   ├── enum/filter_enums.dart         # TransactionType, AccountType, DebtType, FilterExpense
-│   ├── theme/
-│   │   ├── paisa_theme.dart           # Material You engine, 4 modes, component themes
-│   │   ├── paisa_colors.dart          # money-semantic ThemeExtension (income/expense/…)
-│   │   ├── paisa_typography.dart      # GoogleFonts.outfitTextTheme with offline fallback
-│   │   ├── seed_color.dart            # 12 vibrant seeds
-│   │   └── theme_preference.dart      # System / Light / Dark / AMOLED
+│   ├── l10n/app_strings.dart          # en / hi / de / es / fr + TranslationScope
+│   ├── theme/                         # Material You engine (step 1)
 │   └── utils/
-│       ├── id_generator.dart          # UUID v4 ids
-│       └── money_format.dart          # ₹ + Indian lakh/crore grouping
+│       ├── currency_formatter.dart    # ₹1,25,450.00, ₹1.5L, parsing, masking
+│       └── id_generator.dart
 ├── data/
-│   ├── local/hive_storage.dart        # boxes, CRUD, balances, seeding, backup/restore
-│   └── models/                        # 5 persisted models + settings + in-memory joins
+│   ├── local/hive_storage.dart        # 6 boxes, CRUD, seeding, backup/restore
+│   └── models/                        # 5 persisted models + settings + budget stat + joins
 ├── domain/default_data.dart           # seeded Indian categories & accounts
-└── features/settings/appearance/appearance_controller.dart
+├── providers/paisa_provider.dart      # the financial engine (see below)
+├── screens/
+│   ├── main_shell.dart                # post-onboarding shell (4 tabs)
+│   └── onboarding/                    # 5-step intro flow
+│       ├── onboarding_screen.dart     # orchestration + single Hive write at the end
+│       ├── onboarding_state.dart      # in-memory draft, presets, 12 categories
+│       ├── pages/                     # welcome, profile, accounts, categories, currency
+│       └── widgets/                   # lava lamp backdrop, shared scaffold
+└── widgets/
+    ├── avatar_view.dart               # photo-or-tile avatar with on-disk fallback
+    └── error_view.dart
 ```
+
+### The financial engine (`PaisaProvider`)
+
+Every number the UI shows is derived, never stored:
+
+| Formula | Implementation |
+| --- | --- |
+| `balance(id) = initial + income − expense − transferOut + transferIn` | `_computeBalances()` |
+| `totalNetBalance = Σ balances` | `totalNetBalance` (+ `totalAssets`, `totalLiabilities`) |
+| `periodIncome / periodExpense` | sum of that type inside the `FilterExpense` window |
+| transfers | **never** counted as income or expense — surfaced separately as `periodTransferVolume` |
+| budget | `spent / budget`, `remaining`, `remaining / daysLeftInMonth` per category |
+| loan | `paid = Σ installments`, `remaining = amount − paid`, `progress = (paid / amount).clamp(0,1)` |
+
+**Installments move real money.** Recording an installment with an account
+writes a linked ledger row: `DebtType.debt` (someone repaying you) → **income**;
+`DebtType.credit` (you paying an EMI) → **expense**. The linked row carries a
+`Debt installment` description prefix, is excluded from period summaries so a
+repayment is never reported twice, and is deleted with its installment.
+`repairDebtLedger()` heals installments saved without a mirror row.
+
+### Onboarding
+
+Five pages, one in-memory draft, **one Hive write at the very end** — backing
+out leaves the database untouched.
+
+1. **Welcome** — animated lava-lamp backdrop from the tonal palette, logo, three
+   feature pills, and the language selector (English, हिन्दी, Deutsch, Español,
+   Français) which translates the flow live.
+2. **Profile** — `TextFormField` + 12 illustrated avatars + real photo picking
+   (copied into the documents directory so it survives cache eviction).
+3. **Preset accounts** — Cash / Bank / Card cards with an opening-balance dialog.
+4. **Preset categories** — multi-select grid of twelve Indian categories with
+   sensible default budgets.
+5. **Currency** — searchable list of 40+ currencies with INR pinned and badged.
 
 ### Design decisions that keep CI green
 
@@ -95,5 +139,12 @@ flutter run
 Requires Flutter **3.27+** (stable) because the design system uses
 `CardThemeData` / `DialogThemeData` and Material 3 surface containers.
 
-Tests: `flutter test` (data layer round-trips, balance maths, seeding
-idempotency, theme contracts).
+Tests: `flutter test`
+
+| Suite | Covers |
+| --- | --- |
+| `hive_storage_test.dart` | seeding idempotency, CRUD, derived balances, filters, backup round-trip |
+| `paisa_provider_test.dart` | the exact balance formula, transfers, period maths, budgets, installments, validation, onboarding |
+| `currency_formatter_test.dart` | Indian grouping, compact `K/L/Cr`, 8 currencies, parsing, masking |
+| `onboarding_test.dart` | the full five-page walk plus "nothing is written until the last tap" |
+| `paisa_theme_test.dart` | 24dp tonal surfaces, zero elevation, 4 modes, 12 seeds |

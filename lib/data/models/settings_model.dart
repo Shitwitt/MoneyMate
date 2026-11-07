@@ -15,6 +15,9 @@ class SettingsModel {
   const SettingsModel({
     this.onboardingComplete = false,
     this.userName = '',
+    this.userAvatarIndex = 0,
+    this.customImagePath,
+    this.languageCode = 'en',
     this.currencySymbol = '₹',
     this.currencyCode = 'INR',
     this.localeCode = 'en_IN',
@@ -35,7 +38,7 @@ class SettingsModel {
   static const String storageKey = 'app_settings';
 
   /// Bumped whenever the on-disk shape changes; used by migrations.
-  static const int currentSchemaVersion = 1;
+  static const int currentSchemaVersion = 2;
 
   // ---------------------------------------------------------------------
   // Onboarding
@@ -46,6 +49,20 @@ class SettingsModel {
 
   /// Display name used in greetings. Empty until onboarding sets it.
   final String userName;
+
+  /// Index into `Avatars.all` — the built-in illustrated avatar grid.
+  final int userAvatarIndex;
+
+  /// Absolute path of a user-picked photo. When set it wins over
+  /// [userAvatarIndex].
+  final String? customImagePath;
+
+  /// BCP-47 language tag chosen on the onboarding welcome page
+  /// (`en`, `hi`, `de`, `es`, `fr`).
+  final String languageCode;
+
+  bool get hasCustomAvatar =>
+      customImagePath != null && customImagePath!.trim().isNotEmpty;
 
   // ---------------------------------------------------------------------
   // Money formatting
@@ -124,6 +141,9 @@ class SettingsModel {
     return <String, dynamic>{
       'onboardingComplete': onboardingComplete,
       'userName': userName,
+      'userAvatarIndex': userAvatarIndex,
+      'customImagePath': customImagePath,
+      'languageCode': languageCode,
       'currencySymbol': currencySymbol,
       'currencyCode': currencyCode,
       'localeCode': localeCode,
@@ -148,6 +168,10 @@ class SettingsModel {
       onboardingComplete:
           readBool(map['onboardingComplete'], fallback: defaults.onboardingComplete),
       userName: readString(map['userName'], fallback: defaults.userName),
+      userAvatarIndex: readInt(map['userAvatarIndex']),
+      customImagePath: readNullableString(map['customImagePath']),
+      languageCode:
+          readString(map['languageCode'], fallback: defaults.languageCode),
       currencySymbol:
           readString(map['currencySymbol'], fallback: defaults.currencySymbol),
       currencyCode:
@@ -185,6 +209,10 @@ class SettingsModel {
   SettingsModel copyWith({
     bool? onboardingComplete,
     String? userName,
+    int? userAvatarIndex,
+    String? customImagePath,
+    bool clearCustomImagePath = false,
+    String? languageCode,
     String? currencySymbol,
     String? currencyCode,
     String? localeCode,
@@ -203,6 +231,11 @@ class SettingsModel {
     return SettingsModel(
       onboardingComplete: onboardingComplete ?? this.onboardingComplete,
       userName: userName ?? this.userName,
+      userAvatarIndex: userAvatarIndex ?? this.userAvatarIndex,
+      customImagePath: clearCustomImagePath
+          ? null
+          : (customImagePath ?? this.customImagePath),
+      languageCode: languageCode ?? this.languageCode,
       currencySymbol: currencySymbol ?? this.currencySymbol,
       currencyCode: currencyCode ?? this.currencyCode,
       localeCode: localeCode ?? this.localeCode,
@@ -226,6 +259,9 @@ class SettingsModel {
       other is SettingsModel &&
       other.onboardingComplete == onboardingComplete &&
       other.userName == userName &&
+      other.userAvatarIndex == userAvatarIndex &&
+      other.customImagePath == customImagePath &&
+      other.languageCode == languageCode &&
       other.currencySymbol == currencySymbol &&
       other.currencyCode == currencyCode &&
       other.localeCode == localeCode &&

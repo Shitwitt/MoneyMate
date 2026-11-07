@@ -45,6 +45,21 @@ class CategoryModel {
   /// True when this category should render a budget ring.
   bool get hasBudget => isBudgetActive && budget > 0;
 
+  /// A seed income category (Salary, Refunds & Cashback).
+  ///
+  /// `CategoryModel` has no persisted `isIncome` flag, so income-ness is
+  /// derived from the deterministic seed ids. Custom categories are always
+  /// expense categories, which matches Paisa's behaviour where the income
+  /// picker is a fixed short list.
+  static const Set<String> incomeCategoryIds = <String>{
+    'seed-category-salary',
+    'seed-category-refund',
+  };
+
+  bool get isIncome => incomeCategoryIds.contains(id);
+
+  bool get isExpense => !isIncome;
+
   // ---------------------------------------------------------------------
   // Serialization
   // ---------------------------------------------------------------------

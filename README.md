@@ -12,12 +12,12 @@ device and can be exported / restored as a JSON backup.
 | ---- | ----- | ------ |
 | 1 | Architecture, Material 3 theme engine, offline Hive database | ✅ done |
 | 2 | Currency engine, financial state provider, onboarding intro flow | ✅ done |
-| 3 | Transaction entry sheet, ledger & filters, charts | ⏳ |
+| 3 | App shell, home dashboard, search & transaction engine | ✅ done |
 | 4 | Accounts & categories management | ⏳ |
 | 5 | Debts / loans / EMIs + installments | ⏳ |
-| 6 | Settings, biometric lock, backup & restore, polish | ⏳ |
+| 6 | Settings hardening, biometric lock, backup & restore, polish | ⏳ |
 
-## What steps 1–2 deliver
+## What steps 1–3 deliver
 
 ```
 lib/
@@ -39,7 +39,13 @@ lib/
 ├── domain/default_data.dart           # seeded Indian categories & accounts
 ├── providers/paisa_provider.dart      # the financial engine (see below)
 ├── screens/
-│   ├── main_shell.dart                # post-onboarding shell (4 tabs)
+│   ├── main_shell.dart                # 5-tab shell + container-transform FAB
+│   ├── home/home_screen.dart          # balance hero, period chips, grouped ledger
+│   ├── search/search_screen.dart      # real-time search + filter chips
+│   ├── transactions/                  # add/edit form + calculator sheet
+│   ├── accounts/, overview/, debts/   # the remaining shell destinations
+│   ├── budgets/, categories/          # budget editor, category manager
+│   ├── settings/                      # profile, theme, currency & data settings
 │   └── onboarding/                    # 5-step intro flow
 │       ├── onboarding_screen.dart     # orchestration + single Hive write at the end
 │       ├── onboarding_state.dart      # in-memory draft, presets, 12 categories
@@ -47,8 +53,46 @@ lib/
 │       └── widgets/                   # lava lamp backdrop, shared scaffold
 └── widgets/
     ├── avatar_view.dart               # photo-or-tile avatar with on-disk fallback
+    ├── transaction_tile.dart          # 48×48 squircle row + day headers
+    ├── period_summary.dart            # hero balance card, animated counter, chips
     └── error_view.dart
 ```
+
+### Step 3 — the daily driver
+
+* **Shell** — avatar + `Welcome back, [name]` + search + profile actions in the
+  app bar, a five-destination `NavigationBar` (Home / Accounts / Overview /
+  Debts / Budgets) and a `OpenContainer` FAB that morphs the button into
+  `AddTransactionScreen` (`animations: ^2.0.11`).
+* **Hero card** — 28dp radius, `primaryContainer` gradient, 34sp balance with
+  `AnimatedAmount` (no 0 → total flash on first build) and two tonal sub-cards:
+  down-left green income and up-right red expense, each with its row count.
+* **Period chips** — `Daily / Weekly / Monthly / Yearly / All` `ChoiceChip`s drive
+  both the hero and the ledger through `provider.setSelectedTimeFilter`.
+* **Grouped ledger** — `Today` / `Yesterday` / `07 Nov 2026` headers with the net
+  daily total (`+₹X` / `-₹Y`, transfers excluded), then rows of 48×48 squircles
+  tinted `category.color` at 18% opacity, `Category • Account • 07:30 PM`, and a
+  right-aligned `-₹500` red / `+₹2,000` green / `⇄ ₹1,000` blue amount.
+* **Swipe to delete** — `Dismissible.confirmDismiss` returns `false` so the row
+  springs back while the parent deletes and shows a 5-second **Undo** snack bar
+  that re-adds the exact same record.
+* **Add / edit form** — `SegmentedButton<TransactionType>`, a tappable amount
+  that opens the built-in `+ − × ÷` calculator sheet (`ExpressionCalculator`
+  honours precedence, tolerates trailing operators and returns `null` on
+  division by zero), account pills (one row for expense/income, two rows for a
+  transfer with the source disabled as "In use"), the category wrap grid with a
+  `+ Add Category` chip (hidden for transfers), side-by-side date/time tonal
+  pickers, an `_ImpactPreview` of the resulting account balance, a full-width
+  bottom pill **Save**, and delete in edit mode.
+* **Search** — live filtering over title, notes, category name and amount, with
+  type / account / category filter chips that compose, and a result count.
+
+| Performance note | Implementation |
+| --- | --- |
+| No rebuild storms | `context.watch` only where values are drawn; helpers stay `const` |
+| No 0 → total flash | `AnimatedAmount` seeds its `Tween` with the first value |
+| No layout jank | fixed-height cards, `FittedBox` on money, `IndexedStack` tabs |
+| No double counting | linked debt rows are excluded from summaries and the ledger list |
 
 ### The financial engine (`PaisaProvider`)
 
@@ -148,3 +192,7 @@ Tests: `flutter test`
 | `currency_formatter_test.dart` | Indian grouping, compact `K/L/Cr`, 8 currencies, parsing, masking |
 | `onboarding_test.dart` | the full five-page walk plus "nothing is written until the last tap" |
 | `paisa_theme_test.dart` | 24dp tonal surfaces, zero elevation, 4 modes, 12 seeds |
+| `expression_calculator_test.dart` | precedence, trailing operators, ÷0, rounding, prettify |
+| `transaction_grouping_test.dart` | day bucketing, Today/Yesterday labels, ordering, day net |
+| `search_filter_test.dart` | title / notes / amount / category matching, filter composition |
+| `add_transaction_test.dart` | validation, expense save, transfer rules, edit mode |

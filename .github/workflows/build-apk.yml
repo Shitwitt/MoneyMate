@@ -36,9 +36,12 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      # Pinned so a breaking `stable` release cannot turn a green build red (or
+      # a red one green) between runs. Bump this deliberately.
       - name: Set up Flutter Stable
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.35.7'
           channel: 'stable'
           cache: true
 
@@ -70,8 +73,15 @@ jobs:
       - name: Configure Biometric Auth (FragmentActivity + USE_BIOMETRIC)
         run: python3 tool/android_hardening.py --platform-dir android
 
+      - name: Configure Gradle Toolchain
+        # The generator's ProGuard rules do not keep the platform channels used
+        # by local_auth/hive/fl_chart, and a release build is minified. Keep
+        # Flutter's embedding and the plugins we ship.
+        run: python3 tool/android_build_config.py --platform-dir android
+
       - name: Install Flutter Dependencies
         run: flutter pub get
+
 
       # Informational lints (e.g. deprecation notices) must not block the APK,
       # but real analyzer errors still fail the job.
@@ -162,8 +172,21 @@ jobs:
             echo "::warning::Test suite ended as '${{ steps.tests.outcome }}' — see the log/report; the APK is still built."
           fi
 
+      # The build's own log is the only place the Gradle/Dart failure appears,
+      # and job logs are not always reachable through the API, so the tail is
+      # posted as a commit comment when the build fails.
       - name: Build Release APK (Universal)
-        run: flutter build apk --release --no-tree-shake-icons
+        run: |
+          set -o pipefail
+          flutter build apk --release --no-tree-shake-icons 2>&1 | tee build.txt
+          status=$?
+          if [ "$status" -ne 0 ]; then
+            tail -n 120 build.txt > build_failure.txt
+            CONDENSE=1 REPORT_TITLE="flutter build apk failure" \
+              python3 tool/report_analyzer.py build_failure.txt || true
+            echo "::error::flutter build apk failed (exit $status)"
+          fi
+          exit "$status"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4

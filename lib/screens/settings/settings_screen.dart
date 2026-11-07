@@ -7,9 +7,11 @@ import '../../core/l10n/app_strings.dart';
 import '../../core/theme/paisa_theme.dart';
 import '../../core/theme/seed_color.dart';
 import '../../core/theme/theme_preference.dart';
+import '../../data/models/account_model.dart';
 import '../../providers/paisa_provider.dart';
 import '../../widgets/avatar_view.dart';
-import '../categories/categories_screen.dart';
+import '../accounts/add_account_screen.dart';
+import '../budgets/category_manager_screen.dart';
 
 /// Profile & settings. Step 6 adds biometric lock, encrypted backup/restore and
 /// the remaining preferences; everything exposed here is fully wired.
@@ -286,11 +288,7 @@ class SettingsScreen extends StatelessWidget {
                   title: const Text('Categories'),
                   subtitle: Text('${provider.categories.length} categories'),
                   trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => Navigator.of(context).push<void>(
-                    MaterialPageRoute<void>(
-                      builder: (BuildContext _) => const CategoriesScreen(),
-                    ),
-                  ),
+                  onTap: () => openCategoryManager(context),
                 ),
                 ListTile(
                   leading: const Icon(Icons.account_balance_wallet_outlined),
@@ -584,8 +582,10 @@ class _Section extends StatelessWidget {
   }
 }
 
-/// Account manager reachable from settings (full CRUD lives here rather than on
-/// the Accounts tab so the tab stays a read-only overview).
+/// Read-only account list with the destructive actions (make default, delete).
+///
+/// Creating and editing accounts happens on the full [AddAccountScreen] so the
+/// carousel, the statement and Settings all share one editor.
 class AccountsManagerScreen extends StatelessWidget {
   const AccountsManagerScreen({super.key});
 
@@ -596,11 +596,21 @@ class AccountsManagerScreen extends StatelessWidget {
     final ColorScheme scheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Accounts')),
+      appBar: AppBar(
+        title: const Text('Accounts'),
+        actions: <Widget>[
+          IconButton(
+            tooltip: 'Add account',
+            onPressed: () => openAddAccountScreen(context),
+            icon: const Icon(Icons.add_rounded),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.only(top: 8, bottom: 32),
         children: <Widget>[
-          for (final account in provider.accounts)
+          for (final AccountModel account in provider.accounts)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
               child: Container(
@@ -611,6 +621,10 @@ class AccountsManagerScreen extends StatelessWidget {
                 child: ListTile(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
+                  ),
+                  onTap: () => openAddAccountScreen(
+                    context,
+                    existing: account,
                   ),
                   leading: Container(
                     width: 40,
@@ -634,43 +648,31 @@ class AccountsManagerScreen extends StatelessWidget {
                     itemBuilder: (BuildContext context) =>
                         <PopupMenuEntry<String>>[
                       const PopupMenuItem<String>(
-                        value: 'default',
-                        child: Text('Make default'),
+                        value: 'edit',
+                        child: Text('Edit'),
                       ),
-                      const PopupMenuItem<String>(
-                        value: 'delete',
-                        child: Text('Delete'),
-                      ),
+                      if (!account.isDefault)
+                        const PopupMenuItem<String>(
+                          value: 'default',
+                          child: Text('Make default'),
+                        ),
+                      if (provider.accounts.length > 1)
+                        const PopupMenuItem<String>(
+                          value: 'delete',
+                          child: Text('Delete'),
+                        ),
                     ],
                     onSelected: (String value) async {
-                      if (value == 'default') {
-                        await provider.setDefaultAccount(account.id);
-                        return;
-                      }
-                      final bool? confirmed = await showDialog<bool>(
-                        context: context,
-                        builder: (BuildContext dialogContext) => AlertDialog(
-                          title: Text('Delete ${account.title}?'),
-                          content: const Text(
-                            'The account and its opening balance are removed. '
-                            'Transactions that used it are kept for history.',
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () =>
-                                  Navigator.of(dialogContext).pop(false),
-                              child: const Text('Cancel'),
-                            ),
-                            FilledButton(
-                              onPressed: () =>
-                                  Navigator.of(dialogContext).pop(true),
-                              child: const Text('Delete'),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (confirmed == true) {
-                        await provider.deleteAccount(account.id);
+                      switch (value) {
+                        case 'edit':
+                          await openAddAccountScreen(
+                            context,
+                            existing: account,
+                          );
+                        case 'default':
+                          await provider.setDefaultAccount(account.id);
+                        case 'delete':
+                          await _confirmDelete(context, provider, account);
                       }
                     },
                   ),
@@ -692,4 +694,42 @@ class AccountsManagerScreen extends StatelessWidget {
       ),
     );
   }
+
+  static Future<void> _confirmDelete(
+    BuildContext context,
+    PaisaProvider provider,
+    AccountModel account,
+  ) async {
+    final int linked = provider.transactions
+        .where((transaction) =>
+            transaction.accountId == account.id ||
+            transaction.toAccountId == account.id)
+        .length;
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: Text('Delete ${account.title}?'),
+        content: Text(
+          'The account, its opening balance and the $linked transaction'
+          '${linked == 1 ? '' : 's'} recorded on it are removed.',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(dialogContext).colorScheme.error,
+              foregroundColor: Theme.of(dialogContext).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) await provider.deleteAccount(account.id);
+  }
 }
+

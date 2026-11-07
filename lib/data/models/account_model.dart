@@ -60,6 +60,19 @@ class AccountModel {
   /// Title shown in pickers — the bank/account title.
   String get title => bankName.trim().isEmpty ? name : bankName;
 
+  /// Card-style mask for the carousel: `•••• •••• •••• 4821`.
+  ///
+  /// Cash accounts carry no number, so the bank title is shown instead of a
+  /// row of placeholder dots.
+  String get carouselNumber {
+    final String digits = number.trim();
+    if (digits.isEmpty) return bankName;
+    final String last4 = digits.length <= 4
+        ? digits.padLeft(4, '0')
+        : digits.substring(digits.length - 4);
+    return '•••• •••• •••• $last4';
+  }
+
   // ---------------------------------------------------------------------
   // Serialization
   // ---------------------------------------------------------------------

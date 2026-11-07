@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/enum/filter_enums.dart';
@@ -6,17 +7,19 @@ import '../../core/theme/paisa_colors.dart';
 import '../../core/theme/paisa_theme.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/date_time_format.dart';
-import '../../core/utils/id_generator.dart';
 import '../../data/models/account_model.dart';
-import '../../data/models/debt_model.dart';
 import '../../data/models/debt_summary.dart';
+import '../../data/models/debt_transaction_model.dart';
 import '../../providers/paisa_provider.dart';
-import '../../widgets/transaction_tile.dart';
+import 'add_debt_screen.dart';
 
-/// Loans, EMIs and borrowings.
+/// Loans, credits and EMIs.
 ///
-/// Step 3 ships the read-only surface plus installment recording; Step 5 adds the
-/// full create/edit flow and debt detail screens.
+/// Two tabs — money lent (`DebtType.debt`) and money borrowed
+/// (`DebtType.credit`) — over one shared card design. Every payment recorded
+/// here is written twice, deliberately: once as an installment (the source of
+/// truth for the progress bar) and once as a real transaction in the account
+/// that received or paid it (so the balance stays truthful).
 class DebtsScreen extends StatefulWidget {
   const DebtsScreen({super.key});
 
@@ -24,143 +27,265 @@ class DebtsScreen extends StatefulWidget {
   State<DebtsScreen> createState() => _DebtsScreenState();
 }
 
-class _DebtsScreenState extends State<DebtsScreen> {
-  DebtType _tab = DebtType.debt;
+class _DebtsScreenState extends State<DebtsScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabs = TabController(length: 2, vsync: this);
+
+  @override
+  void dispose() {
+    _tabs.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final PaisaProvider provider = context.watch<PaisaProvider>();
-    final PaisaColors colors = PaisaColors.of(context);
     final ThemeData theme = Theme.of(context);
     final ColorScheme scheme = theme.colorScheme;
+    final CurrencyFormatter formatter = provider.formatter;
 
     final List<DebtSummary> lent = provider.debtsOfType(DebtType.debt);
     final List<DebtSummary> borrowed = provider.debtsOfType(DebtType.credit);
-    final List<DebtSummary> visible =
-        _tab == DebtType.debt ? lent : borrowed;
+    final List<DebtSummary> overdue = provider.overdueDebts;
 
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 120),
+    return Column(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-          child: Text(
-            'Loans & lendings',
-            style: theme.textTheme.titleMedium?.copyWith(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+          child: TabBar(
+            controller: _tabs,
+            indicatorSize: TabBarIndicatorSize.tab,
+            dividerColor: Colors.transparent,
+            labelStyle: theme.textTheme.labelLarge?.copyWith(
               fontWeight: FontWeight.w700,
             ),
+            tabs: <Widget>[
+              Tab(
+                height: 44,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Icon(Icons.call_made_rounded, size: 16),
+                    const SizedBox(width: 8),
+                    Text('Debts (${lent.length})'),
+                  ],
+                ),
+              ),
+              Tab(
+                height: 44,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Icon(Icons.call_received_rounded, size: 16),
+                    const SizedBox(width: 8),
+                    Text('Credits (${borrowed.length})'),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
+        Expanded(
+          child: TabBarView(
+            controller: _tabs,
             children: <Widget>[
-              Expanded(
-                child: _SummaryTile(
-                  label: 'You will get',
-                  value: provider.formatter.formatWhole(provider.totalLent),
-                  count: lent.length,
-                  accent: colors.income,
-                  background: colors.incomeContainer,
-                  icon: Icons.call_made_rounded,
-                ),
+              _DebtList(
+                type: DebtType.debt,
+                summaries: lent,
+                overdueCount: overdue.where(
+                  (DebtSummary s) => s.debtType == DebtType.debt,
+                ).length,
+                formatter: formatter,
+                scheme: scheme,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _SummaryTile(
-                  label: 'You owe',
-                  value: provider.formatter.formatWhole(provider.totalBorrowed),
-                  count: borrowed.length,
-                  accent: colors.expense,
-                  background: colors.expenseContainer,
-                  icon: Icons.call_received_rounded,
-                ),
+              _DebtList(
+                type: DebtType.credit,
+                summaries: borrowed,
+                overdueCount: overdue.where(
+                  (DebtSummary s) => s.debtType == DebtType.credit,
+                ).length,
+                formatter: formatter,
+                scheme: scheme,
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
+      ],
+    );
+  }
+}
+
+/// One tab's content: banner, cards, add button.
+class _DebtList extends StatelessWidget {
+  const _DebtList({
+    required this.type,
+    required this.summaries,
+    required this.overdueCount,
+    required this.formatter,
+    required this.scheme,
+  });
+
+  final DebtType type;
+  final List<DebtSummary> summaries;
+  final int overdueCount;
+  final CurrencyFormatter formatter;
+  final ColorScheme scheme;
+
+  bool get _lent => type == DebtType.debt;
+
+  double get _outstanding => summaries.fold<double>(
+        0,
+        (double sum, DebtSummary s) => sum + s.outstandingAmount,
+      );
+
+  double get _total => summaries.fold<double>(
+        0,
+        (double sum, DebtSummary s) => sum + s.debt.amount,
+      );
+
+  bool get _isEmpty => summaries.isEmpty;
+
+  Future<void> _add(BuildContext context) async {
+    await openAddDebtScreen(context, initialType: type);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final PaisaColors colors = PaisaColors.of(context);
+    final double paid = (_total - _outstanding).clamp(0, double.infinity);
+    final double progress = _total <= 0 ? 0 : (paid / _total).clamp(0.0, 1.0);
+
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 140),
+      children: <Widget>[
+        // ---------------- Banner ----------------
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: SegmentedButton<DebtType>(
-            style: PaisaTheme.segmentedButtonStyle(context),
-            segments: <ButtonSegment<DebtType>>[
-              ButtonSegment<DebtType>(
-                value: DebtType.debt,
-                label: Text('Lent (${lent.length})'),
-                icon: const Icon(Icons.call_made_rounded, size: 16),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(PaisaTheme.cardRadius),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: _lent
+                    ? <Color>[colors.incomeContainer, scheme.surfaceContainerLow]
+                    : <Color>[colors.expenseContainer, scheme.surfaceContainerLow],
               ),
-              ButtonSegment<DebtType>(
-                value: DebtType.credit,
-                label: Text('Borrowed (${borrowed.length})'),
-                icon: const Icon(Icons.call_received_rounded, size: 16),
-              ),
-            ],
-            selected: <DebtType>{_tab},
-            showSelectedIcon: false,
-            onSelectionChanged: (Set<DebtType> selection) =>
-                setState(() => _tab = selection.first),
-          ),
-        ),
-        const SizedBox(height: 16),
-        if (visible.isEmpty)
-          LedgerEmptyState(
-            icon: Icons.handshake_outlined,
-            title: _tab == DebtType.debt
-                ? 'Nobody owes you right now'
-                : 'No loans to repay',
-            message: _tab == DebtType.debt
-                ? 'Record money you lent and MoneyMate tracks the repayments.'
-                : 'Add a loan or EMI and every installment updates your balance.',
-            action: FilledButton.icon(
-              onPressed: () => _showAddDebtSheet(context, _tab),
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('Add a record'),
             ),
-          )
-        else
-          for (final DebtSummary summary in visible)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-              child: _DebtCard(summary: summary),
-            ),
-        const SizedBox(height: 8),
-        if (visible.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: OutlinedButton.icon(
-              onPressed: () => _showAddDebtSheet(context, _tab),
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('Add a record'),
-            ),
-          ),
-        if (provider.overdueDebts.isNotEmpty) ...<Widget>[
-          const SizedBox(height: 12),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: colors.warningContainer,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Row(
-                children: <Widget>[
-                  Icon(Icons.warning_amber_rounded, color: colors.warning),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      '${provider.overdueDebts.length} record'
-                      '${provider.overdueDebts.length == 1 ? '' : 's'} past the due date',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colors.warning,
-                        fontWeight: FontWeight.w600,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Icon(
+                      _lent
+                          ? Icons.savings_outlined
+                          : Icons.account_balance_outlined,
+                      size: 18,
+                      color: _lent ? colors.income : colors.expense,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _lent
+                            ? 'Total outstanding to receive'
+                            : 'Total outstanding loan payable',
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: _lent ? colors.income : colors.expense,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    formatter.format(_outstanding),
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.8,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _isEmpty
+                      ? 'Nothing recorded yet'
+                      : '${formatter.formatWhole(paid)} of '
+                          '${formatter.formatWhole(_total)} settled · '
+                          '${(progress * 100).round()}%',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0, end: progress),
+                    duration: const Duration(milliseconds: 650),
+                    curve: Curves.easeOutCubic,
+                    builder: (BuildContext context, double value, _) {
+                      return LinearProgressIndicator(
+                        value: value,
+                        minHeight: 10,
+                        backgroundColor: scheme.surfaceContainerHighest,
+                        color: _lent ? colors.income : colors.expense,
+                      );
+                    },
+                  ),
+                ),
+                if (overdueCount > 0) ...<Widget>[
+                  const SizedBox(height: 12),
+                  Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        size: 16,
+                        color: colors.expense,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          overdueCount == 1
+                              ? '1 record is past its due date'
+                              : '$overdueCount records are past their due date',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: colors.expense,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-              ),
+              ],
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 14),
+
+        // ---------------- Cards ----------------
+        if (_isEmpty)
+          DebtEmptyState(lent: _lent, onAdd: () => _add(context))
+        else ...<Widget>[
+          for (final DebtSummary summary in summaries)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: DebtCard(summary: summary),
+            ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: OutlinedButton.icon(
+              onPressed: () => _add(context),
+              icon: const Icon(Icons.add_rounded, size: 18),
+              label: Text(_lent ? 'Record money lent' : 'Add a loan or EMI'),
             ),
           ),
         ],
@@ -169,76 +294,25 @@ class _DebtsScreenState extends State<DebtsScreen> {
   }
 }
 
-class _SummaryTile extends StatelessWidget {
-  const _SummaryTile({
-    required this.label,
-    required this.value,
-    required this.count,
-    required this.accent,
-    required this.background,
-    required this.icon,
-  });
-
-  final String label;
-  final String value;
-  final int count;
-  final Color accent;
-  final Color background;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Icon(icon, size: 16, color: accent),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  label,
-                  style: theme.textTheme.labelMedium?.copyWith(color: accent),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(
-              value,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.4,
-              ),
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            count == 1 ? '1 record' : '$count records',
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DebtCard extends StatelessWidget {
-  const _DebtCard({required this.summary});
+/// A single loan / lending card with an expandable installment history.
+class DebtCard extends StatefulWidget {
+  const DebtCard({super.key, required this.summary});
 
   final DebtSummary summary;
+
+  @override
+  State<DebtCard> createState() => _DebtCardState();
+}
+
+class _DebtCardState extends State<DebtCard> {
+  bool _expanded = false;
+
+  Future<void> _openPaymentSheet() async {
+    final bool? changed = await showDebtPaymentSheet(context, widget.summary);
+    if (changed == true && mounted) {
+      setState(() => _expanded = true);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -248,434 +322,918 @@ class _DebtCard extends StatelessWidget {
     final PaisaProvider provider = context.watch<PaisaProvider>();
     final CurrencyFormatter formatter = provider.formatter;
 
+    final DebtSummary summary = widget.summary;
+    final bool lent = summary.debtType == DebtType.debt;
+    final Color accent = lent ? colors.debtGiven : colors.debtTaken;
     final double progress = provider.progressFor(summary.id);
+    final double paid = provider.paidAmountFor(summary.id);
+    final double remaining = provider.remainingAmountFor(summary.id);
     final bool settled = summary.isSettled;
-    final Color accent = summary.debtType == DebtType.debt
-        ? colors.debtGiven
-        : colors.debtTaken;
     final int days = summary.daysRemaining();
+    final bool overdue = !settled && days < 0;
+    final bool dueSoon = !settled && days >= 0 && days <= 7;
+    final List<DebtTransactionModel> installments =
+        summary.installments.reversed.toList(growable: false);
 
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(PaisaTheme.cardRadius),
+        border: Border.all(
+          color: overdue ? colors.expense.withOpacity(0.55) : Colors.transparent,
+          width: 1.4,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: accent.withOpacity(0.16),
-                  borderRadius: BorderRadius.circular(13),
-                ),
-                child: Icon(summary.debtType.icon, size: 20, color: accent),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      summary.debt.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      settled
-                          ? 'Settled'
-                          : days < 0
-                              ? 'Overdue by ${days.abs()} days'
-                              : 'Due ${DateTimeFormat.date(summary.debt.expiryDateTime)} · $days days left',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: settled
-                            ? colors.success
-                            : (days < 0 ? colors.expense : scheme.onSurfaceVariant),
-                      ),
-                    ),
-                  ],
+          // ---------------- Header ----------------
+          InkWell(
+            borderRadius: BorderRadius.circular(PaisaTheme.cardRadius),
+            onTap: () => Navigator.of(context).push<void>(
+              MaterialPageRoute<void>(
+                builder: (BuildContext context) => AddDebtScreen(
+                  existing: summary.debt,
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(
-                    formatter.formatWhole(summary.outstandingAmount),
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: accent.withOpacity(0.16),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      lent ? Icons.call_made_rounded : Icons.call_received_rounded,
+                      color: accent,
+                      size: 21,
                     ),
                   ),
-                  Text(
-                    'of ${formatter.formatWhole(summary.debt.amount)}',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Text(
+                                summary.debt.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                            if (settled)
+                              _Badge(
+                                label: 'SETTLED',
+                                color: colors.success,
+                              )
+                            else if (overdue)
+                              _Badge(label: 'OVERDUE', color: colors.expense)
+                            else if (dueSoon)
+                              _Badge(label: 'DUE SOON', color: colors.warning),
+                          ],
+                        ),
+                        if (summary.debt.description.trim().isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              summary.debt.description,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: scheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: <Widget>[
+                            _DateChip(
+                              icon: Icons.event_available_rounded,
+                              label: 'Start ${DateTimeFormat.shortDate(summary.debt.dateTime)}',
+                            ),
+                            _DateChip(
+                              icon: Icons.event_outlined,
+                              label: 'Due ${DateTimeFormat.shortDate(summary.debt.expiryDateTime)}',
+                              highlight: overdue,
+                            ),
+                            _DateChip(
+                              icon: overdue
+                                  ? Icons.warning_amber_rounded
+                                  : Icons.hourglass_bottom_rounded,
+                              label: settled
+                                  ? 'Closed'
+                                  : overdue
+                                      ? '${days.abs()}d overdue'
+                                      : '$days days left',
+                              highlight: overdue || dueSoon,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(999),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 7,
-              backgroundColor: scheme.surfaceContainerHighest,
-              color: settled ? colors.success : accent,
             ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: <Widget>[
-              Text(
-                '${(progress * 100).round()}% settled · '
-                '${formatter.formatWhole(summary.paidAmount)} paid',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-              const Spacer(),
-              if (!settled)
-                TextButton.icon(
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    visualDensity: VisualDensity.compact,
+
+            // ---------------- Money ----------------
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: _MoneyStat(
+                      label: lent ? 'Lent' : 'Loan',
+                      value: formatter.formatWhole(summary.debt.amount),
+                    ),
                   ),
-                  onPressed: () => _showInstallmentSheet(context, summary),
-                  icon: const Icon(Icons.add_card_rounded, size: 16),
-                  label: const Text('Installment'),
-                ),
-            ],
-          ),
-          if (summary.installments.isNotEmpty) ...<Widget>[
-            const SizedBox(height: 4),
-            Text(
-              'Last: ${formatter.formatWhole(summary.lastInstallment!.amount)} '
-              'on ${DateTimeFormat.date(summary.lastInstallment!.dateTime)}'
-              '${summary.lastInstallment!.note.isEmpty ? '' : ' · ${summary.lastInstallment!.note}'}',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: scheme.onSurfaceVariant,
+                  Expanded(
+                    child: _MoneyStat(
+                      label: 'Paid',
+                      value: formatter.formatWhole(paid),
+                      color: colors.success,
+                    ),
+                  ),
+                  Expanded(
+                    child: _MoneyStat(
+                      label: 'Remaining',
+                      value: formatter.formatWhole(remaining),
+                      color: overdue ? colors.expense : scheme.onSurface,
+                      alignEnd: true,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+
+            // ---------------- Progress ----------------
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Text(
+                        '${(progress * 100).round()}% paid',
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: settled ? colors.success : accent,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        'of ${formatter.formatWhole(summary.debt.amount)}',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(999),
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: 0, end: progress),
+                      duration: const Duration(milliseconds: 700),
+                      curve: Curves.easeOutCubic,
+                      builder: (BuildContext context, double value, _) {
+                        return LinearProgressIndicator(
+                          value: value,
+                          minHeight: 10,
+                          backgroundColor: scheme.surfaceContainerHighest,
+                          color: settled ? colors.success : accent,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // ---------------- Actions ----------------
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: FilledButton.tonalIcon(
+                    onPressed: settled ? null : _openPaymentSheet,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: settled
+                          ? scheme.surfaceContainerHighest
+                          : accent.withOpacity(0.16),
+                      foregroundColor: settled ? scheme.onSurfaceVariant : accent,
+                    ),
+                    icon: Icon(
+                      settled ? Icons.check_circle_rounded : Icons.add_card_rounded,
+                      size: 18,
+                    ),
+                    label: Text(
+                      settled
+                          ? 'Fully paid'
+                          : lent
+                              ? 'Add payment'
+                              : 'Pay EMI',
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton.filledTonal(
+                  tooltip: _expanded ? 'Hide history' : 'Show history',
+                  onPressed: installments.isEmpty
+                      ? null
+                      : () => setState(() => _expanded = !_expanded),
+                  icon: AnimatedRotation(
+                    turns: _expanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(
+                      installments.isEmpty
+                          ? Icons.history_toggle_off_rounded
+                          : Icons.expand_more_rounded,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ---------------- Installment history ----------------
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 220),
+            crossFadeState: _expanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            firstChild: const SizedBox(width: double.infinity),
+            secondChild: _InstallmentHistory(
+              installments: installments,
+              parentId: summary.id,
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-/// Records an installment against [summary].
-///
-/// For borrowed money this writes an expense; for lent money an income — the
-/// provider handles that, this sheet only collects the facts.
-Future<void> _showInstallmentSheet(
-  BuildContext context,
-  DebtSummary summary,
-) async {
-  final PaisaProvider provider = context.read<PaisaProvider>();
-  final TextEditingController amount = TextEditingController();
-  final TextEditingController note = TextEditingController();
-  String? accountId = provider.defaultAccount?.id;
-  DateTime date = DateTime.now();
-  String? error;
+/// The expandable list of payments made against a record.
+class _InstallmentHistory extends StatelessWidget {
+  const _InstallmentHistory({required this.installments});
 
-  await showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    builder: (BuildContext sheetContext) {
-      return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-          final ThemeData theme = Theme.of(context);
-          final ColorScheme scheme = theme.colorScheme;
-          final double remaining = provider.remainingAmountFor(summary.id);
+  final List<DebtTransactionModel> installments;
 
-          return SingleChildScrollView(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.viewInsetsOf(context).bottom,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(
-                          summary.debtType == DebtType.debt
-                              ? 'Received from ${summary.debt.name}'
-                              : 'Pay ${summary.debt.name}',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.of(sheetContext).pop(),
-                        icon: const Icon(Icons.close_rounded),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    '${provider.formatter.formatWhole(remaining)} remaining of '
-                    '${provider.formatter.formatWhole(summary.debt.amount)}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  TextField(
-                    controller: amount,
-                    autofocus: true,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText: 'Installment amount',
-                      prefixText: '${provider.formatter.symbol} ',
-                      errorText: error,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: note,
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(
-                      labelText: 'Note (optional)',
-                      hintText: 'e.g. EMI 4 of 12',
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: () async {
-                      final DateTime? picked = await showDatePicker(
-                        context: context,
-                        initialDate: date,
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime.now(),
-                      );
-                      if (picked != null) setState(() => date = picked);
-                    },
-                    icon: const Icon(Icons.calendar_today_rounded, size: 16),
-                    label: Text(DateTimeFormat.date(date)),
-                  ),
-                  const SizedBox(height: 12),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Paid from',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: <Widget>[
-                      for (final AccountModel account in provider.accounts)
-                        ChoiceChip(
-                          selected: account.id == accountId,
-                          avatar: Icon(
-                            account.cardType.icon,
-                            size: 15,
-                            color: Color(account.color),
-                          ),
-                          label: Text(account.title),
-                          onSelected: (bool _) =>
-                              setState(() => accountId = account.id),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  FilledButton(
-                    onPressed: () async {
-                      final double? value =
-                          provider.formatter.parse(amount.text.trim());
-                      if (value == null || value <= 0) {
-                        setState(() => error = 'Enter a valid amount');
-                        return;
-                      }
-                      try {
-                        await provider.addDebtInstallment(
-                          parentId: summary.id,
-                          amount: value,
-                          dateTime: date,
-                          accountId: accountId,
-                          note: note.text.trim(),
-                        );
-                        if (sheetContext.mounted) {
-                          Navigator.of(sheetContext).pop();
-                        }
-                      } on TransactionException catch (e) {
-                        setState(() => error = e.message);
-                      }
-                    },
-                    child: const Text('Record installment'),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme scheme = theme.colorScheme;
+    final PaisaProvider provider = context.watch<PaisaProvider>();
+    final CurrencyFormatter formatter = provider.formatter;
+
+    if (installments.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Text(
+          'No payments recorded yet.',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: scheme.onSurfaceVariant,
+          ),
+        ),
       );
-    },
-  );
+    }
 
-  amount.dispose();
-  note.dispose();
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+            child: Row(
+              children: <Widget>[
+                Text(
+                  'PAYMENT HISTORY',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    letterSpacing: 1.0,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '${installments.length}',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          for (final DebtTransactionModel installment in installments)
+            _InstallmentRow(
+              installment: installment,
+              accountLabel: provider.accountName(installment.accountId),
+              amountLabel: formatter.formatWhole(installment.amount),
+              onDelete: () => _confirmDelete(context, installment),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _confirmDelete(
+    BuildContext context,
+    DebtTransactionModel installment,
+  ) async {
+    final PaisaProvider provider = context.read<PaisaProvider>();
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: const Text('Delete this payment?'),
+        content: const Text(
+          'The installment is removed from this record and the transaction it '
+          'logged is deleted from the account, so the balance returns to what it '
+          'was before the payment.',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await provider.deleteDebtInstallment(installment.id);
+  }
 }
 
-/// Minimal debt creation sheet. Step 5 replaces it with the full editor
-/// (interest, EMI schedule, reminders).
-Future<void> _showAddDebtSheet(BuildContext context, DebtType type) async {
-  final PaisaProvider provider = context.read<PaisaProvider>();
-  final TextEditingController name = TextEditingController();
-  final TextEditingController amount = TextEditingController();
-  final TextEditingController note = TextEditingController();
-  DateTime start = DateTime.now();
-  DateTime due = DateTime.now().add(const Duration(days: 30));
-  String? error;
+class _InstallmentRow extends StatelessWidget {
+  const _InstallmentRow({
+    required this.installment,
+    required this.accountLabel,
+    required this.amountLabel,
+    required this.onDelete,
+  });
 
-  await showModalBottomSheet<void>(
+  final DebtTransactionModel installment;
+  final String accountLabel;
+  final String amountLabel;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme scheme = theme.colorScheme;
+    final PaisaColors colors = PaisaColors.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 2, 4, 2),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: colors.success.withOpacity(0.14),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.check_rounded,
+              size: 16,
+              color: colors.success,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  '${DateTimeFormat.date(installment.dateTime)} • $amountLabel',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  installment.note.trim().isEmpty
+                      ? accountLabel
+                      : '$accountLabel • ${installment.note.trim()}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            tooltip: 'Delete payment',
+            visualDensity: VisualDensity.compact,
+            onPressed: onDelete,
+            icon: Icon(
+              Icons.delete_outline_rounded,
+              size: 18,
+              color: scheme.error,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Records a payment against a record and logs a real transaction.
+///
+/// Returns `true` when a payment was saved so the caller can expand the history.
+Future<bool?> showDebtPaymentSheet(
+  BuildContext context,
+  DebtSummary summary,
+) {
+  return showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    builder: (BuildContext sheetContext) {
-      return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-          final ThemeData theme = Theme.of(context);
-          return Padding(
-            padding: EdgeInsets.only(
-              left: 20,
-              right: 20,
-              top: 8,
-              bottom: 16 + MediaQuery.viewInsetsOf(context).bottom,
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+    builder: (BuildContext context) => _DebtPaymentSheet(summary: summary),
+  );
+}
+
+class _DebtPaymentSheet extends StatefulWidget {
+  const _DebtPaymentSheet({required this.summary});
+
+  final DebtSummary summary;
+
+  @override
+  State<_DebtPaymentSheet> createState() => _DebtPaymentSheetState();
+}
+
+class _DebtPaymentSheetState extends State<_DebtPaymentSheet> {
+  final TextEditingController _amount = TextEditingController();
+  final TextEditingController _note = TextEditingController();
+  String? _accountId;
+  DateTime _date = DateTime.now();
+  String? _error;
+  bool _saving = false;
+
+  PaisaProvider get _provider => context.read<PaisaProvider>();
+
+  @override
+  void initState() {
+    super.initState();
+    final PaisaProvider provider = context.read<PaisaProvider>();
+    _accountId =
+        provider.defaultAccount?.id ??
+        (provider.accounts.isEmpty ? null : provider.accounts.first.id);
+    // Pre-fill with the outstanding balance: settling in full is the common case,
+    // and a partial payment is a single edit away.
+    final double remaining = provider.remainingAmountFor(widget.summary.id);
+    _amount.text = provider.formatter.forInput(remaining);
+  }
+
+  @override
+  void dispose() {
+    _amount.dispose();
+    _note.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (_saving) return;
+    final PaisaProvider provider = _provider;
+    final double? amount = provider.formatter.parse(_amount.text.trim());
+    if (amount == null || amount <= 0) {
+      setState(() => _error = 'Enter the amount you paid or received');
+      return;
+    }
+    final double remaining = provider.remainingAmountFor(widget.summary.id);
+    if (amount > remaining + 0.005) {
+      setState(() => _error =
+          'That is more than the ${provider.formatter.formatWhole(remaining)} outstanding');
+      return;
+    }
+    if (_accountId == null) {
+      setState(() => _error = 'Choose the account used');
+      return;
+    }
+
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      await provider.addDebtInstallment(
+        parentId: widget.summary.id,
+        amount: amount,
+        dateTime: _date,
+        accountId: _accountId,
+        note: _note.text.trim(),
+      );
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+    } on TransactionException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _error = error.message;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _error = 'Could not save: $error';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme scheme = theme.colorScheme;
+    final PaisaColors colors = PaisaColors.of(context);
+    final PaisaProvider provider = context.watch<PaisaProvider>();
+    final CurrencyFormatter formatter = provider.formatter;
+
+    final DebtSummary summary = widget.summary;
+    final bool lent = summary.debtType == DebtType.debt;
+    final double remaining = provider.remainingAmountFor(summary.id);
+    final List<AccountModel> accounts = provider.accounts;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.viewInsetsOf(context).bottom,
+      ),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              // Header
+              Row(
                 children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(
-                          type == DebtType.debt
-                              ? 'Money I lent'
-                              : 'Money I borrowed',
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: (lent ? colors.income : colors.expense)
+                          .withOpacity(0.16),
+                      borderRadius: BorderRadius.circular(13),
+                    ),
+                    child: Icon(
+                      lent ? Icons.call_made_rounded : Icons.call_received_rounded,
+                      size: 20,
+                      color: lent ? colors.income : colors.expense,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          lent ? 'Payment received' : 'Pay EMI',
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.of(sheetContext).pop(),
-                        icon: const Icon(Icons.close_rounded),
-                      ),
-                    ],
-                  ),
-                  TextField(
-                    controller: name,
-                    autofocus: true,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                      labelText: type == DebtType.debt
-                          ? 'Who owes you?'
-                          : 'Lender / loan name',
-                      errorText: error,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: amount,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText: 'Total amount',
-                      prefixText: '${provider.formatter.symbol} ',
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: note,
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(
-                      labelText: 'Notes (optional)',
-                      hintText: 'Interest rate, EMI details…',
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () async {
-                            final DateTime? picked = await showDatePicker(
-                              context: context,
-                              initialDate: due,
-                              firstDate: start,
-                              lastDate: DateTime.now()
-                                  .add(const Duration(days: 3650)),
-                            );
-                            if (picked != null) setState(() => due = picked);
-                          },
-                          child: Text('Due ${DateTimeFormat.date(due)}'),
+                        Text(
+                          '${summary.debt.name} · '
+                          '${formatter.formatWhole(remaining)} outstanding',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  FilledButton(
-                    onPressed: () async {
-                      final String title = name.text.trim();
-                      final double? value =
-                          provider.formatter.parse(amount.text.trim());
-                      if (title.isEmpty) {
-                        setState(() => error = 'Add a name');
-                        return;
-                      }
-                      if (value == null || value <= 0) {
-                        setState(() => error = 'Enter a valid amount');
-                        return;
-                      }
-                      await provider.addDebt(
-                        DebtModel(
-                          id: IdGenerator.newId(),
-                          name: title,
-                          description: note.text.trim(),
-                          amount: value,
-                          dateTime: start,
-                          expiryDateTime: due,
-                          debtType: type,
-                        ),
-                      );
-                      if (sheetContext.mounted) {
-                        Navigator.of(sheetContext).pop();
-                      }
-                    },
-                    child: const Text('Save'),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close_rounded),
                   ),
                 ],
               ),
-          ),
-          );
-        },
-      );
-    },
-  );
+              const SizedBox(height: 16),
 
-  name.dispose();
-  amount.dispose();
-  note.dispose();
+              // Amount
+              TextField(
+                controller: _amount,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                autofocus: true,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                ],
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+                decoration: InputDecoration(
+                  labelText: lent ? 'Amount received' : 'Amount paid',
+                  prefixText: '${formatter.symbol} ',
+                  errorText: _error,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: <Widget>[
+                  ActionChip(
+                    label: const Text('Full balance'),
+                    onPressed: () {
+                      _amount.text = formatter.forInput(remaining);
+                      setState(() {});
+                    },
+                  ),
+                  for (final double fraction in <double>[0.25, 0.5, 0.75])
+                    ActionChip(
+                      label: Text('${(fraction * 100).round()}%'),
+                      onPressed: () {
+                        _amount.text =
+                            formatter.forInput((remaining * fraction));
+                        setState(() {});
+                      },
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Account
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  lent ? 'Received into' : 'Paid from',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              if (accounts.isEmpty)
+                Text(
+                  'Add an account first so the payment can be logged.',
+                  style: theme.textTheme.bodySmall?.copyWith(color: scheme.error),
+                )
+              else
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: <Widget>[
+                    for (final AccountModel account in accounts)
+                      ChoiceChip(
+                        selected: account.id == _accountId,
+                        avatar: Icon(
+                          account.cardType.icon,
+                          size: 15,
+                          color: Color(account.color),
+                        ),
+                        label: Text(account.title),
+                        onSelected: (bool selected) {
+                          if (selected) setState(() => _accountId = account.id);
+                        },
+                      ),
+                  ],
+                ),
+              const SizedBox(height: 16),
+
+              // Date & note
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: _date,
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime.now().add(const Duration(days: 1)),
+                          helpText: 'Payment date',
+                        );
+                        if (picked == null) return;
+                        setState(() {
+                          _date = DateTime(
+                            picked.year,
+                            picked.month,
+                            picked.day,
+                            _date.hour,
+                            _date.minute,
+                          );
+                        });
+                      },
+                      icon: const Icon(Icons.calendar_today_rounded, size: 16),
+                      label: Text(DateTimeFormat.date(_date)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _note,
+                textCapitalization: TextCapitalization.sentences,
+                maxLength: 80,
+                decoration: const InputDecoration(
+                  labelText: 'Note (optional)',
+                  hintText: 'e.g. EMI 4 of 12',
+                  prefixIcon: Icon(Icons.notes_rounded),
+                  counterText: '',
+                ),
+              ),
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: scheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.info_outline_rounded,
+                      size: 16,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        lent
+                            ? 'Saving records the payment and adds an income to the '
+                                'chosen account.'
+                            : 'Saving records the payment and adds an expense to the '
+                                'chosen account.',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 50,
+                child: FilledButton(
+                  onPressed: _saving ? null : _save,
+                  child: _saving
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2.4),
+                        )
+                      : Text(
+                          lent ? 'Record payment' : 'Record EMI payment',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                          ),
+                        ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  const _Badge({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(left: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.14),
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 9,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.8,
+        ),
+      ),
+    );
+  }
+}
+
+class _DateChip extends StatelessWidget {
+  const _DateChip({
+    required this.icon,
+    required this.label,
+    this.highlight = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool highlight;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme scheme = theme.colorScheme;
+    final Color color =
+        highlight ? PaisaColors.of(context).expense : scheme.onSurfaceVariant;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: highlight
+            ? PaisaColors.of(context).expenseContainer
+            : scheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(icon, size: 11, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MoneyStat extends StatelessWidget {
+  const _MoneyStat({
+    required this.label,
+    required this.value,
+    this.color,
+    this.alignEnd = false,
+  });
+
+  final String label;
+  final String value;
+  final Color? color;
+  final bool alignEnd;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment:
+          alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          label,
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: alignEnd ? Alignment.centerRight : Alignment.centerLeft,
+          child: Text(
+            value,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: color ?? theme.colorScheme.onSurface,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

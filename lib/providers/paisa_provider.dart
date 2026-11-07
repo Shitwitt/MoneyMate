@@ -726,6 +726,37 @@ class PaisaProvider extends ChangeNotifier {
           );
 
   // ---------------------------------------------------------------------
+  // PER-CATEGORY DETAIL (categories & budgets screen)
+  // ---------------------------------------------------------------------
+
+  /// Transactions of one category inside the current calendar month, newest
+  /// first. Transfers never carry a category, so they are absent by
+  /// construction; linked debt rows are excluded like everywhere else.
+  List<TransactionModel> transactionsForCategory(
+    String categoryId, {
+    DateTime? now,
+  }) {
+    final DateTime reference = now ?? DateTime.now();
+    final DateTime start = DateTime(reference.year, reference.month);
+    final DateTime end =
+        DateTime(reference.year, reference.month + 1, 0, 23, 59, 59, 999);
+    final List<TransactionModel> result = _transactions
+        .where((TransactionModel transaction) =>
+            transaction.categoryId == categoryId &&
+            !transaction.time.isBefore(start) &&
+            !transaction.time.isAfter(end) &&
+            !isLinkedDebtTransaction(transaction))
+        .toList(growable: true);
+    result.sort((TransactionModel a, TransactionModel b) =>
+        b.time.compareTo(a.time));
+    return result;
+  }
+
+  /// Number of transactions in one category this month.
+  int transactionCountForCategory(String categoryId, {DateTime? now}) =>
+      transactionsForCategory(categoryId, now: now).length;
+
+  // ---------------------------------------------------------------------
   // DEBTS & INSTALLMENTS
   // ---------------------------------------------------------------------
 

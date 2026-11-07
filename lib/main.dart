@@ -81,6 +81,16 @@ class _AppRoot extends StatelessWidget {
           supportedLocales: <Locale>[
             for (final AppLanguage item in AppLanguage.all) item.locale,
           ],
+          // Snack bars are floating everywhere: the shell's FAB uses a
+          // `centerFloat` placement, so the ledger's undo bars must clear the
+          // navigation bar and the keyboard inset rather than hug the edge.
+          snackBarTheme: SnackBarThemeData(
+            behavior: SnackBarBehavior.floating,
+            insetPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
           builder: (BuildContext context, Widget? child) {
             return TranslationScope(
               languageCode: provider.languageCode,

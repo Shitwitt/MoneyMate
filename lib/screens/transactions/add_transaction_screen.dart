@@ -10,7 +10,7 @@ import '../../data/models/account_model.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/transaction_model.dart';
 import '../../providers/paisa_provider.dart';
-import '../categories/quick_add_category_sheet.dart';
+import '../budgets/add_category_screen.dart';
 import 'widgets/account_selector.dart';
 import 'widgets/amount_field.dart';
 import 'widgets/calculator_sheet.dart';
@@ -79,13 +79,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   /// between the user's own accounts). Income-ness comes from
   /// [CategoryModel.isIncome] so the picker and the manager never disagree.
   List<CategoryModel> get _categories {
+    if (_type == TransactionType.transfer) return const <CategoryModel>[];
     final bool wantsIncome = _type == TransactionType.income;
-    return _provider.categories
-        .where((CategoryModel c) =>
-            _type == TransactionType.transfer
-                ? false
-                : c.isIncome == wantsIncome)
-        .toList(growable: false);
+    final List<CategoryModel> result = _provider.categories
+        .where((CategoryModel c) => c.isIncome == wantsIncome)
+        .toList(growable: true)
+      ..sort((CategoryModel a, CategoryModel b) =>
+          a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    return result;
   }
 
   @override
@@ -239,16 +240,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     });
   }
 
+  /// Opens the full category editor; the new category is persisted by that screen
+  /// (`openAddCategoryScreen` writes it), so this form only has to select it.
   Future<void> _addCategory() async {
-    final CategoryModel? created = await showQuickAddCategorySheet(
-      context,
-      existingColors: _provider.categories
-          .map((CategoryModel c) => c.color)
-          .toSet(),
-    );
+    final CategoryModel? created = await openAddCategoryScreen(context);
     if (created == null || !mounted) return;
-    await _provider.addCategory(created);
-    if (!mounted) return;
     setState(() => _categoryId = created.id);
   }
 

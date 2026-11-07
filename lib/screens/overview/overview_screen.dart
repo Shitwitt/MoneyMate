@@ -106,6 +106,7 @@ class OverviewScreen extends StatelessWidget {
             color: provider.periodNet >= 0 ? colors.income : colors.expense,
             background: scheme.surfaceContainerHighest,
             icon: Icons.savings_outlined,
+            fullWidth: true,
             trailing:
                 'Savings rate ${formatter.percentOf(math.max(0, provider.periodNet), provider.periodIncome)}',
           ),
@@ -346,6 +347,7 @@ class _AnalyticsCard extends StatelessWidget {
     required this.background,
     required this.icon,
     this.trailing,
+    this.fullWidth = false,
   });
 
   final String label;
@@ -354,6 +356,10 @@ class _AnalyticsCard extends StatelessWidget {
   final Color background;
   final IconData icon;
   final String? trailing;
+
+  /// When true the card lays the icon, label and value out in a single row, so
+  /// the full-width net-savings card does not waste a screenful of height.
+  final bool fullWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -364,7 +370,51 @@ class _AnalyticsCard extends StatelessWidget {
         color: background,
         borderRadius: BorderRadius.circular(22),
       ),
-      child: Column(
+      child: fullWidth
+          ? Row(
+              children: <Widget>[
+                Icon(icon, size: 18, color: color),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: color,
+                        ),
+                      ),
+                      if (trailing != null)
+                        Text(
+                          trailing!,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      value,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.4,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Row(

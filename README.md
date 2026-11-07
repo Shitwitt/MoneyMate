@@ -13,11 +13,11 @@ device and can be exported / restored as a JSON backup.
 | 1 | Architecture, Material 3 theme engine, offline Hive database | ✅ done |
 | 2 | Currency engine, financial state provider, onboarding intro flow | ✅ done |
 | 3 | App shell, home dashboard, search & transaction engine | ✅ done |
-| 4 | Accounts & categories management | ⏳ |
-| 5 | Debts / loans / EMIs + installments | ⏳ |
+| 4 | Accounts carousel, loans/EMIs, categories & budgets | ✅ done |
+| 5 | Analytics & charts, history filters, exports | ⏳ |
 | 6 | Settings hardening, biometric lock, backup & restore, polish | ⏳ |
 
-## What steps 1–3 deliver
+## What steps 1–4 deliver
 
 ```
 lib/
@@ -43,8 +43,10 @@ lib/
 │   ├── home/home_screen.dart          # balance hero, period chips, grouped ledger
 │   ├── search/search_screen.dart      # real-time search + filter chips
 │   ├── transactions/                  # add/edit form + calculator sheet
-│   ├── accounts/, overview/, debts/   # the remaining shell destinations
-│   ├── budgets/, categories/          # budget editor, category manager
+│   ├── accounts/                      # carousel + account editor
+│   ├── debts/                         # loans/EMIs + record editor
+│   ├── budgets/                       # overview, category cards, category editor
+│   ├── overview/                      # analytics
 │   ├── settings/                      # profile, theme, currency & data settings
 │   └── onboarding/                    # 5-step intro flow
 │       ├── onboarding_screen.dart     # orchestration + single Hive write at the end
@@ -93,6 +95,40 @@ lib/
 | No 0 → total flash | `AnimatedAmount` seeds its `Tween` with the first value |
 | No layout jank | fixed-height cards, `FittedBox` on money, `IndexedStack` tabs |
 | No double counting | linked debt rows are excluded from summaries and the ledger list |
+
+### Step 4 — accounts, loans and budgets
+
+* **Accounts carousel** — `PageView(viewportFraction: 0.9)` of 220dp, 28dp-radius
+  Material cards built by `AccountCardView` (`lib/widgets/account_card.dart`):
+  contactless chip glyph, `CASH`/`BANK`/`CARD` badge, `•••• •••• •••• 4821`,
+  holder, bank, network mark and the **live** balance (`FittedBox` so ₹1,25,450
+  never wraps). Animated page dots sit underneath; the focused card drives two
+  tonal summary cards (account income / account expense with credit & debit
+  counts), opening-balance and transfer-in/out stats, quick actions and the
+  account's full statement — income, expense, transfers in **and** out, with a
+  `+`/`−` direction glyph and swipe-to-delete.
+* **Account editor** — `add_account_screen.dart`: type tiles, bank/wallet/card
+  name, holder, last-4 (digits only), opening balance, twelve gradient card
+  themes, "use as default" and a destructive delete that explains exactly what
+  goes with the account. The card at the top is a live preview of all of it.
+* **Loans & EMIs** — `debts_screen.dart` hosts a two-tab bar (`Debts` = money
+  lent, `Credits` = money borrowed) over one shared card: person/bank, notes,
+  start & due chips that turn red when overdue, `DUE SOON`/`OVERDUE`/`SETTLED`
+  badges, total / paid / remaining, an animated 10dp rounded payoff bar
+  (`65% paid`) and an expandable installment history (`Date • Amount • Account
+  used`) with per-row delete. **`+ Add payment` / `Pay EMI`** opens a sheet that
+  pre-fills the outstanding balance, offers 25/50/75/100% shortcuts, an account
+  picker, a date and a note; saving writes the installment *and* the matching
+  income/expense transaction, so the bar and the balance move together.
+* **Categories & budgets** — `categories_budget_screen.dart`: a monthly overview
+  card (spent vs total budget, remaining, `₹X / day` safe spend, over-budget
+  count) over per-category cards showing the icon, name, spend and transaction
+  count, a progress bar that is **primary (<75%) → amber (75–99%) → error
+  (≥100%)**, a percentage badge and an `Exceeded by ₹X` tag. Tapping the chevron
+  opens the month's transactions for that category with per-row delete.
+* **Category editor** — `add_category_screen.dart`: name, description, a 36-icon
+  picker grid, a twelve-colour palette, a `Set Monthly Budget` `SwitchListTile`
+  with an animated amount field, and delete.
 
 ### The financial engine (`PaisaProvider`)
 
@@ -196,3 +232,4 @@ Tests: `flutter test`
 | `transaction_grouping_test.dart` | day bucketing, Today/Yesterday labels, ordering, day net |
 | `search_filter_test.dart` | title / notes / amount / category matching, filter composition |
 | `add_transaction_test.dart` | validation, expense save, transfer rules, edit mode |
+| `step4_accounts_debts_budgets_test.dart` | card masking, 12 card themes, account totals, installments → income/expense + delete cascade, overdue, budget maths and the three editors |

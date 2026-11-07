@@ -7,119 +7,423 @@ import '../../core/enum/filter_enums.dart';
 import '../../core/theme/paisa_colors.dart';
 import '../../core/theme/paisa_theme.dart';
 import '../../core/utils/currency_formatter.dart';
+import '../../core/utils/date_time_format.dart';
 import '../../data/models/account_model.dart';
 import '../../data/models/transaction_model.dart';
 import '../../providers/paisa_provider.dart';
+import '../../widgets/account_card.dart';
 import '../../widgets/transaction_tile.dart';
 import '../home/home_screen.dart';
 import '../transactions/add_transaction_screen.dart';
+import 'add_account_screen.dart';
 
-/// The Accounts tab: a horizontal carousel of account cards plus per-account
-/// statements.
-class AccountsScreen extends StatelessWidget {
+/// Accounts tab — a swipeable carousel of bank/cash cards with the focused
+/// account's live totals and full history underneath.
+class AccountsScreen extends StatefulWidget {
   const AccountsScreen({super.key});
+
+  @override
+  State<AccountsScreen> createState() => _AccountsScreenState();
+}
+
+class _AccountsScreenState extends State<AccountsScreen> {
+  static const double _viewportFraction = 0.9;
+
+  late final PageController _controller =
+      PageController(viewportFraction: _viewportFraction);
+  int _index = 0;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  /// Keeps the selection valid when an account is added or deleted.
+  void _clampIndex(int length) {
+    if (length == 0) {
+      _index = 0;
+      return;
+    }
+    if (_index > length - 1) {
+      _index = length - 1;
+      // Jump after the frame so the page view is already laid out.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_controller.hasClients) return;
+        _controller.jumpToPage(_index);
+      });
+    }
+  }
+
+  Future<void> _addAccount() async {
+    final AccountModel? created = await openAddAccountScreen(context);
+    if (created == null || !mounted) return;
+    final int length = context.read<PaisaProvider>().accounts.length;
+    final int index = context
+        .read<PaisaProvider>()
+        .accounts
+        .indexWhere((AccountModel a) => a.id == created.id);
+    setState(() => _index = index < 0 ? math.max(0, length - 1) : index);
+    if (_controller.hasClients) {
+      _controller.animateToPage(
+        _index,
+        duration: const Duration(milliseconds: 320),
+        curve: Curves.easeOutCubic,
+      );
+    }
+  }
+
+  Future<void> _editAccount(AccountModel account) async {
+    final AccountModel? updated =
+        await openAddAccountScreen(context, existing: account);
+    if (updated == null || !mounted) return;
+    final int length = context.read<PaisaProvider>().accounts.length;
+    setState(() => _index = _index.clamp(0, math.max(0, length - 1)));
+  }
 
   @override
   Widget build(BuildContext context) {
     final PaisaProvider provider = context.watch<PaisaProvider>();
     final ThemeData theme = Theme.of(context);
     final ColorScheme scheme = theme.colorScheme;
+    final PaisaColors colors = PaisaColors.of(context);
+    final CurrencyFormatter formatter = provider.formatter;
     final List<AccountModel> accounts = provider.accounts;
 
+    _clampIndex(accounts.length);
+
+    if (accounts.isEmpty) {
+      return Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: LedgerEmptyState(
+            icon: Icons.account_balance_wallet_outlined,
+            title: 'No accounts yet',
+            message:
+                'Add a cash wallet, bank account or card to start tracking where '
+                'your money lives.',
+            action: FilledButton.icon(
+              onPressed: _addAccount,
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Add account'),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final AccountModel selected = accounts[_index.clamp(0, accounts.length - 1)];
+    final _AccountTotals totals = _AccountTotals.of(
+      provider.transactions,
+      selected.id,
+    );
+
     return ListView(
-      padding: const EdgeInsets.only(bottom: 120),
+      padding: const EdgeInsets.only(bottom: 140),
       children: <Widget>[
+        // ---------------- Header ----------------
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+          padding: const EdgeInsets.fromLTRB(20, 4, 12, 2),
           child: Row(
             children: <Widget>[
+              Expanded(
+                child: Text(
+                  'Your accounts',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
               Text(
-                'Your accounts',
-                style: theme.textTheme.titleMedium?.copyWith(
+                formatter.formatWhole(provider.totalNetBalance),
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: scheme.onSurfaceVariant,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 6),
               Text(
-                '${accounts.length}',
-                style: theme.textTheme.labelMedium?.copyWith(
+                'total',
+                style: theme.textTheme.labelSmall?.copyWith(
                   color: scheme.onSurfaceVariant,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
 
-        if (accounts.isEmpty)
-          LedgerEmptyState(
-            icon: Icons.account_balance_wallet_outlined,
-            title: 'No accounts yet',
-            message:
-                'Accounts arrive with onboarding. If you skipped it, add one here to start tracking.',
-            action: FilledButton.icon(
-              onPressed: () => _showAddAccountSheet(context),
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('Add account'),
-            ),
-          )
-        else ...<Widget>[
-          SizedBox(
-            height: 172,
-            child: PageView.builder(
-              controller: PageController(viewportFraction: 0.86),
-              padEnds: false,
-              itemCount: accounts.length,
-              itemBuilder: (BuildContext context, int index) {
-                final AccountModel account = accounts[index];
-                return Padding(
-                  padding: EdgeInsets.only(
-                    left: index == 0 ? 20 : 8,
-                    right: 8,
-                  ),
-                  child: _AccountCarouselCard(
-                    account: account,
-                    balance: provider.accountBalance(account.id),
-                    formatter: provider.formatter,
-                  ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: <Widget>[
-                TextButton.icon(
-                  onPressed: () => _showAddAccountSheet(context),
-                  icon: const Icon(Icons.add_rounded),
-                  label: const Text('Add account'),
+        // ---------------- Carousel ----------------
+        SizedBox(
+          height: AccountCardView.height,
+          child: PageView.builder(
+            controller: _controller,
+            padEnds: false,
+            itemCount: accounts.length,
+            onPageChanged: (int index) => setState(() => _index = index),
+            itemBuilder: (BuildContext context, int index) {
+              final AccountModel account = accounts[index];
+              final int count = accounts.length;
+              final double sidePadding = index == 0
+                  ? 20
+                  : index == count - 1
+                      ? 20
+                      : 6;
+              return Padding(
+                padding: EdgeInsets.only(
+                  left: index == 0 ? 20 : 6,
+                  right: sidePadding,
                 ),
-                const Spacer(),
-                TextButton.icon(
-                  onPressed: () => openAddTransactionScreen(context),
-                  icon: const Icon(Icons.swap_horiz_rounded),
+                child: AccountCardView(
+                  title: account.title,
+                  holderName: account.name,
+                  maskedNumber: account.carouselNumber,
+                  type: account.cardType,
+                  style: AccountStyle.forColor(account.color),
+                  balanceLabel:
+                      formatter.format(provider.accountBalance(account.id)),
+                  balanceCaption: switch (account.cardType) {
+                    AccountType.cash => 'Cash in hand',
+                    AccountType.bank => 'Available balance',
+                    AccountType.card => 'Outstanding balance',
+                  },
+                  balanceNegative: provider.accountBalance(account.id) < 0,
+                  isDefault: account.isDefault,
+                  hideBalance: provider.hideAmounts,
+                  onTap: () => _editAccount(account),
+                ),
+              );
+            },
+          ),
+        ),
+
+        // ---------------- Dots ----------------
+        CarouselDots(
+          count: accounts.length,
+          index: _index.clamp(0, accounts.length - 1),
+          onTap: (int index) {
+            setState(() => _index = index);
+            _controller.animateToPage(
+              index,
+              duration: const Duration(milliseconds: 320),
+              curve: Curves.easeOutCubic,
+            );
+          },
+        ),
+
+        // ---------------- Selected summary ----------------
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: _SummaryCard(
+                  icon: Icons.south_west_rounded,
+                  label: 'Income',
+                  amount: formatter.formatWhole(totals.income),
+                  caption: totals.incomeCount == 1
+                      ? '1 credit'
+                      : '${totals.incomeCount} credits',
+                  accent: colors.income,
+                  background: colors.incomeContainer,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _SummaryCard(
+                  icon: Icons.north_east_rounded,
+                  label: 'Expense',
+                  amount: formatter.formatWhole(totals.expense),
+                  caption: totals.expenseCount == 1
+                      ? '1 debit'
+                      : '${totals.expenseCount} debits',
+                  accent: colors.expense,
+                  background: colors.expenseContainer,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: _TinyStat(
+                  label: 'Opening',
+                  value: formatter.formatWhole(selected.initialAmount),
+                ),
+              ),
+              Expanded(
+                child: _TinyStat(
+                  label: 'Transferred in',
+                  value: formatter.formatWhole(totals.transferIn),
+                ),
+              ),
+              Expanded(
+                child: _TinyStat(
+                  label: 'Transferred out',
+                  value: formatter.formatWhole(totals.transferOut),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // ---------------- Quick actions ----------------
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => openAddTransactionScreen(
+                    context,
+                    initialAccountId: selected.id,
+                  ),
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                  label: const Text('Transaction'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => openAddTransactionScreen(
+                    context,
+                    initialType: TransactionType.transfer,
+                    initialAccountId: selected.id,
+                  ),
+                  icon: const Icon(Icons.swap_horiz_rounded, size: 18),
                   label: const Text('Transfer'),
                 ),
-              ],
+              ),
+              const SizedBox(width: 10),
+              IconButton.filledTonal(
+                tooltip: 'Edit account',
+                onPressed: () => _editAccount(selected),
+                icon: const Icon(Icons.edit_outlined, size: 20),
+              ),
+            ],
+          ),
+        ),
+
+        // ---------------- History header ----------------
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  '${selected.title} activity',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              if (totals.count > 0)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: scheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${totals.count}',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 4),
+
+        // ---------------- History list ----------------
+        _AccountHistory(account: selected),
+
+        const SizedBox(height: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: OutlinedButton.icon(
+            onPressed: _addAccount,
+            icon: const Icon(Icons.add_card_rounded, size: 18),
+            label: const Text('Add another account'),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            'Balances are derived, never stored: opening balance plus every '
+            'income, minus every expense, plus transfers in, minus transfers out.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: scheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 4),
+        ),
+      ],
+    );
+  }
+}
+
+/// The selected account's history: income, expense, transfer in and transfer out.
+class _AccountHistory extends StatelessWidget {
+  const _AccountHistory({required this.account});
+
+  final AccountModel account;
+
+  @override
+  Widget build(BuildContext context) {
+    final PaisaProvider provider = context.watch<PaisaProvider>();
+    final CurrencyFormatter formatter = provider.formatter;
+
+    final List<TransactionModel> rows = provider.transactions
+        .where((TransactionModel transaction) =>
+            transaction.accountId == account.id ||
+            transaction.toAccountId == account.id)
+        .toList(growable: false);
+
+    if (rows.isEmpty) {
+      return const LedgerEmptyState(
+        icon: Icons.receipt_long_outlined,
+        title: 'No activity yet',
+        message:
+            'Transactions paid from, received into or transferred through this '
+            'account will appear here.',
+      );
+    }
+
+    final List<TransactionDayGroup> groups = groupTransactionsByDay(
+      rows,
+      formatter: formatter,
+      locale: provider.locale,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        for (final TransactionDayGroup group in groups) ...<Widget>[
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              'Statements',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+            child: TransactionDayHeader(
+              label: group.label,
+              net: group.net,
+              formatter: formatter,
+              transactionCount: group.transactions.length,
+              hideAmounts: provider.hideAmounts,
             ),
           ),
-          const SizedBox(height: 4),
-          for (final AccountModel account in accounts)
-            _AccountStatementTile(
-              account: account,
-              balance: provider.accountBalance(account.id),
+          for (final TransactionModel transaction in group.transactions)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: _AccountRow(
+                transaction: transaction,
+                accountId: account.id,
+              ),
             ),
         ],
       ],
@@ -127,360 +431,187 @@ class AccountsScreen extends StatelessWidget {
   }
 }
 
-class _AccountCarouselCard extends StatelessWidget {
-  const _AccountCarouselCard({
-    required this.account,
-    required this.balance,
-    required this.formatter,
-  });
+/// A history row that makes the direction explicit for transfers.
+class _AccountRow extends StatelessWidget {
+  const _AccountRow({required this.transaction, required this.accountId});
 
-  final AccountModel account;
-  final double balance;
-  final CurrencyFormatter formatter;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final Color tint = Color(account.color);
-    final bool isDark = theme.brightness == Brightness.dark;
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(26),
-      onTap: () => Navigator.of(context).push<void>(
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) =>
-              AccountStatementScreen(accountId: account.id),
-        ),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(26),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: <Color>[
-              Color.alphaBlend(
-                tint.withAlpha(isDark ? 90 : 220),
-                isDark ? const Color(0xFF141414) : tint,
-              ),
-              Color.alphaBlend(
-                tint.withAlpha(isDark ? 40 : 130),
-                isDark ? const Color(0xFF0C0C0C) : tint,
-              ),
-            ],
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.22),
-                    borderRadius: BorderRadius.circular(11),
-                  ),
-                  child: Icon(
-                    account.cardType.icon,
-                    size: 18,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    account.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                if (account.isDefault)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.24),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      'Default',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const Spacer(),
-            Text(
-              account.maskedNumber,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: Colors.white.withOpacity(0.75),
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 6),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                formatter.format(balance),
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.5,
-                ),
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              '${account.cardType.label} · ${account.name}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: Colors.white.withOpacity(0.75),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AccountStatementTile extends StatelessWidget {
-  const _AccountStatementTile({required this.account, required this.balance});
-
-  final AccountModel account;
-  final double balance;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final ColorScheme scheme = theme.colorScheme;
-    final PaisaProvider provider = context.watch<PaisaProvider>();
-    final PaisaColors colors = PaisaColors.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: () => Navigator.of(context).push<void>(
-          MaterialPageRoute<void>(
-            builder: (BuildContext context) =>
-                AccountStatementScreen(accountId: account.id),
-          ),
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: scheme.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            children: <Widget>[
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: Color(account.color).withOpacity(0.18),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(
-                  account.cardType.icon,
-                  size: 20,
-                  color: Color(account.color),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      account.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleSmall,
-                    ),
-                    Text(
-                      account.number.isEmpty
-                          ? account.cardType.label
-                          : '${account.cardType.label} · •••• ${account.number}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                provider.formatter.format(balance),
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: balance < 0 ? colors.expense : scheme.onSurface,
-                ),
-              ),
-              const SizedBox(width: 4),
-              Icon(
-                Icons.chevron_right_rounded,
-                size: 20,
-                color: scheme.onSurfaceVariant,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// One account's transaction statement.
-class AccountStatementScreen extends StatelessWidget {
-  const AccountStatementScreen({super.key, required this.accountId});
-
+  final TransactionModel transaction;
   final String accountId;
 
   @override
   Widget build(BuildContext context) {
     final PaisaProvider provider = context.watch<PaisaProvider>();
-    final AccountModel? account = provider.accountById(accountId);
+    final CurrencyFormatter formatter = provider.formatter;
 
-    if (account == null) {
-      return Scaffold(
-        appBar: AppBar(),
-        body: const LedgerEmptyState(
-          icon: Icons.account_balance_wallet_outlined,
-          title: 'Account deleted',
-          message: 'This account no longer exists.',
-        ),
+    if (transaction.type != TransactionType.transfer) {
+      return TransactionTile(
+        transaction: transaction,
+        formatter: formatter,
+        category: provider.categoryById(transaction.categoryId),
+        account: provider.accountById(transaction.accountId),
+        hideAmounts: provider.hideAmounts,
+        onTap: () => openAddTransactionScreen(context, existing: transaction),
+        onDelete: () => deleteTransactionWithUndo(context, transaction),
       );
     }
 
-    final List<TransactionModel> transactions = provider.transactions
-        .where((TransactionModel t) =>
-            t.accountId == accountId || t.toAccountId == accountId)
-        .toList(growable: false);
+    final bool incoming = transaction.toAccountId == accountId;
+    final AccountModel? source = provider.accountById(transaction.accountId);
+    final AccountModel? destination =
+        provider.accountById(transaction.toAccountId);
+    final ThemeData theme = Theme.of(context);
+    final Color transferColor = PaisaColors.of(context).transfer;
 
-    final double balance = provider.accountBalance(accountId);
-    final double inflow = transactions.fold<double>(
-      0,
-      (double sum, TransactionModel t) =>
-          sum + math.max(0, t.deltaForAccount(accountId) ?? 0),
-    );
-    final double outflow = transactions.fold<double>(
-      0,
-      (double sum, TransactionModel t) =>
-          sum + math.max(0, -(t.deltaForAccount(accountId) ?? 0)),
-    );
-
-    return Scaffold(
-      appBar: AppBar(title: Text(account.title)),
-      body: GroupedTransactionList(
-        transactions: transactions,
-        onTapTransaction: (TransactionModel transaction) =>
-            openAddTransactionScreen(context, existing: transaction),
-        emptyTitle: 'No activity yet',
-        emptyMessage: 'Transactions on ${account.title} will appear here.',
-        header: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
-          child: _StatementHeader(
-            account: account,
-            balance: balance,
-            inflow: inflow,
-            outflow: outflow,
-          ),
+    return Dismissible(
+      key: ValueKey<String>('account-tx-${transaction.id}'),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (_) async {
+        await deleteTransactionWithUndo(context, transaction);
+        return false;
+      },
+      background: Container(
+        margin: const EdgeInsets.symmetric(vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        alignment: Alignment.centerRight,
+        decoration: BoxDecoration(
+          color: PaisaColors.of(context).expenseContainer,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Icon(
+          Icons.delete_outline_rounded,
+          color: PaisaColors.of(context).expense,
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => openAddTransactionScreen(
-          context,
-          initialAccountId: accountId,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: () => openAddTransactionScreen(context, existing: transaction),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: transferColor.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(
+                    incoming
+                        ? Icons.call_received_rounded
+                        : Icons.call_made_rounded,
+                    size: 22,
+                    color: transferColor,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        incoming
+                            ? 'Transfer in from ${source?.title ?? 'account'}'
+                            : 'Transfer out to ${destination?.title ?? 'account'}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        '${transaction.name} • '
+                        '${DateTimeFormat.time(transaction.time, locale: provider.locale)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  provider.hideAmounts
+                      ? CurrencyFormatter.maskedAmount
+                      : '${incoming ? '+' : '−'}${formatter.formatWhole(transaction.amount)}',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: transferColor,
+                    fontFeatures: const <FontFeature>[
+                      FontFeature.tabularFigures(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-        tooltip: 'Add transaction',
-        child: const Icon(Icons.add_rounded),
       ),
     );
   }
 }
 
-class _StatementHeader extends StatelessWidget {
-  const _StatementHeader({
-    required this.account,
-    required this.balance,
-    required this.inflow,
-    required this.outflow,
+/// One of the two tonal summary cards under the carousel.
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({
+    required this.icon,
+    required this.label,
+    required this.amount,
+    required this.caption,
+    required this.accent,
+    required this.background,
   });
 
-  final AccountModel account;
-  final double balance;
-  final double inflow;
-  final double outflow;
+  final IconData icon;
+  final String label;
+  final String amount;
+  final String caption;
+  final Color accent;
+  final Color background;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final ColorScheme scheme = theme.colorScheme;
-    final PaisaColors colors = PaisaColors.of(context);
-    final CurrencyFormatter formatter = context.watch<PaisaProvider>().formatter;
-
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(24),
+        color: background,
+        borderRadius: BorderRadius.circular(PaisaTheme.cardRadius),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            'Current balance',
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: scheme.onSurfaceVariant,
-            ),
-          ),
-          Text(
-            formatter.format(balance),
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: balance < 0 ? colors.expense : scheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 12),
           Row(
             children: <Widget>[
-              Expanded(
-                child: _MiniStat(
-                  label: 'Money in',
-                  value: formatter.formatWhole(inflow),
-                  color: colors.income,
-                ),
-              ),
-              Expanded(
-                child: _MiniStat(
-                  label: 'Money out',
-                  value: formatter.formatWhole(outflow),
-                  color: colors.expense,
-                ),
-              ),
-              Expanded(
-                child: _MiniStat(
-                  label: 'Opening',
-                  value: formatter.formatWhole(account.initialAmount),
-                  color: scheme.onSurfaceVariant,
-                ),
+              Icon(icon, size: 15, color: accent),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: theme.textTheme.labelMedium?.copyWith(color: accent),
               ),
             ],
+          ),
+          const SizedBox(height: 6),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              amount,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.4,
+              ),
+            ),
+          ),
+          Text(
+            caption,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
@@ -488,16 +619,11 @@ class _StatementHeader extends StatelessWidget {
   }
 }
 
-class _MiniStat extends StatelessWidget {
-  const _MiniStat({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
+class _TinyStat extends StatelessWidget {
+  const _TinyStat({required this.label, required this.value});
 
   final String label;
   final String value;
-  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -511,14 +637,12 @@ class _MiniStat extends StatelessWidget {
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
-        const SizedBox(height: 2),
         FittedBox(
           fit: BoxFit.scaleDown,
           alignment: Alignment.centerLeft,
           child: Text(
             value,
-            style: theme.textTheme.titleSmall?.copyWith(
-              color: color,
+            style: theme.textTheme.labelLarge?.copyWith(
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -528,189 +652,71 @@ class _MiniStat extends StatelessWidget {
   }
 }
 
-/// Minimal but complete "add account" sheet (Step 4 expands this into the full
-/// account manager with editing, colours and default selection).
-Future<void> _showAddAccountSheet(BuildContext context) async {
-  final PaisaProvider provider = context.read<PaisaProvider>();
-  final TextEditingController holder = TextEditingController(
-    text: provider.userName,
-  );
-  final TextEditingController title = TextEditingController();
-  final TextEditingController opening = TextEditingController();
-  final TextEditingController last4 = TextEditingController();
-  AccountType type = AccountType.bank;
-  int color = 0xFF1E88E5;
+/// Income / expense / transfer totals for one account.
+@immutable
+class _AccountTotals {
+  const _AccountTotals({
+    required this.income,
+    required this.expense,
+    required this.transferIn,
+    required this.transferOut,
+    required this.incomeCount,
+    required this.expenseCount,
+    required this.count,
+  });
 
-  const List<int> palette = <int>[
-    0xFF43A047,
-    0xFF1E88E5,
-    0xFF8E24AA,
-    0xFFF4511E,
-    0xFF00897B,
-    0xFF3949AB,
-  ];
+  final double income;
+  final double expense;
+  final double transferIn;
+  final double transferOut;
+  final int incomeCount;
+  final int expenseCount;
+  final int count;
 
-  await showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    builder: (BuildContext sheetContext) {
-      return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-          final ThemeData theme = Theme.of(context);
-          return Padding(
-            padding: EdgeInsets.only(
-              left: 20,
-              right: 20,
-              top: 8,
-              bottom: 16 + MediaQuery.viewInsetsOf(context).bottom,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Text(
-                      'Add account',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () => Navigator.of(sheetContext).pop(),
-                      icon: const Icon(Icons.close_rounded),
-                    ),
-                  ],
-                ),
-                SegmentedButton<AccountType>(
-                  style: PaisaTheme.segmentedButtonStyle(context),
-                  segments: <ButtonSegment<AccountType>>[
-                    for (final AccountType value in AccountType.values)
-                      ButtonSegment<AccountType>(
-                        value: value,
-                        label: Text(value.label),
-                        icon: Icon(value.icon, size: 16),
-                      ),
-                  ],
-                  selected: <AccountType>{type},
-                  showSelectedIcon: false,
-                  onSelectionChanged: (Set<AccountType> selection) =>
-                      setState(() => type = selection.first),
-                ),
-                const SizedBox(height: 14),
-                TextField(
-                  controller: title,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Account name',
-                    hintText: 'e.g. HDFC Savings',
-                    prefixIcon: Icon(Icons.account_balance_outlined),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: holder,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Holder name',
-                    prefixIcon: Icon(Icons.person_outline_rounded),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: TextField(
-                        controller: opening,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        decoration: const InputDecoration(
-                          labelText: 'Opening balance',
-                          prefixIcon: Icon(Icons.currency_rupee_rounded),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    SizedBox(
-                      width: 116,
-                      child: TextField(
-                        controller: last4,
-                        keyboardType: TextInputType.number,
-                        maxLength: 4,
-                        decoration: const InputDecoration(
-                          labelText: 'Last 4',
-                          counterText: '',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Wrap(
-                    spacing: 10,
-                    children: <Widget>[
-                      for (final int option in palette)
-                        InkWell(
-                          borderRadius: BorderRadius.circular(10),
-                          onTap: () => setState(() => color = option),
-                          child: Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: Color(option),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: option == color
-                                    ? theme.colorScheme.onSurface
-                                    : Colors.transparent,
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                FilledButton(
-                  onPressed: () async {
-                    final String name = title.text.trim();
-                    if (name.isEmpty) return;
-                    final double amount =
-                        provider.formatter.parse(opening.text) ?? 0;
-                    await provider.addAccount(
-                      AccountModel(
-                        id: 'account-${DateTime.now().microsecondsSinceEpoch}',
-                        name: holder.text.trim().isEmpty
-                            ? 'Me'
-                            : holder.text.trim(),
-                        bankName: name,
-                        number: last4.text.trim(),
-                        cardType: type,
-                        initialAmount: amount,
-                        color: color,
-                        isDefault: provider.accounts.isEmpty,
-                      ),
-                    );
-                    if (sheetContext.mounted) Navigator.of(sheetContext).pop();
-                  },
-                  child: const Text('Add account'),
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    },
-  );
+  /// Linked debt installments are part of the balance but are reported on the
+  /// Loans tab, so they are excluded from the account's income/expense totals to
+  /// avoid a repayment showing up twice.
+  static _AccountTotals of(List<TransactionModel> source, String accountId) {
+    double income = 0;
+    double expense = 0;
+    double transferIn = 0;
+    double transferOut = 0;
+    int incomeCount = 0;
+    int expenseCount = 0;
+    int count = 0;
 
-  holder.dispose();
-  title.dispose();
-  opening.dispose();
-  last4.dispose();
+    for (final TransactionModel transaction in source) {
+      final bool touches = transaction.accountId == accountId ||
+          transaction.toAccountId == accountId;
+      if (!touches) continue;
+      count++;
+      if (PaisaProvider.isLinkedDebtTransaction(transaction)) continue;
+
+      switch (transaction.type) {
+        case TransactionType.income:
+          if (transaction.accountId == accountId) {
+            income += transaction.amount;
+            incomeCount++;
+          }
+        case TransactionType.expense:
+          if (transaction.accountId == accountId) {
+            expense += transaction.amount;
+            expenseCount++;
+          }
+        case TransactionType.transfer:
+          if (transaction.accountId == accountId) transferOut += transaction.amount;
+          if (transaction.toAccountId == accountId) transferIn += transaction.amount;
+      }
+    }
+
+    return _AccountTotals(
+      income: income,
+      expense: expense,
+      transferIn: transferIn,
+      transferOut: transferOut,
+      incomeCount: incomeCount,
+      expenseCount: expenseCount,
+      count: count,
+    );
+  }
 }

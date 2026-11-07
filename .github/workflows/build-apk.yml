@@ -106,16 +106,36 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_COMMENT_URL: ${{ github.api_url }}/repos/${{ github.repository }}/commits/${{ github.event.pull_request.head.sha || github.sha }}/comments
 
-      # Bounded on purpose: a widget test that waits on an animation which never
-      # settles would otherwise sit there until the job's own time limit.
+      # Each file gets its own OS-level timeout and its own process, so a hang in
+      # one suite cannot hide the results of the rest (and cannot sit on the
+      # job's time limit). The combined output is posted as a commit comment if
+      # anything fails, since job logs are not always readable through the API.
       - name: Run Test Suite
-        timeout-minutes: 20
+        timeout-minutes: 25
         run: |
-          stack_arg=""
-          if flutter test --help 2>&1 | grep -q -- "--concurrency"; then
-            stack_arg="--concurrency=1"
+          set +e
+          : > tests.txt
+          failed=0
+          for f in test/*_test.dart; do
+            echo "=== $f ===" | tee -a tests.txt
+            timeout --signal=KILL 300 flutter test "$f" --timeout 120s >> tests.txt 2>&1
+            code=$?
+            tail -n 40 tests.txt
+            if [ "$code" -ne 0 ]; then
+              echo "::error::$f failed (exit $code)"
+              failed=1
+            fi
+          done
+          echo "--- summary ---"
+          grep -E "^(=== |[0-9]+:[0-9]+ )" tests.txt | tail -n 40
+          if [ "$failed" -ne 0 ]; then
+            python3 tool/report_analyzer.py tests.txt
+            exit 1
           fi
-          flutter test $stack_arg --timeout 120s
+          echo "all suites passed"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_COMMENT_URL: ${{ github.api_url }}/repos/${{ github.repository }}/commits/${{ github.event.pull_request.head.sha || github.sha }}/comments
 
       - name: Build Release APK (Universal)
         run: flutter build apk --release --no-tree-shake-icons

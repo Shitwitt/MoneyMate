@@ -90,6 +90,10 @@ jobs:
             while IFS= read -r line; do echo "::error::${line}"; done
           echo "analyzer: ${errors} error(s), ${warnings} warning(s), ${infos} info(s)"
           if [ "$errors" -gt 0 ]; then
+            dart analyze lib/screens/debts/debts_screen.dart > focused.txt 2>&1 || true
+            echo "=== focused analyze of debts_screen.dart ==="
+            cat focused.txt
+            cat focused.txt >> analyze.txt
             python3 tool/report_analyzer.py analyze.txt
             echo "::error::flutter analyze reported ${errors} compile error(s)"
             exit 1

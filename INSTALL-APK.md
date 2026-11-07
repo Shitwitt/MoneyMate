@@ -1,9 +1,9 @@
 # MoneyMate — Android test build
 
-**File:** `apk/MoneyMate-1.0-debug.apk` (3.9 MB, debug-signed)
-**SHA-256:** `fcc31b85505f4771e5a8b3d7ba9d95fe6d13ce70b416f4686a7beaca590e51e7`
+**File:** `apk/MoneyMate-1.0-debug.apk` (4.0 MB, debug-signed)
+**SHA-256:** `8dfdb4438dbd61769cdec178a8ab823583ed93f91ac44e1de5c4466a8e9b3331`
 **Package:** `com.moneymate.app` · minSdk 22 (Android 5.1+) · targetSdk 34
-**Built from:** branch `arena/d91b14b6-moneymate` @ `a2b07ad` via GitHub Actions
+**Built from:** branch `arena/d91b14b6-moneymate` @ `13400fc` via GitHub Actions
 
 ## Install on your phone
 
@@ -29,10 +29,15 @@ npm run android:apk          # build web + cap sync + gradlew assembleDebug
 
 ## What's inside
 
-The full Step‑1 Home Dashboard runs fully offline inside a WebView: hero balance
-card, all 17 bento widgets, templates, calendar heatmap, trend chart, track‑budgets
-carousel, multi‑currency upcoming list, FAB and floating pill navigation.
-Privacy masking, both budget carousels and the greeting tokens work as on the web preview.
+Everything built so far runs fully offline inside a WebView:
+
+- **Step 1** — Home Dashboard: hero balance card, all 17 bento widgets, templates,
+  calendar heatmap, trend chart, track‑budgets carousel, multi‑currency upcoming
+  list, FAB and floating pill navigation (privacy masking included).
+- **Step 2** — Accounts (6-account swipeable carousel + transactions), Reports &
+  Analytics (month strip, insights, bar/line chart toggle, filter dropdowns,
+  donut, Financial Reports directory), Budgets overview, the *How Budgets Work*
+  modal and the single-budget detail view with its pace chart.
 
 ## Notes
 

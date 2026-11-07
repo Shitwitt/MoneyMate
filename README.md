@@ -7,6 +7,11 @@ expense manager (Material Design 3 "Material You" warm terracotta theme).
 widgets, templates row, calendar heatmap, trend chart, track-budgets carousel,
 multi-currency upcoming transactions and the floating navigation system.
 
+**Step 2 — Accounts, Reports & Budgets** is complete: swipeable accounts screen,
+Reports & Analytics (insights, bar/line chart, filter menus, donut breakdown,
+Financial Reports directory), Budgets overview with tinted summary pills, the
+*How Budgets Work* modal and the single-budget detail view.
+
 ## Run
 
 ```bash
@@ -40,6 +45,13 @@ npm run build    # production bundle in dist/
 | Track-budgets carousel | `src/components/BudgetCarousel.jsx` |
 | Upcoming transactions (INR / EUR / GBP) | `src/components/UpcomingTransactions.jsx` |
 | FAB + floating pill nav | `src/components/FloatingNav.jsx` |
+| Step 2 seed data | `src/data/step2Data.js` |
+| Accounts screen | `src/views/AccountsView.jsx` |
+| Reports & Analytics screen | `src/views/ReportsView.jsx` |
+| Budgets overview | `src/views/BudgetsView.jsx` |
+| Single budget detail | `src/views/BudgetDetailView.jsx` |
+| How Budgets Work modal | `src/views/HowBudgetsModal.jsx` |
+| Step 2 styles | `src/styles/step2.css` |
 | State store + Indian formatting engine | `src/data/demoStore.js` |
 | Design tokens | `src/styles/tokens.css` |
 | Component styles | `src/styles/app.css` |
@@ -68,14 +80,35 @@ Foreign entries convert at the seed rates (EUR → ₹295.65, GBP → ₹193.67)
 - **Budgets bento card** — tap *or* swipe switches between the count slide and
   the Total / Remaining / Spent breakdown; pagination dots follow.
 - **Track budgets carousel** — tap or swipe between Food and Transportation
-  budget cards with a sliding transition and dots.
+  budget cards with a sliding transition and dots (tapping a card opens its
+  budget detail).
+- **Routing** — `demoStore.go(view, params)` drives `home | accounts | reports |
+  budgets | budgetDetail`; bottom nav, bento cards, carousel cards, back arrows
+  and the browser/Android back button all go through it.
+- **Reports** — month strip, chart mode toggle (bars/line), Expense⇄Income and
+  Category dropdown (with locked Account/Label/Person/Places rows), and the
+  breakdown accordion all update from the store.
 - Greeting tokens (backup, notification, rating, recurring) toggle state /
   raise contextual toasts; the notification token flips its own boolean.
 - Bottom nav, FAB, chevrons and "See all" buttons raise placeholder toasts and
   route through the store, so Step 2 only needs to swap in real screens.
 
+## Android
+
+The app ships as a Capacitor project. `npm run android:apk` builds locally;
+`.github/workflows/build-apk.yml` assembles the debug APK in CI, publishes it to
+the `apk-builds` branch and attaches it as a workflow artifact.
+See `INSTALL-APK.md`.
+
+## Testing
+
+`scripts/smoke.jsx` and `scripts/smoke2.jsx` server-render the app and assert the
+spec's exact strings per screen (141 checks in Step 2):
+
+```bash
+npx vite build --ssr scripts/smoke2.jsx --outDir .smoke && node .smoke/smoke2.js
+```
+
 ## Next steps
 
-Step 2+ will add the Accounts, Reports, Search and Add-Transaction screens on
-top of `demoStore`. When "build apk" is requested, the app will be wrapped with
-Capacitor (Android) and signed.
+Step 3+ will add Search and the Add-Transaction flow on top of `demoStore`.

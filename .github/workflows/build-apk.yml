@@ -90,8 +90,14 @@ jobs:
             while IFS= read -r line; do echo "::error::${line}"; done
           echo "analyzer: ${errors} error(s), ${warnings} warning(s), ${infos} info(s)"
           if [ "$errors" -gt 0 ]; then
-            dart analyze lib/screens/debts/debts_screen.dart > focused.txt 2>&1 || true
-            echo "=== focused analyze of debts_screen.dart ==="
+            # Re-analyze only the files that actually errored, so the posted
+            # report is about the current failure and not last turn's.
+            grep -oE "lib/[A-Za-z0-9_./-]+\.dart|test/[A-Za-z0-9_./-]+\.dart" analyze.txt |
+              sort -u > focused_files.txt
+            echo "=== focused analyze ===" | tee focused.txt
+            cat focused_files.txt >> focused.txt
+            # shellcheck disable=SC2046
+            dart analyze $(cat focused_files.txt) >> focused.txt 2>&1 || true
             cat focused.txt
             cat focused.txt >> analyze.txt
             python3 tool/report_analyzer.py analyze.txt

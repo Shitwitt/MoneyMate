@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
 import 'core/l10n/app_strings.dart';
 import 'core/theme/paisa_theme.dart';
 import 'core/theme/theme_preference.dart';
 import 'core/utils/app_lock.dart';
+import 'core/utils/date_time_format.dart';
 import 'data/local/hive_storage.dart';
 import 'data/models/settings_model.dart';
 import 'providers/paisa_provider.dart';
@@ -33,7 +33,7 @@ Future<void> main() async {
   // Date labels go through `intl` with an explicit locale (`en_IN` by default,
   // so grouping is Indian). Without this call `DateFormat` throws
   // `LocaleDataException` the first time a screen formats a date.
-  await initializeDateFormatting();
+  await DateTimeFormat.ensureInitialized();
 
   final HiveStorage storage = HiveStorage.instance;
   await storage.init();

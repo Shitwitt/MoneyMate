@@ -1,3 +1,4 @@
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
 /// Date and time labels used across the dashboard, ledger and forms.
@@ -10,21 +11,33 @@ class DateTimeFormat {
 
   static final Map<String, DateFormat> _cache = <String, DateFormat>{};
 
+  /// Loads the CLDR date symbols/patterns into `intl`.
+  ///
+  /// Idempotent: `intl` skips the work once a locale map is installed. Doing it
+  /// here (not only in `main()`) means a screen that formats a date still works
+  /// when it is built by a test, a background isolate, or before the app's boot
+  /// sequence gets that far.
+  static Future<void> ensureInitialized() => initializeDateFormatting();
+
   /// A [DateFormat] for [pattern] in [locale], cached.
   ///
-  /// `intl` only ships data for the locales loaded into it — `initializeDateFormatting()`
-  /// is awaited in `main()`. If a caller formats a date before that (a unit test,
-  /// a locale intl has no data for) the plain English pattern is used instead of
-  /// throwing `LocaleDataException`: a missing month name must never take down a
-  /// screen full of the user's money.
-  static DateFormat _pattern(String pattern, String locale) =>
-      _cache.putIfAbsent('$pattern|$locale', () {
-        try {
-          return DateFormat(pattern, locale);
-        } on LocaleDataException {
-          return DateFormat(pattern);
-        }
-      });
+  /// Chosen after [ensureInitialized] has run. If a caller formats a date
+  /// before that, `intl` can only resolve locales it already knows, so the
+  /// request degrades to the plain English pattern instead of throwing
+  /// `LocaleDataException`: a missing month name must never take down a screen
+  /// full of the user's money.
+  static DateFormat _pattern(String pattern, String locale) {
+    try {
+      return _cache.putIfAbsent(
+        '$pattern|$locale',
+        () => DateFormat(pattern, locale),
+      );
+    } catch (_) {
+      // `intl` does not export the exception it throws here, and any failure to
+      // resolve the locale has the same remedy: use the default locale.
+      return _cache.putIfAbsent('$pattern|', () => DateFormat(pattern));
+    }
+  }
 
   /// `07 Nov 2026` — the canonical ledger date.
   static String date(DateTime value, {String locale = 'en_IN'}) =>

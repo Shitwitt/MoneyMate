@@ -9,6 +9,8 @@ import '@fontsource/plus-jakarta-sans/latin-800.css';
 import './styles/tokens.css';
 import './styles/app.css';
 import './styles/step2.css';
+import './styles/theme3.css';
+import './styles/step3.css';
 
 import App from './App.jsx';
 

@@ -1,10 +1,11 @@
 import React from 'react';
-import { X, LayoutGrid, UserRound } from 'lucide-react';
+import { X, LayoutGrid, UserRound, Moon, Sun } from 'lucide-react';
 import { useStore } from '../hooks/useStore.js';
 import { demoStore } from '../data/demoStore.js';
 
 export default function TopBar() {
   const privacy = useStore((s) => s.privacy);
+  const theme = useStore((s) => s.theme);
 
   return (
     <header className="top-bar">
@@ -15,6 +16,15 @@ export default function TopBar() {
 
       <div className="top-right">
         <span className="new-badge">New</span>
+        <button
+          type="button"
+          className="theme-toggle"
+          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+          aria-pressed={theme === 'dark'}
+          onClick={() => demoStore.toggleTheme()}
+        >
+          {theme === 'dark' ? <Sun /> : <Moon />}
+        </button>
         <button
           type="button"
           className="icon-btn"

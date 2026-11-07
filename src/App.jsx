@@ -20,6 +20,18 @@ import BudgetsView from './views/BudgetsView.jsx';
 import BudgetDetailView from './views/BudgetDetailView.jsx';
 import HowBudgetsModal from './views/HowBudgetsModal.jsx';
 
+import AssetsView from './views/AssetsView.jsx';
+import AssetEditorView from './views/AssetEditorView.jsx';
+import HowAssetsModal from './views/HowAssetsModal.jsx';
+import BillSplitterView from './views/BillSplitterView.jsx';
+import BillDetailsView from './views/BillDetailsView.jsx';
+import BillEditorView from './views/BillEditorView.jsx';
+import { HowBillSplitterModal, NetBalancesModal } from './views/BillModals.jsx';
+import LoansView from './views/LoansView.jsx';
+import LoanDetailsView from './views/LoanDetailsView.jsx';
+import LoanEditorView from './views/LoanEditorView.jsx';
+import HowLoansModal from './views/HowLoansModal.jsx';
+
 function Toast() {
   const toast = useStore((s) => s.toast);
   if (!toast) return null;
@@ -58,21 +70,53 @@ const VIEWS = {
   reports: ReportsView,
   budgets: BudgetsView,
   budgetDetail: BudgetDetailView,
+  assets: AssetsView,
+  assetEditor: AssetEditorView,
+  billSplitter: BillSplitterView,
+  billDetails: BillDetailsView,
+  billEditor: BillEditorView,
+  loans: LoansView,
+  loanDetails: LoanDetailsView,
+  loanEditor: LoanEditorView,
 };
+
+/** screens that always use the expressive dark palette */
+const DARK_VIEWS = new Set([
+  'billSplitter',
+  'billDetails',
+  'billEditor',
+  'loans',
+  'loanDetails',
+  'loanEditor',
+]);
 
 export default function App() {
   const view = useStore((s) => s.route.view);
-  const howOpen = useStore((s) => s.howBudgetsOpen);
-  const Current = VIEWS[view] || HomeView;
+  const theme = useStore((s) => s.theme);
+  const howBudgetsOpen = useStore((s) => s.howBudgetsOpen);
+  const assetsHow = useStore((s) => s.assetsUi.howOpen);
+  const billsHow = useStore((s) => s.billsUi.howOpen);
+  const balancesOpen = useStore((s) => s.billsUi.balancesOpen);
+  const loansHow = useStore((s) => s.loansUi.howOpen);
 
-  // each screen starts at the top (browser / WebView scroll is global)
+  const Current = VIEWS[view] || HomeView;
+  const effectiveTheme = DARK_VIEWS.has(view) ? 'dark' : theme;
+
+  // the theme lives on <html> so the shell backdrop switches too
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', effectiveTheme);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', effectiveTheme === 'dark' ? '#1A110E' : '#FDF3EE');
+  }, [effectiveTheme]);
+
+  // each screen starts at the top
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
     const shell = document.querySelector('.app-shell');
     if (shell) shell.scrollTop = 0;
   }, [view]);
 
-  // android hardware back / browser back leaves the sub-screen first
+  // browser / hardware back leaves the sub-screen first
   useEffect(() => {
     const onPop = () => {
       if (view !== 'home') demoStore.back();
@@ -88,7 +132,13 @@ export default function App() {
       </main>
 
       {view === 'home' ? <FloatingNav /> : null}
-      {howOpen ? <HowBudgetsModal /> : null}
+
+      {howBudgetsOpen ? <HowBudgetsModal /> : null}
+      {assetsHow ? <HowAssetsModal /> : null}
+      {billsHow ? <HowBillSplitterModal /> : null}
+      {balancesOpen ? <NetBalancesModal /> : null}
+      {loansHow ? <HowLoansModal /> : null}
+
       <Toast />
     </>
   );

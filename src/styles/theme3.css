@@ -1,0 +1,292 @@
+/* ============================================================
+   Step 3 theme engine — Light (warm) + Expressive Dark (espresso)
+   The `data-theme` attribute lives on <html> so every surface,
+   including the shell backdrop, can respond to it.
+   ============================================================ */
+
+:root,
+[data-theme='light'] {
+  --s3-canvas: #fdf3ee;
+  --s3-surface: #ffffff;
+  --s3-surface-2: #f5eae3;
+  --s3-primary: #7b4028;
+  --s3-primary-fg: #ffffff;
+  --s3-text: #1f1f1f;
+  --s3-muted: #7a6860;
+  --s3-accent-label: #7b4028;
+  --s3-fab: #7b4028;
+  --s3-fab-fg: #ffdad0;
+  --s3-hairline: #f0e4dd;
+  --s3-chip: #fadad8;
+  --s3-chip-fg: #7b4028;
+  --s3-outline: #e5b8b5;
+  --s3-sheet: #fdf3ee;
+  --s3-scrim: rgba(0, 0, 0, 0.45);
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --s3-canvas: #1a110e;
+  --s3-surface: #281e1b;
+  --s3-surface-2: #382b26;
+  --s3-primary: #fbb69d;
+  --s3-primary-fg: #2b150d;
+  --s3-text: #f5ece8;
+  --s3-muted: #a89892;
+  --s3-accent-label: #e5987d;
+  --s3-fab: #7b4028;
+  --s3-fab-fg: #ffdad0;
+  --s3-hairline: #3a2b26;
+  --s3-chip: #382b26;
+  --s3-chip-fg: #e5987d;
+  --s3-outline: #5c433b;
+  --s3-sheet: #221815;
+  --s3-scrim: rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+
+/* canvas + backdrop follow the theme globally */
+html[data-theme='dark'] body {
+  background: #120c0a;
+  background-image: radial-gradient(120% 80% at 50% 0%, #241713 0%, #100a08 100%);
+  color: var(--s3-text);
+}
+html[data-theme='dark'] .app-shell {
+  background: var(--s3-canvas);
+}
+html[data-theme='dark'] .app-shell {
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+}
+
+/* dark surfaces for chrome shared with steps 1–2 */
+html[data-theme='dark'] .bottom-nav {
+  background: #221815;
+  border: 1px solid var(--s3-hairline);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.5);
+}
+html[data-theme='dark'] .nav-item {
+  color: var(--s3-text);
+}
+html[data-theme='dark'] .nav-item:not(.active):active {
+  background: #2f231f;
+}
+html[data-theme='dark'] .nav-item.active {
+  background: var(--s3-primary);
+  color: var(--s3-primary-fg);
+}
+html[data-theme='dark'] .fab {
+  background: var(--s3-fab);
+  color: #fff;
+}
+html[data-theme='dark'] .toast {
+  background: #3a2b26;
+  color: var(--s3-text);
+}
+html[data-theme='dark'] .card,
+html[data-theme='dark'] .panel,
+html[data-theme='dark'] .upcoming-list,
+html[data-theme='dark'] .rp-card,
+html[data-theme='dark'] .dir-card,
+html[data-theme='dark'] .tx-list,
+html[data-theme='dark'] .bd-card,
+html[data-theme='dark'] .bd-toggle-card,
+html[data-theme='dark'] .bd-hero {
+  background: var(--s3-surface);
+  border-color: var(--s3-hairline);
+}
+html[data-theme='dark'] .card-title,
+html[data-theme='dark'] .tx-title,
+html[data-theme='dark'] .rp-title-lg,
+html[data-theme='dark'] .rp-head-left,
+html[data-theme='dark'] .rp-head-simple,
+html[data-theme='dark'] .dir-title,
+html:where([data-theme='dark']) .stat-label,
+html[data-theme='dark'] .bd-name,
+html[data-theme='dark'] .bd-amount,
+html[data-theme='dark'] .section-head h2,
+html[data-theme='dark'] .greeting b,
+html[data-theme='dark'] .bd-toggle-title,
+html[data-theme='dark'] .acc-head,
+html[data-theme='dark'] .acc-toggle {
+  color: var(--s3-text);
+}
+html[data-theme='dark'] .sub-title {
+  color: var(--s3-text);
+}
+html[data-theme='dark'] .icon-btn,
+html[data-theme='dark'] .icon-btn.dark {
+  color: var(--s3-text);
+}
+html[data-theme='dark'] .muted-label,
+html[data-theme='dark'] .stat-sub,
+html[data-theme='dark'] .card-copy,
+html[data-theme='dark'] .hero-col-sub,
+html[data-theme='dark'] .bd-small-label,
+html[data-theme='dark'] .bd-toggle-sub {
+  color: var(--s3-muted);
+}
+html[data-theme='dark'] .tx,
+html[data-theme='dark'] .dir-row {
+  border-bottom-color: var(--s3-hairline);
+}
+html[data-theme='dark'] .see-all {
+  border-color: var(--s3-outline);
+  color: var(--s3-text);
+}
+html[data-theme='dark'] .report-note,
+html[data-theme='dark'] .card-copy {
+  color: var(--s3-muted);
+}
+
+/* theme toggle button in the home top bar */
+.theme-toggle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #4a3228;
+  background: rgba(123, 64, 40, 0.08);
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+.theme-toggle:active {
+  transform: scale(0.92);
+}
+html[data-theme='dark'] .theme-toggle {
+  background: #382b26;
+  color: #fbb69d;
+}
+
+/* ============================================================
+   Dark overrides for Step 2 surfaces, so a global dark toggle
+   never leaves a light card stranded on the espresso canvas.
+   ============================================================ */
+
+html[data-theme='dark'] .month-pill {
+  background: #2f231f;
+  color: var(--s3-text);
+}
+html[data-theme='dark'] .month-pill.on {
+  background: var(--s3-primary);
+  color: var(--s3-primary-fg);
+}
+html[data-theme='dark'] .filter-btn,
+html[data-theme='dark'] .seg-toggle,
+html[data-theme='dark'] .dir-ico,
+html[data-theme='dark'] .rp-tile {
+  background: var(--s3-surface-2);
+  color: var(--s3-text);
+}
+html[data-theme='dark'] .filter-btn svg,
+html[data-theme='dark'] .seg-btn {
+  color: var(--s3-muted);
+}
+html[data-theme='dark'] .seg-btn.on {
+  background: var(--s3-primary);
+  color: var(--s3-primary-fg);
+}
+html[data-theme='dark'] .rp-sub.income,
+html[data-theme='dark'] .rp-banner.teal,
+html[data-theme='dark'] .breakdown-banner {
+  background: #23302b;
+}
+html[data-theme='dark'] .rp-sub.expense {
+  background: #33211f;
+}
+html[data-theme='dark'] .rp-sub-label,
+html[data-theme='dark'] .rp-banner-label,
+html[data-theme='dark'] .bb-sub,
+html[data-theme='dark'] .bb-italic,
+html[data-theme='dark'] .dir-desc,
+html[data-theme='dark'] .rp-tile-head,
+html[data-theme='dark'] .rp-tile-sub,
+html[data-theme='dark'] .rp-sub-was,
+html[data-theme='dark'] .bd-small-label,
+html[data-theme='dark'] .acc-head,
+html[data-theme='dark'] .split-sub,
+html[data-theme='dark'] .card-copy {
+  color: var(--s3-muted);
+}
+html[data-theme='dark'] .rp-sub-value,
+html[data-theme='dark'] .rp-tile-main,
+html[data-theme='dark'] .rp-banner-title,
+html[data-theme='dark'] .rp-banner-amount,
+html[data-theme='dark'] .bb-title,
+html[data-theme='dark'] .bb-amount,
+html[data-theme='dark'] .dir-row,
+html[data-theme='dark'] .split-value,
+html[data-theme='dark'] .acc-toggle,
+html[data-theme='dark'] .bd-amount {
+  color: var(--s3-text);
+}
+html[data-theme='dark'] .rp-banner.peach {
+  background: var(--s3-surface-2);
+}
+html[data-theme='dark'] .donut-caption {
+  color: var(--s3-text);
+}
+html[data-theme='dark'] .dimension-menu {
+  background: #2b211e;
+}
+html[data-theme='dark'] .dimension-item {
+  color: var(--s3-text);
+}
+html[data-theme='dark'] .dimension-item.active {
+  background: #3d2c26;
+}
+html[data-theme='dark'] .bd-hero {
+  background: var(--s3-surface);
+  border-color: var(--s3-hairline);
+}
+html[data-theme='dark'] .bd-daily {
+  background: #2a2b45;
+  color: #b9bdf0;
+}
+html[data-theme='dark'] .bd-cat-track {
+  background: #3a2a28;
+}
+html[data-theme='dark'] .m3-switch {
+  background: #3a2b26;
+}
+html[data-theme='dark'] .m3-switch.on {
+  background: var(--s3-primary);
+}
+html[data-theme='dark'] .bd-toggle-title,
+html[data-theme='dark'] .bd-card-title {
+  color: var(--s3-text);
+}
+html[data-theme='dark'] .page-chip {
+  background: #382b26;
+  border-color: var(--s3-outline);
+  color: var(--s3-accent-label);
+}
+html[data-theme='dark'] .acct-name {
+  color: #f5ece8 !important;
+}
+html[data-theme='dark'] .acct-owner {
+  color: #c3b3ac !important;
+}
+html[data-theme='dark'] .how-sheet {
+  background: var(--s3-canvas);
+}
+html[data-theme='dark'] .how-head h2,
+html[data-theme='dark'] .how-title {
+  color: var(--s3-text);
+}
+html[data-theme='dark'] .how-intro,
+html[data-theme='dark'] .how-line {
+  color: var(--s3-muted);
+}
+html[data-theme='dark'] .how-ico {
+  background: #382b26;
+  color: #fbb69d;
+}
+html[data-theme='dark'] .how-cta {
+  background: var(--s3-primary);
+  color: var(--s3-primary-fg);
+}

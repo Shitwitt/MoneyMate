@@ -109,6 +109,9 @@ export default function BentoGrid() {
   const goAccounts = () => demoStore.go('accounts');
   const goReports = () => demoStore.go('reports');
   const goBudgets = () => demoStore.go('budgets');
+  const goAssets = () => demoStore.go('assets');
+  const goBills = () => demoStore.go('billSplitter');
+  const goLoans = () => demoStore.go('loans');
 
   const miniSwipe = useSwipe({ onLeft: demoStore.cycleBudgetBento, onRight: demoStore.cycleBudgetBento });
 
@@ -179,7 +182,7 @@ export default function BentoGrid() {
       </Card>
 
       {/* 4 — Assets */}
-      <Card icon={Vault} title="Assets" onClick={open('Assets')}>
+      <Card icon={Vault} title="Assets" onClick={goAssets}>
         <div className="card-foot">
           <div className="stat-line">
             <span className="stat-num">{o.assets.count}</span>
@@ -191,7 +194,7 @@ export default function BentoGrid() {
       </Card>
 
       {/* 5 — Bill Splitter */}
-      <Card icon={Split} title="Bill Splitter" onClick={open('Bill Splitter')}>
+      <Card icon={Split} title="Bill Splitter" onClick={goBills}>
         <div className="card-foot">
           <div className="stat-line">
             <span className="stat-num sm">{o.billSplitter.bills}</span>
@@ -213,7 +216,7 @@ export default function BentoGrid() {
       </Card>
 
       {/* 6 — Loans */}
-      <Card icon={Banknote} title="Loans" onClick={open('Loans')}>
+      <Card icon={Banknote} title="Loans" onClick={goLoans}>
         <div className="card-foot">
           <div className="stat-line">
             <span className="stat-num sm">{o.loans.lending}</span>

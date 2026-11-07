@@ -5,6 +5,14 @@
    Search, Add-Transaction) mutate this same store.
    ============================================================ */
 
+import { toCents, fromCents, loanState } from './engine.js';
+import {
+  assets as seedAssets,
+  billSplitters as seedBills,
+  loans as seedLoans,
+  DEMO_TODAY,
+} from './step3Data.js';
+
 const listeners = new Set();
 
 /* ---------- formatting engine (Indian numbering) ---------- */
@@ -312,6 +320,16 @@ const initialState = {
   },
   accountsUi: { slide: 0 },
   budgetsUi: { slide: 0, showOnHome: true },
+
+  /* ---------- Step 3 ---------- */
+  theme: 'light', // light | dark
+  assets: seedAssets,
+  assetsUi: { howOpen: false, editor: null },
+  bills: seedBills,
+  billsUi: { tab: 'active', howOpen: false, balancesOpen: false, menuFor: null, editOpen: false, editId: null },
+  loans: seedLoans,
+  loansUi: { tab: 'lending', howOpen: false, sort: 'name', addOpen: false, editId: null, payFor: null },
+  today: DEMO_TODAY,
   toast: null,
   howBudgetsOpen: false,
 };
@@ -377,6 +395,11 @@ export const demoStore = {
   back() {
     const v = state.route.view;
     if (v === 'budgetDetail') return demoStore.go('budgets');
+    if (v === 'assetEditor') return demoStore.go('assets');
+    if (v === 'billDetails') return demoStore.go('billSplitter');
+    if (v === 'billEditor') return demoStore.go('billSplitter');
+    if (v === 'loanDetails') return demoStore.go('loans');
+    if (v === 'loanEditor') return demoStore.go('loans');
     return demoStore.go('home');
   },
 
@@ -434,6 +457,165 @@ export const demoStore = {
   openHowBudgets(open = true) {
     demoStore.setIn('howBudgetsOpen', open);
   },
+  /* ---------- theme ---------- */
+  toggleTheme() {
+    const next = state.theme === 'light' ? 'dark' : 'light';
+    demoStore.setIn('theme', next);
+  },
+
+  /* ---------- assets ---------- */
+  openAssetsHow(open = true) {
+    demoStore.setIn('assetsUi.howOpen', open);
+  },
+  editAsset(id) {
+    demoStore.set({
+      route: { view: 'assetEditor', params: { id } },
+      assetsUi: { ...state.assetsUi, editor: id },
+    });
+  },
+  newAsset() {
+    demoStore.set({
+      route: { view: 'assetEditor', params: {} },
+      assetsUi: { ...state.assetsUi, editor: null },
+    });
+  },
+  saveAsset(asset) {
+    const exists = state.assets.some((a) => a.id === asset.id);
+    const next = exists
+      ? state.assets.map((a) => (a.id === asset.id ? asset : a))
+      : [...state.assets, asset];
+    demoStore.set({ assets: next });
+    demoStore.go('assets');
+    demoStore.toast(exists ? 'Asset updated' : 'Asset added');
+  },
+  deleteAsset(id) {
+    demoStore.set({ assets: state.assets.filter((a) => a.id !== id) });
+    demoStore.go('assets');
+    demoStore.toast('Asset deleted');
+  },
+
+  /* ---------- bill splitters ---------- */
+  setBillsTab(tab) {
+    demoStore.setIn('billsUi.tab', tab);
+  },
+  openBillsHow(open = true) {
+    demoStore.setIn('billsUi.howOpen', open);
+  },
+  openNetBalances(open = true) {
+    demoStore.setIn('billsUi.balancesOpen', open);
+  },
+  openParticipantMenu(id) {
+    demoStore.setIn('billsUi.menuFor', state.billsUi.menuFor === id ? null : id);
+  },
+  closeParticipantMenu() {
+    demoStore.setIn('billsUi.menuFor', null);
+  },
+  /** Mark a participant as having paid their full share. */
+  markParticipantPaid(billId, participantId) {
+    demoStore.set({
+      bills: state.bills.map((b) => {
+        if (b.id !== billId) return b;
+        return {
+          ...b,
+          participants: b.participants.map((p) => {
+            if (p.id !== participantId) return p;
+            const share =
+              b.mode === 'equal'
+                ? fromCents(Math.round((toCents(b.total) / b.participants.length)))
+                : toCents(p.share) / 100;
+            return { ...p, paid: share };
+          }),
+        };
+      }),
+    });
+    demoStore.setIn('billsUi.menuFor', null);
+  },
+  /** Record a custom payment for one participant. */
+  setParticipantPaid(billId, participantId, amount) {
+    demoStore.set({
+      bills: state.bills.map((b) =>
+        b.id === billId
+          ? {
+              ...b,
+              participants: b.participants.map((p) =>
+                p.id === participantId ? { ...p, paid: Number(amount) || 0 } : p,
+              ),
+            }
+          : b,
+      ),
+    });
+  },
+  settleBill(billId) {
+    demoStore.set({
+      bills: state.bills.map((b) =>
+        b.id === billId
+          ? {
+              ...b,
+              participants: b.participants.map((p) => {
+                const share =
+                  b.mode === 'equal'
+                    ? fromCents(Math.round(toCents(b.total) / b.participants.length))
+                    : toCents(p.share) / 100;
+                return { ...p, paid: share };
+              }),
+            }
+          : b,
+      ),
+    });
+    demoStore.toast('Bill settled');
+  },
+  deleteBill(billId) {
+    demoStore.set({ bills: state.bills.filter((b) => b.id !== billId) });
+    demoStore.go('billSplitter');
+    demoStore.toast('Bill deleted');
+  },
+  saveBill(bill) {
+    const exists = state.bills.some((b) => b.id === bill.id);
+    demoStore.set({
+      bills: exists ? state.bills.map((b) => (b.id === bill.id ? bill : b)) : [bill, ...state.bills],
+    });
+    demoStore.go('billSplitter');
+    demoStore.toast(exists ? 'Bill updated' : 'Bill created');
+  },
+
+  /* ---------- loans ---------- */
+  setLoansTab(tab) {
+    demoStore.setIn('loansUi.tab', tab);
+  },
+  openLoansHow(open = true) {
+    demoStore.setIn('loansUi.howOpen', open);
+  },
+  toggleLoanSort() {
+    demoStore.setIn('loansUi.sort', state.loansUi.sort === 'name' ? 'amount' : 'name');
+  },
+  /** Record a payment; auto-completes the loan when fully paid. */
+  recordLoanPayment(loanId, amount) {
+    demoStore.set({
+      loans: state.loans.map((l) => {
+        if (l.id !== loanId) return l;
+        const nextPaid = Math.min(toCents(l.total), toCents(l.paid) + toCents(amount));
+        return { ...l, paid: fromCents(nextPaid) };
+      }),
+    });
+    demoStore.setIn('loansUi.payFor', null);
+    const loan = state.loans.find((l) => l.id === loanId);
+    const after = loanState({ ...loan, paid: toCents(loan.paid) / 100 + (Number(amount) || 0) }, state.today);
+    demoStore.toast(after.completed ? 'Loan completed 🎉' : 'Payment recorded');
+  },
+  deleteLoan(loanId) {
+    demoStore.set({ loans: state.loans.filter((l) => l.id !== loanId) });
+    demoStore.go('loans');
+    demoStore.toast('Loan deleted');
+  },
+  saveLoan(loan) {
+    const exists = state.loans.some((l) => l.id === loan.id);
+    demoStore.set({
+      loans: exists ? state.loans.map((l) => (l.id === loan.id ? loan : l)) : [loan, ...state.loans],
+    });
+    demoStore.go('loans');
+    demoStore.toast(exists ? 'Loan updated' : 'Loan created');
+  },
+
   exitDemo() {
     demoStore.set({ privacy: false });
     demoStore.toast('Demo mode — data stays local');

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 8.1+ can render dark icons on the light navigation bar -->
+    <style name="AppTheme.NoActionBar" parent="@style/AppTheme.NoActionBar.Base">
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>

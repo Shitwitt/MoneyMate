@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- MoneyMate — warm terracotta theme -->
+    <color name="colorPrimary">#7B4028</color>
+    <color name="colorPrimaryDark">#6A341F</color>
+    <color name="colorAccent">#FB8C00</color>
+
+    <color name="canvas">#FDF3EE</color>
+    <color name="splashBackground">#FDF3EE</color>
+    <color name="ic_launcher_background">#FDF3EE</color>
+</resources>

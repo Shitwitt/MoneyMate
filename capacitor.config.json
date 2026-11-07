@@ -1,0 +1,8 @@
+{
+  "appId": "com.moneymate.app",
+  "appName": "MoneyMate",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false
+  }
+}

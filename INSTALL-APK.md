@@ -1,9 +1,9 @@
 # MoneyMate — Android test build
 
-**File:** `apk/MoneyMate-1.0-debug.apk` (4.03 MB, debug-signed)
-**SHA-256:** `09cf9832ae1d7cffa7d20c65340c23ae1fe5a4074b4022aae947724f1f10820e`
+**File:** `apk/MoneyMate-1.0-debug.apk` (4.05 MB, debug-signed)
+**SHA-256:** `05ccb728fd599e812bec2236f87b3f5d58eb34732317429afe2567629046e422`
 **Package:** `com.moneymate.app` · minSdk 22 (Android 5.1+) · targetSdk 34
-**Built from:** branch `arena/d91b14b6-moneymate` @ `0e9f7ec` via GitHub Actions
+**Built from:** branch `arena/d91b14b6-moneymate` @ `aa74682` via GitHub Actions
 
 ## Install on your phone
 

@@ -419,9 +419,9 @@ class _ContactlessPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final Paint plate = Paint()..color = color.withValues(alpha: 0.85);
-    const RRect chip = RRect.fromRectAndRadius(
+    final RRect chip = RRect.fromRectAndRadius(
       Rect.fromLTWH(0, 2, 12, 20),
-      Radius.circular(3.5),
+      const Radius.circular(3.5),
     );
     canvas.drawRRect(chip, plate);
 

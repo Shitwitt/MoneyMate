@@ -365,15 +365,24 @@ export function makeInitialLiveState() {
   return {
     profile: {
       name: 'Raj',
+      photo: '',
       baseCurrency: 'INR',
       liabilitiesOffset: TARGET_HERO_TOTAL - TARGET_ACCOUNTS_TOTAL,
+    },
+    language: 'en',
+    onboarding: {
+      // SSR/test environments render the dashboard; a real first browser
+      // launch has no saved onboarding object and starts at step 1/14.
+      completed: typeof window === 'undefined',
+      step: 1,
+      entry: null,
     },
     privacy: false,
     theme: 'light',
     today: TODAY,
     toast: null,
     greeting: 'Good late night',
-    status: { backup: true, notification: false, notifications: false, rating: 5, recurring: 2, feedback: '' },
+    status: { backup: true, cloudBackup: false, notification: false, notifications: false, rating: 5, recurring: 2, feedback: '' },
     user: { name: 'Raj' }, // compatibility with older widgets
 
     accounts: SAMPLE_ACCOUNTS,

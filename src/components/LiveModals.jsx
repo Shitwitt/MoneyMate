@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { X, Plus, Trash2, Check, Search, RotateCcw } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { X, Plus, Trash2, Check, Search, RotateCcw, Camera, Download, Upload, Languages, Sun, Moon, FileJson, CloudUpload, Sparkles } from 'lucide-react';
 
 import { useStore } from '../hooks/useStore.js';
-import { demoStore, fmtExact, fmtFull, usd, CURRENCIES, CURRENCY_SYMBOL, convert } from '../data/demoStore.js';
+import { useT } from '../hooks/useT.js';
+import { demoStore, fmtExact, fmtFull, usd, CURRENCIES, CURRENCY_SYMBOL, CURRENCY_CATALOG, LANGUAGES, PRESET_AVATARS, readImageFile, avatarInitials, languageBadge, convert } from '../data/demoStore.js';
 import {
   budgetMath,
   collectionData,
@@ -141,57 +142,148 @@ const toOptions = (items, valueKey = 'name', labelKey = 'name') =>
 
 function ProfileModal() {
   const profile = useStore((s) => s.profile);
-  const [name, setName] = useState(profile.name);
-  const [baseCurrency, setBaseCurrency] = useState(profile.baseCurrency);
+  const language = useStore((s) => s.language || 'en');
+  const theme = useStore((s) => s.theme);
+  const cloudBackup = useStore((s) => s.status.cloudBackup);
+  const t = useT();
+  const [name, setName] = useState(profile.name || '');
+  const [photo, setPhoto] = useState(profile.photo || '');
+  const [baseCurrency, setBaseCurrency] = useState(profile.baseCurrency || 'INR');
+  const [lang, setLang] = useState(language);
   const [liabilitiesOffset, setLiabilitiesOffset] = useState(profile.liabilitiesOffset);
   const [confirmClear, setConfirmClear] = useState(false);
+  const photoRef = useRef(null);
+  const backupRef = useRef(null);
+
+  const save = () => {
+    demoStore.setProfile({
+      name: name.trim() || 'Raj',
+      photo,
+      baseCurrency,
+      liabilitiesOffset: Number(liabilitiesOffset) || 0,
+    });
+    demoStore.setLanguage(lang);
+    demoStore.closeModal();
+    demoStore.toast('Profile saved');
+  };
+
+  const uploadPhoto = async (file) => {
+    try {
+      const src = await readImageFile(file);
+      setPhoto(src);
+      demoStore.setProfilePhoto(src);
+      demoStore.toast('Profile photo updated');
+    } catch (err) {
+      demoStore.toast('Could not read that image');
+    }
+  };
+
+  const restoreFile = async (file) => {
+    try {
+      const text = await file.text();
+      const ok = demoStore.restoreBackup(text);
+      demoStore.toast(ok ? 'Backup restored' : 'That file is not a valid Paisa backup');
+    } catch (err) {
+      demoStore.toast('Could not read backup file');
+    }
+  };
+
   return (
     <ModalShell
-      title="Your profile"
+      title={t('Profile', 'Your profile')}
       subtitle="Live data is saved on this device."
       onClose={demoStore.closeModal}
-      footer={
-        <button
-          type="button"
-          className="btn primary"
-          onClick={() => {
-            demoStore.setProfile({ name: name.trim() || 'Raj', baseCurrency, liabilitiesOffset: Number(liabilitiesOffset) || 0 });
-            demoStore.closeModal();
-            demoStore.toast('Profile saved');
-          }}
-        >
-          Save profile
-        </button>
-      }
+      wide
+      footer={<button type="button" className="btn primary" onClick={save}>Save profile</button>}
     >
+      <div className="profile-settings-photo">
+        <div className="profile-settings-avatar">
+          {photo ? <img src={photo} alt="Profile" /> : <span>{avatarInitials(name)}</span>}
+          <button type="button" aria-label="Upload profile photo" onClick={() => photoRef.current?.click()}><Camera /></button>
+        </div>
+        <div className="profile-settings-photo-copy">
+          <strong>Profile photo</strong>
+          <p>Upload from your device or choose a preset. It appears on Home, Accounts and Reports.</p>
+          <div className="profile-preset-row">
+            {PRESET_AVATARS.map((a) => (
+              <button
+                type="button"
+                key={a.id}
+                aria-label={a.label}
+                onClick={() => { setPhoto(a.src); demoStore.setProfilePhoto(a.src); }}
+              >
+                <img src={a.src} alt="" />
+              </button>
+            ))}
+            {photo ? <button type="button" className="profile-remove-photo" onClick={() => { setPhoto(''); demoStore.setProfilePhoto(''); }}>Remove</button> : null}
+          </div>
+        </div>
+        <input ref={photoRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPhoto(f); e.target.value = ''; }} />
+      </div>
+
       <Field label="User name">
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Raj" />
+        <input
+          value={name}
+          onChange={(e) => { setName(e.target.value); demoStore.setProfile({ name: e.target.value }); }}
+          placeholder="Raj"
+          data-testid="profile-name"
+        />
       </Field>
-      <Field label="Base currency">
-        <select value={baseCurrency} onChange={(e) => setBaseCurrency(e.target.value)}>
-          {CURRENCIES.map((c) => <option key={c} value={c}>{CURRENCY_SYMBOL[c]} {c}</option>)}
-        </select>
-      </Field>
+      <div className="form-grid two">
+        <Field label="App language">
+          <select value={lang} onChange={(e) => { setLang(e.target.value); demoStore.setLanguage(e.target.value); }} data-testid="profile-language">
+            {LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.flag} {l.native} ({l.short})</option>)}
+          </select>
+        </Field>
+        <Field label="Base currency">
+          <select value={baseCurrency} onChange={(e) => { setBaseCurrency(e.target.value); demoStore.setBaseCurrency(e.target.value); }} data-testid="profile-currency">
+            {CURRENCY_CATALOG.map((c) => <option key={c.id} value={c.id}>{c.symbol} {c.id} — {c.name}</option>)}
+          </select>
+        </Field>
+      </div>
       <Field label="Other liabilities / net-worth adjustment" hint="Included in the Total balance calculation.">
         <input type="number" step="0.01" value={liabilitiesOffset} onChange={(e) => setLiabilitiesOffset(e.target.value)} />
       </Field>
+
+      <div className="profile-setting-row">
+        <span><Languages /> <b>{t('Language', 'Language')}</b><small>{languageBadge(lang)}</small></span>
+        <span><b>{baseCurrency}</b></span>
+      </div>
+      <button type="button" className="profile-action-row" onClick={demoStore.toggleTheme} data-testid="profile-theme">
+        <span>{theme === 'dark' ? <Sun /> : <Moon />} <b>{t('Theme', 'Theme')}</b></span>
+        <b>{theme === 'dark' ? 'Light mode' : 'Expressive dark mode'}</b>
+      </button>
+      <button type="button" className="profile-action-row" onClick={() => demoStore.setCloudBackup(!cloudBackup)}>
+        <span><CloudUpload /> <b>Google Drive Backup</b></span>
+        <b>{cloudBackup ? 'Ready' : 'Off'}</b>
+      </button>
+      <div className="profile-backup-row">
+        <button type="button" className="btn ghost" onClick={demoStore.downloadBackup}><Download /> Export local backup</button>
+        <button type="button" className="btn ghost" onClick={() => backupRef.current?.click()}><Upload /> Restore local backup</button>
+        <input ref={backupRef} type="file" accept=".json,application/json" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) restoreFile(f); e.target.value = ''; }} />
+      </div>
+      <p className="profile-backup-note"><FileJson /> JSON backups include every account, transaction, budget, asset, bill, loan, goal and preference.</p>
+
       <div className="modal-divider" />
+      <div className="profile-tour-row">
+        <button type="button" className="btn ghost" onClick={() => { demoStore.closeModal(); demoStore.replayOnboarding(1); }} data-testid="replay-onboarding">
+          <Sparkles /> Replay Onboarding Tour (1/14)
+        </button>
+        <button type="button" className="btn ghost" onClick={() => { demoStore.closeModal(); demoStore.restoreSampleData(); }}><RotateCcw /> Sample records</button>
+      </div>
       <div className="danger-zone">
         <div>
-          <strong>Reset / Clear All Data</strong>
+          <strong>Reset App Data (Start Fresh)</strong>
           <p>Wipes every account, transaction, budget, asset, bill, loan, goal and template. Balances become 0.</p>
         </div>
         {confirmClear ? (
           <div className="confirm-row">
-            <button type="button" className="btn danger" onClick={() => { demoStore.clearAllData(); setConfirmClear(false); }}>
-              Yes, clear everything
-            </button>
+            <button type="button" className="btn danger" onClick={() => { demoStore.clearAllData(); setConfirmClear(false); }}>Yes, clear everything</button>
             <button type="button" className="btn ghost" onClick={() => setConfirmClear(false)}>Cancel</button>
           </div>
         ) : (
           <button type="button" className="btn danger" onClick={() => setConfirmClear(true)}><Trash2 /> Clear all data</button>
         )}
-        <button type="button" className="btn ghost" onClick={demoStore.restoreSampleData}><RotateCcw /> Restore sample records</button>
       </div>
     </ModalShell>
   );

@@ -4,16 +4,33 @@
    user's selected base currency is applied at render time.
    ============================================================ */
 
-export const CURRENCIES = ['INR', 'USD', 'EUR', 'GBP'];
-export const CURRENCY_SYMBOL = { INR: '₹', USD: '$', EUR: '€', GBP: '£' };
+/** Supported presentation currencies and their locale rules. */
+export const CURRENCY_CATALOG = [
+  { id: 'INR', symbol: '₹', name: 'Indian Rupee', locale: 'en-IN', rate: 1, decimals: 2, compact: 'indian' },
+  { id: 'USD', symbol: '$', name: 'US Dollar', locale: 'en-US', rate: 83.15, decimals: 2, compact: 'western' },
+  { id: 'EUR', symbol: '€', name: 'Euro', locale: 'en-IE', rate: 90.2, decimals: 2, compact: 'western' },
+  { id: 'GBP', symbol: '£', name: 'British Pound', locale: 'en-GB', rate: 105.4, decimals: 2, compact: 'western' },
+  { id: 'CAD', symbol: 'CA$', name: 'Canadian Dollar', locale: 'en-CA', rate: 60.5, decimals: 2, compact: 'western' },
+  { id: 'AUD', symbol: 'A$', name: 'Australian Dollar', locale: 'en-AU', rate: 54.6, decimals: 2, compact: 'western' },
+  { id: 'JPY', symbol: '¥', name: 'Japanese Yen', locale: 'ja-JP', rate: 0.56, decimals: 0, compact: 'western' },
+  { id: 'AED', symbol: 'د.إ', name: 'UAE Dirham', locale: 'ar-AE', rate: 22.64, decimals: 2, compact: 'western' },
+  { id: 'CHF', symbol: 'CHF', name: 'Swiss Franc', locale: 'de-CH', rate: 94.6, decimals: 2, compact: 'western' },
+];
 
+export const CURRENCIES = CURRENCY_CATALOG.map((c) => c.id);
+export const CURRENCY_SYMBOL = Object.fromEntries(CURRENCY_CATALOG.map((c) => [c.id, c.symbol]));
 /** Units of INR per one unit of the currency. */
-export const EXCHANGE_RATES = { INR: 1, USD: 83.15, EUR: 90.2, GBP: 105.4 };
+export const EXCHANGE_RATES = Object.fromEntries(CURRENCY_CATALOG.map((c) => [c.id, c.rate]));
+export const CURRENCY_META = Object.fromEntries(CURRENCY_CATALOG.map((c) => [c.id, c]));
 
 export const maskChar = '•';
 
+export function currencyMeta(currency = 'INR') {
+  return CURRENCY_META[currency] || CURRENCY_CATALOG[0];
+}
+
 export function symbol(currency = 'INR') {
-  return CURRENCY_SYMBOL[currency] || CURRENCY_SYMBOL.INR;
+  return currencyMeta(currency).symbol;
 }
 
 export function maskFor(currency = 'INR') {
@@ -38,9 +55,9 @@ export function convert(amount, from = 'INR', to = 'INR') {
 }
 
 /** Indian grouping: 855933.46 -> 8,55,933.46 */
-export function inrGroup(num) {
+export function inrGroup(num, decimals = 2) {
   const neg = num < 0;
-  const [intPart, decPart] = Math.abs(num).toFixed(2).split('.');
+  const [intPart, decPart] = Math.abs(num).toFixed(decimals).split('.');
   const last3 = intPart.slice(-3);
   const rest = intPart.slice(0, -3);
   const grouped = rest ? `${rest.replace(/\B(?=(\d{2})+(?!\d))/g, ',')},${last3}` : last3;
@@ -48,9 +65,17 @@ export function inrGroup(num) {
 }
 
 function groupNumber(num, currency) {
+  const meta = currencyMeta(currency);
   const abs = Math.abs(num);
-  if (currency === 'INR') return inrGroup(abs);
-  return abs.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (currency === 'INR') return inrGroup(abs, meta.decimals);
+  try {
+    return abs.toLocaleString(meta.locale, {
+      minimumFractionDigits: meta.decimals,
+      maximumFractionDigits: meta.decimals,
+    });
+  } catch (err) {
+    return abs.toLocaleString('en-US', { minimumFractionDigits: meta.decimals, maximumFractionDigits: meta.decimals });
+  }
 }
 
 function withSign(num, body) {
@@ -59,31 +84,46 @@ function withSign(num, body) {
 
 /** Full currency amount, e.g. ₹8,55,933.46 or $1,234.56. */
 export function fmtFull(num, currency = 'INR') {
-  return withSign(num, `${symbol(currency)}${groupNumber(num, currency)}`);
+  const meta = currencyMeta(currency);
+  const sign = num < 0 ? '-' : '';
+  return `${sign}${meta.symbol}${groupNumber(num, currency)}`;
 }
 
-/** Compact KPI: ₹14.8L, ₹14.8K, $1.2K. */
+function compactBody(abs, currency) {
+  const indian = currencyMeta(currency).compact === 'indian';
+  const trim = (v) => v.toFixed(2).replace(/\.?0+$/, '');
+  if (indian) {
+    if (abs >= 1e7) return `${trim(abs / 1e7)}Cr`;
+    if (abs >= 1e5) return `${trim(abs / 1e5)}L`;
+    if (abs >= 1e3) return `${trim(abs / 1e3)}K`;
+    return trim(abs);
+  }
+  if (abs >= 1e9) return `${trim(abs / 1e9)}B`;
+  if (abs >= 1e6) return `${trim(abs / 1e6)}M`;
+  if (abs >= 1e3) return `${trim(abs / 1e3)}K`;
+  return trim(abs);
+}
+
+/** Compact KPI: ₹14.8L, $1.5M. */
 export function fmtCompact(num, opts = {}, currency = 'INR') {
   if (typeof opts === 'string') { currency = opts; opts = {}; }
   if (typeof opts === 'number') opts = { decimals: opts };
-  const neg = num < 0;
-  const abs = Math.abs(num);
-  const trim = (v) => v.toFixed(2).replace(/\.?0+$/, '');
-  let out;
-  if (abs >= 1e7) out = `${trim(abs / 1e7)}Cr`;
-  else if (abs >= 1e5) out = `${trim(abs / 1e5)}L`;
-  else if (abs >= 1e3) out = `${trim(abs / 1e3)}K`;
-  else out = trim(abs);
-  if (opts.decimals != null && !/[A-Za-z]/.test(out)) out = abs.toFixed(opts.decimals);
-  return `${neg ? '-' : ''}${symbol(currency)}${out}`;
+  const body = compactBody(Math.abs(num), currency);
+  if (opts.decimals != null && !/[A-Za-z]/.test(body)) {
+    return withSign(num, `${symbol(currency)}${Math.abs(num).toFixed(opts.decimals)}`);
+  }
+  return withSign(num, `${symbol(currency)}${body}`);
 }
 
-/** Short KPI: ₹0.0 / ₹24.9K. */
+/** Short KPI: ₹0.0 / ₹24.9K / $1.5M. */
 export function fmtShort(num, decimals = 1, currency = 'INR') {
   if (typeof decimals === 'string') { currency = decimals; decimals = 1; }
   const abs = Math.abs(num);
+  const indian = currencyMeta(currency).compact === 'indian';
   let out;
-  if (abs >= 1e5) out = `${(abs / 1e5).toFixed(2).replace(/\.?0+$/, '')}L`;
+  if (indian && abs >= 1e7) out = `${(abs / 1e7).toFixed(2).replace(/\.?0+$/, '')}Cr`;
+  else if (indian && abs >= 1e5) out = `${(abs / 1e5).toFixed(2).replace(/\.?0+$/, '')}L`;
+  else if (abs >= 1e6) out = `${(abs / 1e6).toFixed(1).replace(/\.0$/, '')}M`;
   else if (abs >= 1e3) out = `${(abs / 1e3).toFixed(1).replace(/\.0$/, '')}K`;
   else out = abs.toFixed(decimals);
   return withSign(num, `${symbol(currency)}${out}`);
@@ -97,9 +137,15 @@ export function usd(num, decimals = 2) {
 }
 
 export function fmtThousands(num, currency = 'INR') {
+  const meta = currencyMeta(currency);
   const abs = Math.abs(num);
-  const body = currency === 'INR' ? abs.toLocaleString('en-IN') : abs.toLocaleString('en-US');
-  return withSign(num, `${symbol(currency)}${body}`);
+  let body;
+  try {
+    body = abs.toLocaleString(meta.locale, { maximumFractionDigits: 0 });
+  } catch (err) {
+    body = abs.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  }
+  return withSign(num, `${meta.symbol}${body}`);
 }
 
 /** Privacy-aware formatter used by components via the store. */
@@ -118,5 +164,5 @@ export function fmtExact(num, currency = 'INR') {
 }
 
 export function currencyOptions() {
-  return CURRENCIES.map((id) => ({ id, label: `${symbol(id)} ${id}` }));
+  return CURRENCY_CATALOG.map((c) => ({ id: c.id, label: `${c.symbol} ${c.id}`, name: c.name, symbol: c.symbol }));
 }

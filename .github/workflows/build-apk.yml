@@ -46,8 +46,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run engine + live-state tests
+      - name: Run engine + live-state + onboarding tests
         run: npm test
+
+      - name: Run onboarding SSR smoke
+        run: npm run test:onboarding
 
       - name: Build web app
         run: npm run build

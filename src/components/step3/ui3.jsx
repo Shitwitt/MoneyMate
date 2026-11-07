@@ -1,21 +1,22 @@
 import React from 'react';
-import { ArrowLeft, X, UserRound } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import { demoStore } from '../../data/demoStore.js';
+import { useT } from '../../hooks/useT.js';
+import ProfileAvatar from '../ProfileAvatar.jsx';
 
 /* ---------- dark-aware app bar ---------- */
 
 export function DarkHeader({ title, right, onBack }) {
+  const t = useT();
   return (
     <header className="dark-header">
       <button type="button" className="dark-back" aria-label="Back" onClick={onBack || (() => demoStore.back())}>
         <ArrowLeft />
       </button>
-      <h1 className="dark-title">{title}</h1>
+      <h1 className="dark-title">{t(title)}</h1>
       <div className="dark-right">
         {right}
-        <button type="button" className="dark-profile-btn" aria-label="Profile" onClick={() => demoStore.openProfile()}>
-          <UserRound />
-        </button>
+        <ProfileAvatar className="dark-profile-btn" label={t('Profile')} />
       </div>
     </header>
   );

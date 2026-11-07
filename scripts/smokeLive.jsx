@@ -271,7 +271,7 @@ demoStore.openTransactionEditor();
 includes('transaction modal', render(), 'Save transaction');
 includes('transaction number input', render(), 'type="number"');
 demoStore.openProfile();
-includes('profile modal reset', render(), 'Reset / Clear All Data');
+includes('profile modal reset', render(), 'Reset App Data (Start Fresh)');
 includes('profile base currency', render(), 'Base currency');
 demoStore.openAccountEditor();
 includes('account modal holder', render(), 'Account holder name');

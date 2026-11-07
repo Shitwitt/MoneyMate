@@ -7,7 +7,8 @@
     "dev": "vite --host 0.0.0.0 --port 5173",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0 --port 4173",
-    "test": "node scripts/engine.test.mjs && node scripts/liveData.test.mjs",
+    "test": "node scripts/engine.test.mjs && node scripts/liveData.test.mjs && node scripts/onboarding.test.mjs",
+    "test:onboarding": "rm -rf .onboarding && npx vite build --ssr scripts/smokeOnboarding.jsx --outDir .onboarding --logLevel error && node .onboarding/smokeOnboarding.js",
     "android:sync": "npm run build && cap sync android",
     "android:apk": "npm run android:sync && cd android && ./gradlew assembleDebug"
   },

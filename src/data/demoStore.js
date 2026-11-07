@@ -8,8 +8,12 @@
 import { makeInitialLiveState, TODAY } from './liveData.js';
 import { toINR, fromINR } from './format.js';
 import { loanMath, goalMath } from './engine.js';
+import { LANGUAGE_BY_CODE, languageDirection } from './i18n.js';
+import { DEFAULT_AVATAR } from './avatars.js';
 
 export * from './format.js';
+export * from './i18n.js';
+export * from './avatars.js';
 export {
   accountCatalog,
   expenseCategories,
@@ -18,6 +22,7 @@ export {
 } from './step4Data.js';
 
 export const STORAGE_KEY = 'moneymate.live.v1';
+export const BACKUP_VERSION = 1;
 export const initialState = makeInitialLiveState();
 
 const listeners = new Set();
@@ -41,7 +46,7 @@ function storage() {
 
 /** Slices that represent user data and therefore get saved. */
 const PERSISTED = [
-  'profile', 'privacy', 'theme', 'user', 'status',
+  'profile', 'privacy', 'theme', 'user', 'status', 'language', 'onboarding',
   'accounts', 'transactions', 'categories', 'budgets', 'assets',
   'bills', 'loans', 'goals', 'templates', 'people', 'places',
   'labels', 'recurring', 'achievements', 'homeSections',
@@ -61,6 +66,7 @@ export function loadPersisted(base = initialState) {
     });
     next.profile = { ...base.profile, ...(saved.profile || {}) };
     next.user = { ...base.user, ...(saved.user || {}), name: next.profile.name };
+    next.onboarding = { ...base.onboarding, ...(saved.onboarding || {}) };
     return next;
   } catch (err) {
     return base;
@@ -256,6 +262,128 @@ export const demoStore = {
   },
   setBaseCurrency(currency) {
     demoStore.setProfile({ baseCurrency: currency });
+  },
+  setLanguage(code) {
+    const language = LANGUAGE_BY_CODE[code] ? code : 'en';
+    demoStore.set({ language });
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = language;
+      document.documentElement.dir = languageDirection(language);
+    }
+  },
+  setProfilePhoto(photo) {
+    demoStore.setProfile({ photo: photo || '' });
+  },
+  setCloudBackup(enabled) {
+    demoStore.set({ status: { ...state.status, cloudBackup: Boolean(enabled) } });
+  },
+
+  /* ---------- onboarding lifecycle ---------- */
+  setOnboarding(patch = {}) {
+    demoStore.set({ onboarding: { ...state.onboarding, ...patch } });
+  },
+  setOnboardingStep(step) {
+    const clean = Math.max(1, Math.min(14, Number(step) || 1));
+    demoStore.setOnboarding({ step: clean });
+  },
+  nextOnboardingStep() {
+    demoStore.setOnboardingStep(state.onboarding.step + 1);
+  },
+  previousOnboardingStep() {
+    demoStore.setOnboardingStep(state.onboarding.step - 1);
+  },
+  replayOnboarding(step = 1) {
+    demoStore.set({
+      onboarding: { completed: false, step: Math.max(1, Math.min(14, Number(step) || 1)), entry: 'profile' },
+      route: { view: 'home', params: {} },
+      routeStack: [],
+      ui: { ...state.ui, modal: null, modalData: null },
+    });
+  },
+  completeOnboarding(patch = {}) {
+    if (patch.name != null || patch.photo != null || patch.baseCurrency != null) {
+      demoStore.setProfile({
+        ...(patch.name != null ? { name: String(patch.name).trim() || 'Raj' } : {}),
+        ...(patch.photo != null ? { photo: patch.photo } : {}),
+        ...(patch.baseCurrency != null ? { baseCurrency: patch.baseCurrency } : {}),
+      });
+    }
+    if (patch.language) demoStore.setLanguage(patch.language);
+    if (patch.theme) demoStore.set({ theme: patch.theme });
+    demoStore.set({
+      onboarding: { ...state.onboarding, completed: true, step: 14 },
+      route: { view: 'home', params: {} },
+      routeStack: [],
+      ui: { ...state.ui, modal: null, modalData: null },
+    });
+    demoStore.toast('Setup complete — welcome to Paisa');
+  },
+  startOnboardingFresh() {
+    demoStore.clearAllData();
+    demoStore.setProfile({ name: '', photo: '', baseCurrency: 'INR' });
+    demoStore.set({
+      onboarding: { completed: false, step: 2, entry: 'fresh' },
+      theme: 'light',
+      ui: { ...state.ui, modal: null, modalData: null },
+    });
+  },
+  tryDemoMode() {
+    demoStore.restoreSampleData();
+    demoStore.setProfile({ name: 'Jane Smith', photo: DEFAULT_AVATAR, baseCurrency: 'USD' });
+    demoStore.set({
+      language: 'en',
+      onboarding: { completed: false, step: 2, entry: 'demo' },
+      theme: 'light',
+      ui: { ...state.ui, modal: null, modalData: null },
+    });
+  },
+
+  /* ---------- local JSON backup ---------- */
+  exportBackup() {
+    const data = {};
+    PERSISTED.forEach((k) => { data[k] = state[k]; });
+    return JSON.stringify({
+      app: 'MoneyMate',
+      version: BACKUP_VERSION,
+      exportedAt: new Date().toISOString(),
+      state: data,
+    }, null, 2);
+  },
+  downloadBackup() {
+    if (typeof document === 'undefined') return false;
+    const blob = new Blob([demoStore.exportBackup()], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `moneymate-backup-${state.today || 'today'}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 500);
+    demoStore.toast('Local backup exported');
+    return true;
+  },
+  restoreBackup(raw) {
+    let backup = raw;
+    if (typeof raw === 'string') {
+      try { backup = JSON.parse(raw); } catch (err) { return false; }
+    }
+    const incoming = backup?.state && typeof backup.state === 'object' ? backup.state : backup;
+    if (!incoming || typeof incoming !== 'object' || !Array.isArray(incoming.transactions)) return false;
+    const fresh = makeInitialLiveState();
+    const next = { ...fresh, routeStack: [] };
+    PERSISTED.forEach((k) => {
+      if (incoming[k] !== undefined) next[k] = incoming[k];
+    });
+    next.profile = { ...fresh.profile, ...(incoming.profile || {}) };
+    next.user = { ...fresh.user, ...(incoming.user || {}), name: next.profile.name };
+    next.onboarding = { ...fresh.onboarding, ...(incoming.onboarding || {}), completed: true, step: 14 };
+    next.route = { view: 'home', params: {} };
+    next.ui = { ...fresh.ui, modal: null, modalData: null };
+    demoStore.set(next);
+    demoStore.setLanguage(next.language || 'en');
+    demoStore.toast('Backup restored — welcome back');
+    return true;
   },
   clearAllData() {
     const profile = { ...state.profile, liabilitiesOffset: 0 };

@@ -1,0 +1,156 @@
+/* ============================================================
+   Paisa visual polish: harmonise warm light screens, expressive
+   dark views and the new profile/avatar controls.
+   ============================================================ */
+
+:root {
+  --paisa-canvas: #FDF3EE;
+  --paisa-peach: #FBB69D;
+  --paisa-hero: #FCDCD0;
+  --paisa-ink: #3B2219;
+  --paisa-muted: #7A6860;
+  --paisa-brand: #7B4028;
+  --paisa-dark: #16100E;
+  --paisa-dark-card: #221815;
+  --paisa-dark-line: #4A3832;
+  --paisa-brown: #382218;
+}
+
+html, body { background: var(--paisa-canvas); }
+body { color: var(--paisa-ink); }
+body.onboarding-active { background: var(--paisa-dark); }
+
+.app-shell {
+  background:
+    radial-gradient(circle at 8% -4%, rgba(251,182,157,.16), transparent 28%),
+    var(--paisa-canvas);
+}
+[data-theme='dark'] .app-shell {
+  background:
+    radial-gradient(circle at 10% -4%, rgba(251,182,157,.08), transparent 30%),
+    var(--paisa-dark);
+}
+[data-theme='dark'] .app-shell { color: #F5ECE8; }
+
+/* Profile avatar is a real image/initial control in every header. */
+.profile-avatar {
+  position: relative;
+  overflow: hidden;
+  flex: 0 0 auto;
+  padding: 0;
+  cursor: pointer;
+}
+.profile-avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.profile-avatar-initials {
+  width: 100%; height: 100%;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 800; letter-spacing: .3px;
+}
+.avatar-btn.profile-avatar { width: 34px; height: 34px; border-radius: 50%; }
+.dark-profile-btn.profile-avatar { width: 34px; height: 34px; border-radius: 50%; }
+.greeting-avatar.profile-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid rgba(123,64,40,.18);
+  background: var(--paisa-peach); color: var(--paisa-ink);
+  vertical-align: middle; margin-right: 6px;
+}
+.greeting-avatar .profile-avatar-initials { font-size: 9px; }
+.greeting-line { display: flex; align-items: center; flex-wrap: wrap; }
+
+/* Warm, tactile controls across light and dark surfaces. */
+.btn.primary,
+.sheet-cta,
+.ob-primary { background: var(--paisa-peach); color: #2B150D; }
+.btn.primary:hover, .sheet-cta:hover { background: #FFC4AC; }
+.hero-card { background: linear-gradient(135deg, #FDE5DA 0%, #FCD0BF 100%); }
+.live-card, .template-card, .chart-card { border-color: rgba(123,64,40,.13); }
+.section-head h2 { color: var(--paisa-ink); }
+.floating-nav { box-shadow: 0 8px 32px rgba(90,45,28,.16); }
+.floating-nav .fab { background: var(--paisa-brand); color: #FFF4EC; }
+
+/* Dark expressive views should match the Paisa onboarding darkness. */
+[data-theme='dark'] .dark-header,
+[data-theme='dark'] .view-loans,
+[data-theme='dark'] .view-goals,
+[data-theme='dark'] .view-billSplitter { background-color: var(--paisa-dark); }
+[data-theme='dark'] .dark-title { color: #F5ECE8; }
+[data-theme='dark'] .chip-button { border-color: var(--paisa-dark-line); }
+[data-theme='dark'] .dark-profile-btn.profile-avatar { background: var(--paisa-dark-card); color: var(--paisa-peach); }
+
+/* ---------- Profile & App Settings modal ---------- */
+.profile-settings-photo {
+  display: grid;
+  grid-template-columns: 86px 1fr;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid var(--live-line);
+  border-radius: 18px;
+  background: rgba(251,182,157,.08);
+}
+.profile-settings-avatar {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--paisa-brown);
+  color: var(--paisa-peach);
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  font-weight: 800;
+}
+.profile-settings-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-settings-avatar > button {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 27px;
+  height: 27px;
+  border: 2px solid var(--live-surface);
+  border-radius: 50%;
+  background: var(--paisa-brand);
+  color: #FFF4EC;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+}
+.profile-settings-avatar > button svg { width: 13px; height: 13px; }
+.profile-settings-photo-copy strong { font-size: 13px; }
+.profile-settings-photo-copy p { margin: 4px 0 8px; font-size: 10px; line-height: 1.45; color: var(--live-muted); }
+.profile-preset-row { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.profile-preset-row button {
+  width: 30px; height: 30px; padding: 0;
+  border: 1px solid var(--live-line); border-radius: 50%;
+  background: none; overflow: hidden; cursor: pointer;
+}
+.profile-preset-row button img { width: 100%; height: 100%; object-fit: cover; }
+.profile-preset-row .profile-remove-photo {
+  width: auto; height: 30px; padding: 0 8px; border-radius: 999px;
+  background: transparent; color: var(--live-muted); font-size: 10px; font-weight: 700;
+}
+.profile-setting-row,
+.profile-action-row {
+  width: 100%; min-height: 48px; margin-top: 10px; padding: 9px 12px;
+  border: 1px solid var(--live-line); border-radius: 14px;
+  background: var(--live-surface); color: var(--live-ink);
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.profile-setting-row span { display: flex; align-items: center; gap: 7px; }
+.profile-setting-row svg, .profile-action-row svg { width: 16px; height: 16px; color: var(--paisa-brand); }
+.profile-setting-row small { font-size: 10px; color: var(--live-muted); }
+.profile-action-row { cursor: pointer; text-align: left; }
+.profile-action-row > span { display: flex; align-items: center; gap: 7px; }
+.profile-action-row b { font-size: 11px; }
+.profile-backup-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.profile-backup-row .btn { min-height: 42px; font-size: 11px; }
+.profile-backup-note { display: flex; gap: 6px; margin: 8px 2px 0; font-size: 10px; color: var(--live-muted); }
+.profile-backup-note svg { width: 13px; height: 13px; flex: 0 0 13px; }
+.profile-tour-row { display: grid; grid-template-columns: 1.5fr 1fr; gap: 8px; margin-bottom: 12px; }
+.profile-tour-row .btn { min-height: 42px; font-size: 11px; }
+.modal-card.wide { max-width: 540px; }
+[data-theme='dark'] .profile-settings-photo { background: rgba(251,182,157,.05); }
+[data-theme='dark'] .profile-settings-avatar > button { border-color: var(--paisa-dark-card); background: var(--paisa-peach); color: var(--paisa-ink); }

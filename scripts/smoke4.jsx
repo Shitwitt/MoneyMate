@@ -42,8 +42,8 @@ check('pace points', budgetPace(state(), 'food').points.length > 0);
 demoStore.go('home', {});
 demoStore.openProfile();
 const profile = render();
-check('profile modal', profile.includes('Your profile'));
-check('reset data', profile.includes('Reset / Clear All Data'));
+check('profile modal', profile.includes('Profile'));
+check('reset data', profile.includes('Reset App Data (Start Fresh)'));
 check('base currency', profile.includes('Base currency'));
 check('no demo dialog', !profile.includes('Leave the demo'));
 

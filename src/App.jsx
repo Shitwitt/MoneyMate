@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 
 import { useStore } from './hooks/useStore.js';
-import { demoStore } from './data/demoStore.js';
+import { useT } from './hooks/useT.js';
+import { demoStore, languageDirection } from './data/demoStore.js';
 
 import TopBar from './components/TopBar.jsx';
 import Greeting from './components/Greeting.jsx';
@@ -14,6 +15,7 @@ import BudgetCarousel from './components/BudgetCarousel.jsx';
 import UpcomingTransactions from './components/UpcomingTransactions.jsx';
 import FloatingNav from './components/FloatingNav.jsx';
 import LiveModals from './components/LiveModals.jsx';
+import OnboardingWizard from './views/OnboardingWizard.jsx';
 
 import AccountsView from './views/AccountsView.jsx';
 import ReportsView from './views/ReportsView.jsx';
@@ -45,6 +47,7 @@ function Toast() {
 
 function HomeView() {
   const sections = useStore((s) => s.homeSections);
+  const t = useT();
   return (
     <>
       <TopBar />
@@ -53,7 +56,7 @@ function HomeView() {
 
       {sections.includes('overview') ? (
         <>
-          <div className="section-head"><h2>Overview</h2></div>
+          <div className="section-head"><h2>{t('Overview')}</h2></div>
           <BentoGrid />
         </>
       ) : null}
@@ -99,6 +102,8 @@ const LIGHT_NAV_VIEWS = new Set(['home', 'accounts', 'reports', 'search', 'budge
 export default function App() {
   const view = useStore((s) => s.route.view);
   const theme = useStore((s) => s.theme);
+  const language = useStore((s) => s.language || 'en');
+  const onboarding = useStore((s) => s.onboarding);
   const privacy = useStore((s) => s.privacy);
   const howBudgetsOpen = useStore((s) => s.howBudgetsOpen);
   const assetsHow = useStore((s) => s.assetsUi.howOpen);
@@ -108,14 +113,16 @@ export default function App() {
   const goalsHow = useStore((s) => s.goalsUi.howOpen);
 
   const Current = VIEWS[view] || HomeView;
-  const effectiveTheme = DARK_VIEWS.has(view) ? 'dark' : theme;
+  const effectiveTheme = onboarding?.completed === false ? 'dark' : (DARK_VIEWS.has(view) ? 'dark' : theme);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', effectiveTheme);
     document.documentElement.setAttribute('data-privacy', privacy ? 'on' : 'off');
+    document.documentElement.lang = language;
+    document.documentElement.dir = languageDirection(language);
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', effectiveTheme === 'dark' ? '#1A110E' : '#FDF3EE');
-  }, [effectiveTheme, privacy]);
+    if (meta) meta.setAttribute('content', effectiveTheme === 'dark' ? '#16100E' : '#FDF3EE');
+  }, [effectiveTheme, privacy, language]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -128,6 +135,15 @@ export default function App() {
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, [view]);
+
+  if (!onboarding?.completed) {
+    return (
+      <>
+        <OnboardingWizard />
+        <Toast />
+      </>
+    );
+  }
 
   return (
     <>

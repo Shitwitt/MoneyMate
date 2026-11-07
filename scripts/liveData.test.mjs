@@ -30,7 +30,7 @@ function ok(label, condition) {
 }
 const saved = () => JSON.parse(memory.get(STORAGE_KEY) || '{}');
 
-eq('four currencies', CURRENCIES, ['INR', 'USD', 'EUR', 'GBP']);
+eq('nine currencies', CURRENCIES, ['INR', 'USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY', 'AED', 'CHF']);
 eq('USD to INR conversion', convert(100, 'USD', 'INR'), 8315);
 eq('full INR grouping', fmtFull(855933.46, 'INR'), '₹8,55,933.46');
 eq('full USD grouping', fmtFull(100, 'USD'), '$100.00');

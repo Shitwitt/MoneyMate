@@ -1,31 +1,27 @@
 import React from 'react';
-import { ArrowLeft, UserRound } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { demoStore } from '../../data/demoStore.js';
+import { useT } from '../../hooks/useT.js';
+import ProfileAvatar from '../ProfileAvatar.jsx';
 import { WavyProgress as LiveWavyProgress, RingGauge as LiveRingGauge } from '../charts/Interactive.jsx';
 
 /* ---------- Top app bar for sub-screens ---------- */
 
 export function SubHeader({ title, onBack, right, center = true }) {
+  const t = useT();
   return (
     <header className="sub-header">
       <div className="sub-left">
         <button type="button" className="back-btn" aria-label="Back" onClick={onBack || (() => demoStore.back())}>
           <ArrowLeft />
         </button>
-        <h1 className="sub-title">{title}</h1>
+        <h1 className="sub-title">{t(title)}</h1>
       </div>
 
 
       <div className="sub-right">
         {right}
-        <button
-          type="button"
-          className="avatar-btn"
-          aria-label="Profile"
-          onClick={() => demoStore.openProfile()}
-        >
-          <UserRound />
-        </button>
+        <ProfileAvatar label={t('Profile')} />
       </div>
     </header>
   );

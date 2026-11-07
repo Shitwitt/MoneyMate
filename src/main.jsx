@@ -13,6 +13,8 @@ import './styles/theme3.css';
 import './styles/step3.css';
 import './styles/step4.css';
 import './styles/live.css';
+import './styles/onboarding.css';
+import './styles/paisa.css';
 
 import App from './App.jsx';
 

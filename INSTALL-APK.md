@@ -43,7 +43,13 @@ Everything built so far runs fully offline inside a WebView:
   balances + settle-up) and Loans (lending/borrowing/completed, partial and
   full payments, auto-completion, due-date countdowns), plus a global
   light/dark theme engine.
-- **Live overhaul** — Demo mode is removed. One persisted reactive store drives
+- **Starting onboarding** — 14-step first-run flow with exact Paisa showcase
+  artwork, Start Fresh, JSON backup restore/export, Try Demo Mode, 35-language
+  engine, Base64 profile-photo upload, name validation and nine-currency
+  selection. Replay it any time from **Profile & App Settings**; the circular
+  avatar on Home / Accounts / Reports uses the uploaded photo or initials.
+- **Live overhaul** — The old demo-mode ribbon and Exit Demo pill are removed.
+  One persisted reactive store drives
   every input, button, calculation and eight touch/mouse-scrubbed SVG charts.
   The profile modal edits **Raj**, base currency `₹/$/€/£` and offers
   **Reset / Clear All Data**. Universal transaction, account, budget, asset,

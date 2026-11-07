@@ -4,16 +4,32 @@ A mobile-first personal finance / expense manager modelled on the **Paisa**
 expense manager, with a Material Design 3 warm-terracotta theme and an
 expressive dark theme for the bill / loan / goal workspaces.
 
-## Live overhaul — current behaviour
+## First run + live behaviour
 
-Demo mode is gone. MoneyMate now boots with editable sample records for
-**Raj**, stored in one reactive store and persisted to `localStorage` under
-`moneymate.live.v1` on every change. There is no `✕ Exit Demo` pill, no
-demo ribbon, and no `Demo User`. The top-right profile icon on every screen
-opens a profile modal for **User Name**, **Base Currency** (`₹ / $ / € / £`),
-an editable liabilities offset, **Restore sample records**, and
-**Reset / Clear All Data** (which empties every record and makes all balances
-`0`).
+A fresh browser launch opens the **14-step Paisa onboarding wizard**:
+Start Fresh, Google Drive/local JSON backup restore, Try Demo Mode, exact
+phone-showcase screens, a 35-language engine, profile-photo upload, user-name
+validation and a nine-currency selector. Finishing setup saves `userName`,
+`profilePhoto`, `language` and `baseCurrency` to `localStorage`, then opens the
+dashboard. The wizard can be replayed any time from the profile menu.
+
+Inside the app, every record is editable sample data stored in one reactive
+store and persisted under `moneymate.live.v1` on every change. There is no
+`✕ Exit Demo` pill and no diagonal `DEMO` ribbon. Clicking the circular profile
+avatar on Home, Accounts or Reports opens **Profile & App Settings**, where the
+user can change their photo/name/language/currency live, toggle light or
+expressive dark mode, export/restore a JSON backup, replay onboarding or clear
+all data.
+
+### Onboarding wizard
+
+| Step | Live behaviour |
+| --- | --- |
+| `1/14` | Start fresh clears all data; Restore Local Backup parses a `.json` file and jumps to Home; Try Demo Mode loads sample records; Google Drive Backup opens an import/export dialog. |
+| `2/14`–`9/14` | Exact Paisa phone-showcase artwork with working `Next`, swipe-right/back navigation and `Skip to Setup` on the advanced tour slides. |
+| `8/14` | 35 selectable languages, searchable modal, translated core navigation/greetings/headers and a live top-left language badge. |
+| `13/14` | Base64 profile-photo upload, five preset avatars, ID-card name field and a `Next` button that enables only after a name is entered. |
+| `14/14` | Searchable INR / USD / EUR / GBP / CAD / AUD / JPY / AED / CHF selector with Indian `K/L/Cr` and western `K/M/B` formatting rules. |
 
 Every array — `accounts`, `transactions`, `categories`, `budgets`, `assets`,
 `bills`, `loans`, `goals`, `templates`, `people`, `places`, `labels` — is
@@ -70,7 +86,8 @@ data. Donut slices and breakdown rows expand and update the centre readout.
 npm install
 npm run dev      # http://localhost:5173
 npm run build    # production bundle in dist/
-npm test         # pure engine + live-state/localStorage tests
+npm test         # pure engine + live-state/localStorage + onboarding tests
+npm run test:onboarding # SSR wizard + profile-settings smoke
 ```
 
 ## Stack
@@ -91,6 +108,11 @@ npm test         # pure engine + live-state/localStorage tests
 | Observable store + all CRUD actions | `src/data/demoStore.js` |
 | Pure derived selectors / live maths | `src/data/derive.js` |
 | Currency conversion + formatting | `src/data/format.js` |
+| 35-language engine + aliases | `src/data/i18n.js` |
+| Preset avatars + Base64 image reader | `src/data/avatars.js` |
+| 14-step first-run wizard | `src/views/OnboardingWizard.jsx` |
+| Onboarding + Paisa visual system | `src/styles/onboarding.css`, `src/styles/paisa.css` |
+| Shared circular profile avatar | `src/components/ProfileAvatar.jsx` |
 | Shared interactive SVG charts, rings, waves, donut | `src/components/charts/Interactive.jsx` |
 | Universal modal suite (transaction, account, budget, profile, payment, etc.) | `src/components/LiveModals.jsx` |
 | Clickable transaction row | `src/components/LiveTransactionRow.jsx` |
@@ -117,7 +139,7 @@ All money renders through `src/data/format.js` (re-exported by the store):
 
 Stored amounts are Numbers; each transaction also carries `baseAmount` in INR,
 so changing the base currency re-renders every figure without rewriting data.
-Seed exchange rates: INR 1, USD 83.15, EUR 90.2, GBP 105.4 per INR unit.
+Additional rates: CAD 60.5, AUD 54.6, JPY 0.56, AED 22.64, CHF 94.6 per INR unit; JPY renders with zero decimals, INR with Indian grouping.
 
 ## State & persistence
 
@@ -132,10 +154,12 @@ current name and base currency.
 ```bash
 node scripts/engine.test.mjs        # cent-exact pure maths
 node scripts/liveData.test.mjs      # live store, currency conversion, localStorage
+node scripts/onboarding.test.mjs    # wizard state, languages, currencies, backup/restore
+npm run test:onboarding             # SSR wizard, 14 steps, profile settings
 
 # server-rendered screen + interaction checks
 rm -rf .smoke .smoke2 .smoke3 .smoke4 .live
-for f in smoke smoke2 smoke3 smoke4 smokeLive; do
+for f in smoke smoke2 smoke3 smoke4 smokeLive smokeOnboarding; do
   npx vite build --ssr scripts/$f.jsx --outDir .$f --logLevel error \
     && node .$f/$f.js
 done
@@ -145,7 +169,7 @@ done
 view and modal, asserts the absence of demo UI, checks all eight interactive
 chart surfaces and drives live CRUD for transactions, accounts, budgets,
 templates, collections, loans, goals, bills, profile, month filters and reset.
-Remove the `.smoke*` / `.live` output directories before each SSR rebuild.
+Remove the `.smoke*` / `.live` / `.onboarding` output directories before each SSR rebuild.
 
 ## Android
 

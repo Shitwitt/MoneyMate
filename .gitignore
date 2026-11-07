@@ -3,6 +3,7 @@ dist/
 .smoke/
 .smoke*/
 .live/
+.onboarding/
 .DS_Store
 *.log
 .env

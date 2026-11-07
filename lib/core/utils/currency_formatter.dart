@@ -33,8 +33,6 @@ class CurrencyFormatter {
 
   static final Map<String, NumberFormat> _currencyCache =
       <String, NumberFormat>{};
-  static final Map<String, NumberFormat> _decimalCache =
-      <String, NumberFormat>{};
   static final Map<String, NumberFormat> _compactCache =
       <String, NumberFormat>{};
 
@@ -56,14 +54,6 @@ class CurrencyFormatter {
         () => NumberFormat.currency(
           locale: currency.locale,
           symbol: currency.symbol,
-          decimalDigits: currency.decimalDigits,
-        ),
-      );
-
-  NumberFormat get _decimalFormat => _decimalCache.putIfAbsent(
-        '${currency.locale}|${currency.decimalDigits}',
-        () => NumberFormat.decimalPatternDigits(
-          locale: currency.locale,
           decimalDigits: currency.decimalDigits,
         ),
       );

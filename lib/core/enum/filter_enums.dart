@@ -229,19 +229,22 @@ enum AnalyticsTypeFilter {
   expense,
 
   /// Income only.
-  income,
-}
+  income;
 
-extension AnalyticsTypeFilterX on AnalyticsTypeFilter {
   String get key => name;
 
+  /// Statics must live on the enum itself: `AnalyticsTypeFilter.fromKey` is not
+  /// reachable when they are declared in a separate extension, unlike the
+  /// instance members below.
   static AnalyticsTypeFilter fromKey(String? key) {
     return AnalyticsTypeFilter.values.firstWhere(
       (AnalyticsTypeFilter value) => value.name == key,
       orElse: () => AnalyticsTypeFilter.all,
     );
   }
+}
 
+extension AnalyticsTypeFilterX on AnalyticsTypeFilter {
   /// Segmented-button label.
   String get label {
     switch (this) {

@@ -197,6 +197,24 @@ is rebuilt around five groups:
   * **Clear all data** → destructive confirmation that states the record count,
     then `resetEverything()`.
 
+### Durability & correctness notes (step 5)
+
+* **No future leakage.** The analysed window is clamped to today, so a recurring
+  entry scheduled for next week cannot make this month's daily average or line
+  chart lie. `daysElapsedInPeriod()` is clamped the same way.
+* **No silent data loss.** A record whose category was deleted (an old backup, a
+  hand-edited file) is folded into a synthetic `Uncategorised` slice, so the
+  donut's shares still sum to 100% and the account bar still adds up.
+* **Restore is transactional-ish.** Every incoming record is re-validated through
+  its model *before* any box is written, and a file that is not a MoneyMate
+  backup throws `FormatException` without touching the current ledger.
+* **CSV is spreadsheet-safe.** Fields containing `,` `"` or newlines are quoted,
+  inner quotes are doubled, and amounts are plain decimals (`450.00`) with no
+  currency symbol or grouping, so Excel/Sheets parse them as numbers.
+* **The lock cannot lock you out.** `local_auth` runs with `biometricOnly: false`
+  (device PIN/pattern is a valid fallback); if the platform has no screen lock at
+  all, the app stays open and explains why.
+
 ### The financial engine (`PaisaProvider`)
 
 Every number the UI shows is derived, never stored:

@@ -245,7 +245,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
                         setState(() => _monthsOverride = months),
                   ),
                   child: !snapshot.hasMonthlyFlow
-                      ? ChartEmptyState(
+                      ? const ChartEmptyState(
                           icon: Icons.bar_chart_rounded,
                           message:
                               'No monthly history yet.\nYour first entry starts '

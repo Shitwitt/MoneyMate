@@ -340,7 +340,7 @@ class _DebtCardState extends State<DebtCard> {
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(PaisaTheme.cardRadius),
         border: Border.all(
-          color: overdue ? colors.expense.withOpacity(0.55) : Colors.transparent,
+          color: overdue ? colors.expense.withValues(alpha: 0.55) : Colors.transparent,
           width: 1.4,
         ),
       ),
@@ -366,7 +366,7 @@ class _DebtCardState extends State<DebtCard> {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: accent.withOpacity(0.16),
+                      color: accent.withValues(alpha: 0.16),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Icon(
@@ -449,81 +449,81 @@ class _DebtCardState extends State<DebtCard> {
                 ],
               ),
           ),
+          ),
 
-            // ---------------- Money ----------------
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: _MoneyStat(
-                      label: lent ? 'Lent' : 'Loan',
-                      value: formatter.formatWhole(summary.debt.amount),
-                    ),
+          // ---------------- Money ----------------
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: _MoneyStat(
+                    label: lent ? 'Lent' : 'Loan',
+                    value: formatter.formatWhole(summary.debt.amount),
                   ),
-                  Expanded(
-                    child: _MoneyStat(
-                      label: 'Paid',
-                      value: formatter.formatWhole(paid),
-                      color: colors.success,
-                    ),
+                ),
+                Expanded(
+                  child: _MoneyStat(
+                    label: 'Paid',
+                    value: formatter.formatWhole(paid),
+                    color: colors.success,
                   ),
-                  Expanded(
-                    child: _MoneyStat(
-                      label: 'Remaining',
-                      value: formatter.formatWhole(remaining),
-                      color: overdue ? colors.expense : scheme.onSurface,
-                      alignEnd: true,
-                    ),
+                ),
+                Expanded(
+                  child: _MoneyStat(
+                    label: 'Remaining',
+                    value: formatter.formatWhole(remaining),
+                    color: overdue ? colors.expense : scheme.onSurface,
+                    alignEnd: true,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
 
 
-            // ---------------- Progress ----------------
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Text(
-                        '${(progress * 100).round()}% paid',
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: settled ? colors.success : accent,
-                        ),
+          // ---------------- Progress ----------------
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Text(
+                      '${(progress * 100).round()}% paid',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: settled ? colors.success : accent,
                       ),
-                      const Spacer(),
-                      Text(
-                        'of ${formatter.formatWhole(summary.debt.amount)}',
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
-                    child: TweenAnimationBuilder<double>(
-                      tween: Tween<double>(begin: 0, end: progress),
-                      duration: const Duration(milliseconds: 700),
-                      curve: Curves.easeOutCubic,
-                      builder: (BuildContext context, double value, _) {
-                        return LinearProgressIndicator(
-                          value: value,
-                          minHeight: 10,
-                          backgroundColor: scheme.surfaceContainerHighest,
-                          color: settled ? colors.success : accent,
-                        );
-                      },
                     ),
+                    const Spacer(),
+                    Text(
+                      'of ${formatter.formatWhole(summary.debt.amount)}',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0, end: progress),
+                    duration: const Duration(milliseconds: 700),
+                    curve: Curves.easeOutCubic,
+                    builder: (BuildContext context, double value, _) {
+                      return LinearProgressIndicator(
+                        value: value,
+                        minHeight: 10,
+                        backgroundColor: scheme.surfaceContainerHighest,
+                        color: settled ? colors.success : accent,
+                      );
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
 
@@ -538,7 +538,7 @@ class _DebtCardState extends State<DebtCard> {
                     style: FilledButton.styleFrom(
                       backgroundColor: settled
                           ? scheme.surfaceContainerHighest
-                          : accent.withOpacity(0.16),
+                          : accent.withValues(alpha: 0.16),
                       foregroundColor: settled ? scheme.onSurfaceVariant : accent,
                     ),
                     icon: Icon(
@@ -717,7 +717,7 @@ class _InstallmentRow extends StatelessWidget {
             width: 30,
             height: 30,
             decoration: BoxDecoration(
-              color: colors.success.withOpacity(0.14),
+              color: colors.success.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -900,7 +900,7 @@ class _DebtPaymentSheetState extends State<_DebtPaymentSheet> {
                     height: 40,
                     decoration: BoxDecoration(
                       color: (lent ? colors.income : colors.expense)
-                          .withOpacity(0.16),
+                          .withValues(alpha: 0.16),
                       borderRadius: BorderRadius.circular(13),
                     ),
                     child: Icon(
@@ -1133,7 +1133,7 @@ class _Badge extends StatelessWidget {
       margin: const EdgeInsets.only(left: 6),
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.14),
+        color: color.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(7),
       ),
       child: Text(

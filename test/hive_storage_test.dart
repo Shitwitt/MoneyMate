@@ -390,7 +390,7 @@ void main() {
 
   group('serialization robustness', () {
     test('models survive missing and mistyped map values', () {
-      final AccountModel account = AccountModel.fromMap(<dynamic, dynamic>{
+      final AccountModel account = AccountModel.fromMap(const <String, dynamic>{
         'id': 'x',
         'initialAmount': '1500',
         'isDefault': 1,
@@ -401,12 +401,12 @@ void main() {
       expect(account.cardType, AccountType.cash);
 
       final TransactionModel transaction =
-          TransactionModel.fromMap(<dynamic, dynamic>{'id': 't'});
+          TransactionModel.fromMap(const <String, dynamic>{'id': 't'});
       expect(transaction.amount, 0);
       expect(transaction.type, TransactionType.expense);
       expect(transaction.time, isA<DateTime>());
 
-      final DebtModel debt = DebtModel.fromMap(<dynamic, dynamic>{'id': 'd'});
+      final DebtModel debt = DebtModel.fromMap(const <String, dynamic>{'id': 'd'});
       expect(debt.debtType, DebtType.debt);
       expect(debt.expiryDateTime.isAfter(debt.dateTime), isTrue);
     });

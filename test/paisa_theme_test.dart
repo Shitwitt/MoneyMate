@@ -138,8 +138,9 @@ void main() {
   });
 
   group('widget smoke test', () {
-    testWidgets('renders a themed card and exposes tokens via context',
-        (WidgetTester tester) async {
+    testWidgets(
+      'renders a themed card and exposes tokens via context',
+      (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: PaisaTheme.light(),
@@ -167,6 +168,6 @@ void main() {
       expect(card.elevation, isNull); // inherits the zero-elevation theme
       final ThemeData theme = Theme.of(tester.element(find.byType(Card)));
       expect(theme.cardTheme.elevation, 0);
-    });
+  });
   });
 }

@@ -47,11 +47,22 @@ class _LavaLampBackgroundState extends State<LavaLampBackground>
     ),
   );
 
+  /// True when the platform asks apps to avoid motion. The ticker is then never
+  /// started: it would be the one animation on screen ignoring that request.
+  bool _started = false;
+
   @override
-  void initState() {
-    super.initState();
-    _controller.repeat();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // MediaQuery is only safe from didChangeDependencies onwards.
+    if (!_started && !_reduceMotion) {
+      _started = true;
+      _controller.repeat();
+    }
   }
+
+  bool get _reduceMotion =>
+      MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
   @override
   void dispose() {

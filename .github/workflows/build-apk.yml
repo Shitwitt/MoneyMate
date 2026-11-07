@@ -106,8 +106,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_COMMENT_URL: ${{ github.api_url }}/repos/${{ github.repository }}/commits/${{ github.event.pull_request.head.sha || github.sha }}/comments
 
+      # Bounded on purpose: a widget test that waits on an animation which never
+      # settles would otherwise sit there until the job's own time limit.
       - name: Run Test Suite
-        run: flutter test
+        timeout-minutes: 20
+        run: |
+          stack_arg=""
+          if flutter test --help 2>&1 | grep -q -- "--concurrency"; then
+            stack_arg="--concurrency=1"
+          fi
+          flutter test $stack_arg --timeout 120s
 
       - name: Build Release APK (Universal)
         run: flutter build apk --release --no-tree-shake-icons

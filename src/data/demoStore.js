@@ -5,13 +5,21 @@
    Search, Add-Transaction) mutate this same store.
    ============================================================ */
 
-import { toCents, fromCents, loanState } from './engine.js';
+import { toCents, fromCents, loanState, loanMath, goalMath } from './engine.js';
 import {
   assets as seedAssets,
   billSplitters as seedBills,
-  loans as seedLoans,
   DEMO_TODAY,
 } from './step3Data.js';
+import {
+  seedLoans,
+  seedGoals,
+  seedTransactions,
+  accountCatalog,
+  expenseCategories,
+  incomeCategories,
+  PERSON_COLORS,
+} from './step4Data.js';
 
 const listeners = new Set();
 
@@ -328,7 +336,31 @@ const initialState = {
   bills: seedBills,
   billsUi: { tab: 'active', howOpen: false, balancesOpen: false, menuFor: null, editOpen: false, editId: null },
   loans: seedLoans,
-  loansUi: { tab: 'lending', howOpen: false, sort: 'name', addOpen: false, editId: null, payFor: null },
+  loansUi: {
+    tab: 'lending',
+    howOpen: false,
+    sort: 'name',
+    addOpen: false,
+    editId: null,
+    payFor: null,
+    quickAdd: false,
+    historyPeriod: 'daily',
+    detailsTab: 'lending',
+  },
+
+  /* ---------- Step 4: relational state ---------- */
+  transactions: seedTransactions,
+  goals: seedGoals,
+  goalsUi: {
+    tab: 'active',
+    sort: 'name',
+    sortOpen: false,
+    howOpen: false,
+    detailsTab: 'daily',
+    editId: null,
+  },
+  ui: { exitDialog: false },
+  dataMode: 'demo', // demo | fresh
   today: DEMO_TODAY,
   toast: null,
   howBudgetsOpen: false,
@@ -336,11 +368,87 @@ const initialState = {
 
 /* ---------- store core ---------- */
 
-let state = initialState;
+
+/* ---------- persistence ----------
+   Everything the user edits survives a reload. Only the *data* slices are
+   persisted (never transient UI such as toasts or open sheets).            */
+
+export const STORAGE_KEY = 'moneymate.v1';
+
+/** Slices that represent user data and therefore get saved. */
+const PERSISTED = [
+  'privacy',
+  'user',
+  'balance',
+  'overview',
+  'accounts',
+  'transactions',
+  'budgets',
+  'budgetCards',
+  'labels',
+  'categories',
+  'assets',
+  'bills',
+  'loans',
+  'goals',
+  'theme',
+  'dataMode',
+];
+
+function storage() {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return null;
+    return window.localStorage;
+  } catch (err) {
+    return null;
+  }
+}
+
+/** Read whatever was saved last session, merged over the demo seed. */
+export function loadPersisted(base = initialState) {
+  const ls = storage();
+  if (!ls) return base;
+  try {
+    const raw = ls.getItem(STORAGE_KEY);
+    if (!raw) return base;
+    const saved = JSON.parse(raw);
+    if (!saved || typeof saved !== 'object') return base;
+    const next = { ...base };
+    PERSISTED.forEach((k) => {
+      if (saved[k] !== undefined) next[k] = saved[k];
+    });
+    return next;
+  } catch (err) {
+    return base;
+  }
+}
+
+let state = loadPersisted(initialState);
 const history = [];
+
+function persist(next) {
+  const ls = storage();
+  if (!ls) return;
+  try {
+    const payload = {};
+    PERSISTED.forEach((k) => {
+      if (next[k] !== undefined) payload[k] = next[k];
+    });
+    ls.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch (err) {
+    /* quota or private mode — the app keeps working in memory */
+  }
+}
 
 function emit() {
   listeners.forEach((l) => l(state));
+}
+
+let uid = 0;
+/** Stable-enough id for newly created records. */
+export function makeId(prefix = 'id') {
+  uid += 1;
+  return `${prefix}-${Date.now().toString(36)}${uid.toString(36)}`;
 }
 
 export const demoStore = {
@@ -353,6 +461,7 @@ export const demoStore = {
   set(patch) {
     history.push(state);
     state = { ...state, ...(typeof patch === 'function' ? patch(state) : patch) };
+    persist(state);
     emit();
   },
   /** deep-ish setter by dotted path: demoStore.setIn('overview.budgets.slide', 1) */
@@ -367,6 +476,7 @@ export const demoStore = {
     }
     cursor[keys[keys.length - 1]] = value;
     state = clone;
+    persist(state);
     emit();
   },
   undo() {
@@ -391,6 +501,9 @@ export const demoStore = {
     if (view === 'accounts') demoStore.setIn('nav.active', 'accounts');
     if (view === 'reports') demoStore.setIn('nav.active', 'reports');
     if (view === 'home') demoStore.setIn('nav.active', 'home');
+    if (view === 'goals' || view === 'goalDetails' || view === 'goalEditor') {
+      demoStore.setIn('nav.active', 'home');
+    }
   },
   back() {
     const v = state.route.view;
@@ -400,6 +513,8 @@ export const demoStore = {
     if (v === 'billEditor') return demoStore.go('billSplitter');
     if (v === 'loanDetails') return demoStore.go('loans');
     if (v === 'loanEditor') return demoStore.go('loans');
+    if (v === 'goalDetails') return demoStore.go('goals');
+    if (v === 'goalEditor') return demoStore.go('goals');
     return demoStore.go('home');
   },
 
@@ -588,22 +703,100 @@ export const demoStore = {
   toggleLoanSort() {
     demoStore.setIn('loansUi.sort', state.loansUi.sort === 'name' ? 'amount' : 'name');
   },
-  /** Record a payment; auto-completes the loan when fully paid. */
-  recordLoanPayment(loanId, amount) {
-    demoStore.set({
-      loans: state.loans.map((l) => {
-        if (l.id !== loanId) return l;
-        const nextPaid = Math.min(toCents(l.total), toCents(l.paid) + toCents(amount));
-        return { ...l, paid: fromCents(nextPaid) };
-      }),
-    });
-    demoStore.setIn('loansUi.payFor', null);
+  setLoanDetailsTab(tab) {
+    demoStore.setIn('loansUi.detailsTab', tab);
+  },
+  openQuickLog(open = true) {
+    demoStore.setIn('loansUi.quickAdd', open);
+  },
+  setLoanHistoryPeriod(period) {
+    demoStore.setIn('loansUi.historyPeriod', period);
+  },
+  /** Loan maths for one loan, straight from the ledger. */
+  loanMathFor(loanId) {
     const loan = state.loans.find((l) => l.id === loanId);
-    const after = loanState({ ...loan, paid: toCents(loan.paid) / 100 + (Number(amount) || 0) }, state.today);
-    demoStore.toast(after.completed ? 'Loan completed 🎉' : 'Payment recorded');
+    if (!loan) return null;
+    return loanMath(loan, state.transactions);
+  },
+
+  /**
+   * Record a repayment. It is stored as a linked income transaction, so the
+   * Paid total, the progress bar, the remaining amount and the global
+   * summary all recompute from one source of truth.
+   */
+  recordLoanPayment(loanId, amount, { date, account, note } = {}) {
+    const loan = state.loans.find((l) => l.id === loanId);
+    if (!loan) return;
+    const cents = toCents(amount);
+    if (cents <= 0) return;
+    const before = loanMath(loan, state.transactions);
+    const payCents = Math.min(cents, before.remaining || cents);
+    const tx = {
+      id: makeId('tx'),
+      title: note || `${loan.kind === 'lending' ? 'Repayment from' : 'Repayment to'} ${loan.person}`,
+      date: date || state.today,
+      time: '1:03 AM',
+      type: 'income',
+      amount: fromCents(payCents),
+      account: account || loan.account,
+      loanId,
+      icon: { bg: '#43A047', fg: '#FFFFFF', glyph: 'user' },
+      chips: [
+        { label: loan.title, bg: '#1F2A4A', fg: '#9FA8DA' },
+        { label: loan.person, bg: '#143D38', fg: '#4DB6AC' },
+      ],
+    };
+    const remaining = before.remaining - payCents;
+    demoStore.set({
+      transactions: [tx, ...state.transactions],
+      loans: state.loans.map((l) =>
+        l.id === loanId ? { ...l, status: remaining <= 0 ? 'completed' : l.status } : l,
+      ),
+      loansUi: { ...state.loansUi, payFor: null, quickAdd: false },
+    });
+    demoStore.toast(remaining <= 0 ? 'Loan completed 🎉' : 'Payment recorded');
+  },
+
+  /** Mark as done: pays off whatever is still outstanding. */
+  markLoanDone(loanId) {
+    const loan = state.loans.find((l) => l.id === loanId);
+    if (!loan) return;
+    const m = loanMath(loan, state.transactions);
+    if (m.remaining > 0) {
+      const tx = {
+        id: makeId('tx'),
+        title: `${loan.title} settled`,
+        date: state.today,
+        time: '1:03 AM',
+        type: 'income',
+        amount: fromCents(m.remaining),
+        account: loan.account,
+        loanId,
+        icon: { bg: '#43A047', fg: '#FFFFFF', glyph: 'user' },
+        chips: [{ label: loan.title, bg: '#1F2A4A', fg: '#9FA8DA' }],
+      };
+      demoStore.set({
+        transactions: [tx, ...state.transactions],
+        loans: state.loans.map((l) => (l.id === loanId ? { ...l, status: 'completed' } : l)),
+      });
+    } else {
+      demoStore.set({
+        loans: state.loans.map((l) => (l.id === loanId ? { ...l, status: 'completed' } : l)),
+      });
+    }
+    demoStore.toast('Loan completed 🎉');
+  },
+  reopenLoan(loanId) {
+    demoStore.set({
+      loans: state.loans.map((l) => (l.id === loanId ? { ...l, status: 'active' } : l)),
+    });
+    demoStore.toast('Loan reopened');
   },
   deleteLoan(loanId) {
-    demoStore.set({ loans: state.loans.filter((l) => l.id !== loanId) });
+    demoStore.set({
+      loans: state.loans.filter((l) => l.id !== loanId),
+      transactions: state.transactions.filter((t) => t.loanId !== loanId),
+    });
     demoStore.go('loans');
     demoStore.toast('Loan deleted');
   },
@@ -611,15 +804,199 @@ export const demoStore = {
     const exists = state.loans.some((l) => l.id === loan.id);
     demoStore.set({
       loans: exists ? state.loans.map((l) => (l.id === loan.id ? loan : l)) : [loan, ...state.loans],
+      loansUi: { ...state.loansUi, addOpen: false, editId: null, quickAdd: false },
     });
     demoStore.go('loans');
     demoStore.toast(exists ? 'Loan updated' : 'Loan created');
   },
 
+  /* ---------- goals ---------- */
+  setGoalsTab(tab) {
+    demoStore.setIn('goalsUi.tab', tab);
+  },
+  setGoalSort(sort) {
+    demoStore.set({ goalsUi: { ...state.goalsUi, sort, sortOpen: false } });
+  },
+  toggleGoalSortMenu(open) {
+    demoStore.setIn('goalsUi.sortOpen', open === undefined ? !state.goalsUi.sortOpen : open);
+  },
+  openGoalsHow(open = true) {
+    demoStore.setIn('goalsUi.howOpen', open);
+  },
+  setGoalDetailsTab(tab) {
+    demoStore.setIn('goalsUi.detailsTab', tab);
+  },
+  goalMathFor(goalId) {
+    const goal = state.goals.find((g) => g.id === goalId);
+    if (!goal) return null;
+    return { goal, ...goalMath(goal, state.transactions) };
+  },
+
+  /** Add or edit a goal. */
+  saveGoal(goal) {
+    const exists = state.goals.some((g) => g.id === goal.id);
+    demoStore.set({
+      goals: exists ? state.goals.map((g) => (g.id === goal.id ? goal : g)) : [goal, ...state.goals],
+      goalsUi: { ...state.goalsUi, editId: null },
+    });
+    demoStore.go('goals');
+    demoStore.toast(exists ? 'Goal updated' : 'Goal created');
+  },
+  deleteGoal(goalId) {
+    demoStore.set({
+      goals: state.goals.filter((g) => g.id !== goalId),
+      transactions: state.transactions.filter((t) => t.goalId !== goalId),
+    });
+    demoStore.go('goals');
+    demoStore.toast('Goal deleted');
+  },
+  setGoalStatus(goalId, status) {
+    demoStore.set({
+      goals: state.goals.map((g) => (g.id === goalId ? { ...g, status } : g)),
+    });
+    demoStore.toast(status === 'archived' ? 'Goal archived' : status === 'completed' ? 'Goal completed 🎉' : 'Goal restored');
+  },
+  /** Money in/out of a goal becomes a linked transaction. */
+  addGoalTransaction(goalId, { amount, type = 'income', date, account, title } = {}) {
+    const goal = state.goals.find((g) => g.id === goalId);
+    if (!goal) return;
+    const cents = toCents(amount);
+    if (cents <= 0) return;
+    const tx = {
+      id: makeId('tx'),
+      title: title || (type === 'income' ? `${goal.title} deposit` : `${goal.title} withdrawal`),
+      date: date || state.today,
+      time: '1:03 AM',
+      type,
+      amount: fromCents(cents),
+      account: account || goal.account,
+      goalId,
+      icon:
+        type === 'income'
+          ? { bg: '#43A047', fg: '#FFFFFF', glyph: 'user' }
+          : { bg: '#E91E63', fg: '#FFFFFF', glyph: 'cash' },
+      chips: [{ label: goal.title, bg: goal.pillBg, fg: goal.pillFg }],
+    };
+    const after = goalMath(goal, [tx, ...state.transactions]);
+    demoStore.set({
+      transactions: [tx, ...state.transactions],
+      goals: state.goals.map((g) =>
+        g.id === goalId && after.remaining === 0 ? { ...g, status: 'completed' } : g,
+      ),
+    });
+    demoStore.toast(type === 'income' ? 'Contribution added' : 'Withdrawal recorded');
+  },
+  updateGoalProgress(goalId) {
+    const goal = state.goals.find((g) => g.id === goalId);
+    if (!goal) return;
+    const m = goalMath(goal, state.transactions);
+    if (m.remaining === 0 && goal.status === 'active') demoStore.setGoalStatus(goalId, 'completed');
+  },
+
+  /* ---------- transactions (generic CRUD) ---------- */
+  saveTransaction(tx) {
+    const exists = state.transactions.some((t) => t.id === tx.id);
+    demoStore.set({
+      transactions: exists
+        ? state.transactions.map((t) => (t.id === tx.id ? tx : t))
+        : [tx, ...state.transactions],
+    });
+    demoStore.toast(exists ? 'Transaction updated' : 'Transaction added');
+  },
+  deleteTransaction(txId) {
+    demoStore.set({ transactions: state.transactions.filter((t) => t.id !== txId) });
+    demoStore.toast('Transaction deleted');
+  },
+  setTransactionType(txId, type) {
+    demoStore.set({
+      transactions: state.transactions.map((t) => (t.id === txId ? { ...t, type } : t)),
+    });
+  },
+
+  /* ---------- accounts (generic CRUD) ---------- */
+  saveAccount(account) {
+    const list = state.accounts?.list || [];
+    const exists = list.some((a) => a.id === account.id);
+    demoStore.set({
+      accounts: {
+        ...state.accounts,
+        list: exists ? list.map((a) => (a.id === account.id ? account : a)) : [account, ...list],
+      },
+    });
+    demoStore.toast(exists ? 'Account updated' : 'Account added');
+  },
+  deleteAccount(accountId) {
+    const list = state.accounts?.list || [];
+    demoStore.set({ accounts: { ...state.accounts, list: list.filter((a) => a.id !== accountId) } });
+    demoStore.toast('Account deleted');
+  },
+
+  /* ---------- exit demo / data mode ---------- */
+  openExitDialog(open = true) {
+    demoStore.setIn('ui.exitDialog', open);
+  },
+  /** Clear every demo record and start with an empty, user-owned dataset. */
+  startFresh() {
+    demoStore.set({
+      dataMode: 'fresh',
+      accounts: { ...(state.accounts || {}), list: [], total: 0 },
+      transactions: [],
+      budgets: { ...(state.budgets || {}), slide: 0, items: [] },
+      budgetCards: [],
+      upcoming: [],
+      templates: [],
+
+      assets: [],
+      bills: [],
+      loans: [],
+      goals: [],
+      overview: {
+        ...state.overview,
+        accounts: { count: 0, total: 0 },
+        reports: { count: 0, total: 0 },
+        budgets: { ...state.overview.budgets, slide: 0, count: 0, detail: { total: 0, remaining: 0, spent: 0 } },
+        assets: { count: 0, total: 0 },
+        billSplitter: { bills: 0, active: 0, total: 0 },
+        loans: { lending: 0, borrowing: 0, balance: 0 },
+        goals: { active: 0, progressed: 0, target: 0 },
+        labels: { count: 0, top: '', topTotal: 0 },
+      },
+      balance: {
+        ...state.balance,
+        total: 0,
+        income: { now: 0, prev: 0, deltaPct: 0 },
+        expense: { now: 0, prev: 0, deltaPct: 0 },
+      },
+      ui: { ...state.ui, exitDialog: false },
+    });
+    demoStore.go('home');
+    demoStore.toast('Started fresh — all data is yours');
+  },
+  /** Keep the demo records but drop into normal, editable mode. */
+  keepDemoData() {
+    demoStore.set({ dataMode: 'demo', ui: { ...state.ui, exitDialog: false } });
+    demoStore.go('home');
+    demoStore.toast('Demo data kept — edit anything');
+  },
+  /** Wipe local storage and reload the original demo seed. */
+  resetDemo() {
+    const ls = storage();
+    if (ls) {
+      try {
+        ls.removeItem(STORAGE_KEY);
+      } catch (err) {
+        /* ignore */
+      }
+    }
+    state = { ...initialState, transactions: seedTransactions, goals: seedGoals, loans: seedLoans };
+    emit();
+    demoStore.toast('Demo restored');
+  },
+
   exitDemo() {
-    demoStore.set({ privacy: false });
-    demoStore.toast('Demo mode — data stays local');
+    demoStore.setIn('ui.exitDialog', true);
   },
 };
 
 export { initialState };
+export { accountCatalog, expenseCategories, incomeCategories, PERSON_COLORS };

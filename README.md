@@ -18,6 +18,16 @@ custom) with participant payment tracking and net balances, and a loan manager
 with partial payments, auto-completion and due-date countdowns — plus an
 expressive dark theme engine.
 
+**Step 4 — Relational Ledger, Loans & Goals** is complete: the loan details and
+editor are rebuilt around a linked transaction ledger (repayments, charges,
+multi-currency rows, progress and *Mark as Done* all recompute the global
+summary), and Goals ships with Active / Completed / Archived tabs, wavy progress,
+daily→yearly transaction groups, contributions, a full colour editor and the
+*How Goals Work* sheet. Every record is editable through `demoStore`, persisted
+to `localStorage`, and the **Exit Demo** dialog offers *Start Fresh* or
+*Keep Demo Data & Edit Freely*. Steps 1–3 screens, navigation and state stay
+intact.
+
 ## Run
 
 ```bash
@@ -65,7 +75,11 @@ npm run build    # production bundle in dist/
 | Loans | `src/views/LoansView.jsx`, `LoanDetailsView.jsx`, `LoanEditorView.jsx`, `HowLoansModal.jsx` |
 | Theme tokens (light + dark) | `src/styles/theme3.css` |
 | Step 3 styles | `src/styles/step3.css` |
-| State store + Indian formatting engine | `src/data/demoStore.js` |
+| Step 4 relational ledger + seed data | `src/data/step4Data.js` |
+| Step 4 shared UI (waves, rows, tab bars) | `src/components/step4/ui4.jsx` |
+| Goals list, details, editor, how-to, exit dialog | `src/views/GoalsView.jsx`, `GoalDetailsView.jsx`, `GoalEditorView.jsx`, `HowGoalsWorkModal.jsx`, `ExitDemoDialog.jsx` |
+| Step 4 styles | `src/styles/step4.css` |
+| State store, CRUD + Indian formatting engine | `src/data/demoStore.js` |
 | Design tokens | `src/styles/tokens.css` |
 | Component styles | `src/styles/app.css` |
 
@@ -113,22 +127,36 @@ The app ships as a Capacitor project. `npm run android:apk` builds locally;
 the `apk-builds` branch and attaches it as a workflow artifact.
 See `INSTALL-APK.md`.
 
+## State & persistence
+
+`demoStore` owns the relational records. Amounts, accounts, transactions,
+budgets, assets, bills, loans and goals all have add / edit / delete actions;
+linked loan and goal rows derive their paid, remaining, progress and summary
+figures from `src/data/engine.js`. Data slices persist under the
+`moneymate.v1` `localStorage` key; transient UI state (open sheets, toasts) does
+not. `demoStore.resetDemo()` restores the seed, while the Exit Demo dialog can
+either clear every demo record or keep them in fully editable mode.
+
 ## Testing
 
-Three layers, all runnable offline:
+Four layers, all runnable offline:
 
 ```bash
-node scripts/engine.test.mjs          # 66 pure maths assertions
+node scripts/engine.test.mjs          # 108 pure maths assertions
                                       #   (largest-remainder splitting, loan
-                                      #   countdown/DST, portfolio, ramps)
+                                      #   countdown/DST, ledger summaries,
+                                      #   goals, grouping, portfolio, ramps)
 
 # render + interaction checks per step
-npx vite build --ssr scripts/smoke3.jsx --outDir .smoke && node .smoke/smoke3.js
+rm -rf .smoke && npx vite build --ssr scripts/smoke4.jsx --outDir .smoke \
+  && node .smoke/smoke4.js
 ```
 
-`smoke.jsx` (24), `smoke2.jsx` (141) and `smoke3.jsx` (~120) server-render every
-screen and drive the interactive flows (mark as paid, partial payments, edits,
-theme toggle) against the spec's exact strings.
+`smoke.jsx` (24), `smoke2.jsx` (141), `smoke3.jsx` (~120) and `smoke4.jsx`
+server-render every screen and drive the interactive flows (mark as paid,
+partial payments, edits, theme toggle, quick log, goal contributions, status
+changes, exit-demo modes) against the spec's exact strings. Remove the `.smoke*`
+output directory before each SSR rebuild.
 
 ## Money maths notes
 
@@ -139,4 +167,6 @@ midnights (DST- and leap-year-safe). See `src/data/engine.js`.
 
 ## Next steps
 
-Step 3+ will add Search and the Add-Transaction flow on top of `demoStore`.
+Search and a global Add-Transaction flow can build on the same `demoStore`
+record actions; Step 4 already provides the relational CRUD and persistence
+layer they need.

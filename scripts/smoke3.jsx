@@ -176,7 +176,11 @@ demoStore.openNetBalances(false);
 demoStore.go('billEditor', { id: 'bs1' });
 check('billSplitter', ['Edit Bill Splitter', 'Road Trip Expenses', 'Total amount', 'Percentage', 'Who paid?', 'Shares'], 'bill-editor');
 
-/* ============ LOANS ============ */
+/* ============ LOANS =================================================
+   Step 4 rewrote these screens, so this regression follows the new
+   ledger-backed UI while keeping the Step 3 amounts and flows intact.
+   ==================================================================== */
+demoStore.resetDemo();
 demoStore.go('loans');
 demoStore.setLoansTab('lending');
 check('loans', [
@@ -188,9 +192,10 @@ check('loans', [
   '-$24,106.00',
   'Net Loan Balance',
   '$41,442.00',
+  '3/3',
   '1 loan',
   'Car Loan',
-  'Demo loan for Car Loan',
+  'Lent to Alice',
   '377 days',
   'Paid',
   '$421.00',
@@ -224,39 +229,58 @@ check('loans', [
 ], 'loans-how');
 demoStore.openLoansHow(false);
 
-demoStore.go('loanDetails', { id: 'ln1' });
+demoStore.go('loanDetails', { id: 'ln-car' });
 check('loans', [
-  'Lending',
   'Car Loan',
-  '377 days',
-  'Remaining',
+  'Lending',
+  '377 days left',
+  'Amount Lent',
   '$17,336.00',
-  '$421.00 / $17,757.00',
-  '2% complete',
-  'Record payment',
-  'Mark fully paid',
-  'Outstanding',
-  'Completion',
+  'Repayment Progress',
+  'Paid',
+  '$421.00',
+  'Amount',
+  '$16,619.00',
+  'Total',
+  '$17,757.00',
+  'Loan Details',
+  'Lent to',
+  'Alice',
+  '08/13/2026',
+  '11/19/2027',
+  'Demo loan for Car Loan',
+  'Mark as Done',
+  'Payment History',
+  '£457.00',
+  '$578.48',
+  'Edit',
 ], 'loan-details');
 
-/* record a payment: 421 + 1000 -> 8% complete, remaining 16,336 */
-demoStore.recordLoanPayment('ln1', 1000);
-demoStore.go('loanDetails', { id: 'ln1' });
-check('loans', ['$16,336.00', '8% complete'], 'loan-after-payment');
+/* record a payment: 421 + 1000 -> paid 1,421, remaining 16,336, 8% */
+demoStore.recordLoanPayment('ln-car', 1000);
+demoStore.go('loanDetails', { id: 'ln-car' });
+html = render();
+const afterPaymentNeedles = ['$16,336.00', '$1,421.00', 'aria-valuenow="8"'];
+const afterPaymentMisses = afterPaymentNeedles.filter((n) => !html.includes(n));
+afterPaymentMisses.forEach((n) => console.log(`  MISS [loan-after-payment] ${n}`));
+console.log(`loan-after-payment: ${afterPaymentNeedles.length - afterPaymentMisses.length}/${afterPaymentNeedles.length} ok`);
+fails += afterPaymentMisses.length;
 
-/* mark fully paid -> completes and leaves the lending tab */
-demoStore.recordLoanPayment('ln1', 16336);
+/* pay the remainder -> auto-complete, leaves the lending tab, updates summary */
+demoStore.recordLoanPayment('ln-car', 16336);
 demoStore.go('loans');
 demoStore.setLoansTab('lending');
 html = render();
-const completedOk = html.includes('0 loans') && html.includes('$0.00');
-console.log(`loans(auto-complete): ${completedOk ? 'ok' : 'MISS'}`);
-if (!completedOk) fails += 1;
+const completedNeedles = ['0 loans', '$0.00', '-$24,106.00', '$24,106.00'];
+const completedMisses = completedNeedles.filter((n) => !html.includes(n));
+completedMisses.forEach((n) => console.log(`  MISS [loans(auto-complete)] ${n}`));
+console.log(`loans(auto-complete): ${completedMisses.length === 0 ? 'ok' : 'MISS'}`);
+fails += completedMisses.length;
 demoStore.setLoansTab('completed');
-check('loans', ['Car Loan', '100%', 'Paid'], 'loans-completed-tab');
+check('loans', ['Car Loan', '100%', 'Paid', '1 loan', '$17,757.00'], 'loans-completed-tab');
 
-/* restore the demo loan */
-demoStore.set({ loans: demoStore.getState().loans.map((l) => (l.id === 'ln1' ? { ...l, paid: 421 } : l)) });
+/* restore the original demo seed (ledger-backed, not a scalar paid field) */
+demoStore.resetDemo();
 demoStore.setLoansTab('lending');
 
 /* ============ THEME ENGINE ============ */

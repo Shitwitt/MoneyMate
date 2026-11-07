@@ -31,6 +31,11 @@ import LoansView from './views/LoansView.jsx';
 import LoanDetailsView from './views/LoanDetailsView.jsx';
 import LoanEditorView from './views/LoanEditorView.jsx';
 import HowLoansModal from './views/HowLoansModal.jsx';
+import GoalsView from './views/GoalsView.jsx';
+import GoalDetailsView from './views/GoalDetailsView.jsx';
+import GoalEditorView from './views/GoalEditorView.jsx';
+import HowGoalsWorkModal from './views/HowGoalsWorkModal.jsx';
+import ExitDemoDialog from './views/ExitDemoDialog.jsx';
 
 function Toast() {
   const toast = useStore((s) => s.toast);
@@ -78,6 +83,9 @@ const VIEWS = {
   loans: LoansView,
   loanDetails: LoanDetailsView,
   loanEditor: LoanEditorView,
+  goals: GoalsView,
+  goalDetails: GoalDetailsView,
+  goalEditor: GoalEditorView,
 };
 
 /** screens that always use the expressive dark palette */
@@ -88,6 +96,9 @@ const DARK_VIEWS = new Set([
   'loans',
   'loanDetails',
   'loanEditor',
+  'goals',
+  'goalDetails',
+  'goalEditor',
 ]);
 
 export default function App() {
@@ -98,6 +109,8 @@ export default function App() {
   const billsHow = useStore((s) => s.billsUi.howOpen);
   const balancesOpen = useStore((s) => s.billsUi.balancesOpen);
   const loansHow = useStore((s) => s.loansUi.howOpen);
+  const goalsHow = useStore((s) => s.goalsUi.howOpen);
+  const exitOpen = useStore((s) => s.ui.exitDialog);
 
   const Current = VIEWS[view] || HomeView;
   const effectiveTheme = DARK_VIEWS.has(view) ? 'dark' : theme;
@@ -138,6 +151,8 @@ export default function App() {
       {billsHow ? <HowBillSplitterModal /> : null}
       {balancesOpen ? <NetBalancesModal /> : null}
       {loansHow ? <HowLoansModal /> : null}
+      {goalsHow ? <HowGoalsWorkModal /> : null}
+      {exitOpen ? <ExitDemoDialog /> : null}
 
       <Toast />
     </>

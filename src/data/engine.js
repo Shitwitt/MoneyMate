@@ -407,3 +407,188 @@ export function shadeRamp(hex, steps = 10) {
   }
   return out;
 }
+
+/* ============================================================
+   Step 4 — relational ledger maths
+   Loans and goals are derived from linked transactions rather than
+   storing a mutable `paid` figure, so every screen stays consistent.
+   ============================================================ */
+
+/**
+ * The amount a charge contributes to a loan total. Multi-currency rows keep
+ * their original figure in `amount` and the booked value in `converted`;
+ * `charge: 'converted'` opts into the converted figure.
+ */
+export function chargeCents(tx) {
+  if (tx.charge === 'converted' && tx.converted != null) return tx.converted;
+  return tx.amount;
+}
+
+/** Group transactions by the link id they reference. */
+export function indexByLink(transactions, field) {
+  const map = new Map();
+  transactions.forEach((t) => {
+    const id = t[field];
+    if (!id) return;
+    if (!map.has(id)) map.set(id, []);
+    map.get(id).push(t);
+  });
+  return map;
+}
+
+/**
+ * Loan maths driven by the ledger:
+ *   Amount  = principal entered in the form
+ *   Total   = Amount + Σ linked expense charges
+ *   Paid    = Σ linked income repayments
+ *   Remaining = max(0, Total − Paid)
+ *   Progress  = min(100, Paid / Total)
+ */
+export function loanMath(loan, transactions = []) {
+  const linked = transactions.filter((t) => t.loanId === loan.id);
+  const principal = toCents(loan.amount ?? loan.total ?? 0);
+  const charges = linked
+    .filter((t) => t.type === 'expense' && !t.transfer)
+    .reduce((a, t) => a + toCents(chargeCents(t)), 0);
+  const paid = linked
+    .filter((t) => t.type === 'income' && !t.transfer)
+    .reduce((a, t) => a + toCents(t.amount), 0);
+  const total = principal + charges;
+  const remaining = Math.max(0, total - paid);
+  const completion = total <= 0 ? 0 : Math.min(100, Math.round((paid / total) * 100));
+  return {
+    principal,
+    charges,
+    paid,
+    total,
+    remaining,
+    completion,
+    transactions: linked,
+    completed: remaining === 0,
+  };
+}
+
+/** Aggregate the summary card straight from the ledger. */
+export function loanSummaryFromLedger(loans, transactions, todayISO) {
+  let lending = 0;
+  let borrowing = 0;
+  loans.forEach((l) => {
+    const m = loanMath(l, transactions);
+    if (m.remaining === 0) return;
+    if (l.kind === 'lending') lending += m.remaining;
+    else borrowing += m.remaining;
+  });
+  // `net` is the product's "Net Loan Balance": lending − signedBorrowing,
+  // i.e. total outstanding exposure (17,336 − (−24,106) = 41,442).
+  const net = lending + borrowing;
+  return {
+    lending,
+    borrowing: -borrowing,
+    net,
+    trueNet: lending - borrowing,
+    note: net > 0 ? 'You\u2019re owed more than you owe' : 'You owe more than you\u2019re owed',
+  };
+}
+
+/* ---------- goals ---------- */
+
+/**
+ * Goal maths:
+ *   Saved     = Σ goal income − Σ goal expense (can be negative)
+ *   Remaining = max(0, target − saved)
+ *   Progress  = round(saved / target * 100)   (can be negative)
+ */
+export function goalMath(goal, transactions = []) {
+  const linked = transactions.filter((t) => t.goalId === goal.id);
+  const saved = linked.filter((t) => !t.transfer).reduce(
+    (a, t) => a + (t.type === 'income' ? toCents(t.amount) : -toCents(t.amount)),
+    0,
+  );
+  const target = toCents(goal.target);
+  const remaining = Math.max(0, target - saved);
+  const progress = target <= 0 ? 0 : Math.round((saved / target) * 100);
+  return { saved, target, remaining, progress, transactions: linked };
+}
+
+/**
+ * Goal countdown in whole days. Paisa counts the days *after* today, so a
+ * target 49 calendar days away reads "48 days" (matches the references).
+ */
+export function goalDaysLeft(endISO, todayISO) {
+  return Math.max(0, daysUntil(endISO, todayISO) - 1);
+}
+
+/** Whole months between two dates, for "1 month left". */
+export function monthsBetween(fromISO, toISO) {
+  const a = new Date(fromISO);
+  const b = new Date(toISO);
+  let months = (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+  if (b.getDate() < a.getDate()) months -= 1;
+  return months;
+}
+
+/** Friendly remaining-time label: "1 month left", "2 weeks left", "48 days left". */
+export function remainingLabel(endISO, todayISO) {
+  const days = daysUntil(endISO, todayISO);
+  if (days <= 0) return 'Ended';
+  const months = monthsBetween(todayISO, endISO);
+  if (months >= 1) return `${months} month${months === 1 ? '' : 's'} left`;
+  const weeks = Math.floor(days / 7);
+  if (weeks >= 1) return `${weeks} week${weeks === 1 ? '' : 's'} left`;
+  return `${days} day${days === 1 ? '' : 's'} left`;
+}
+
+/** Suggested daily saving needed to hit the target by the end date. */
+export function goalDailyNeed(goal, saved, todayISO) {
+  const days = Math.max(1, daysUntil(goal.end, todayISO));
+  const remaining = Math.max(0, toCents(goal.target) - saved);
+  return Math.round(remaining / days);
+}
+
+/* ---------- grouping ---------- */
+
+/** Group transactions by day / week / month / year, newest first. */
+export function groupTransactionsByPeriod(transactions, period = 'month') {
+  const keyOf = (iso) => {
+    const d = new Date(iso);
+    const y = d.getFullYear();
+    if (period === 'yearly') return `${y}`;
+    if (period === 'monthly') return `${y}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    if (period === 'weekly') {
+      // ISO-ish week start (Monday)
+      const d2 = new Date(Date.UTC(y, d.getMonth(), d.getDate()));
+      const day = d2.getUTCDay() || 7;
+      d2.setUTCDate(d2.getUTCDate() - (day - 1));
+      return d2.toISOString().slice(0, 10);
+    }
+    return iso.slice(0, 10);
+  };
+
+  const labelOf = (key, sample) => {
+    const d = new Date(sample);
+    if (period === 'yearly') return String(d.getFullYear());
+    if (period === 'monthly') {
+      return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    }
+    const start = new Date(`${key}T00:00:00`);
+    if (period === 'weekly') {
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      const fmt = (x) => x.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return `${fmt(start)} – ${fmt(end)}`;
+    }
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  };
+
+  const map = new Map();
+  [...transactions]
+    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
+    .forEach((t) => {
+      const k = keyOf(t.date);
+      if (!map.has(k)) map.set(k, { key: k, label: labelOf(k, t.date), items: [], total: 0 });
+      const g = map.get(k);
+      g.items.push(t);
+      if (!t.transfer) g.total += t.type === 'income' ? toCents(t.amount) : -toCents(t.amount);
+    });
+  return [...map.values()];
+}

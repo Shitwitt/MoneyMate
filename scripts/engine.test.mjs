@@ -221,3 +221,118 @@ console.log(`ramp: ${ramp.join(' ')}`);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
+
+/* ============================================================
+   Step 4 — ledger + goals
+   ============================================================ */
+import {
+  loanMath,
+  loanSummaryFromLedger,
+  goalMath,
+  monthsBetween,
+  remainingLabel,
+  goalDailyNeed,
+  groupTransactionsByPeriod,
+  goalDaysLeft,
+} from '../src/data/engine.js';
+
+const ledger = [
+  { id: 'x1', date: '2026-02-15', type: 'income', amount: 372, loanId: 'L1', title: 'Bi-weekly pay' },
+  { id: 'x2', date: '2026-01-20', type: 'income', amount: 76, loanId: 'L1', transfer: true, title: 'Transfer 107' },
+  { id: 'x3', date: '2026-01-09', type: 'expense', amount: 391, loanId: 'L1', title: 'Morning coffee' },
+  { id: 'x4', date: '2025-10-21', type: 'income', amount: 49, loanId: 'L1', title: 'Monthly salary' },
+  { id: 'x5', date: '2025-07-30', type: 'expense', amount: 290, loanId: 'L1', title: 'Metro card' },
+  // this row shows £457.00 with $578.48 converted; the ledger charges the
+  // USD amount, so the spec's $17,757.00 Total assumes a 457.00 charge.
+  { id: 'x6', date: '2025-01-24', type: 'expense', amount: 457, loanId: 'L1', title: 'Fast food', original: 457, converted: 578.48, charge: 'original' },
+  { id: 'g1', date: '2026-01-01', type: 'income', amount: 5950, goalId: 'G1' },
+];
+
+const car = { id: 'L1', kind: 'lending', title: 'Car Loan', amount: 16619, start: '2026-08-13', end: '2027-11-19' };
+const m = loanMath(car, ledger);
+eq('loan principal', m.principal, 1661900);
+eq('loan charges', m.charges, 39100 + 29000 + 45700);
+eq('loan total', m.total, 1775700);
+eq('loan paid (income only)', m.paid, 37200 + 4900);
+eq('loan remaining', m.remaining, 1733600);
+eq('loan completion', m.completion, 2);
+eq('loan total from spec', fmtMoney(m.total), '$17,757.00');
+eq('loan remaining from spec', fmtMoney(m.remaining), '$17,336.00');
+
+// no extra charges -> Total = Amount
+const fresh = loanMath({ id: 'L2', amount: 500 }, []);
+eq('fresh total equals amount', fresh.total, 50000);
+eq('fresh paid 0', fresh.paid, 0);
+eq('fresh completion 0', fresh.completion, 0);
+
+// marked done with everything repaid -> completed
+const doneM = loanMath({ ...car, done: true }, [
+  ...ledger,
+  // repaying the outstanding 17,336 fully clears the loan
+  { id: 'x9', date: '2026-12-01', type: 'income', amount: 17336, loanId: 'L1' },
+]);
+eq('completed after full repayment', doneM.remaining, 0);
+eq('completion capped at 100', doneM.completion, 100);
+
+// summary straight from the ledger
+const ls = loanSummaryFromLedger(
+  [
+    { id: 'L1', kind: 'lending', amount: 16619 },
+    { id: 'L3', kind: 'borrowing', amount: 26000 },
+  ],
+  ledger,
+  '2026-11-07',
+);
+eq('ledger lending', ls.lending, 1733600);
+eq('ledger borrowing', ls.borrowing, -2600000);
+eq('ledger net (exposure)', ls.net, 1733600 - -2600000);
+eq('ledger true net', ls.trueNet, 1733600 - 2600000);
+
+/* ---------- goals ---------- */
+const emergency = { id: 'G1', target: 35604, start: '2025-12-26', end: '2026-12-26' };
+const em = goalMath(emergency, ledger);
+eq('goal saved', em.saved, 595000);
+eq('goal remaining', em.remaining, 2965400);
+eq('goal progress', em.progress, 17);
+eq('goal remaining from spec', fmtMoney(em.remaining), '$29,654.00');
+
+// negative savings are preserved (withdrawal beyond deposits)
+const vacation = { id: 'G2', target: 47695, end: '2027-07-25' };
+const vm = goalMath(vacation, [
+  { id: 'd1', date: '2026-05-01', type: 'expense', amount: 947, goalId: 'G2' },
+]);
+eq('negative saved', vm.saved, -94700);
+eq('negative progress', vm.progress, -2);
+eq('remaining from negative', vm.remaining, 4864200);
+eq('negative saved from spec', fmtMoney(vm.saved), '-$947.00');
+eq('vacation remaining spec', fmtMoney(vm.remaining), '$48,642.00');
+
+// target met -> remaining 0, never negative
+const met = goalMath({ id: 'G3', target: 100 }, [
+  { id: 'd2', date: '2026-05-01', type: 'income', amount: 150, goalId: 'G3' },
+]);
+eq('met remaining 0', met.remaining, 0);
+eq('met progress', met.progress, 150);
+
+/* ---------- time helpers ---------- */
+eq('days to 2026-12-26', daysUntil('2026-12-26', '2026-11-07'), 49);
+// goals exclude today: 49 -> 48 and 260 -> 259, matching the references
+eq('goal countdown emergency', goalDaysLeft('2026-12-26', '2026-11-07'), 48);
+eq('goal countdown vacation', goalDaysLeft('2027-07-25', '2026-11-07'), 259);
+eq('goal countdown past', goalDaysLeft('2026-01-01', '2026-11-07'), 0);
+eq('months between', monthsBetween('2026-11-07', '2026-12-26'), 1);
+eq('remaining label months', remainingLabel('2026-12-26', '2026-11-07'), '1 month left');
+eq('remaining label days', remainingLabel('2027-07-25', '2026-11-07'), '8 months left');
+eq('remaining ended', remainingLabel('2026-01-01', '2026-11-07'), 'Ended');
+eq('daily need', goalDailyNeed(emergency, em.saved, '2026-11-07'), Math.round(2965400 / 49));
+
+/* ---------- grouping ---------- */
+const daily = groupTransactionsByPeriod(ledger, 'daily');
+eq('daily groups', daily.length, 7);
+eq('daily newest first', daily[0].items[0].date >= daily[daily.length - 1].items[0].date, true);
+const monthly = groupTransactionsByPeriod(ledger, 'monthly');
+eq('monthly label', monthly.find((g) => g.key === '2026-02').label, 'February 2026');
+eq('monthly group totals', monthly.find((g) => g.key === '2025-07').total, -29000);
+eq('yearly groups', groupTransactionsByPeriod(ledger, 'yearly').length, 2);
+console.log(`\nstep4: ${pass} passed, ${fail} failed`);
+if (fail) process.exit(1);

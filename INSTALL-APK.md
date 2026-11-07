@@ -43,6 +43,11 @@ Everything built so far runs fully offline inside a WebView:
   balances + settle-up) and Loans (lending/borrowing/completed, partial and
   full payments, auto-completion, due-date countdowns), plus a global
   light/dark theme engine.
+- **Step 4** — Ledger-backed loan details/editor (payment history, quick log,
+  multi-currency rows, *Mark as Done*, colour/category/account pickers), Goals
+  (Active/Completed/Archived, wavy progress, grouped transactions,
+  contributions, daily→yearly tabs, colour editor), *How Goals Work*, full CRUD
+  with `localStorage` persistence, and the *Exit Demo* / *Start Fresh* dialog.
 
 ## Notes
 

@@ -238,7 +238,7 @@ export default function BentoGrid() {
       </Card>
 
       {/* 7 — Goals */}
-      <Card icon={Target} title="Goals" onClick={open('Goals')}>
+      <Card icon={Target} title="Goals" onClick={() => demoStore.go('goals')}>
         <div className="card-foot">
           <div className="stat-line">
             <span className="stat-num">{o.goals.active}</span>

@@ -37,6 +37,9 @@ function Donut({ pct, color }) {
 export default function BudgetCarousel() {
   const budgets = useStore((s) => s.budgets);
   const privacy = useStore((s) => s.privacy);
+  // Start Fresh (and deleting every budget) must never break the home screen.
+  const items = budgets?.items ?? [];
+  const slide = Math.min(Math.max(0, budgets?.slide ?? 0), Math.max(0, items.length - 1));
 
   const amt = (v) => (privacy ? MASK : fmtFull(v));
   const swipe = useSwipe({ onLeft: demoStore.cycleBudgetCarousel, onRight: demoStore.cycleBudgetCarousel });
@@ -50,9 +53,9 @@ export default function BudgetCarousel() {
       <div className="budget-carousel" {...swipe}>
         <div
           className="budget-track"
-          style={{ transform: `translateX(-${budgets.slide * 100}%)` }}
+          style={{ transform: `translateX(-${slide * 100}%)` }}
         >
-          {budgets.items.map((b) => (
+          {items.map((b) => (
             <button
               type="button"
               className="budget-card"
@@ -97,7 +100,13 @@ export default function BudgetCarousel() {
         </div>
       </div>
 
-      <Dots count={budgets.items.length} active={budgets.slide} className="carousel-dots" />
+      {items.length > 0 ? (
+        <Dots count={items.length} active={slide} className="carousel-dots" />
+      ) : (
+        <p style={{ margin: '10px 20px 0', fontSize: 13, color: '#8C6A5D' }}>
+          No budgets yet. Add one from Budgets.
+        </p>
+      )}
     </>
   );
 }

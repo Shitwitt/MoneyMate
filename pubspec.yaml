@@ -39,3 +39,4 @@ flutter:
   # fetching (and therefore never needs the INTERNET permission).
   assets:
     - assets/fonts/
+    - assets/onboarding/

@@ -27,15 +27,18 @@ export default function Templates() {
       <div className="templates-row">
         {templates.map((t) => (
           <button type="button" key={t.id} className="template-card" onClick={() => useTemplate(t)} aria-label={`Use ${t.name} template`}>
-            <span className="template-icon" style={{ background: t.color }}><Banknote /></span>
+            <div className="template-top">
+              <span className="template-icon" style={{ background: t.color }}><Banknote /></span>
+              <b>{privacy ? mask : fmtFull(t.amount, base)}</b>
+            </div>
             <strong>{t.name}</strong>
-            <small>{privacy ? mask : fmtFull(t.amount, base)}</small>
+            <small className="template-type">{t.type || 'Expense'}</small>
           </button>
         ))}
         <button type="button" className="template-card add" onClick={() => demoStore.openTemplateEditor()} aria-label="Add template">
-          <span className="template-icon"><Plus /></span>
+          <div className="template-top"><span className="template-icon"><Plus /></span><b>Custom</b></div>
           <strong>Add template</strong>
-          <small>Custom</small>
+          <small className="template-type">New</small>
         </button>
       </div>
     </section>

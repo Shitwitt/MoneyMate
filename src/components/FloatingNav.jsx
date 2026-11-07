@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChartNoAxesCombined, House, Plus, Search, Wallet } from 'lucide-react';
+import { CreditCard, House, Plus, RefreshCw, Search } from 'lucide-react';
 
 import { demoStore } from '../data/demoStore.js';
 import { useStore } from '../hooks/useStore.js';
@@ -13,14 +13,25 @@ export default function FloatingNav() {
     else demoStore.go(tab === 'home' ? 'home' : tab);
     demoStore.setNav(tab);
   };
+  const items = [
+    { id: 'home', icon: House, label: t('Home') },
+    { id: 'accounts', icon: CreditCard, label: t('Accounts') },
+    { id: 'reports', icon: RefreshCw, label: t('Reports') },
+    { id: 'search', icon: Search, label: t('Search') },
+  ];
 
   return (
-    <nav className="floating-nav" aria-label="Primary">
-      <button type="button" className={active === 'home' ? 'on' : ''} onClick={() => go('home')} aria-label={t('Home')} title={t('Home')}><House /></button>
-      <button type="button" className={active === 'accounts' ? 'on' : ''} onClick={() => go('accounts')} aria-label={t('Accounts')} title={t('Accounts')}><Wallet /></button>
-      <button type="button" className="fab" onClick={() => demoStore.openTransactionEditor()} aria-label={t('New')} title={t('New')}><Plus /></button>
-      <button type="button" className={active === 'reports' ? 'on' : ''} onClick={() => go('reports')} aria-label={t('Reports')} title={t('Reports')}><ChartNoAxesCombined /></button>
-      <button type="button" className={active === 'search' ? 'on' : ''} onClick={() => go('search')} aria-label={t('Search')} title={t('Search')}><Search /></button>
-    </nav>
+    <>
+      <button type="button" className="floating-fab" onClick={() => demoStore.openTransactionEditor()} aria-label={t('New')} title={t('New')}>
+        <Plus />
+      </button>
+      <nav className="floating-nav" aria-label="Primary">
+        {items.map(({ id, icon: Icon, label }) => (
+          <button key={id} type="button" className={active === id ? 'on' : ''} onClick={() => go(id)} aria-label={label}>
+            <Icon /><span>{label}</span>
+          </button>
+        ))}
+      </nav>
+    </>
   );
 }

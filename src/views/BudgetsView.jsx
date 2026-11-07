@@ -20,9 +20,9 @@ export default function BudgetsView() {
   const remaining = total - spent;
   const visible = items.filter((b) => (tab === 'completed' ? b.status === 'Over budget' || b.usedPct >= 100 : b.status !== 'Over budget' && b.usedPct < 100));
   const summary = [
-    { key: 'total', label: 'Total', bg: '#4E5B8C', iconBg: '#BBC3E8', iconFg: '#2C3763', value: total, icon: 'wallet' },
-    { key: 'spent', label: 'Spent', bg: '#8C4A54', iconBg: '#F2C2CB', iconFg: '#6B2C36', value: spent, icon: 'cash' },
-    { key: 'remaining', label: 'Remaining', bg: '#00695C', iconBg: '#A7E8D8', iconFg: '#004D40', value: remaining, icon: 'wallet' },
+    { key: 'total', label: 'Total', bg: '#F3E2D9', iconBg: '#7B4028', iconFg: '#FFF4EC', value: total, icon: 'wallet' },
+    { key: 'spent', label: 'Spent', bg: '#F8D9D3', iconBg: '#C45B44', iconFg: '#FFFFFF', value: spent, icon: 'cash' },
+    { key: 'remaining', label: 'Remaining', bg: '#DFEEE0', iconBg: '#2E7D32', iconFg: '#FFFFFF', value: remaining, icon: 'wallet' },
   ];
 
   return (

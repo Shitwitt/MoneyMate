@@ -1,44 +1,69 @@
 import React, { useState } from 'react';
-import { CalendarDays, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { CalendarDays, ChevronRight, Plus } from 'lucide-react';
 
-import { SectionHead } from './ui.jsx';
 import { demoStore, fmtFull } from '../data/demoStore.js';
 import { useStore } from '../hooks/useStore.js';
 import { calendarHeatmap } from '../data/derive.js';
 
+function previousMonthStart(today) {
+  const [y, m] = today.split('-').map(Number);
+  const d = new Date(Date.UTC(y, m - 2, 1));
+  return d.toISOString().slice(0, 10);
+}
+
+function MiniMonth({ cells, palette, selectedDate, onPick }) {
+  return (
+    <div className="mini-month">
+      {cells.map((cell) => cell.date ? (
+        <button
+          type="button"
+          key={cell.key}
+          data-date={cell.date}
+          className={`heat-cell${selectedDate === cell.date ? ' selected' : ''}`}
+          style={{ background: cell.level === 2 ? palette.high : cell.level === 1 ? palette.medium : palette.zero }}
+          aria-label={`${cell.date}: ${cell.count} transactions, ${fmtFull(cell.amount, palette.base)}`}
+          onClick={() => onPick(cell.date)}
+        >
+          <span>{cell.day}</span>
+        </button>
+      ) : <span key={cell.key} className="heat-cell blank" />)}
+    </div>
+  );
+}
+
 export default function CalendarHeatmap() {
-  const heatmap = useStore((s) => calendarHeatmap(s));
-  const base = useStore((s) => s.profile.baseCurrency);
-  const today = useStore((s) => s.today);
-  const [selected, setSelected] = useState(today);
+  const snapshot = useStore((s) => ({
+    today: s.today,
+    transactions: s.transactions,
+    baseCurrency: s.profile.baseCurrency,
+  }));
+  const [selected, setSelected] = useState(snapshot.today);
   const [hovered, setHovered] = useState(null);
-  const chosenDate = hovered || selected;
-  const cells = heatmap.cells;
-  const chosen = cells.find((c) => c.date === chosenDate) || { date: chosenDate, amount: 0, count: 0 };
-  const colorFor = (cell) => {
-    if (!cell.date) return 'transparent';
-    if (cell.level === 0) return heatmap.zero;
-    if (cell.level === 2) return heatmap.high;
-    return heatmap.medium;
+
+  const state = {
+    today: snapshot.today,
+    transactions: snapshot.transactions,
+    profile: { baseCurrency: snapshot.baseCurrency },
   };
+  const current = calendarHeatmap(state);
+  const previous = calendarHeatmap({ ...state, today: previousMonthStart(snapshot.today) });
+  const chosenDate = hovered || selected;
+  const allCells = [...previous.cells, ...current.cells];
+  const chosen = allCells.find((c) => c.date === chosenDate) || { date: chosenDate, amount: 0, count: 0 };
+  const palette = { ...current, base: snapshot.baseCurrency };
+  const monthTitle = new Date(`${snapshot.today}T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
 
   return (
     <section className="calendar-section" aria-label="Spending calendar">
-      <SectionHead
-        title={heatmap.month}
-        action="Reports"
-        onAction={() => demoStore.go('reports')}
-      />
-      <div className="calendar-card">
-        <div className="calendar-top">
-          <button type="button" aria-label="Previous month" onClick={() => demoStore.go('reports')}><ChevronLeft /></button>
-          <strong><CalendarDays /> Spending heatmap</strong>
-          <button type="button" aria-label="Next month" onClick={() => demoStore.go('reports')}><ChevronRight /></button>
-        </div>
-        <div className="weekday-row">{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => <span key={d}>{d}</span>)}</div>
+      <div className="calendar-card" role="group" aria-label="Spending calendar heatmap">
+        <button type="button" className="calendar-card-head" onClick={() => demoStore.go('reports')} aria-label="Open reports calendar">
+          <strong><CalendarDays /> Calendar heatmap</strong>
+          <ChevronRight />
+        </button>
+        <h3 className="calendar-month-title">{monthTitle}</h3>
+        <h4 className="calendar-subtitle">Spending heatmap</h4>
         <div
-          className="heatmap-grid"
-          role="grid"
+          className="heatmap-months"
           data-scrub="true"
           data-active-date={chosenDate}
           onTouchMove={(e) => {
@@ -46,35 +71,20 @@ export default function CalendarHeatmap() {
             const date = el?.getAttribute?.('data-date');
             if (date) setHovered(date);
           }}
+          onMouseLeave={() => setHovered(null)}
         >
-          {cells.map((cell) => cell.date ? (
-            <button
-              type="button"
-              key={cell.key}
-              data-date={cell.date}
-              className={`heat-cell${chosenDate === cell.date ? ' selected' : ''}${cell.isToday ? ' today' : ''}`}
-              style={{ background: colorFor(cell) }}
-              aria-label={`${cell.date}: ${cell.count} transactions, ${fmtFull(cell.amount, base)}`}
-              onMouseEnter={() => setHovered(cell.date)}
-              onTouchStart={() => { setSelected(cell.date); setHovered(cell.date); }}
-              onClick={() => setSelected(cell.date)}
-            >
-              <span>{cell.day}</span>
-            </button>
-          ) : <span key={cell.key} className="heat-cell blank" />)}
+          <div className="heatmap-month-wrap prev"><MiniMonth cells={previous.cells} palette={palette} selectedDate={chosenDate} onPick={setSelected} /></div>
+          <div className="heatmap-month-wrap current"><MiniMonth cells={current.cells} palette={palette} selectedDate={chosenDate} onPick={setSelected} /></div>
         </div>
-        <div className="heatmap-legend">
-          <span>Less</span><i style={{ background: heatmap.zero }} /><i style={{ background: heatmap.medium }} /><i style={{ background: heatmap.high }} /><span>More</span>
+      </div>
+      <div className="heat-summary">
+        <div>
+          <strong>{chosen.date}</strong>
+          <small>{chosen.count || 0} txns · {fmtFull(chosen.amount || 0, snapshot.baseCurrency)}</small>
         </div>
-        <div className="heat-summary">
-          <div>
-            <strong>{chosen.date}</strong>
-            <small>{chosen.count || 0} txns · {fmtFull(chosen.amount || 0, base)}</small>
-          </div>
-          <button type="button" onClick={() => demoStore.openTransactionEditor({ date: chosen.date })}>
-            <Plus /> Add transaction on this date
-          </button>
-        </div>
+        <button type="button" onClick={() => demoStore.openTransactionEditor({ date: chosen.date })}>
+          <Plus /> Add transaction on this date
+        </button>
       </div>
     </section>
   );

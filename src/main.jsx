@@ -15,6 +15,7 @@ import './styles/step4.css';
 import './styles/live.css';
 import './styles/onboarding.css';
 import './styles/paisa.css';
+import './styles/reference.css';
 
 import App from './App.jsx';
 

@@ -54,18 +54,19 @@ function HomeView() {
       <Greeting />
       <HeroCard />
 
-      {sections.includes('overview') ? (
-        <>
-          <div className="section-head"><h2>{t('Overview')}</h2></div>
-          <BentoGrid />
-        </>
-      ) : null}
-      <div style={{ height: 8 }} />
-      {sections.includes('templates') ? <Templates /> : null}
-      {sections.includes('calendar') ? <CalendarHeatmap /> : null}
-      {sections.includes('trend') ? <TrendChart /> : null}
-      {sections.includes('budgets') ? <BudgetCarousel /> : null}
-      {sections.includes('upcoming') ? <UpcomingTransactions /> : null}
+      <div className="home-flow">
+        {sections.includes('overview') ? (
+          <>
+            <div className="section-head"><h2>{t('Overview')}</h2></div>
+            <BentoGrid />
+          </>
+        ) : null}
+        {sections.includes('templates') ? <Templates /> : null}
+        {sections.includes('calendar') ? <CalendarHeatmap /> : null}
+        {sections.includes('trend') ? <TrendChart /> : null}
+        {sections.includes('budgets') ? <BudgetCarousel /> : null}
+        {sections.includes('upcoming') ? <UpcomingTransactions /> : null}
+      </div>
     </>
   );
 }
@@ -91,13 +92,10 @@ const VIEWS = {
 };
 
 /** screens that always use the expressive dark palette */
-const DARK_VIEWS = new Set([
-  'billSplitter', 'billDetails', 'billEditor',
-  'loans', 'loanDetails', 'loanEditor',
-  'goals', 'goalDetails', 'goalEditor',
-]);
+// The reference design uses the warm light theme for every main screen.
+const DARK_VIEWS = new Set([]);
 
-const LIGHT_NAV_VIEWS = new Set(['home', 'accounts', 'reports', 'search', 'budgetDetail']);
+const LIGHT_NAV_VIEWS = new Set(['home', 'accounts', 'reports', 'search', 'budgetDetail', 'budgets', 'assets', 'assetEditor', 'billSplitter', 'billDetails', 'billEditor', 'loans', 'loanDetails', 'loanEditor', 'goals', 'goalDetails', 'goalEditor']);
 
 export default function App() {
   const view = useStore((s) => s.route.view);

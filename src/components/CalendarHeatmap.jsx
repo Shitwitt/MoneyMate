@@ -1,69 +1,80 @@
-import React from 'react';
-import { CalendarDays, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { CalendarDays, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+
+import { SectionHead } from './ui.jsx';
+import { demoStore, fmtFull } from '../data/demoStore.js';
 import { useStore } from '../hooks/useStore.js';
-import { demoStore } from '../data/demoStore.js';
+import { calendarHeatmap } from '../data/derive.js';
 
-/**
- * Calendar heatmap: a 3-column trailing slice of October + the full
- * 7-column November grid, rendered as one 10-column grid.
- */
 export default function CalendarHeatmap() {
-  const h = useStore((s) => s.heatmap);
-
-  const cell = (day, level, key, isToday = false, month = 'Nov') => (
-    <div
-      key={key}
-      className={`heat-cell${level ? ` l${level}` : ''}${isToday ? ' today' : ''}${day ? ' press' : ''}`}
-      title={day ? `${month} ${day} 2026` : undefined}
-    >
-      {day ?? ''}
-    </div>
-  );
+  const heatmap = useStore((s) => calendarHeatmap(s));
+  const base = useStore((s) => s.profile.baseCurrency);
+  const today = useStore((s) => s.today);
+  const [selected, setSelected] = useState(today);
+  const [hovered, setHovered] = useState(null);
+  const chosenDate = hovered || selected;
+  const cells = heatmap.cells;
+  const chosen = cells.find((c) => c.date === chosenDate) || { date: chosenDate, amount: 0, count: 0 };
+  const colorFor = (cell) => {
+    if (!cell.date) return 'transparent';
+    if (cell.level === 0) return heatmap.zero;
+    if (cell.level === 2) return heatmap.high;
+    return heatmap.medium;
+  };
 
   return (
-    <section className="panel">
-      <div className="card-head" style={{ marginBottom: 2 }}>
-        <span className="head-icon" aria-hidden="true">
-          <CalendarDays />
-        </span>
-        <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>Calendar heatmap</span>
-        <button
-          type="button"
-          className="chev"
-          style={{ marginLeft: 'auto', color: 'var(--text)', display: 'grid', placeItems: 'center' }}
-          aria-label="Open calendar"
-          onClick={() => demoStore.toast('Calendar — opens in a later step')}
+    <section className="calendar-section" aria-label="Spending calendar">
+      <SectionHead
+        title={heatmap.month}
+        action="Reports"
+        onAction={() => demoStore.go('reports')}
+      />
+      <div className="calendar-card">
+        <div className="calendar-top">
+          <button type="button" aria-label="Previous month" onClick={() => demoStore.go('reports')}><ChevronLeft /></button>
+          <strong><CalendarDays /> Spending heatmap</strong>
+          <button type="button" aria-label="Next month" onClick={() => demoStore.go('reports')}><ChevronRight /></button>
+        </div>
+        <div className="weekday-row">{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => <span key={d}>{d}</span>)}</div>
+        <div
+          className="heatmap-grid"
+          role="grid"
+          data-scrub="true"
+          data-active-date={chosenDate}
+          onTouchMove={(e) => {
+            const el = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+            const date = el?.getAttribute?.('data-date');
+            if (date) setHovered(date);
+          }}
         >
-          <ChevronRight size={17} strokeWidth={2.4} />
-        </button>
-      </div>
-
-      <div className="heat-month">
-        <span>{h.month}</span>
-      </div>
-
-      <div className="heat-grid">
-        {/* October tail — 3 columns */}
-        {h.octoberTail.map((row, r) =>
-          row.map((day, c) =>
-            day == null ? (
-              <div key={`o-${r}-${c}`} className="heat-cell blank" />
-            ) : (
-              cell(day, h.octLevels[day] ?? 0, `o-${r}-${c}`, false, 'Oct')
-            ),
-          ),
-        )}
-
-        {/* November — 7 columns, week by week */}
-        {h.november.map((row, r) =>
-          row.map((day, c) =>
-            day == null ? (
-              <div key={`n-${r}-${c}`} className="heat-cell blank" />
-            ) : (
-              cell(day, h.novLevels[day] ?? 0, `n-${r}-${c}`, day === h.today)
-            ),
-          ),
-        )}
+          {cells.map((cell) => cell.date ? (
+            <button
+              type="button"
+              key={cell.key}
+              data-date={cell.date}
+              className={`heat-cell${chosenDate === cell.date ? ' selected' : ''}${cell.isToday ? ' today' : ''}`}
+              style={{ background: colorFor(cell) }}
+              aria-label={`${cell.date}: ${cell.count} transactions, ${fmtFull(cell.amount, base)}`}
+              onMouseEnter={() => setHovered(cell.date)}
+              onTouchStart={() => { setSelected(cell.date); setHovered(cell.date); }}
+              onClick={() => setSelected(cell.date)}
+            >
+              <span>{cell.day}</span>
+            </button>
+          ) : <span key={cell.key} className="heat-cell blank" />)}
+        </div>
+        <div className="heatmap-legend">
+          <span>Less</span><i style={{ background: heatmap.zero }} /><i style={{ background: heatmap.medium }} /><i style={{ background: heatmap.high }} /><span>More</span>
+        </div>
+        <div className="heat-summary">
+          <div>
+            <strong>{chosen.date}</strong>
+            <small>{chosen.count || 0} txns · {fmtFull(chosen.amount || 0, base)}</small>
+          </div>
+          <button type="button" onClick={() => demoStore.openTransactionEditor({ date: chosen.date })}>
+            <Plus /> Add transaction on this date
+          </button>
+        </div>
       </div>
     </section>
   );

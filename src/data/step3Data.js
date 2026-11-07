@@ -137,13 +137,13 @@ export const loans = [
   {
     id: 'ln1',
     title: 'Car Loan',
-    subtitle: 'Demo loan for Car Loan',
+    subtitle: 'Car Loan record',
     kind: 'lending',
     person: 'Bob',
     total: 17757.0,
     paid: 421.0,
     due: '2027-11-19',
-    account: 'Demo Bank',
+    account: 'Raj Card',
     accent: '#3949AB',
     tileFg: '#FFFFFF',
     surface: '#252542',
@@ -181,7 +181,7 @@ export const loans = [
     total: 8000.0,
     paid: 1000.0,
     due: '2027-01-15',
-    account: 'Demo Bank',
+    account: 'Raj Card',
     accent: '#00897B',
     tileFg: '#FFFFFF',
     surface: '#1E2A28',
@@ -239,5 +239,5 @@ export const howLoansWork = [
   },
 ];
 
-/** "today" for the demo, so the 377-day countdown matches the reference */
-export const DEMO_TODAY = '2026-11-07';
+/** "today" for the reference data, so the 377-day countdown matches the reference */
+export const REFERENCE_TODAY = '2026-11-07';

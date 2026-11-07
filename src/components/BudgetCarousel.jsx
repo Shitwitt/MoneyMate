@@ -1,112 +1,57 @@
 import React from 'react';
-import { Landmark, ShoppingCart, PiggyBank } from 'lucide-react';
-import { useStore } from '../hooks/useStore.js';
-import { demoStore, fmtFull } from '../data/demoStore.js';
+import { ChevronRight, Plus, Target } from 'lucide-react';
+
+import { SectionHead } from './ui.jsx';
 import { Dots, useSwipe } from './ui.jsx';
-
-const MASK = '₹••••••';
-
-function Donut({ pct, color }) {
-  const R = 40;
-  const C = 2 * Math.PI * R;
-  const filled = Math.min(100, Math.max(0, pct)) / 100;
-  return (
-    <div className="donut" role="img" aria-label={`${pct}% of budget used`}>
-      <svg viewBox="0 0 96 96">
-        <circle cx="48" cy="48" r={R} fill="none" stroke="#F7E7E1" strokeWidth="9" />
-        <circle
-          cx="48"
-          cy="48"
-          r={R}
-          fill="none"
-          stroke={color}
-          strokeWidth="9"
-          strokeLinecap="round"
-          strokeDasharray={`${(C * filled).toFixed(2)} ${C.toFixed(2)}`}
-          transform="rotate(-90 48 48)"
-        />
-      </svg>
-      <div className="donut-text">
-        <span className="dp">{pct}%</span>
-        <span className="du">used</span>
-      </div>
-    </div>
-  );
-}
+import { RingGauge, WavyProgress } from './charts/Interactive.jsx';
+import { demoStore, fmtFull } from '../data/demoStore.js';
+import { useStore } from '../hooks/useStore.js';
+import { budgetCards } from '../data/derive.js';
 
 export default function BudgetCarousel() {
-  const budgets = useStore((s) => s.budgets);
+  const items = useStore((s) => budgetCards(s));
+  const slide = useStore((s) => s.budgetsUi.slide);
+  const base = useStore((s) => s.profile.baseCurrency);
   const privacy = useStore((s) => s.privacy);
-  // Start Fresh (and deleting every budget) must never break the home screen.
-  const items = budgets?.items ?? [];
-  const slide = Math.min(Math.max(0, budgets?.slide ?? 0), Math.max(0, items.length - 1));
-
-  const amt = (v) => (privacy ? MASK : fmtFull(v));
-  const swipe = useSwipe({ onLeft: demoStore.cycleBudgetCarousel, onRight: demoStore.cycleBudgetCarousel });
+  const swipe = useSwipe({
+    onLeft: () => demoStore.setBudgetSlide((slide + 1) % Math.max(1, items.length)),
+    onRight: () => demoStore.setBudgetSlide((slide - 1 + Math.max(1, items.length)) % Math.max(1, items.length)),
+  });
+  const i = Math.min(slide, Math.max(0, items.length - 1));
+  const b = items[i];
 
   return (
-    <>
-      <div className="section-head on-sand">
-        <h2>Track budgets</h2>
+    <section className="budget-carousel" aria-label="Budget overview">
+      <SectionHead title="Track budgets" action="See all" onAction={() => demoStore.go('budgets')} />
+      <div className="budget-carousel-actions">
+        <button type="button" className="chip-button" onClick={() => demoStore.openBudgetEditor()}><Plus /> Add budget</button>
       </div>
-
-      <div className="budget-carousel" {...swipe}>
-        <div
-          className="budget-track"
-          style={{ transform: `translateX(-${slide * 100}%)` }}
-        >
-          {items.map((b) => (
-            <button
-              type="button"
-              className="budget-card"
-              key={b.id}
-              onClick={() => demoStore.go('budgetDetail', { id: b.id })}
-            >
-              <div className="bc-top">
-                <span className="bc-icon" style={{ background: b.accent === '#E53935' ? '#EF5350' : b.accent }}>
-                  <Landmark />
-                </span>
-                <div className="bc-titles">
-                  <div className="bc-name">{b.name}</div>
-                  <div className="bc-sub">
-                    {b.period} •
-                    <span className="pill-status">{b.status}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bc-bottom">
-                <Donut pct={b.pct} color={b.ringColor} />
-                <div className="breakdown">
-                  <div className="breakdown-row">
-                    <Landmark aria-hidden="true" />
-                    Budget
-                    <span className="bv">{amt(b.budget)}</span>
-                  </div>
-                  <div className="breakdown-row">
-                    <ShoppingCart aria-hidden="true" />
-                    Spent
-                    <span className="bv">{amt(b.spent)}</span>
-                  </div>
-                  <div className="breakdown-row">
-                    <PiggyBank aria-hidden="true" />
-                    Remaining
-                    <span className="bv red">{amt(b.remaining)}</span>
-                  </div>
-                </div>
-              </div>
-            </button>
-          ))}
+      {b ? (
+        <div className="budget-slide live-card" {...swipe} onClick={() => demoStore.go('budgetDetail', { id: b.id })} role="button" tabIndex={0}>
+          <div className="budget-slide-head">
+            <Target />
+            <strong>{b.name}</strong>
+            <ChevronRight />
+          </div>
+          <div className="budget-slide-body">
+            <RingGauge pct={b.usedPct || 0} size={78} stroke={9} color={b.color || '#3949AB'} label={`${b.usedPct}% used`}>
+              <b>{b.usedPct || 0}%</b><small>used</small>
+            </RingGauge>
+            <div className="budget-slide-nums">
+              <span>Spent {privacy ? '••••' : fmtFull(b.spent, base)}</span>
+              <span>Remaining {privacy ? '••••' : fmtFull(b.remaining, base)}</span>
+              <span>Limit {privacy ? '••••' : fmtFull(b.limit, base)}</span>
+              <small>{privacy ? '••••' : fmtFull(b.dailySafeSpend, base)}/day for {b.daysLeft} more days</small>
+            </div>
+          </div>
+          <WavyProgress pct={b.pct || 0} color={b.color || '#3949AB'} track="#E4E1F2" height={9} stroke={4} label={`${b.pct}% of budget`} />
+          <Dots count={items.length} active={i} />
         </div>
-      </div>
-
-      {items.length > 0 ? (
-        <Dots count={items.length} active={slide} className="carousel-dots" />
       ) : (
-        <p style={{ margin: '10px 20px 0', fontSize: 13, color: '#8C6A5D' }}>
-          No budgets yet. Add one from Budgets.
-        </p>
+        <button type="button" className="live-card empty-note" onClick={() => demoStore.openBudgetEditor()}>
+          No budgets yet — tap to add your first live budget.
+        </button>
       )}
-    </>
+    </section>
   );
 }

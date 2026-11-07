@@ -2,13 +2,15 @@ import React from 'react';
 import { Plus, Users, Check } from 'lucide-react';
 import { useStore } from '../hooks/useStore.js';
 import { demoStore } from '../data/demoStore.js';
-import { contacts } from '../data/step3Data.js';
 import { toCents, billShares, participantBalances, fmtMoney } from '../data/engine.js';
 import { DarkHeader, SegmentedBar } from '../components/step3/ui3.jsx';
+import { AddMini } from '../components/step4/ui4.jsx';
 
 export default function BillEditorView() {
   const params = useStore((s) => s.route.params);
   const bills = useStore((s) => s.bills);
+  const contactList = useStore((s) => s.people);
+  const [addPersonOpen, setAddPersonOpen] = React.useState(false);
   const existing = bills.find((b) => b.id === params.id);
 
   const [title, setTitle] = React.useState(existing?.title || '');
@@ -17,10 +19,7 @@ export default function BillEditorView() {
   const [people, setPeople] = React.useState(() =>
     existing
       ? existing.participants.map((p) => ({ ...p }))
-      : [
-          { ...contacts[0] },
-          { ...contacts[1] },
-        ].map((c, i) => ({ ...c, percent: 50, share: 0, paid: 0, payer: i === 0 })),
+      : [contactList[0], contactList[1]].filter(Boolean).map((c, i) => ({ ...c, percent: 50, share: 0, paid: 0, payer: i === 0 })),
   );
 
   const totalCents = toCents(Number(total) || 0);
@@ -47,6 +46,10 @@ export default function BillEditorView() {
     setPeople((prev) => prev.map((p) => (p.id === id ? { ...p, percent: Number(v) || 0 } : p)));
   };
 
+  const setShare = (id, v) => {
+    setPeople((prev) => prev.map((p) => (p.id === id ? { ...p, share: Number(v) || 0 } : p)));
+  };
+
   const pctSum = people.reduce((a, p) => a + (Number(p.percent) || 0), 0);
 
   const save = () => {
@@ -55,7 +58,7 @@ export default function BillEditorView() {
       ...p,
       // percentages are normalised so they always sum to 100
       percent: mode === 'percentage' ? ((Number(p.percent) || 0) / pctTotal) * 100 : 100 / people.length,
-      share: 0,
+      share: mode === 'custom' ? Number(p.share) || 0 : 0,
       paid: p.payer ? 0 : Number(p.paid) || 0,
     }));
     const bill = {
@@ -114,7 +117,7 @@ export default function BillEditorView() {
           <Users /> Participants
         </span>
         <div className="contact-row">
-          {contacts.map((c) => {
+          {contactList.map((c) => {
             const on = people.some((p) => p.id === c.id);
             return (
               <button
@@ -132,8 +135,13 @@ export default function BillEditorView() {
               </button>
             );
           })}
+          <button type="button" className="contact-chip" onClick={() => setAddPersonOpen(true)}><Plus /> Add person</button>
         </div>
       </div>
+
+      {addPersonOpen ? (
+        <AddMini title="Add person" placeholder="Name" onSave={(name) => demoStore.savePerson({ name, color: '#00897B' })} onClose={() => setAddPersonOpen(false)} />
+      ) : null}
 
       {mode === 'percentage' ? (
         <div className="d-block">
@@ -151,6 +159,19 @@ export default function BillEditorView() {
                 onChange={(e) => setPercent(p.id, e.target.value.replace(/[^0-9.]/g, ''))}
               />
               <span className="pct-amount">{fmtMoney(shares[people.indexOf(p)] || 0)}</span>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {mode === 'custom' ? (
+        <div className="d-block">
+          <span className="d-label">Custom shares</span>
+          {people.map((p) => (
+            <div className="pct-row" key={p.id}>
+              <span>{p.name}</span>
+              <input className="pct-input" value={p.share} inputMode="decimal" aria-label={`${p.name} custom share`} onChange={(e) => setShare(p.id, e.target.value.replace(/[^0-9.]/g, ''))} />
+              <span className="pct-amount">{fmtMoney(toCents(Number(p.share) || 0))}</span>
             </div>
           ))}
         </div>

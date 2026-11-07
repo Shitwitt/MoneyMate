@@ -1,44 +1,26 @@
 import React from 'react';
-import { X, LayoutGrid, UserRound, Moon, Sun } from 'lucide-react';
-import { useStore } from '../hooks/useStore.js';
+import { LayoutGrid, Moon, Plus, Sun, UserRound } from 'lucide-react';
+
 import { demoStore } from '../data/demoStore.js';
+import { useStore } from '../hooks/useStore.js';
 
 export default function TopBar() {
-  const privacy = useStore((s) => s.privacy);
+  const name = useStore((s) => s.profile.name);
   const theme = useStore((s) => s.theme);
-
   return (
-    <header className="top-bar">
-      <button type="button" className="exit-demo" onClick={() => demoStore.exitDemo()}>
-        <X />
-        Exit Demo
+    <header className="topbar" aria-label="MoneyMate toolbar">
+      <button type="button" className="new-badge" onClick={() => demoStore.openTransactionEditor()} aria-label="Add transaction">
+        <Plus /> New
       </button>
 
-      <div className="top-right">
-        <span className="new-badge">New</span>
-        <button
-          type="button"
-          className="theme-toggle"
-          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-          aria-pressed={theme === 'dark'}
-          onClick={() => demoStore.toggleTheme()}
-        >
-          {theme === 'dark' ? <Sun /> : <Moon />}
-        </button>
-        <button
-          type="button"
-          className="icon-btn"
-          aria-label="Customize dashboard layout"
-          onClick={() => demoStore.toast('Dashboard layout — coming in Step 2')}
-        >
+      <div className="top-actions">
+        <button type="button" className="top-icon" aria-label="Customize dashboard" onClick={demoStore.openLayout}>
           <LayoutGrid />
         </button>
-        <button
-          type="button"
-          className="avatar-btn"
-          aria-label={`Profile — ${privacy ? 'private' : 'public'} mode`}
-          onClick={() => demoStore.toast('Profile menu')}
-        >
+        <button type="button" className="top-icon" aria-label="Toggle theme" onClick={demoStore.toggleTheme}>
+          {theme === 'dark' ? <Sun /> : <Moon />}
+        </button>
+        <button type="button" className="avatar-btn" aria-label={`Profile: ${name}`} onClick={demoStore.openProfile}>
           <UserRound />
         </button>
       </div>

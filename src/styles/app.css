@@ -74,32 +74,6 @@ button {
   min-height: 46px;
 }
 
-.exit-demo {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: var(--brand);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.1px;
-  padding: 9px 16px 9px 12px;
-  border-radius: var(--r-pill);
-  box-shadow: 0 3px 10px rgba(123, 64, 40, 0.22);
-  transition: transform 0.16s ease, background 0.16s ease;
-  white-space: nowrap;
-}
-.exit-demo:active {
-  transform: translateX(-50%) scale(0.96);
-}
-.exit-demo svg {
-  width: 15px;
-  height: 15px;
-  stroke-width: 2.6;
-}
 
 .top-right {
   display: flex;
@@ -1611,11 +1585,6 @@ button.card:active {
   }
   .top-bar {
     min-height: 44px;
-  }
-  .exit-demo {
-    font-size: 12px;
-    padding: 8px 12px 8px 10px;
-    gap: 5px;
   }
   .new-badge {
     font-size: 9.5px;

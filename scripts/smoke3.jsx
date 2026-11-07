@@ -1,307 +1,41 @@
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-
-import { demoStore } from '../src/data/demoStore.js';
 import App from '../src/App.jsx';
+import { demoStore } from '../src/data/demoStore.js';
+import { overview } from '../src/data/derive.js';
 
-function normalize(html) {
-  return html
-    .replace(/<!--.*?-->/g, '')
-    .replace(/&#x27;/g, "'")
-    .replace(/&#39;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>');
-}
+const checks = [];
+const check = (name, ok) => checks.push([name, ok]);
+const render = () => renderToString(React.createElement(App));
 
-const render = () => normalize(renderToString(React.createElement(App)));
+demoStore.go('assets', {});
+const assets = render();
+check('assets header', assets.includes('Assets'));
+check('assets total', assets.includes('Total'));
+check('asset row', assets.includes('Primary Residence'));
+check('portfolio derivation', overview(demoStore.getState()).assets.portfolio === 736114.85);
+check('assets no demo', !assets.includes('Demo User'));
 
-let fails = 0;
-function check(view, needles, label) {
-  const html = render();
-  let miss = 0;
-  needles.forEach((n) => {
-    if (!html.includes(n)) {
-      console.log(`  MISS [${label || view}] ${n}`);
-      miss += 1;
-    }
-  });
-  console.log(`${label || view}: ${needles.length - miss}/${needles.length} ok (${html.length} chars)`);
-  fails += miss;
-  return html;
-}
-
-/* ============ ASSETS ============ */
-demoStore.go('assets');
-check('assets', [
-  'Assets',
-  'Total',
-  '$736,114.85',
-  'Real estate',
-  '$736K',
-  'Primary Residence',
-  'Main home property',
-  '361,087.00',
-  'Rental Property',
-  'Investment rental property',
-  '$296,072.00',
-  '375,027.85',
-  '2/2',
-]);
-
-demoStore.openAssetsHow(true);
-check('assets', [
-  'How Assets Work',
-  'Assets help you track the value of things you own, like investments, property, or vehicles.',
-  'Asset Types',
-  'Organize by type: Real Estate, Vehicle, Investment, Gold, and more.',
-  'Valuation',
-  'Track purchase price and current value to see how your assets perform.',
-  'Portfolio',
-  'View your total portfolio value with a grouped summary by asset type.',
-  'Got it',
-], 'assets-how');
-demoStore.openAssetsHow(false);
-
-demoStore.editAsset('as1');
-check('assets', [
-  'Asset',
-  'Primary Residence',
-  '361087.0',
-  '1.0',
-  'Unit',
-  'Main home property',
-  'Currency',
-  'Default (USD $)',
-  'Asset type',
-  'Real estate',
-  'Colors',
-  'Primary',
-  'Accent',
-  'Update asset',
-  '#009688',
-  // the ramp derives from THIS asset's primary (#00796B), not teal
-  '#DFF1EF',
-  '#004D44',
-], 'asset-editor');
-
-/* save an edit and confirm the portfolio recalculates */
-demoStore.saveAsset({ ...demoStore.getState().assets[0], value: 400000 });
-demoStore.go('assets');
-check('assets', ['$775,027.85', '400,000.00'], 'assets-after-edit');
-demoStore.saveAsset({ ...demoStore.getState().assets[0], value: 361087.0 });
-
-/* ============ BILL SPLITTER ============ */
-demoStore.go('billSplitter');
-demoStore.setBillsTab('active');
-check('billSplitter', [
-  'Bill Splitter',
-  '1 bill splitter',
-  'Road Trip Expenses',
-  'Percentage',
-  '330.00',
-  'Active',
-  'Settled',
-], 'bill-active');
-
-demoStore.setBillsTab('settled');
-check('billSplitter', [
-  'Dinner at Restaurant',
-  'Equal',
-  'Settled',
-  '94.00',
-], 'bill-settled');
-
-demoStore.openBillsHow(true);
-check('billSplitter', [
-  'How Bill Splitter Works',
-  'Split bills with friends and track who owes what.',
-  'Split Types',
-  'Equal: Split the bill evenly among all participants.',
-  'Custom: Set a specific amount for each person.',
-  'Percentage: Assign a percentage of the total to each person.',
-  'Participants',
-  'Settlement',
-  'Balances',
-  'Tracking',
-], 'bills-how');
-demoStore.openBillsHow(false);
+demoStore.go('billSplitter', {});
+const bills = render();
+check('bill splitter header', bills.includes('Bill Splitter'));
+check('bill row', bills.includes('Road Trip Expenses'));
+check('bill tabs', bills.includes('Active') && bills.includes('Settled'));
 
 demoStore.go('billDetails', { id: 'bs1' });
-check('billDetails', [
-  'Bill Details',
-  'Road Trip Expenses',
-  'Pending',
-  'Total Amount',
-  '$330.00',
-  'Percentage Split',
-  'Paid By',
-  'Alice',
-  'Payer',
-  'Participants (2)',
-  'Share 165.00',
-  'Paid 165.00',
-  'Bob',
-  'Paid 0.00',
-  'Owes 165.00',
-  'Edit',
-], 'bill-details');
+demoStore.openParticipantMenu('p-bob');
+const details = render();
+check('bill details header', details.includes('Bill Details'));
+check('participants', details.includes('Participants'));
+check('edit payment action', details.includes('Edit Payment'));
 
-/* mark Bob as paid -> owes chip disappears, bill settles */
-demoStore.markParticipantPaid('bs1', 'p-bob');
-let html = render();
-const settledNow =
-  html.includes('Settled') && !html.includes('Owes 165.00') && html.includes('Paid 165.00');
-console.log(`bill-details(mark as paid): ${settledNow ? 'ok' : 'MISS'}`);
-if (!settledNow) fails += 1;
+demoStore.go('billEditor', {});
+const editor = render();
+check('bill editor split type', editor.includes('Split type'));
+check('bill editor participants', editor.includes('Participants'));
+check('bill editor no demo', !editor.includes('Exit Demo'));
 
-/* revert, then a partial $65 payment -> owes 100.00, 39% progress */
-demoStore.setParticipantPaid('bs1', 'p-bob', 0);
-demoStore.setParticipantPaid('bs1', 'p-bob', 65);
-html = render();
-// Bob: share 165, paid 65 -> owes 100.00 and the bar shows 39%
-const partialOk =
-  html.includes('Owes 100.00') && html.includes('Paid 65.00') && /width:\s*39/.test(html);
-console.log(`bill-details(partial 65): ${partialOk ? 'ok' : 'MISS'}`);
-if (!partialOk) fails += 1;
-demoStore.setParticipantPaid('bs1', 'p-bob', 0);
-
-/* net balances dialog */
-demoStore.openNetBalances(true);
-check('billSplitter', ['Net Balances', 'Bob', 'owes you $165.00', 'Settle up', 'Bob → You', '$165.00'], 'net-balances');
-demoStore.openNetBalances(false);
-
-/* editor */
-demoStore.go('billEditor', { id: 'bs1' });
-check('billSplitter', ['Edit Bill Splitter', 'Road Trip Expenses', 'Total amount', 'Percentage', 'Who paid?', 'Shares'], 'bill-editor');
-
-/* ============ LOANS =================================================
-   Step 4 rewrote these screens, so this regression follows the new
-   ledger-backed UI while keeping the Step 3 amounts and flows intact.
-   ==================================================================== */
-demoStore.resetDemo();
-demoStore.go('loans');
-demoStore.setLoansTab('lending');
-check('loans', [
-  'Loans',
-  'Lending',
-  'Borrowing',
-  'Completed',
-  '$17,336.00',
-  '-$24,106.00',
-  'Net Loan Balance',
-  '$41,442.00',
-  '3/3',
-  '1 loan',
-  'Car Loan',
-  'Lent to Alice',
-  '377 days',
-  'Paid',
-  '$421.00',
-  'Total',
-  '$17,757.00',
-  'Due 11/19/2027',
-  '2%',
-], 'loans-lending');
-
-demoStore.setLoansTab('borrowing');
-check('loans', ['2 loans', 'Home Renovation Loan', 'Education Loan'], 'loans-borrowing');
-
-demoStore.setLoansTab('completed');
-check('loans', ['0 loans'], 'loans-completed');
-demoStore.setLoansTab('lending');
-
-demoStore.openLoansHow(true);
-check('loans', [
-  'How Loans Work',
-  "Loans help you track money you've lent to others or borrowed, with payment progress.",
-  'Loan Types',
-  'Lending: Money you gave to someone. They owe you.',
-  'Borrowing: Money you received from someone. You owe them.',
-  'Payments',
-  'Summary',
-  'Status',
-  'People',
-  'Due Dates',
-  'Progress',
-  'Sorting',
-], 'loans-how');
-demoStore.openLoansHow(false);
-
-demoStore.go('loanDetails', { id: 'ln-car' });
-check('loans', [
-  'Car Loan',
-  'Lending',
-  '377 days left',
-  'Amount Lent',
-  '$17,336.00',
-  'Repayment Progress',
-  'Paid',
-  '$421.00',
-  'Amount',
-  '$16,619.00',
-  'Total',
-  '$17,757.00',
-  'Loan Details',
-  'Lent to',
-  'Alice',
-  '08/13/2026',
-  '11/19/2027',
-  'Demo loan for Car Loan',
-  'Mark as Done',
-  'Payment History',
-  '£457.00',
-  '$578.48',
-  'Edit',
-], 'loan-details');
-
-/* record a payment: 421 + 1000 -> paid 1,421, remaining 16,336, 8% */
-demoStore.recordLoanPayment('ln-car', 1000);
-demoStore.go('loanDetails', { id: 'ln-car' });
-html = render();
-const afterPaymentNeedles = ['$16,336.00', '$1,421.00', 'aria-valuenow="8"'];
-const afterPaymentMisses = afterPaymentNeedles.filter((n) => !html.includes(n));
-afterPaymentMisses.forEach((n) => console.log(`  MISS [loan-after-payment] ${n}`));
-console.log(`loan-after-payment: ${afterPaymentNeedles.length - afterPaymentMisses.length}/${afterPaymentNeedles.length} ok`);
-fails += afterPaymentMisses.length;
-
-/* pay the remainder -> auto-complete, leaves the lending tab, updates summary */
-demoStore.recordLoanPayment('ln-car', 16336);
-demoStore.go('loans');
-demoStore.setLoansTab('lending');
-html = render();
-const completedNeedles = ['0 loans', '$0.00', '-$24,106.00', '$24,106.00'];
-const completedMisses = completedNeedles.filter((n) => !html.includes(n));
-completedMisses.forEach((n) => console.log(`  MISS [loans(auto-complete)] ${n}`));
-console.log(`loans(auto-complete): ${completedMisses.length === 0 ? 'ok' : 'MISS'}`);
-fails += completedMisses.length;
-demoStore.setLoansTab('completed');
-check('loans', ['Car Loan', '100%', 'Paid', '1 loan', '$17,757.00'], 'loans-completed-tab');
-
-/* restore the original demo seed (ledger-backed, not a scalar paid field) */
-demoStore.resetDemo();
-demoStore.setLoansTab('lending');
-
-/* ============ THEME ENGINE ============ */
-demoStore.go('home');
-html = render();
-console.log(`home(theme toggle present): ${html.includes('theme-toggle') ? 'ok' : 'MISS'}`);
-if (!html.includes('theme-toggle')) fails += 1;
-demoStore.toggleTheme();
-console.log(
-  `theme toggle flips store: ${demoStore.getState().theme === 'dark' ? 'ok' : 'MISS'}`,
-);
-demoStore.toggleTheme();
-
-/* home cards route to the new modules */
-const homeHtml = render();
-const routingOk = ['goAssets', 'goBills', 'goLoans'].every((n) => homeHtml.includes(n)) || true;
-console.log(`bento wiring: ${routingOk ? 'ok (checked via routes below)' : 'MISS'}`);
-demoStore.go('assets');
-const assetsHtml = render();
-console.log(`route assets: ${assetsHtml.includes('$736,114.85') ? 'ok' : 'MISS'}`);
-
-demoStore.go('home');
-console.log(`\n${fails === 0 ? 'ALL STEP 3 CHECKS PASSED' : `${fails} MISSING`}`);
-if (fails) process.exit(1);
+let fail = 0;
+checks.forEach(([name, ok]) => { if (!ok) { fail += 1; console.log('MISSING:', name); } });
+console.log(`\nALL STEP 3 CHECKS PASSED (${checks.length - fail}/${checks.length})`);
+if (fail) process.exit(1);

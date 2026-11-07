@@ -1,6 +1,6 @@
 /* ============================================================
    Step 2 data — accounts, reports, budgets
-   All amounts are in the demo's display currency (USD) exactly as
+   All amounts are in the reference display currency (USD) exactly as
    they appear in the reference screens.
    ============================================================ */
 
@@ -8,7 +8,7 @@ export const accounts = [
   {
     id: 'a1',
     name: 'Kotak Mahindra Bank',
-    owner: 'Demo User',
+    owner: 'Raj',
     last4: '9123',
     kind: 'Card',
     icon: 'bank',
@@ -27,7 +27,7 @@ export const accounts = [
   {
     id: 'a2',
     name: 'HDFC Bank',
-    owner: 'Demo User',
+    owner: 'Raj',
     last4: '4417',
     kind: 'Card',
     icon: 'bank',
@@ -46,7 +46,7 @@ export const accounts = [
   {
     id: 'a3',
     name: 'Cash Wallet',
-    owner: 'Demo User',
+    owner: 'Raj',
     last4: '0000',
     kind: 'Cash',
     icon: 'wallet',
@@ -64,8 +64,8 @@ export const accounts = [
   },
   {
     id: 'a4',
-    name: 'Demo Bank',
-    owner: 'Demo User',
+    name: 'Raj Card',
+    owner: 'Raj',
     last4: '7781',
     kind: 'Card',
     icon: 'bank',
@@ -84,7 +84,7 @@ export const accounts = [
   {
     id: 'a5',
     name: 'Wise EUR',
-    owner: 'Demo User',
+    owner: 'Raj',
     last4: '2231',
     kind: 'Multi-currency',
     icon: 'wallet',
@@ -103,7 +103,7 @@ export const accounts = [
   {
     id: 'a6',
     name: 'Monzo GBP',
-    owner: 'Demo User',
+    owner: 'Raj',
     last4: '5540',
     kind: 'Multi-currency',
     icon: 'card',
@@ -377,7 +377,7 @@ export const budgets = [
           title: 'Coffee with team',
           time: '12:00 AM',
           when: 'Today',
-          account: 'Demo Bank',
+          account: 'Raj Card',
           accountTone: 'teal',
           icon: 'trend',
           amount: '$18.00',

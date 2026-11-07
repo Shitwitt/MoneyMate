@@ -1,144 +1,95 @@
 import React from 'react';
-import { TrendingUp, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react';
+
+import { SectionHead } from './ui.jsx';
+import { InteractiveChart, ChartTooltipCard } from './charts/Interactive.jsx';
+import { demoStore, fmtFull } from '../data/demoStore.js';
 import { useStore } from '../hooks/useStore.js';
-import { demoStore } from '../data/demoStore.js';
+import { trendSeries } from '../data/derive.js';
 
-/**
- * Full-width "Trend" chart:
- *  - Oct series  : dotted brown line hugging ₹0 (days 1–31)
- *  - This month  : solid brown line flat at ~₹6.5K (days 1–7)
- *  - Upcoming    : dashed olive line rising from ₹6.5K to ~₹17K (days 7–31)
- *  - dashed vertical reference at today (day 7)
- */
+const W = 320;
+const H = 158;
+const PAD = { l: 34, r: 8, t: 10, b: 22 };
+
 export default function TrendChart() {
-  const t = useStore((s) => s.trend);
+  const data = useStore((s) => trendSeries(s));
+  const base = useStore((s) => s.profile.baseCurrency);
+  const prevMonth = useStore((s) => {
+    const d = new Date(`${s.today}T00:00:00Z`);
+    d.setUTCMonth(d.getUTCMonth() - 1);
+    return d.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' });
+  });
 
-  const W = 300;
-  const H = 210;
-  const padL = 38;
-  const padR = 6;
-  const padT = 8;
-  const padB = 22;
-  const plotW = W - padL - padR;
-  const plotH = H - padT - padB;
-
-  const maxV = 25000;
-  const minV = -5000;
-
-  const xDay = (d) => padL + ((d - 1) / 30) * plotW;
-  const yVal = (v) => padT + ((maxV - v) / (maxV - minV)) * plotH;
-
-  // Oct: flat near zero
-  const octPts = Array.from({ length: 31 }, (_, i) => [xDay(i + 1), yVal(i === 0 ? -220 : -260)]);
-
-  // This month: flat 6500
-  const thisPts = [
-    [xDay(1), yVal(t.thisMonth.value)],
-    [xDay(7), yVal(t.thisMonth.value)],
-  ];
-
-  // Upcoming: day 7 → 31 mapped over the array
-  const up = t.upcoming;
-  const upPts = up.map((v, i) => [xDay(7 + (i / (up.length - 1)) * 24), yVal(v)]);
-
-  const toPath = (pts) => pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(' ');
-
-  const xTicks = [1, 6, 11, 16, 21, 26, 31];
-  const yTicks = [
-    { v: 25000, label: '₹25K' },
-    { v: 20000, label: '₹20K' },
-    { v: 15000, label: '₹15K' },
-    { v: 10000, label: '₹10K' },
-    { v: 5000, label: '₹5K' },
-    { v: 0, label: '₹0' },
-    { v: -5000, label: '-₹5K' },
-  ];
+  const y = (v) => H - PAD.b - ((v - data.minV) / Math.max(1, data.maxV - data.minV)) * (H - PAD.t - PAD.b);
+  const line = (arr, from = 0, to = arr.length - 1) => arr.slice(from, to + 1)
+    .map((v, i) => `${i === 0 ? 'M' : 'L'}${PAD.l + ((from + i) / 30) * (W - PAD.l - PAD.r)},${y(v).toFixed(2)}`)
+    .join(' ');
 
   return (
-    <section className="panel">
-      <div className="card-head">
-        <span className="head-icon" aria-hidden="true">
-          <TrendingUp />
-        </span>
-        <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>Trend</span>
-        <button
-          type="button"
-          className="chev"
-          style={{ marginLeft: 'auto', color: 'var(--text)', display: 'grid', placeItems: 'center' }}
-          aria-label="Open trend report"
-          onClick={() => demoStore.toast('Trend report — opens in a later step')}
-        >
-          <ChevronRight size={17} strokeWidth={2.4} />
-        </button>
-      </div>
-
-      <div className="legend-row-inline">
-        <span className="legend-item">
-          <span className="swatch dotted" />
-          Oct
-        </span>
-        <span className="legend-item">
-          <span className="swatch solid" />
-          This month
-        </span>
-        <span className="legend-item">
-          <span className="swatch dashed" />
-          Upcoming
-        </span>
-      </div>
-
-      <svg className="trend-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Balance trend for November">
-        {/* grid + y labels */}
-        {yTicks.map((tick) => (
-          <g key={tick.v}>
-            <line
-              x1={padL}
-              x2={W - padR}
-              y1={yVal(tick.v)}
-              y2={yVal(tick.v)}
-              stroke="#F5ECE8"
-              strokeWidth="1"
+    <section className="trend-section" aria-label="Spending trend">
+      <SectionHead title="Monthly trend" action="Reports" onAction={() => demoStore.go('reports')} />
+      <div className="trend-card">
+        <div className="trend-top">
+          <button type="button" aria-label="Previous month" onClick={() => demoStore.go('reports')}><ChevronLeft /></button>
+          <strong><TrendingUp /> This month vs last month</strong>
+          <button type="button" aria-label="Next month" onClick={() => demoStore.go('reports')}><ChevronRight /></button>
+        </div>
+        <InteractiveChart
+          count={31}
+          width={W}
+          height={H}
+          padL={PAD.l}
+          padR={PAD.r}
+          padT={PAD.t}
+          padB={PAD.b}
+          crosshairColor="#7B4028"
+          ariaLabel="Cumulative trend chart with last month, this month and projected spending"
+          tooltip={(i) => (
+            <ChartTooltipCard
+              title={`Day ${i + 1}`}
+              rows={[
+                { label: 'This Month', value: fmtFull(data.thisMonth[i], base) },
+                { label: `Last Month (${prevMonth})`, value: fmtFull(data.lastMonth[i], base) },
+                { label: 'Projected', value: fmtFull(data.projected[i], base) },
+              ]}
             />
-            <text
-              x={padL - 7}
-              y={yVal(tick.v) + 3.4}
-              textAnchor="end"
-              fontSize="8.5"
-              fontWeight="600"
-              fill="#8A756B"
-            >
-              {tick.label}
-            </text>
-          </g>
-        ))}
-
-        {/* today reference line */}
-        <line
-          x1={xDay(t.today)}
-          x2={xDay(t.today)}
-          y1={padT}
-          y2={H - padB}
-          stroke="#C9B3A8"
-          strokeWidth="1"
-          strokeDasharray="3 3"
-        />
-
-        {/* Oct dotted */}
-        <path d={toPath(octPts)} fill="none" stroke="#7B4028" strokeWidth="2.2" strokeDasharray="1.6 3.4" strokeLinecap="round" />
-
-        {/* This month solid */}
-        <path d={toPath(thisPts)} fill="none" stroke="#7B4028" strokeWidth="2.5" strokeLinecap="round" />
-
-        {/* Upcoming dashed */}
-        <path d={toPath(upPts)} fill="none" stroke="#7E6B56" strokeWidth="2" strokeDasharray="5 4" strokeLinecap="round" />
-
-        {/* x labels */}
-        {xTicks.map((d) => (
-          <text key={d} x={xDay(d)} y={H - 6} textAnchor="middle" fontSize="9" fontWeight="600" fill="#8A756B">
-            {d}
-          </text>
-        ))}
-      </svg>
+          )}
+          tooltipVariant="card"
+          style={{ height: H }}
+        >
+          {({ active, xAt }) => (
+            <>
+              {[0, 0.5, 1].map((f) => {
+                const v = data.maxV * f;
+                return (
+                  <g key={f}>
+                    <line x1={PAD.l} x2={W - PAD.r} y1={y(v)} y2={y(v)} stroke="#E9D9D0" strokeWidth="0.6" />
+                    <text x={PAD.l - 4} y={y(v) + 3} textAnchor="end" fontSize="8" fill="#8B746B">{Math.round(v / 1000)}k</text>
+                  </g>
+                );
+              })}
+              {[1, 6, 11, 16, 21, 26, 31].map((d) => (
+                <text key={d} x={xAt(d - 1)} y={H - 5} textAnchor="middle" fontSize="8" fill="#8B746B">{d}</text>
+              ))}
+              <path d={line(data.lastMonth)} fill="none" stroke="#B7A096" strokeWidth="1.8" strokeDasharray="4 4" />
+              <path d={line(data.thisMonth, 0, data.today - 1)} fill="none" stroke="#7B4028" strokeWidth="2.6" strokeLinecap="round" />
+              <path d={line(data.projected, data.today - 1)} fill="none" stroke="#7B4028" strokeWidth="2" strokeDasharray="6 5" opacity="0.8" />
+              {active != null ? (
+                <g>
+                  <circle cx={xAt(active)} cy={y(data.lastMonth[active])} r="3.2" fill="#B7A096" />
+                  <circle cx={xAt(active)} cy={y(data.thisMonth[active])} r="3.8" fill="#7B4028" stroke="#fff" strokeWidth="1.5" />
+                  <circle cx={xAt(active)} cy={y(data.projected[active])} r="3" fill="#FFB59A" />
+                </g>
+              ) : null}
+            </>
+          )}
+        </InteractiveChart>
+        <div className="pace-legend">
+          <span><i style={{ borderColor: '#7B4028' }} />This Month</span>
+          <span><i style={{ borderColor: '#B7A096', borderTopStyle: 'dotted' }} />Last Month ({prevMonth})</span>
+          <span><i style={{ borderColor: '#FFB59A', borderTopStyle: 'dashed' }} />Projected</span>
+        </div>
+      </div>
     </section>
   );
 }

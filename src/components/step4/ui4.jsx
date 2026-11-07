@@ -22,6 +22,7 @@ import {
 
 import { paletteMain } from '../../data/step3Data.js';
 import { shadeRamp } from '../../data/engine.js';
+import { demoStore } from '../../data/demoStore.js';
 
 /* ============================================================
    Icon catalogue — every account / category glyph in the app
@@ -425,7 +426,14 @@ export function TxRow({ tx, todayISO }) {
   const acct = tx.transfer ? null : tx.account;
 
   return (
-    <article className="tx-row">
+    <article
+      className="tx-row"
+      data-live-row="true"
+      role="button"
+      tabIndex={0}
+      onClick={() => demoStore.openTransactionEditor(tx.id)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') demoStore.openTransactionEditor(tx.id); }}
+    >
       <IconTile icon={tx.icon} />
 
       <div className="tx-body">

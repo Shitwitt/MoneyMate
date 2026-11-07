@@ -1,32 +1,68 @@
 # MoneyMate
 
-A pixel-perfect personal finance / expense manager modelled on the **Paisa**
-expense manager (Material Design 3 "Material You" warm terracotta theme).
+A mobile-first personal finance / expense manager modelled on the **Paisa**
+expense manager, with a Material Design 3 warm-terracotta theme and an
+expressive dark theme for the bill / loan / goal workspaces.
 
-**Step 1 — Home Dashboard** is complete: hero balance card, all 17 Bento‑grid
-widgets, templates row, calendar heatmap, trend chart, track-budgets carousel,
-multi-currency upcoming transactions and the floating navigation system.
+## Live overhaul — current behaviour
 
-**Step 2 — Accounts, Reports & Budgets** is complete: swipeable accounts screen,
-Reports & Analytics (insights, bar/line chart, filter menus, donut breakdown,
-Financial Reports directory), Budgets overview with tinted summary pills, the
-*How Budgets Work* modal and the single-budget detail view.
+Demo mode is gone. MoneyMate now boots with editable sample records for
+**Raj**, stored in one reactive store and persisted to `localStorage` under
+`moneymate.live.v1` on every change. There is no `✕ Exit Demo` pill, no
+demo ribbon, and no `Demo User`. The top-right profile icon on every screen
+opens a profile modal for **User Name**, **Base Currency** (`₹ / $ / € / £`),
+an editable liabilities offset, **Restore sample records**, and
+**Reset / Clear All Data** (which empties every record and makes all balances
+`0`).
 
-**Step 3 — Assets, Bill Splitter & Loans** is complete: asset portfolio with a
-dual-grid colour editor, a cent-exact bill splitter (equal / percentage /
-custom) with participant payment tracking and net balances, and a loan manager
-with partial payments, auto-completion and due-date countdowns — plus an
-expressive dark theme engine.
+Every array — `accounts`, `transactions`, `categories`, `budgets`, `assets`,
+`bills`, `loans`, `goals`, `templates`, `people`, `places`, `labels` — is
+editable and deletable. Every input is controlled and every button performs a
+real state mutation. Balances, hero totals, monthly income/expense, category
+totals, budget/loan/goal progress, report values and all charts are derived
+from live state on each render.
 
-**Step 4 — Relational Ledger, Loans & Goals** is complete: the loan details and
-editor are rebuilt around a linked transaction ledger (repayments, charges,
-multi-currency rows, progress and *Mark as Done* all recompute the global
-summary), and Goals ships with Active / Completed / Archived tabs, wavy progress,
-daily→yearly transaction groups, contributions, a full colour editor and the
-*How Goals Work* sheet. Every record is editable through `demoStore`, persisted
-to `localStorage`, and the **Exit Demo** dialog offers *Start Fresh* or
-*Keep Demo Data & Edit Freely*. Steps 1–3 screens, navigation and state stay
-intact.
+### Universal Add / Edit Transaction
+
+Any floating `+` or transaction row opens the universal transaction editor:
+`Expense | Income | Transfer`, title, `type="number" step="0.01"` amount,
+currency with automatic conversion to the base currency, date and time,
+dynamic account / from / to selectors, category with inline `⊕ Add Category`,
+optional Budget / Loan / Goal links, Person / Place / Label links with inline
+create actions, and notes. Editing shows a red delete action that reverses the
+balance impact. Future-dated rows appear in **Upcoming transactions** on Home.
+
+### Editors
+
+Account, budget, template, asset, bill, loan and goal editors are all wired to
+live records. Budget maths is period-aware: `Spent = matching transactions`,
+`Remaining = Limit − Spent`, `Used% = round(Spent / Limit × 100)` and
+`Daily Safe Spend = max(0, Remaining) / max(1, Days Left)`. Loan repayments /
+charges and goal deposits / withdrawals append linked ledger rows and recompute
+paid, total, remaining, saved, still-needed and progress. Bill participant
+payments update `Paid`, `Owes`, progress, the `[✓ Settled]` badge and the
+Active / Settled tabs.
+
+### Interactive SVG charts
+
+`src/components/charts/Interactive.jsx` is the shared chart system. Every
+visualization supports touch-hold/drag (`onTouchStart` / `onTouchMove`) and
+mouse hover/move (`onMouseMove`) scrubbing, with floating tooltips and
+crosshairs:
+
+1. Home 7-day capsule bars (this week vs last week)
+2. Home last-30-days stepped green area sparkline
+3. Calendar heatmap (tap/hover summary + add-transaction-on-date)
+4. Cumulative monthly trend (last month, this month, projected)
+5. Dynamic circular rings (`strokeDashoffset = C − pct/100 × C`)
+6. Sinusoidal wavy progress clipped to exact percentage
+7. Reports dual-mode bar / node-line chart + multi-dimension donut
+   (`Category / Account / Label / Person / Places`)
+8. Budget Detail pace chart (actual, ideal pace, limit)
+
+The Reports month pills (`Nov 26 … Jul 26`) filter every report value, insight,
+chart and donut slice; the `Expense ▾` toggle switches live Expense / Income
+data. Donut slices and breakdown rows expand and update the centre readout.
 
 ## Run
 
@@ -34,139 +70,86 @@ intact.
 npm install
 npm run dev      # http://localhost:5173
 npm run build    # production bundle in dist/
+npm test         # pure engine + live-state/localStorage tests
 ```
 
 ## Stack
 
 - **React 18 + Vite 5** — mobile-first, `max-width: 460px` app shell
-- **Plus Jakarta Sans** (self-hosted via `@fontsource`) — Material You typography
+- **Plus Jakarta Sans** (self-hosted via `@fontsource`)
 - **lucide-react** icons
-- **`demoStore`** — a tiny observable store (`useSyncExternalStore`) that is the
-  single source of truth for every number on the screen, ready for the
-  Accounts / Reports / Search / Add‑Transaction screens in later steps.
+- **`demoStore`** — one observable store with a cached-shallow selector hook;
+  pure selectors in `src/data/derive.js` compute all screen values
+- **Capacitor 6** — offline Android WebView build
 
 ## Layout map
 
 | Area | File |
 | --- | --- |
-| Shell + section order | `src/App.jsx` |
-| Top bar (Exit Demo, New, layout, avatar) | `src/components/TopBar.jsx` |
-| Contextual greeting (interactive tokens) | `src/components/Greeting.jsx` |
-| Hero balance + privacy toggle | `src/components/HeroCard.jsx` |
-| 17-card Bento grid | `src/components/BentoGrid.jsx` |
-| Last-30-days sparkline | `src/components/Sparkline.jsx` |
-| Templates quick-add row | `src/components/Templates.jsx` |
-| Calendar heatmap | `src/components/CalendarHeatmap.jsx` |
-| Trend chart (Oct / this month / upcoming) | `src/components/TrendChart.jsx` |
-| Track-budgets carousel | `src/components/BudgetCarousel.jsx` |
-| Upcoming transactions (INR / EUR / GBP) | `src/components/UpcomingTransactions.jsx` |
-| FAB + floating pill nav | `src/components/FloatingNav.jsx` |
-| Step 2 seed data | `src/data/step2Data.js` |
-| Accounts screen | `src/views/AccountsView.jsx` |
-| Reports & Analytics screen | `src/views/ReportsView.jsx` |
-| Budgets overview | `src/views/BudgetsView.jsx` |
-| Single budget detail | `src/views/BudgetDetailView.jsx` |
-| How Budgets Work modal | `src/views/HowBudgetsModal.jsx` |
-| Step 2 styles | `src/styles/step2.css` |
-| Financial engine (pure maths) | `src/data/engine.js` |
-| Step 3 seed data | `src/data/step3Data.js` |
-| Assets view + editor + modal | `src/views/AssetsView.jsx`, `AssetEditorView.jsx`, `HowAssetsModal.jsx` |
-| Bill splitter | `src/views/BillSplitterView.jsx`, `BillDetailsView.jsx`, `BillEditorView.jsx`, `BillModals.jsx` |
-| Loans | `src/views/LoansView.jsx`, `LoanDetailsView.jsx`, `LoanEditorView.jsx`, `HowLoansModal.jsx` |
-| Theme tokens (light + dark) | `src/styles/theme3.css` |
-| Step 3 styles | `src/styles/step3.css` |
-| Step 4 relational ledger + seed data | `src/data/step4Data.js` |
-| Step 4 shared UI (waves, rows, tab bars) | `src/components/step4/ui4.jsx` |
-| Goals list, details, editor, how-to, exit dialog | `src/views/GoalsView.jsx`, `GoalDetailsView.jsx`, `GoalEditorView.jsx`, `HowGoalsWorkModal.jsx`, `ExitDemoDialog.jsx` |
-| Step 4 styles | `src/styles/step4.css` |
-| State store, CRUD + Indian formatting engine | `src/data/demoStore.js` |
-| Design tokens | `src/styles/tokens.css` |
-| Component styles | `src/styles/app.css` |
+| Shell, route map, modals, toast | `src/App.jsx` |
+| Live seed records + default profile | `src/data/liveData.js` |
+| Observable store + all CRUD actions | `src/data/demoStore.js` |
+| Pure derived selectors / live maths | `src/data/derive.js` |
+| Currency conversion + formatting | `src/data/format.js` |
+| Shared interactive SVG charts, rings, waves, donut | `src/components/charts/Interactive.jsx` |
+| Universal modal suite (transaction, account, budget, profile, payment, etc.) | `src/components/LiveModals.jsx` |
+| Clickable transaction row | `src/components/LiveTransactionRow.jsx` |
+| Home toolbar / greeting / hero / bento / templates / charts / budgets / upcoming | `src/components/*.jsx` |
+| Accounts, Reports, Budgets, Budget Detail, Assets, Asset Editor | `src/views/*.jsx` |
+| Bill Splitter, Bill Details, Bill Editor, Loans, Goals editors/details | `src/views/*.jsx` |
+| Search screen | `src/views/SearchView.jsx` |
+| Warm / dark / modal / chart styles | `src/styles/*.css` |
+| Engine tests, live-state tests, SSR smokes | `scripts/*` |
 
-## Number formatting engine
+## Number formatting
 
-All money renders through helpers in `src/data/demoStore.js`:
+All money renders through `src/data/format.js` (re-exported by the store):
 
 | Helper | Output |
 | --- | --- |
 | `fmtFull(855933.46)` | `₹8,55,933.46` |
+| `fmtFull(100, 'USD')` | `$100.00` |
 | `fmtCompact(1480000)` | `₹14.8L` |
 | `fmtCompact(14800)` | `₹14.8K` |
 | `fmtCompact(-79100)` | `-₹79.1K` |
 | `fmtShort(24900)` | `₹24.9K` |
-| `fmtShort(0)` | `₹0.0` |
 | `fmtThousands(206)` | `₹206` |
 
-Full amounts use the Indian grouping system (last 3 digits, then pairs).
-Foreign entries convert at the seed rates (EUR → ₹295.65, GBP → ₹193.67).
+Stored amounts are Numbers; each transaction also carries `baseAmount` in INR,
+so changing the base currency re-renders every figure without rewriting data.
+Seed exchange rates: INR 1, USD 83.15, EUR 90.2, GBP 105.4 per INR unit.
 
-## Interactions wired up in Step 1
+## State & persistence
 
-- **Eye / eye-off** on the hero card toggles privacy mode → every currency on
-  the screen masks to `₹••••••`.
-- **Budgets bento card** — tap *or* swipe switches between the count slide and
-  the Total / Remaining / Spent breakdown; pagination dots follow.
-- **Track budgets carousel** — tap or swipe between Food and Transportation
-  budget cards with a sliding transition and dots (tapping a card opens its
-  budget detail).
-- **Routing** — `demoStore.go(view, params)` drives `home | accounts | reports |
-  budgets | budgetDetail`; bottom nav, bento cards, carousel cards, back arrows
-  and the browser/Android back button all go through it.
-- **Reports** — month strip, chart mode toggle (bars/line), Expense⇄Income and
-  Category dropdown (with locked Account/Label/Person/Places rows), and the
-  breakdown accordion all update from the store.
-- Greeting tokens (backup, notification, rating, recurring) toggle state /
-  raise contextual toasts; the notification token flips its own boolean.
-- Bottom nav, FAB, chevrons and "See all" buttons raise placeholder toasts and
-  route through the store, so Step 2 only needs to swap in real screens.
+`demoStore.set()` persists the user-data slices and notifies subscribers after
+every mutation. Transient UI (modals, toasts, route stack) is intentionally not
+persisted. `clearAllData()` empties all records and liabilities;
+`restoreSampleData()` re-seeds the deterministic sample while keeping the
+current name and base currency.
+
+## Testing
+
+```bash
+node scripts/engine.test.mjs        # cent-exact pure maths
+node scripts/liveData.test.mjs      # live store, currency conversion, localStorage
+
+# server-rendered screen + interaction checks
+rm -rf .smoke .smoke2 .smoke3 .smoke4 .live
+for f in smoke smoke2 smoke3 smoke4 smokeLive; do
+  npx vite build --ssr scripts/$f.jsx --outDir .$f --logLevel error \
+    && node .$f/$f.js
+done
+```
+
+`scripts/smokeLive.jsx` is the comprehensive overhaul suite: it renders every
+view and modal, asserts the absence of demo UI, checks all eight interactive
+chart surfaces and drives live CRUD for transactions, accounts, budgets,
+templates, collections, loans, goals, bills, profile, month filters and reset.
+Remove the `.smoke*` / `.live` output directories before each SSR rebuild.
 
 ## Android
 
 The app ships as a Capacitor project. `npm run android:apk` builds locally;
-`.github/workflows/build-apk.yml` assembles the debug APK in CI, publishes it to
-the `apk-builds` branch and attaches it as a workflow artifact.
-See `INSTALL-APK.md`.
-
-## State & persistence
-
-`demoStore` owns the relational records. Amounts, accounts, transactions,
-budgets, assets, bills, loans and goals all have add / edit / delete actions;
-linked loan and goal rows derive their paid, remaining, progress and summary
-figures from `src/data/engine.js`. Data slices persist under the
-`moneymate.v1` `localStorage` key; transient UI state (open sheets, toasts) does
-not. `demoStore.resetDemo()` restores the seed, while the Exit Demo dialog can
-either clear every demo record or keep them in fully editable mode.
-
-## Testing
-
-Four layers, all runnable offline:
-
-```bash
-node scripts/engine.test.mjs          # 108 pure maths assertions
-                                      #   (largest-remainder splitting, loan
-                                      #   countdown/DST, ledger summaries,
-                                      #   goals, grouping, portfolio, ramps)
-
-# render + interaction checks per step
-rm -rf .smoke && npx vite build --ssr scripts/smoke4.jsx --outDir .smoke \
-  && node .smoke/smoke4.js
-```
-
-`smoke.jsx` (24), `smoke2.jsx` (141), `smoke3.jsx` (~120) and `smoke4.jsx`
-server-render every screen and drive the interactive flows (mark as paid,
-partial payments, edits, theme toggle, quick log, goal contributions, status
-changes, exit-demo modes) against the spec's exact strings. Remove the `.smoke*`
-output directory before each SSR rebuild.
-
-## Money maths notes
-
-All currency is held in **integer cents** and proportional splits use the
-**largest-remainder (Hare–Niemeyer)** method, so participant shares always sum
-to the bill total with zero drifting pennies. Loan day-countdowns compare UTC
-midnights (DST- and leap-year-safe). See `src/data/engine.js`.
-
-## Next steps
-
-Search and a global Add-Transaction flow can build on the same `demoStore`
-record actions; Step 4 already provides the relational CRUD and persistence
-layer they need.
+`.github/workflows/build-apk.yml` runs the tests, builds the web bundle,
+assembles the debug APK in CI, publishes it to the `apk-builds` branch and
+attaches it as a workflow artifact. See `INSTALL-APK.md`.

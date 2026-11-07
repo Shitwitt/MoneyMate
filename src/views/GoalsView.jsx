@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, ArrowUpRight, SlidersHorizontal, Info } from 'lucide-react';
+import { Plus, ArrowUpRight, SlidersHorizontal, Info, UserRound } from 'lucide-react';
 
 import { useStore } from '../hooks/useStore.js';
 import { demoStore } from '../data/demoStore.js';
@@ -64,6 +64,7 @@ export default function GoalsView() {
         </button>
         <h1 className="dark-title">Goals</h1>
         <div className="dark-right">
+          <button type="button" className="dark-profile-btn" aria-label="Profile" onClick={() => demoStore.openProfile()}><UserRound /></button>
           <span className="page-badge">
             {goals.length}/{goals.length}
           </span>

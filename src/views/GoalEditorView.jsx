@@ -3,7 +3,7 @@ import { Camera, CalendarDays, Wallet, Save } from 'lucide-react';
 
 import { useStore } from '../hooks/useStore.js';
 import { demoStore } from '../data/demoStore.js';
-import { accountCatalog } from '../data/step4Data.js';
+import { DarkHeader } from '../components/step3/ui3.jsx';
 import {
   ColorPicker,
   AccountPicker,
@@ -30,16 +30,18 @@ function usDate(iso) {
 export default function GoalEditorView() {
   const params = useStore((s) => s.route.params);
   const goals = useStore((s) => s.goals);
+  const accounts = useStore((s) => s.accounts);
+  const today = useStore((s) => s.today);
   const existing = goals.find((g) => g.id === params.id);
+  const acctList = accounts;
 
   const [name, setName] = React.useState(existing?.title || '');
   const [amount, setAmount] = React.useState(existing ? oneDecimal(existing.target) : '');
-  const [start, setStart] = React.useState(existing?.start || '2026-11-07');
-  const [end, setEnd] = React.useState(existing?.end || '2026-11-07');
-  const [account, setAccount] = React.useState(existing?.account || '');
+  const [start, setStart] = React.useState(existing?.start || today);
+  const [end, setEnd] = React.useState(existing?.end || new Date(Date.parse(today) + 60 * 86400000).toISOString().slice(0, 10));
+  const [account, setAccount] = React.useState(existing?.account || accounts[0]?.name || '');
   const [primary, setPrimary] = React.useState(existing?.color || '#F44336');
   const [accent, setAccent] = React.useState(existing?.accent || '#FF9C27');
-  const [acctList, setAcctList] = React.useState(accountCatalog);
   const [addAccount, setAddAccount] = React.useState(false);
 
   const save = () => {
@@ -66,14 +68,7 @@ export default function GoalEditorView() {
 
   return (
     <div className="view dark-view goal-editor s4">
-      <header className="dark-header">
-        <button type="button" className="dark-back" aria-label="Back" onClick={() => demoStore.back()}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d="M19 12H5m6-7-7 7 7 7" />
-          </svg>
-        </button>
-        <h1 className="dark-title">Goal</h1>
-      </header>
+<DarkHeader title="Goal" />
 
       <div className="ed-row">
         <button
@@ -148,7 +143,8 @@ export default function GoalEditorView() {
           title="Add account"
           placeholder="Account name"
           onSave={(n) => {
-            setAcctList((l) => [...l, { id: `ac-${Date.now()}`, name: n, color: '#00897B', icon: 'bank' }]);
+            const st = demoStore.getState();
+            demoStore.saveAccount({ name: n, balance: 0, holder: st.profile.name, last4: '0000', type: 'Bank', color: '#00897B', currency: st.profile.baseCurrency });
             setAccount(n);
           }}
           onClose={() => setAddAccount(false)}

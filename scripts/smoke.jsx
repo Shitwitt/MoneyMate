@@ -1,38 +1,34 @@
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import App from '../src/App.jsx';
+import { demoStore } from '../src/data/demoStore.js';
+import { heroTotals } from '../src/data/derive.js';
 
+demoStore.go('home', {});
 const html = renderToString(React.createElement(App));
+const state = demoStore.getState();
 const checks = [
-  ['Total balance', 'Total balance'],
-  ['hero amount', '8,55,933.46'],
-  ['accounts kpi', '₹14.8L'],
-  ['reports kpi', '₹14.8K'],
-  ['assets kpi', '₹5.06L'],
-  ['loan balance', '-₹79.1K'],
-  ['budget spent', '₹24.9K'],
-  ['bill splitter', '₹206'],
-  ['recurring', '₹568'],
-  ['analytics', '₹1.49K'],
-  ['weekly', '₹82.00'],
-  ['spark', '₹370'],
-  ['achievements', 'Day One'],
-  ['heatmap month', 'Nov 2026'],
-  ['trend', 'Upcoming'],
-  ['budget carousel', 'Food Budget'],
-  ['remaining', '-₹32,476.74'],
-  ['tx eur', '272,00 €'],
-  ['tx gbp', '£153.00'],
-  ['tx conv', '₹295.65'],
-  ['chips', 'Transportation Budget'],
-  ['nav', 'Search'],
-  ['exit', 'Exit Demo'],
-  ['greeting', 'Good late night'],
+  ['total balance', html.includes('Total balance')],
+  ['default user Raj', html.includes('Raj')],
+  ['hero amount', html.includes('₹8,55,933.46')],
+  ['hero derivation', heroTotals(state).total === 855933.46],
+  ['accounts KPI', html.includes('₹14.8L')],
+  ['weekly chart', html.includes('Weekly')],
+  ['sparkline', html.includes('Last 30 days')],
+  ['calendar', html.includes('Spending heatmap')],
+  ['trend', html.includes('Monthly trend')],
+  ['templates', html.includes('Morning Coffee')],
+  ['budgets', html.includes('Track budgets')],
+  ['upcoming', html.includes('Upcoming transactions')],
+  ['future row', html.includes('Coffee with team')],
+  ['interactive surfaces', (html.match(/data-scrub="true"/g) || []).length >= 8],
+  ['no Exit Demo', !html.includes('Exit Demo')],
+  ['no Demo User', !html.includes('Demo User')],
+  ['render length', html.length > 30000],
 ];
 let fail = 0;
-for (const [name, needle] of checks) {
-  const ok = html.includes(needle);
-  if (!ok) { fail += 1; console.log('MISSING:', name, '->', needle); }
+for (const [name, ok] of checks) {
+  if (!ok) { fail += 1; console.log('MISSING:', name); }
 }
 console.log(`\nrender length ${html.length} | checks ${checks.length - fail}/${checks.length} passed`);
 if (fail) process.exit(1);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, Archive, ArchiveRestore, CalendarDays, Hourglass, Wallet, Pencil, Plus } from 'lucide-react';
+import { Trash2, Archive, ArchiveRestore, CalendarDays, Hourglass, Wallet, Pencil, Plus, UserRound } from 'lucide-react';
 
 import { useStore } from '../hooks/useStore.js';
 import { demoStore } from '../data/demoStore.js';
@@ -167,6 +167,8 @@ export default function GoalDetailsView() {
         </button>
         <h1 className="dark-title">Goal Details</h1>
         <div className="dark-right">
+          <button type="button" className="dark-icon-btn" aria-label="Add savings / deposit" onClick={() => demoStore.openGoalDeposit(goal.id)}><Plus /></button>
+          <button type="button" className="dark-profile-btn" aria-label="Profile" onClick={() => demoStore.openProfile()}><UserRound /></button>
           <button
             type="button"
             className="dark-icon-btn danger"

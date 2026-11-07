@@ -1,48 +1,24 @@
 import React from 'react';
-import { Plus, Home, CreditCard, ChartPie, Search } from 'lucide-react';
-import { useStore } from '../hooks/useStore.js';
-import { demoStore } from '../data/demoStore.js';
+import { ChartNoAxesCombined, House, Plus, Search, Wallet } from 'lucide-react';
 
-const TABS = [
-  { id: 'home', label: 'Home', Icon: Home },
-  { id: 'accounts', label: 'Accounts', Icon: CreditCard },
-  { id: 'reports', label: 'Reports', Icon: ChartPie },
-  { id: 'search', label: 'Search', Icon: Search },
-];
+import { demoStore } from '../data/demoStore.js';
+import { useStore } from '../hooks/useStore.js';
 
 export default function FloatingNav() {
   const active = useStore((s) => s.nav.active);
+  const go = (tab) => {
+    if (tab === 'search') demoStore.openSearch();
+    else demoStore.go(tab === 'home' ? 'home' : tab);
+    demoStore.setNav(tab);
+  };
 
   return (
-    <div className="float-layer">
-      <button
-        type="button"
-        className="fab"
-        aria-label="Add transaction"
-        onClick={() => demoStore.toast('Add transaction — coming in the next step')}
-      >
-        <Plus />
-      </button>
-
-      <nav className="bottom-nav" aria-label="Primary">
-        {TABS.map(({ id, label, Icon }) => (
-          <button
-            type="button"
-            key={id}
-            className={`nav-item${active === id ? ' active' : ''}`}
-            aria-current={active === id ? 'page' : undefined}
-            onClick={() => {
-              if (id === 'home') demoStore.go('home');
-              else if (id === 'accounts') demoStore.go('accounts');
-              else if (id === 'reports') demoStore.go('reports');
-              else demoStore.toast('Search — built in a later step');
-            }}
-          >
-            <Icon aria-hidden="true" />
-            {label}
-          </button>
-        ))}
-      </nav>
-    </div>
+    <nav className="floating-nav" aria-label="Primary">
+      <button type="button" className={active === 'home' ? 'on' : ''} onClick={() => go('home')} aria-label="Home"><House /></button>
+      <button type="button" className={active === 'accounts' ? 'on' : ''} onClick={() => go('accounts')} aria-label="Accounts"><Wallet /></button>
+      <button type="button" className="fab" onClick={() => demoStore.openTransactionEditor()} aria-label="Add transaction"><Plus /></button>
+      <button type="button" className={active === 'reports' ? 'on' : ''} onClick={() => go('reports')} aria-label="Reports"><ChartNoAxesCombined /></button>
+      <button type="button" className={active === 'search' ? 'on' : ''} onClick={() => go('search')} aria-label="Search"><Search /></button>
+    </nav>
   );
 }

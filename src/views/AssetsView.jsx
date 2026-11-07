@@ -48,8 +48,8 @@ export default function AssetsView() {
                 <span className="asset-mid">
                   <span className="asset-name">{a.name}</span>
                   <span className="asset-note">
-                    {a.note}
-                    {a.purchase ? ` • ${fmtMoney(toCents(a.purchase))}` : ''}
+                    {a.description || a.note || ''}
+                    {a.purchasePrice != null && a.purchasePrice !== '' ? ` • ${fmtMoney(toCents(a.purchasePrice))}` : ''}
                   </span>
                 </span>
                 <span className="asset-value">

@@ -128,6 +128,7 @@ export default function LoanDetailsView() {
           </svg>
         </button>
         <div className="dark-right">
+          <button type="button" className="dark-profile-btn" aria-label="Profile" onClick={() => demoStore.openProfile()}><UserRound /></button>
           <button
             type="button"
             className="dark-icon-btn"

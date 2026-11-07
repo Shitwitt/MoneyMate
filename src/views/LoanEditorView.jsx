@@ -3,8 +3,7 @@ import { UserRound, CalendarDays, Save } from 'lucide-react';
 
 import { useStore } from '../hooks/useStore.js';
 import { demoStore } from '../data/demoStore.js';
-import { accountCatalog, expenseCategories, incomeCategories } from '../data/step4Data.js';
-import { SegmentedBar } from '../components/step3/ui3.jsx';
+import { DarkHeader, SegmentedBar } from '../components/step3/ui3.jsx';
 import {
   ColorPicker,
   AccountPicker,
@@ -12,8 +11,6 @@ import {
   PersonPicker,
   AddMini,
 } from '../components/step4/ui4.jsx';
-
-const PEOPLE = ['Alice', 'Bob', 'Carol', 'Dan'];
 
 /** 16619 -> "16619.0" (the reference always shows one decimal) */
 function oneDecimal(v) {
@@ -32,25 +29,29 @@ function usDate(iso) {
 export default function LoanEditorView() {
   const params = useStore((s) => s.route.params);
   const loans = useStore((s) => s.loans);
+  const accounts = useStore((s) => s.accounts);
+  const categories = useStore((s) => s.categories);
+  const peopleNames = useStore((s) => s.people.map((p) => p.name));
+  const today = useStore((s) => s.today);
   const existing = loans.find((l) => l.id === params.id);
+  const acctList = accounts;
 
   const [kind, setKind] = React.useState(existing?.kind || 'lending');
   const [title, setTitle] = React.useState(existing?.title || '');
   const [amount, setAmount] = React.useState(existing ? oneDecimal(existing.amount) : '');
   const [notes, setNotes] = React.useState(existing?.notes || '');
-  const [start, setStart] = React.useState(existing?.start || '2026-08-13');
-  const [end, setEnd] = React.useState(existing?.end || '2027-11-19');
-  const [person, setPerson] = React.useState(existing?.person || 'Alice');
-  const [account, setAccount] = React.useState(existing?.account || '');
+  const [start, setStart] = React.useState(existing?.start || today);
+  const [end, setEnd] = React.useState(existing?.end || new Date(Date.parse(today) + 365 * 86400000).toISOString().slice(0, 10));
+  const [person, setPerson] = React.useState(existing?.person || peopleNames[0] || 'Raj');
+  const [account, setAccount] = React.useState(existing?.account || accounts[0]?.name || '');
   const [category, setCategory] = React.useState(existing?.category || '');
   const [primary, setPrimary] = React.useState(existing?.color || '#3F51B5');
   const [accent, setAccent] = React.useState(existing?.accent || '#FF9C27');
-  const [people, setPeople] = React.useState(PEOPLE);
-  const [acctList, setAcctList] = React.useState(accountCatalog);
   const [addPerson, setAddPerson] = React.useState(false);
   const [addAccount, setAddAccount] = React.useState(false);
+  const [addCategory, setAddCategory] = React.useState(false);
 
-  const cats = kind === 'lending' ? expenseCategories : incomeCategories;
+  const cats = categories.filter((c) => c.type === (kind === 'lending' ? 'expense' : 'income'));
 
   // switching direction clears a category from the other side
   React.useEffect(() => {
@@ -78,14 +79,7 @@ export default function LoanEditorView() {
 
   return (
     <div className="view dark-view loan-editor s4">
-      <header className="dark-header">
-        <button type="button" className="dark-back" aria-label="Back" onClick={() => demoStore.back()}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d="M19 12H5m6-7-7 7 7 7" />
-          </svg>
-        </button>
-        <h1 className="dark-title">Loan</h1>
-      </header>
+<DarkHeader title="Loan" />
 
       <SegmentedBar
         className="s4-seg"
@@ -148,7 +142,7 @@ export default function LoanEditorView() {
       </div>
 
       <PersonPicker
-        people={people}
+        people={peopleNames}
         value={person}
         onChange={setPerson}
         onAdd={() => setAddPerson(true)}
@@ -165,7 +159,7 @@ export default function LoanEditorView() {
         categories={cats}
         value={category}
         onChange={setCategory}
-        onAdd={() => setCategory(`${kind === 'lending' ? 'Expense' : 'Income'} custom`)}
+        onAdd={() => setAddCategory(true)}
       />
 
       <ColorPicker
@@ -184,10 +178,21 @@ export default function LoanEditorView() {
           title="Add person"
           placeholder="Name"
           onSave={(name) => {
-            setPeople((p) => (p.includes(name) ? p : [...p, name]));
+            demoStore.savePerson({ name, color: '#00897B' });
             setPerson(name);
           }}
           onClose={() => setAddPerson(false)}
+        />
+      ) : null}
+      {addCategory ? (
+        <AddMini
+          title="Add category"
+          placeholder="Category name"
+          onSave={(name) => {
+            demoStore.addCategory({ name, type: kind === 'lending' ? 'expense' : 'income', color: '#7B4028', icon: 'wallet' });
+            setCategory(name);
+          }}
+          onClose={() => setAddCategory(false)}
         />
       ) : null}
       {addAccount ? (
@@ -195,8 +200,8 @@ export default function LoanEditorView() {
           title="Add account"
           placeholder="Account name"
           onSave={(name) => {
-            const row = { id: `ac-${Date.now()}`, name, color: '#00897B', icon: 'bank' };
-            setAcctList((l) => [...l, row]);
+            const st = demoStore.getState();
+            demoStore.saveAccount({ name, balance: 0, holder: st.profile.name, last4: '0000', type: 'Bank', color: '#00897B', currency: st.profile.baseCurrency });
             setAccount(name);
           }}
           onClose={() => setAddAccount(false)}

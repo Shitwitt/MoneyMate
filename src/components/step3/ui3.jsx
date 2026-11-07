@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, X } from 'lucide-react';
+import { ArrowLeft, X, UserRound } from 'lucide-react';
 import { demoStore } from '../../data/demoStore.js';
 
 /* ---------- dark-aware app bar ---------- */
@@ -11,7 +11,12 @@ export function DarkHeader({ title, right, onBack }) {
         <ArrowLeft />
       </button>
       <h1 className="dark-title">{title}</h1>
-      <div className="dark-right">{right}</div>
+      <div className="dark-right">
+        {right}
+        <button type="button" className="dark-profile-btn" aria-label="Profile" onClick={() => demoStore.openProfile()}>
+          <UserRound />
+        </button>
+      </div>
     </header>
   );
 }

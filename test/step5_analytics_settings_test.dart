@@ -528,6 +528,112 @@ void main() {
     });
   });
 
+  group('edge cases', () {
+    test('a future-dated entry never breaks the window maths', () async {
+      await storage.saveTransaction(
+        TransactionModel(
+          id: 'future',
+          name: 'Rent prepaid',
+          amount: 5000,
+          // Two months ahead: outside every window, and it must not drag the
+          // elapsed-day count or the daily average into nonsense.
+          time: DateTime(now.year, now.month + 2, 3, 9),
+          type: TransactionType.expense,
+          accountId: bankId,
+          categoryId: foodId,
+        ),
+      );
+      final PaisaProvider provider =
+          PaisaProvider(storage: storage, initialSettings: storage.loadSettings());
+      final AnalyticsSnapshot snapshot = provider.analyticsSnapshot(
+        range: AnalyticsRange.thisMonth,
+        type: AnalyticsTypeFilter.all,
+        now: now,
+      );
+      expect(snapshot.expense, 4570);
+      expect(snapshot.elapsedDays, 7);
+      expect(snapshot.averageDailySpend, closeTo(4570 / 7, 0.001));
+      // The current month bucket is still the current month.
+      final MonthlyFlow current = snapshot.monthlyFlows.last;
+      expect(current.month.month, now.month);
+    });
+
+    test('a row whose category vanished lands in Uncategorised', () async {
+      // Detach "Food & Dining" the way a damaged/older backup can: the category
+      // record goes away while its transactions keep the dangling id. (The
+      // provider's own delete clears the ids instead, which is the tidy path.)
+      final List<Map<String, dynamic>> raw =
+          storage.exportRaw()[HiveStorage.transactionsBoxName]!;
+      final Map<String, Map<String, dynamic>> rewired =
+          <String, Map<String, dynamic>>{};
+      for (final Map<String, dynamic> row in raw) {
+        if (row['categoryId'] != travelId) continue;
+        rewired[row['id'] as String] =
+            Map<String, dynamic>.from(row)..['categoryId'] = foodId;
+      }
+      await storage.transactions.putAll(rewired);
+      await storage.categories.delete(foodId);
+      final PaisaProvider provider =
+          PaisaProvider(storage: storage, initialSettings: storage.loadSettings());
+      // The provider no longer knows the category, but the rows are still there.
+      expect(provider.transactions.where(
+        (TransactionModel t) => t.categoryId == foodId,
+      ), isNotEmpty);
+      final AnalyticsSnapshot snapshot = provider.analyticsSnapshot(
+        range: AnalyticsRange.thisMonth,
+        type: AnalyticsTypeFilter.expense,
+        now: now,
+      );
+      expect(
+        snapshot.categorySlices.map((CategorySlice slice) => slice.name),
+        contains('Uncategorised'),
+      );
+      // Nothing is lost: the slices still add up to the window's expense.
+      final double sliceTotal = snapshot.categorySlices.fold<double>(
+        0,
+        (double sum, CategorySlice slice) => sum + slice.amount,
+      );
+      expect(sliceTotal, closeTo(snapshot.expense, 0.001));
+    });
+
+    test('CSV escaping survives commas, quotes and newlines', () async {
+      await storage.clearAll();
+      await storage.saveSettings(SettingsModel(installedAt: now));
+      await storage.saveAccount(
+        const AccountModel(
+          id: bankId,
+          name: 'Me',
+          bankName: 'HDFC Savings',
+          number: '4821',
+          cardType: AccountType.bank,
+          initialAmount: 0,
+          color: 0xFF1E88E5,
+          isDefault: true,
+        ),
+      );
+      await storage.saveTransaction(
+        TransactionModel(
+          id: 'nasty',
+          name: 'Chai, "special"',
+          amount: 40,
+          time: DateTime(now.year, now.month, now.day, 9),
+          type: TransactionType.expense,
+          accountId: bankId,
+          description: 'line one\nline two',
+        ),
+      );
+      final PaisaProvider provider =
+          PaisaProvider(storage: storage, initialSettings: storage.loadSettings());
+      final String csv = provider.exportTransactionsCsv();
+      // The comma forces quotes, and the inner quotes are doubled.
+      expect(csv, contains('"Chai, ""special"""'));
+      // The newline in the note is preserved inside one quoted field.
+      expect(csv, contains('"line one\nline two"'));
+      // Header + one logical record, which spans three physical lines.
+      expect(csv.trim().split('\n').length, 4);
+    });
+  });
+
   group('screens', () {
     Future<void> pump(
       WidgetTester tester,

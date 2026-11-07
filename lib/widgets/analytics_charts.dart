@@ -521,14 +521,15 @@ class CategoryDonut extends StatelessWidget {
     final CategorySlice? selected = hasSelection ? slices[touchedIndex] : null;
 
     return SizedBox(
-      height: 216,
+      // 248 keeps the expanded 70dp slice (plus the 48dp hole) inside the box.
+      height: 248,
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
           PieChart(
             PieChartData(
               sectionsSpace: 2,
-              centerSpaceRadius: 62,
+              centerSpaceRadius: 48,
               startDegreeOffset: -90,
               borderData: FlBorderData(show: false),
               pieTouchData: PieTouchData(
@@ -740,7 +741,9 @@ class MonthlyFlowBarChart extends StatelessWidget {
               ) {
                 if (groupIndex < 0 || groupIndex >= flows.length) return null;
                 final MonthlyFlow flow = flows[groupIndex];
-                final bool incomeRod = rodIndex == 0;
+                // The income rod is only ever index 0 *and* only present when
+                // the type filter wants income drawn.
+                final bool incomeRod = showIncome && rodIndex == 0;
                 final double value = incomeRod ? flow.income : flow.expense;
                 final Color accent = incomeRod ? colors.income : colors.expense;
                 return BarTooltipItem(

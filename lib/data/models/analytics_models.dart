@@ -73,8 +73,9 @@ class CategorySlice {
     required this.share,
   });
 
-  /// The category the money went to. Uncategorised rows are folded into the
-  /// provider's synthetic "Uncategorised" category so every slice is drawable.
+  /// The category the money went to. Rows whose category was deleted are folded
+  /// into the provider's synthetic "Uncategorised" category so every slice stays
+  /// drawable and the shares always add up to 100%.
   final CategoryModel category;
 
   /// Total amount for this category inside the analysed window.

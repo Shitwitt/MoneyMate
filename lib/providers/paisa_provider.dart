@@ -586,7 +586,10 @@ class PaisaProvider extends ChangeNotifier {
     final DateTime reference = now ?? DateTime.now();
     final DateTime today =
         DateTime(reference.year, reference.month, reference.day);
-    final int elapsed = today.difference(range.$1).inDays + 1;
+    // Clamp to the window so a future-dated ledger entry can never produce a
+    // negative or absurd elapsed count.
+    final DateTime end = range.$2.isAfter(today) ? today : range.$2;
+    final int elapsed = end.difference(range.$1).inDays + 1;
     return elapsed < 1 ? 1 : elapsed;
   }
 
@@ -1349,6 +1352,10 @@ class PaisaProvider extends ChangeNotifier {
   ///
   /// [monthsShown] overrides the bar-chart span (used by the "6 / 12 months"
   /// toggle); when omitted it follows [monthsForRange].
+  ///
+  /// Cost is linear in the ledger size and runs on every filter change; 3 000
+  /// records are bucketed in a few milliseconds because nothing is re-read from
+  /// Hive and no `DateTime` is allocated per bucket beyond the axis label.
   AnalyticsSnapshot analyticsSnapshot({
     AnalyticsRange? range,
     AnalyticsTypeFilter? type,

@@ -15,9 +15,9 @@ device and can be exported / restored as a JSON backup.
 | 3 | App shell, home dashboard, search & transaction engine | ✅ done |
 | 4 | Accounts carousel, loans/EMIs, categories & budgets | ✅ done |
 | 5 | Analytics & charts, history filters, exports | ✅ done |
-| 6 | Final polish pass, packaging & release tooling | ⏳ |
+| 6 | Final polish pass, packaging & release tooling | ✅ done |
 
-## What steps 1–5 deliver
+## What steps 1–6 deliver
 
 ```
 lib/
@@ -215,6 +215,77 @@ is rebuilt around five groups:
   (device PIN/pattern is a valid fallback); if the platform has no screen lock at
   all, the app stays open and explains why.
 
+### Step 6 — entry point, app lock, packaging
+
+**One boot path.** `main()` opens the Hive boxes and reads the persisted
+settings *before* `runApp`, so the first frame already has real data and the
+right palette — no splash spinner, no flash of the wrong theme on a cold start.
+The tree is `MultiProvider` → `PaisaThemeBuilder` → `MaterialApp` →
+`TranslationScope` → `BiometricGate` → onboarding or shell:
+
+* `Provider<HiveStorage>.value` exposes the already-open database;
+  `ChangeNotifierProvider<PaisaProvider>` builds the financial engine around it.
+* `PaisaThemeBuilder` (from step 1) is reused rather than re-implemented, so
+  the `DynamicColorBuilder` subscription only happens on Android — the one
+  platform where Material You can actually answer. Resolving the theme in
+  `main.dart` as well would have meant two places to keep in sync.
+* `TranslationScope` wraps the `MaterialApp`'s child at the top, so every
+  screen — including dialogs pushed later — translates live when the language
+  changes.
+* Orientation is locked to portrait before the first frame: the layouts are
+  built as a single narrow column of money and the charts re-bucket rather than
+  rotate.
+
+**Onboarding → shell without a rebuild race.** `_EntryPoint` returns a
+`KeyedSubtree` keyed on `onboardingComplete`. The moment the last onboarding
+page writes its single Hive transaction, the key changes and `MainShell` is
+built fresh, seeded from the freshly written boxes instead of the empty
+pre-onboarding ones.
+
+**App lock that cannot lock you out.** `BiometricGate` wraps `AppLockGate`:
+
+* Lock is **off by default**; nothing is prompted until the user turns it on in
+  Settings, and turning it on is only allowed after the device has actually
+  authenticated once.
+* Unlock goes through `local_auth` with `biometricOnly: false`, so PIN, pattern,
+  password, fingerprint *and* face all count. A phone with biometrics enrolled
+  but a broken sensor still opens with its PIN.
+* The lock re-engages when the app returns from the background, but only if it
+  had been unlocked in that session — a user is never asked twice while
+  switching apps to copy an amount.
+* If the platform reports no screen lock at all, the gate **fails open**: the
+  ledger renders and a floating snack bar explains that MoneyMate stayed
+  unlocked because the device can't authenticate. Refusing entry would hold the
+  owner's own ledger hostage over a device setting they may not be able to
+  change. A *cancelled* prompt is different — that is the user's own "no", so
+  the lock stays up with an "Unlock" button and a message.
+
+**Packaging.** `.github/workflows/build-apk.yml` builds a universal release APK
+on every push to `main`/`master`, on pull requests (artifact only), and on
+demand. JDK 17 + Flutter stable, then `flutter create` generates the native
+`android/` folder (the repo stores Dart only), `tool/android_hardening.py`
+makes it `local_auth`-safe, `flutter build apk --release
+--no-tree-shake-icons` produces `app-release.apk`, which is uploaded as the
+`MoneyMate-APK` artifact and, on pushes/manual runs, attached to a
+`v1.0.<run number>` Release.
+
+The job also deletes the template `test/widget_test.dart` that `flutter create`
+writes (it pumps a `MyApp` class this project does not have, which would fail
+`flutter analyze`), then runs `flutter test` before building.
+
+`tool/android_hardening.py` is checked in and idempotent because the generator
+gets `local_auth` wrong by default:
+
+1. `MainActivity.kt` extends `FlutterActivity`. `local_auth` needs a
+   `FragmentActivity` host — a plain activity throws `no_fragment_activity` the
+   first time the prompt is shown — so the launcher is repointed to
+   `FlutterFragmentActivity`.
+2. `android.permission.USE_BIOMETRIC` is absent from the generated manifest, so
+   it is inserted (once) before `<application>`.
+
+It exits non-zero if the manifest or launcher is missing, so CI fails loudly
+instead of shipping an APK whose app lock cannot prompt.
+
 ### The financial engine (`PaisaProvider`)
 
 Every number the UI shows is derived, never stored:
@@ -300,6 +371,10 @@ guarantees exactly one default account.
 
 ```bash
 flutter pub get
+# The repo ships Dart only; generate the native shell once (it is also what CI
+# does), then harden it for local_auth:
+flutter create . --platforms=android --org dev.hemanths.paisa --project-name moneymate
+python3 tool/android_hardening.py
 flutter run
 ```
 
@@ -307,6 +382,10 @@ Requires Flutter **3.27+** (stable) because the design system uses
 `CardThemeData` / `DialogThemeData` and Material 3 surface containers.
 
 Tests: `flutter test`
+
+The `android/` folder is generated, not committed, so `flutter create` is
+required before the first device build or `flutter run` — the workflow does the
+same thing in CI.
 
 | Suite | Covers |
 | --- | --- |

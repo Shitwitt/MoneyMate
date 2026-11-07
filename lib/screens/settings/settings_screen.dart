@@ -658,15 +658,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ?.copyWith(fontWeight: FontWeight.w700),
               ),
             ),
+            // A plain ListTile + trailing check instead of RadioListTile: the
+            // radio widget's `groupValue`/`onChanged` pair is deprecated on the
+            // newest Flutter, and this also matches the currency sheet's shape.
             for (final AppLanguage language in AppLanguage.all)
-              RadioListTile<String>(
-                value: language.code,
-                groupValue: provider.languageCode,
+              ListTile(
                 title: Text('${language.icon}  ${language.englishName}'),
                 subtitle: Text(language.nativeName),
-                onChanged: (String? code) async {
-                  if (code == null) return;
-                  await provider.setLanguage(code);
+                trailing: language.code == provider.languageCode
+                    ? Icon(
+                        Icons.check_circle_rounded,
+                        color: Theme.of(sheetContext).colorScheme.primary,
+                      )
+                    : null,
+                onTap: () async {
+                  await provider.setLanguage(language.code);
                   if (sheetContext.mounted) {
                     Navigator.of(sheetContext).pop();
                   }

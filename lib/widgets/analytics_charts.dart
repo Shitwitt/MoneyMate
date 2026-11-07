@@ -552,8 +552,8 @@ class CategoryDonut extends StatelessWidget {
                   ),
               ],
             ),
-            duration: const Duration(milliseconds: 260),
-            curve: Curves.easeOutCubic,
+            swapAnimationDuration: const Duration(milliseconds: 260),
+            swapAnimationCurve: Curves.easeOutCubic,
           ),
           IgnorePointer(
             child: Column(
@@ -864,8 +864,8 @@ class MonthlyFlowBarChart extends StatelessWidget {
               ),
           ],
         ),
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeOutCubic,
+        swapAnimationDuration: const Duration(milliseconds: 400),
+        swapAnimationCurve: Curves.easeOutCubic,
       ),
     );
   }

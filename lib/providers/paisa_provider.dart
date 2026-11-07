@@ -1714,10 +1714,8 @@ class PaisaProvider extends ChangeNotifier {
       final String escaped = value.replaceAll('"', '""');
       final bool needsQuotes = escaped.contains(',') ||
           escaped.contains('"') ||
-          escaped.contains('
-') ||
-          escaped.contains('
-');
+          escaped.contains('\n') ||
+          escaped.contains('\r');
       return needsQuotes ? '"$escaped"' : escaped;
     }
 

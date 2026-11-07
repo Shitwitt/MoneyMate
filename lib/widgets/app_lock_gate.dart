@@ -17,11 +17,17 @@ import 'avatar_view.dart';
 /// * When the platform cannot authenticate at all (no screen lock, unsupported
 ///   build) the app opens anyway and says why: a broken lock must never destroy
 ///   access to the user's own ledger.
+/// * [authenticator] exists for tests; production always uses the real
+///   `local_auth` plugin,
 class AppLockGate extends StatefulWidget {
-  const AppLockGate({super.key, required this.child});
+  const AppLockGate({super.key, required this.child, this.authenticator});
 
   /// The unlocked application.
   final Widget child;
+
+  /// Overrides the device-auth implementation. Only tests pass this: the real
+  /// gate talks to `local_auth` through `authenticateWithDevice`.
+  final DeviceAuthenticator? authenticator;
 
   @override
   State<AppLockGate> createState() => _AppLockGateState();
@@ -80,6 +86,7 @@ class _AppLockGateState extends State<AppLockGate> with WidgetsBindingObserver {
     });
     final DeviceAuthResult result = await authenticateWithDevice(
       reason: 'Unlock MoneyMate to view your money',
+      authenticator: widget.authenticator,
     );
     if (!mounted) return;
     if (result.message != null) {

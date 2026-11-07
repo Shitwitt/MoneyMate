@@ -16,6 +16,11 @@ class DeviceAuthResult {
   final String? message;
 }
 
+/// Signature of [authenticateWithDevice], so widgets can accept a stand-in.
+typedef DeviceAuthenticator = Future<DeviceAuthResult> Function({
+  required String reason,
+});
+
 /// Prompts for the device's biometric / PIN / pattern lock.
 ///
 /// [biometricOnly] is left `false` on purpose: finance apps must not become
@@ -23,9 +28,11 @@ class DeviceAuthResult {
 /// while a perfectly good device PIN exists.
 Future<DeviceAuthResult> authenticateWithDevice({
   required String reason,
-  LocalAuthentication? authenticator,
+  DeviceAuthenticator? authenticator,
 }) async {
-  final LocalAuthentication auth = authenticator ?? LocalAuthentication();
+  if (authenticator != null) return authenticator(reason: reason);
+
+  final LocalAuthentication auth = LocalAuthentication();
   try {
     final bool supported = await auth.isDeviceSupported();
     if (!supported) {
@@ -62,7 +69,7 @@ Future<DeviceAuthResult> authenticateWithDevice({
 /// device actually confirmed the user.
 Future<bool> requestDeviceUnlock({
   required String reason,
-  LocalAuthentication? authenticator,
+  DeviceAuthenticator? authenticator,
 }) async {
   final DeviceAuthResult result = await authenticateWithDevice(
     reason: reason,

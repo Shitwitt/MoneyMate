@@ -72,20 +72,20 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   PaisaProvider get _provider => context.read<PaisaProvider>();
   CurrencyFormatter get _formatter => _provider.formatter;
 
-  /// Categories shown in the grid: expense categories for an expense, plus the
-  /// income ones for income. Transfers hide the grid entirely.
+  /// Categories shown in the grid.
+  ///
+  /// Expense mode lists expense categories, income mode lists the seeded income
+  /// categories, and a transfer hides the grid entirely (money only moves
+  /// between the user's own accounts). Income-ness comes from
+  /// [CategoryModel.isIncome] so the picker and the manager never disagree.
   List<CategoryModel> get _categories {
-    final List<CategoryModel> all = _provider.categories;
-    if (_type != TransactionType.income) {
-      final Set<String> incomeIds = <String>{
-        'seed-category-salary',
-        'seed-category-refund',
-      };
-      return all
-          .where((CategoryModel c) => !incomeIds.contains(c.id))
-          .toList(growable: false);
-    }
-    return all;
+    final bool wantsIncome = _type == TransactionType.income;
+    return _provider.categories
+        .where((CategoryModel c) =>
+            _type == TransactionType.transfer
+                ? false
+                : c.isIncome == wantsIncome)
+        .toList(growable: false);
   }
 
   @override

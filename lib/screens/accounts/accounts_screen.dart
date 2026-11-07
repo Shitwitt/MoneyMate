@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/enum/filter_enums.dart';
 import '../../core/theme/paisa_colors.dart';
+import '../../core/theme/paisa_theme.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../data/models/account_model.dart';
 import '../../data/models/transaction_model.dart';
@@ -584,6 +585,7 @@ Future<void> _showAddAccountSheet(BuildContext context) async {
                   ],
                 ),
                 SegmentedButton<AccountType>(
+                  style: PaisaTheme.segmentedButtonStyle(context),
                   segments: <ButtonSegment<AccountType>>[
                     for (final AccountType value in AccountType.values)
                       ButtonSegment<AccountType>(

@@ -75,7 +75,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Pick the first category chip so the form is valid.
-    await tester.tap(find.text('Food & Dining').first);
+    final Finder chip = find.text('Food & Dining').first;
+    await tester.ensureVisible(chip);
+    await tester.pumpAndSettle();
+    await tester.tap(chip);
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Save transaction'));

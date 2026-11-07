@@ -140,20 +140,21 @@ class SettingsScreen extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: SegmentedButton<ThemePreference>(
-                    segments: <ButtonSegment<ThemePreference>>[
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: <Widget>[
                       for (final ThemePreference value in ThemePreference.values)
-                        ButtonSegment<ThemePreference>(
-                          value: value,
+                        ChoiceChip(
+                          selected: provider.themeMode == value,
+                          avatar: Icon(value.icon, size: 16),
                           label: Text(value.label),
-                          icon: Icon(value.icon, size: 15),
+                          onSelected: (bool selected) {
+                            if (selected) provider.setThemeMode(value);
+                          },
                         ),
                     ],
-                    selected: <ThemePreference>{provider.themeMode},
-                    showSelectedIcon: false,
-                    onSelectionChanged: (Set<ThemePreference> selection) =>
-                        provider.setThemeMode(selection.first),
                   ),
                 ),
                 const SizedBox(height: 8),

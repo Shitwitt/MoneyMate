@@ -169,7 +169,10 @@ class _MainShellState extends State<MainShell> {
           }
         },
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      // `centerFloat` keeps the + above the navigation bar: `centerDocked`
+      // would sit on top of the middle destination ("Overview") and swallow its
+      // taps and label.
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: _select,

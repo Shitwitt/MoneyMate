@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/enum/filter_enums.dart';
 import '../../core/theme/paisa_colors.dart';
+import '../../core/theme/paisa_theme.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/date_time_format.dart';
 import '../../core/utils/id_generator.dart';
@@ -83,6 +84,7 @@ class _DebtsScreenState extends State<DebtsScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: SegmentedButton<DebtType>(
+            style: PaisaTheme.segmentedButtonStyle(context),
             segments: <ButtonSegment<DebtType>>[
               ButtonSegment<DebtType>(
                 value: DebtType.debt,

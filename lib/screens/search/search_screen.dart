@@ -415,7 +415,7 @@ class _MenuChip<T> extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: active
-              ? effective.withOpacity(0.14)
+              ? effective.withValues(alpha: 0.14)
               : scheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(

@@ -294,7 +294,7 @@ class IncomeExpenseLineChart extends StatelessWidget {
               return spotIndexes.map((int index) {
                 return TouchedSpotIndicatorData(
                   FlLine(
-                    color: barData.color?.withOpacity(0.45) ?? colors.neutral,
+                    color: barData.color?.withValues(alpha: 0.45) ?? colors.neutral,
                     strokeWidth: 1.4,
                     dashArray: const <int>[4, 4],
                   ),
@@ -348,7 +348,7 @@ class IncomeExpenseLineChart extends StatelessWidget {
                   return LineTooltipItem(
                     '$when\n',
                     TextStyle(
-                      color: scheme.onInverseSurface.withOpacity(0.82),
+                      color: scheme.onInverseSurface.withValues(alpha: 0.82),
                       fontSize: 10.5,
                       fontWeight: FontWeight.w600,
                       height: 1.5,
@@ -447,8 +447,8 @@ class IncomeExpenseLineChart extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: <Color>[
-            color.withOpacity(0.28),
-            color.withOpacity(0.03),
+            color.withValues(alpha: 0.28),
+            color.withValues(alpha: 0.03),
           ],
         ),
       ),
@@ -580,7 +580,7 @@ class CategoryDonut extends StatelessWidget {
                     width: 26,
                     height: 26,
                     decoration: BoxDecoration(
-                      color: Color(selected.colorValue).withOpacity(0.18),
+                      color: Color(selected.colorValue).withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(9),
                     ),
                     child: Icon(
@@ -749,7 +749,7 @@ class MonthlyFlowBarChart extends StatelessWidget {
                 return BarTooltipItem(
                   '${DateTimeFormat.monthYear(flow.month)}\n',
                   TextStyle(
-                    color: scheme.onInverseSurface.withOpacity(0.82),
+                    color: scheme.onInverseSurface.withValues(alpha: 0.82),
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
                     height: 1.5,
@@ -875,14 +875,14 @@ class MonthlyFlowBarChart extends StatelessWidget {
     required Color color,
     required bool dimmed,
   }) {
-    final Color base = dimmed ? color.withOpacity(0.35) : color;
+    final Color base = dimmed ? color.withValues(alpha: 0.35) : color;
     return BarChartRodData(
       toY: value,
       width: flows.length > 8 ? 8 : 12,
       gradient: LinearGradient(
         begin: Alignment.bottomCenter,
         end: Alignment.topCenter,
-        colors: <Color>[base.withOpacity(0.55), base],
+        colors: <Color>[base.withValues(alpha: 0.55), base],
       ),
       borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
     );
@@ -999,7 +999,7 @@ class AccountDistributionBar extends StatelessWidget {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: Color(shares[i].colorValue).withOpacity(0.16),
+                    color: Color(shares[i].colorValue).withValues(alpha: 0.16),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(

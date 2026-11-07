@@ -293,7 +293,7 @@ class BudgetOverviewCard extends StatelessWidget {
                         ? ' spent this month'
                         : '  of ${formatter.formatWhole(totalBudget)}',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: scheme.onPrimaryContainer.withOpacity(0.75),
+                      color: scheme.onPrimaryContainer.withValues(alpha: 0.75),
                     ),
                   ),
                 ],
@@ -416,7 +416,7 @@ class CategoryBudgetCard extends StatelessWidget {
           color: scheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(PaisaTheme.cardRadius),
           border: Border.all(
-            color: exceeded ? colors.expense.withOpacity(0.4) : Colors.transparent,
+            color: exceeded ? colors.expense.withValues(alpha: 0.4) : Colors.transparent,
             width: 1.2,
           ),
         ),
@@ -429,7 +429,7 @@ class CategoryBudgetCard extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: tint.withOpacity(0.18),
+                    color: tint.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Icon(
@@ -474,7 +474,7 @@ class CategoryBudgetCard extends StatelessWidget {
                           vertical: 3,
                         ),
                         decoration: BoxDecoration(
-                          color: barColor.withOpacity(0.16),
+                          color: barColor.withValues(alpha: 0.16),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -630,7 +630,7 @@ class _OverviewStat extends StatelessWidget {
             caption!,
             style: theme.textTheme.labelSmall?.copyWith(
               fontSize: 10,
-              color: theme.colorScheme.onPrimaryContainer.withOpacity(0.7),
+              color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
             ),
           ),
       ],
@@ -654,7 +654,7 @@ class _Pill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: background ?? Colors.white.withOpacity(0.16),
+        color: background ?? Colors.white.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
@@ -730,7 +730,7 @@ class _CategoryTransactionsSheetState
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
-                      color: tint.withOpacity(0.18),
+                      color: tint.withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Icon(
@@ -819,7 +819,7 @@ class _CategoryTransactionsSheetState
                       separatorBuilder: (_, __) => Divider(
                         height: 1,
                         indent: 60,
-                        color: scheme.outlineVariant.withOpacity(0.5),
+                        color: scheme.outlineVariant.withValues(alpha: 0.5),
                       ),
                       itemBuilder: (BuildContext context, int index) {
                         final TransactionModel row = rows[index];
@@ -837,7 +837,7 @@ class _CategoryTransactionsSheetState
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: tint.withOpacity(0.14),
+                              color: tint.withValues(alpha: 0.14),
                               borderRadius: BorderRadius.circular(13),
                             ),
                             child: Icon(

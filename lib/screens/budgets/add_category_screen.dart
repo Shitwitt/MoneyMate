@@ -196,10 +196,10 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    color: Color(_color).withOpacity(0.18),
+                    color: Color(_color).withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(22),
                     border: Border.all(
-                      color: Color(_color).withOpacity(0.5),
+                      color: Color(_color).withValues(alpha: 0.5),
                       width: 1.5,
                     ),
                   ),
@@ -546,7 +546,7 @@ class CategoryIconGrid extends StatelessWidget {
             duration: const Duration(milliseconds: 160),
             decoration: BoxDecoration(
               color: selected
-                  ? color.withOpacity(0.20)
+                  ? color.withValues(alpha: 0.20)
                   : scheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(

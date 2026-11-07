@@ -101,7 +101,7 @@ class PaisaColors extends ThemeExtension<PaisaColors> {
         neutral: Color(0xFF6F7473),
         outlineMuted: Color(0xFFE1E3E1),
         chartGrid: Color(0xFFE8EAE8),
-        chartPalette: const <Color>[
+        chartPalette: <Color>[
           Color(0xFF00897B),
           Color(0xFF1E88E5),
           Color(0xFFFB8C00),
@@ -137,7 +137,7 @@ class PaisaColors extends ThemeExtension<PaisaColors> {
         neutral: Color(0xFF9CA3A0),
         outlineMuted: Color(0xFF2A2E2C),
         chartGrid: Color(0xFF24292A),
-        chartPalette: const <Color>[
+        chartPalette: <Color>[
           Color(0xFF4FD1BE),
           Color(0xFF8AB9FF),
           Color(0xFFFFB77C),

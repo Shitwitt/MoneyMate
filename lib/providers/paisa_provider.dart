@@ -1044,7 +1044,7 @@ class PaisaProvider extends ChangeNotifier {
       }
       final double remaining = remainingAmountFor(parentId);
       if (amount > remaining + 0.005) {
-        throw TransactionException(
+        throw const TransactionException(
           'Installment is more than the remaining amount.',
         );
       }

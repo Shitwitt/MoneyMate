@@ -973,7 +973,7 @@ class _ProfileCard extends StatelessWidget {
                         imagePath: provider.customImagePath,
                         size: 68,
                         borderWidth: 2,
-                        borderColor: scheme.onPrimaryContainer.withOpacity(0.35),
+                        borderColor: scheme.onPrimaryContainer.withValues(alpha: 0.35),
                       ),
                     ),
                     Container(
@@ -1026,7 +1026,7 @@ class _ProfileCard extends StatelessWidget {
                                 Icons.edit_rounded,
                                 size: 15,
                                 color: scheme.onPrimaryContainer
-                                    .withOpacity(0.65),
+                                    .withValues(alpha: 0.65),
                               ),
                             ],
                           ),
@@ -1037,7 +1037,7 @@ class _ProfileCard extends StatelessWidget {
                         '${provider.currency.code} · '
                         '${AppLanguage.byCode(provider.languageCode).nativeName}',
                         style: theme.textTheme.labelSmall?.copyWith(
-                          color: scheme.onPrimaryContainer.withOpacity(0.75),
+                          color: scheme.onPrimaryContainer.withValues(alpha: 0.75),
                         ),
                       ),
                     ],
@@ -1081,7 +1081,7 @@ class _ProfileCard extends StatelessWidget {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: scheme.onPrimaryContainer,
                       side: BorderSide(
-                        color: scheme.onPrimaryContainer.withOpacity(0.28),
+                        color: scheme.onPrimaryContainer.withValues(alpha: 0.28),
                       ),
                     ),
                   ),
@@ -1096,7 +1096,7 @@ class _ProfileCard extends StatelessWidget {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: scheme.onPrimaryContainer,
                         side: BorderSide(
-                          color: scheme.onPrimaryContainer.withOpacity(0.28),
+                          color: scheme.onPrimaryContainer.withValues(alpha: 0.28),
                         ),
                       ),
                     ),
@@ -1140,7 +1140,7 @@ class _MiniStat extends StatelessWidget {
             label,
             style: theme.textTheme.labelSmall?.copyWith(
               fontSize: 9.5,
-              color: theme.colorScheme.onPrimaryContainer.withOpacity(0.7),
+              color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
             ),
           ),
         ],
@@ -1491,7 +1491,7 @@ class _TileIcon extends StatelessWidget {
       width: 38,
       height: 38,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.14),
+        color: color.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(13),
       ),
       child: Icon(icon, size: 19, color: color),
@@ -1640,7 +1640,7 @@ class AccountsManagerScreen extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Color(account.color).withOpacity(0.18),
+                      color: Color(account.color).withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(13),
                     ),
                     child: Icon(

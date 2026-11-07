@@ -242,7 +242,7 @@ class PaisaTheme {
       borderRadius: BorderRadius.circular(cardRadius),
     );
     final RoundedRectangleBorder sheetShape = RoundedRectangleBorder(
-      borderRadius: const BorderRadius.vertical(
+      borderRadius: BorderRadius.vertical(
         top: Radius.circular(sheetRadius),
       ),
     );

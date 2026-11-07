@@ -405,7 +405,7 @@ class _FilterBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: scheme.surface,
         border: Border(
-          bottom: BorderSide(color: scheme.outlineVariant.withOpacity(0.5)),
+          bottom: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.5)),
         ),
       ),
       child: Column(
@@ -577,7 +577,7 @@ class _TypeSegment extends StatelessWidget {
                       boxShadow: value == type
                           ? <BoxShadow>[
                               BoxShadow(
-                                color: scheme.shadow.withOpacity(0.16),
+                                color: scheme.shadow.withValues(alpha: 0.16),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),
@@ -733,7 +733,7 @@ class _NetCashflowCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: scheme.onPrimaryContainer.withOpacity(0.10),
+                    color: scheme.onPrimaryContainer.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(9),
                   ),
                   child: Text(
@@ -783,7 +783,7 @@ class _NetCashflowCard extends StatelessWidget {
                 ? 'Income minus nothing — showing money in only'
                 : 'Income minus expense · transfers excluded',
             style: theme.textTheme.labelSmall?.copyWith(
-              color: scheme.onPrimaryContainer.withOpacity(0.75),
+              color: scheme.onPrimaryContainer.withValues(alpha: 0.75),
             ),
           ),
           const SizedBox(height: 14),
@@ -821,8 +821,8 @@ class _NetCashflowCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: scheme.surface.withOpacity(
-                theme.brightness == Brightness.dark ? 0.30 : 0.55,
+              color: scheme.surface.withValues(
+                alpha: theme.brightness == Brightness.dark ? 0.30 : 0.55,
               ),
               borderRadius: BorderRadius.circular(16),
             ),
@@ -832,7 +832,7 @@ class _NetCashflowCard extends StatelessWidget {
                   width: 30,
                   height: 30,
                   decoration: BoxDecoration(
-                    color: colors.expense.withOpacity(0.14),
+                    color: colors.expense.withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -912,8 +912,8 @@ class _MetricTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(11, 10, 11, 10),
       decoration: BoxDecoration(
-        color: scheme.surface.withOpacity(
-          theme.brightness == Brightness.dark ? 0.30 : 0.55,
+        color: scheme.surface.withValues(
+          alpha: theme.brightness == Brightness.dark ? 0.30 : 0.55,
         ),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -1007,7 +1007,7 @@ class _CategoryLeaderboard extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: highlighted == i
-                        ? Color(slices[i].colorValue).withOpacity(0.10)
+                        ? Color(slices[i].colorValue).withValues(alpha: 0.10)
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -1017,7 +1017,7 @@ class _CategoryLeaderboard extends StatelessWidget {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: Color(slices[i].colorValue).withOpacity(0.16),
+                          color: Color(slices[i].colorValue).withValues(alpha: 0.16),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
@@ -1148,7 +1148,7 @@ class _FlowTotalTile extends StatelessWidget {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.18),
+              color: color.withValues(alpha: 0.18),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, size: 15, color: color),

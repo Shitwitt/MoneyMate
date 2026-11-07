@@ -224,7 +224,7 @@ class AccountCardView extends StatelessWidget {
         theme.colorScheme.surface == const Color(0xFF000000);
     final List<Color> colors = style.gradient(amoled: amoled);
     final Color onCard = Colors.white;
-    final Color muted = Colors.white.withOpacity(0.74);
+    final Color muted = Colors.white.withValues(alpha: 0.74);
 
     final Widget content = Container(
       height: height,
@@ -238,7 +238,7 @@ class AccountCardView extends StatelessWidget {
         ),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: style.start.withOpacity(amoled ? 0.16 : 0.32),
+            color: style.start.withValues(alpha: amoled ? 0.16 : 0.32),
             blurRadius: 22,
             offset: const Offset(0, 12),
           ),
@@ -255,7 +255,7 @@ class AccountCardView extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.20),
+                  color: Colors.white.withValues(alpha: 0.20),
                   borderRadius: BorderRadius.circular(7),
                 ),
                 child: Text(
@@ -274,7 +274,7 @@ class AccountCardView extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.20),
+                    color: Colors.white.withValues(alpha: 0.20),
                     borderRadius: BorderRadius.circular(7),
                   ),
                   child: Text(
@@ -418,7 +418,7 @@ class _ContactlessPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint plate = Paint()..color = color.withOpacity(0.85);
+    final Paint plate = Paint()..color = color.withValues(alpha: 0.85);
     final RRect chip = RRect.fromRectAndRadius(
       Rect.fromLTWH(0, 2, 12, 20),
       const Radius.circular(3.5),
@@ -427,7 +427,7 @@ class _ContactlessPainter extends CustomPainter {
 
     // Chip contact lines, drawn in the gradient colour for contrast.
     final Paint lines = Paint()
-      ..color = Colors.black.withOpacity(0.22)
+      ..color = Colors.black.withValues(alpha: 0.22)
       ..strokeWidth = 1.1
       ..style = PaintingStyle.stroke;
     canvas.drawLine(const Offset(0, 8), const Offset(12, 8), lines);
@@ -465,7 +465,7 @@ extension AccountTypeGlyph on AccountType {
             Text(
               'RuPay',
               style: TextStyle(
-                color: color.withOpacity(0.9),
+                color: color.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w800,
                 fontSize: 12,
                 letterSpacing: 0.8,
@@ -482,7 +482,7 @@ extension AccountTypeGlyph on AccountType {
             Text(
               'BANK',
               style: TextStyle(
-                color: color.withOpacity(0.9),
+                color: color.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w800,
                 fontSize: 12,
                 letterSpacing: 1.2,

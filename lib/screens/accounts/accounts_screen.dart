@@ -495,7 +495,7 @@ class _AccountRow extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: transferColor.withOpacity(0.18),
+                    color: transferColor.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(

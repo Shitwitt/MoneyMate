@@ -251,7 +251,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
             const SizedBox(height: 20),
 
             // ---------------- Type ----------------
-            _SectionLabel(label: 'Account type'),
+            const _SectionLabel(label: 'Account type'),
             const SizedBox(height: 8),
             Row(
               children: <Widget>[
@@ -273,7 +273,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
             const SizedBox(height: 20),
 
             // ---------------- Fields ----------------
-            _SectionLabel(label: 'Details'),
+            const _SectionLabel(label: 'Details'),
             const SizedBox(height: 8),
             TextFormField(
               controller: _bankName,
@@ -383,7 +383,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
             const SizedBox(height: 20),
 
             // ---------------- Colour ----------------
-            _SectionLabel(label: 'Card colour'),
+            const _SectionLabel(label: 'Card colour'),
             const SizedBox(height: 10),
             Wrap(
               spacing: 12,

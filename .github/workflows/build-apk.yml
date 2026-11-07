@@ -70,19 +70,30 @@ jobs:
 
       # Informational lints (e.g. deprecation notices) must not block the APK,
       # but real analyzer errors still fail the job.
-      # Real analyzer output, plus a copy mirrored into GitHub annotations so the
-      # findings are readable from the API even when raw job logs are not.
+      # Compile errors block the APK. Warnings/infos are printed and mirrored as
+      # annotations so they stay visible, but they do not gate the build: a
+      # deprecation notice is not a reason to ship no APK.
       - name: Analyze Dart Sources
         run: |
           set +e
           flutter analyze > analyze.txt 2>&1
           status=$?
           cat analyze.txt
-          grep -E "^\s*(error|warning|info)\s+•" analyze.txt | head -80 | while IFS= read -r line; do
+          errors=$(grep -cE "^\s*error\s+•" analyze.txt)
+          warnings=$(grep -cE "^\s*warning\s+•" analyze.txt)
+          infos=$(grep -cE "^\s*info\s+•" analyze.txt)
+          grep -E "^\s*(error|warning)\s+•" analyze.txt | head -80 | while IFS= read -r line; do
             echo "::error::${line}"
           done
-          echo "analyzer exit: $status"
-          exit $status
+          echo "analyzer: ${errors} error(s), ${warnings} warning(s), ${infos} info(s)"
+          if [ "$errors" -gt 0 ]; then
+            echo "::error::flutter analyze reported ${errors} compile error(s)"
+            exit 1
+          fi
+          if [ "$status" -ne 0 ]; then
+            echo "::warning::flutter analyze exited ${status} (lint-only findings above)"
+          fi
+          exit 0
 
       - name: Run Test Suite
         run: flutter test

@@ -57,7 +57,7 @@ class AmountField extends StatelessWidget {
             height: 40,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: accent.withOpacity(0.14),
+              color: accent.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Text(
@@ -96,7 +96,7 @@ class AmountField extends StatelessWidget {
                 hintStyle: theme.textTheme.displaySmall?.copyWith(
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
-                  color: accent.withOpacity(0.35),
+                  color: accent.withValues(alpha: 0.35),
                 ),
                 errorText: errorText,
                 errorStyle: theme.textTheme.bodySmall?.copyWith(

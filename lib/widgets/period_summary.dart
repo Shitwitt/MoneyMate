@@ -199,7 +199,7 @@ class _PeriodSubCard extends StatelessWidget {
                 width: 26,
                 height: 26,
                 decoration: BoxDecoration(
-                  color: accent.withOpacity(0.16),
+                  color: accent.withValues(alpha: 0.16),
                   borderRadius: BorderRadius.circular(9),
                 ),
                 child: Icon(icon, size: 15, color: accent),

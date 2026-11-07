@@ -6,7 +6,6 @@ import 'package:moneymate/core/enum/filter_enums.dart';
 import 'package:moneymate/core/l10n/app_strings.dart';
 import 'package:moneymate/core/theme/paisa_theme.dart';
 import 'package:moneymate/data/local/hive_storage.dart';
-import 'package:moneymate/data/models/account_model.dart';
 import 'package:moneymate/providers/paisa_provider.dart';
 import 'package:moneymate/screens/onboarding/onboarding_screen.dart';
 import 'package:provider/provider.dart';

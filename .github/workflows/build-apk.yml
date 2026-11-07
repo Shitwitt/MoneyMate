@@ -71,7 +71,10 @@ jobs:
       # Informational lints (e.g. deprecation notices) must not block the APK,
       # but real analyzer errors still fail the job.
       - name: Analyze Dart Sources
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+        run: |
+          set -o pipefail
+          flutter analyze 2>&1 | tee /tmp/analyze.txt | grep -E "^\s*(error|warning|info)\s+•|issues? found" | head -200
+          exit $(grep -cE "^\s*error\s+•" /tmp/analyze.txt)
 
       - name: Run Test Suite
         run: flutter test

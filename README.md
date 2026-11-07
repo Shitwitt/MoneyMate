@@ -12,6 +12,12 @@ Reports & Analytics (insights, bar/line chart, filter menus, donut breakdown,
 Financial Reports directory), Budgets overview with tinted summary pills, the
 *How Budgets Work* modal and the single-budget detail view.
 
+**Step 3 — Assets, Bill Splitter & Loans** is complete: asset portfolio with a
+dual-grid colour editor, a cent-exact bill splitter (equal / percentage /
+custom) with participant payment tracking and net balances, and a loan manager
+with partial payments, auto-completion and due-date countdowns — plus an
+expressive dark theme engine.
+
 ## Run
 
 ```bash
@@ -52,6 +58,13 @@ npm run build    # production bundle in dist/
 | Single budget detail | `src/views/BudgetDetailView.jsx` |
 | How Budgets Work modal | `src/views/HowBudgetsModal.jsx` |
 | Step 2 styles | `src/styles/step2.css` |
+| Financial engine (pure maths) | `src/data/engine.js` |
+| Step 3 seed data | `src/data/step3Data.js` |
+| Assets view + editor + modal | `src/views/AssetsView.jsx`, `AssetEditorView.jsx`, `HowAssetsModal.jsx` |
+| Bill splitter | `src/views/BillSplitterView.jsx`, `BillDetailsView.jsx`, `BillEditorView.jsx`, `BillModals.jsx` |
+| Loans | `src/views/LoansView.jsx`, `LoanDetailsView.jsx`, `LoanEditorView.jsx`, `HowLoansModal.jsx` |
+| Theme tokens (light + dark) | `src/styles/theme3.css` |
+| Step 3 styles | `src/styles/step3.css` |
 | State store + Indian formatting engine | `src/data/demoStore.js` |
 | Design tokens | `src/styles/tokens.css` |
 | Component styles | `src/styles/app.css` |
@@ -102,12 +115,27 @@ See `INSTALL-APK.md`.
 
 ## Testing
 
-`scripts/smoke.jsx` and `scripts/smoke2.jsx` server-render the app and assert the
-spec's exact strings per screen (141 checks in Step 2):
+Three layers, all runnable offline:
 
 ```bash
-npx vite build --ssr scripts/smoke2.jsx --outDir .smoke && node .smoke/smoke2.js
+node scripts/engine.test.mjs          # 66 pure maths assertions
+                                      #   (largest-remainder splitting, loan
+                                      #   countdown/DST, portfolio, ramps)
+
+# render + interaction checks per step
+npx vite build --ssr scripts/smoke3.jsx --outDir .smoke && node .smoke/smoke3.js
 ```
+
+`smoke.jsx` (24), `smoke2.jsx` (141) and `smoke3.jsx` (~120) server-render every
+screen and drive the interactive flows (mark as paid, partial payments, edits,
+theme toggle) against the spec's exact strings.
+
+## Money maths notes
+
+All currency is held in **integer cents** and proportional splits use the
+**largest-remainder (Hare–Niemeyer)** method, so participant shares always sum
+to the bill total with zero drifting pennies. Loan day-countdowns compare UTC
+midnights (DST- and leap-year-safe). See `src/data/engine.js`.
 
 ## Next steps
 

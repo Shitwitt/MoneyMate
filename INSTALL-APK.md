@@ -1,9 +1,9 @@
 # MoneyMate — Android test build
 
-**File:** `apk/MoneyMate-1.0-debug.apk` (4.0 MB, debug-signed)
-**SHA-256:** `8dfdb4438dbd61769cdec178a8ab823583ed93f91ac44e1de5c4466a8e9b3331`
+**File:** `apk/MoneyMate-1.0-debug.apk` (4.03 MB, debug-signed)
+**SHA-256:** `09cf9832ae1d7cffa7d20c65340c23ae1fe5a4074b4022aae947724f1f10820e`
 **Package:** `com.moneymate.app` · minSdk 22 (Android 5.1+) · targetSdk 34
-**Built from:** branch `arena/d91b14b6-moneymate` @ `13400fc` via GitHub Actions
+**Built from:** branch `arena/d91b14b6-moneymate` @ `0e9f7ec` via GitHub Actions
 
 ## Install on your phone
 
@@ -38,6 +38,11 @@ Everything built so far runs fully offline inside a WebView:
   Analytics (month strip, insights, bar/line chart toggle, filter dropdowns,
   donut, Financial Reports directory), Budgets overview, the *How Budgets Work*
   modal and the single-budget detail view with its pace chart.
+- **Step 3** — Assets (portfolio totals, grouped list, colour-picker editor),
+  Bill Splitter (equal/percentage/custom, participant payment menu, net
+  balances + settle-up) and Loans (lending/borrowing/completed, partial and
+  full payments, auto-completion, due-date countdowns), plus a global
+  light/dark theme engine.
 
 ## Notes
 

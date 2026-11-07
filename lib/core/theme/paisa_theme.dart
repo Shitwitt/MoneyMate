@@ -1,4 +1,5 @@
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -797,7 +798,7 @@ class PaisaTheme {
         dayPeriodTextColor: scheme.onSurfaceVariant,
         dialBackgroundColor: scheme.surfaceContainerHighest,
         dialHandColor: scheme.primary,
-        dialTextColor: WidgetStatePropertyAll<Color>(scheme.onSurface),
+        dialTextColor: scheme.onSurface,
         entryModeIconColor: scheme.onSurfaceVariant,
         helpTextStyle: textTheme.labelLarge,
         hourMinuteTextStyle: textTheme.displayMedium,

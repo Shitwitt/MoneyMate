@@ -1,12 +1,13 @@
 name: Build MoneyMate Android APK
 
 # Builds an installable, universal Android APK on every push to the default
-# branches, on pull requests (as a smoke check), and on demand from the Actions
-# tab. The APK is always uploaded as an artifact; a GitHub Release is only cut
-# for pushes and manual runs so PR builds cannot spam the Releases page.
+# branches or a working `arena/*` branch, on pull requests (as a smoke check),
+# and on demand from the Actions tab. The APK is always uploaded as an artifact;
+# a GitHub Release is only cut from main/master or a manual run, so build
+# branches and PRs cannot spam the Releases page.
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main", "master", "arena/**" ]
   pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch:
@@ -87,7 +88,12 @@ jobs:
           retention-days: 30
 
       - name: Publish APK Release
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        # Releases only from the shipping branches (or a manual run), never from
+        # an arbitrary feature branch.
+        if: >-
+          github.event_name == 'workflow_dispatch' ||
+          (github.event_name == 'push' &&
+           (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'))
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}

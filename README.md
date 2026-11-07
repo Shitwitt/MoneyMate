@@ -261,13 +261,13 @@ pre-onboarding ones.
   the lock stays up with an "Unlock" button and a message.
 
 **Packaging.** `.github/workflows/build-apk.yml` builds a universal release APK
-on every push to `main`/`master`, on pull requests (artifact only), and on
-demand. JDK 17 + Flutter stable, then `flutter create` generates the native
+on every push to `main`/`master` or a working `arena/*` branch, on pull requests
+(artifact only), and on demand. JDK 17 + Flutter stable, then `flutter create` generates the native
 `android/` folder (the repo stores Dart only), `tool/android_hardening.py`
 makes it `local_auth`-safe, `flutter build apk --release
 --no-tree-shake-icons` produces `app-release.apk`, which is uploaded as the
-`MoneyMate-APK` artifact and, on pushes/manual runs, attached to a
-`v1.0.<run number>` Release.
+`MoneyMate-APK` artifact and, on `main`/`master` pushes and manual runs,
+attached to a `v1.0.<run number>` Release.
 
 The job also deletes the template `test/widget_test.dart` that `flutter create`
 writes (it pumps a `MyApp` class this project does not have, which would fail

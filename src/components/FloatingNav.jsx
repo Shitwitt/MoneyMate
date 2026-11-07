@@ -32,8 +32,10 @@ export default function FloatingNav() {
             className={`nav-item${active === id ? ' active' : ''}`}
             aria-current={active === id ? 'page' : undefined}
             onClick={() => {
-              if (id === 'home') demoStore.setNav('home');
-              else demoStore.toast(`${label} — built in a later step`);
+              if (id === 'home') demoStore.go('home');
+              else if (id === 'accounts') demoStore.go('accounts');
+              else if (id === 'reports') demoStore.go('reports');
+              else demoStore.toast('Search — built in a later step');
             }}
           >
             <Icon aria-hidden="true" />

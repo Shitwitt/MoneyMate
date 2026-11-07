@@ -53,7 +53,12 @@ export default function BudgetCarousel() {
           style={{ transform: `translateX(-${budgets.slide * 100}%)` }}
         >
           {budgets.items.map((b) => (
-            <div className="budget-card" key={b.id}>
+            <button
+              type="button"
+              className="budget-card"
+              key={b.id}
+              onClick={() => demoStore.go('budgetDetail', { id: b.id })}
+            >
               <div className="bc-top">
                 <span className="bc-icon" style={{ background: b.accent === '#E53935' ? '#EF5350' : b.accent }}>
                   <Landmark />
@@ -87,7 +92,7 @@ export default function BudgetCarousel() {
                   </div>
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>

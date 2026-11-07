@@ -106,13 +106,16 @@ export default function BentoGrid() {
 
   const m = (fn, ...args) => (privacy ? MASK : fn(...args));
   const open = (label) => () => demoStore.toast(`${label} — opens in a later step`);
+  const goAccounts = () => demoStore.go('accounts');
+  const goReports = () => demoStore.go('reports');
+  const goBudgets = () => demoStore.go('budgets');
 
   const miniSwipe = useSwipe({ onLeft: demoStore.cycleBudgetBento, onRight: demoStore.cycleBudgetBento });
 
   return (
     <div className="bento">
       {/* 1 — Accounts */}
-      <Card icon={Landmark} title="Accounts" onClick={open('Accounts')}>
+      <Card icon={Landmark} title="Accounts" onClick={goAccounts}>
         <div className="card-foot">
           <div className="stat-sub">{o.accounts.count} accounts</div>
           <div className="big-value">{m(fmtCompact, o.accounts.total)}</div>
@@ -120,7 +123,7 @@ export default function BentoGrid() {
       </Card>
 
       {/* 2 — Reports */}
-      <Card icon={BarChart3} title="Reports" onClick={open('Reports')}>
+      <Card icon={BarChart3} title="Reports" onClick={goReports}>
         <div className="card-foot">
           <div className="stat-sub">{o.reports.count} transactions</div>
           <div className="big-value">{m(fmtCompact, o.reports.total)}</div>
@@ -131,8 +134,8 @@ export default function BentoGrid() {
       <Card
         icon={PiggyBank}
         title="Budgets"
-        onClick={demoStore.cycleBudgetBento}
-        ariaLabel="Budgets — tap to switch slide"
+        onClick={goBudgets}
+        ariaLabel="Budgets — open budgets overview"
       >
         <div className="mini-carousel" {...miniSwipe}>
           <div className="mini-track" style={{ transform: `translateX(-${budgetSlide * 50}%)` }}>
@@ -158,7 +161,21 @@ export default function BentoGrid() {
             </div>
           </div>
         </div>
-        <Dots count={2} active={budgetSlide} />
+        <div className="dots" role="group" aria-label="Budget slides">
+          {[0, 1].map((i) => (
+            <button
+              key={i}
+              type="button"
+              className={`dot-btn${i === budgetSlide ? ' on' : ''}`}
+              aria-label={`Show budget slide ${i + 1}`}
+              aria-pressed={i === budgetSlide}
+              onClick={(e) => {
+                e.stopPropagation();
+                demoStore.setIn('overview.budgets.slide', i);
+              }}
+            />
+          ))}
+        </div>
       </Card>
 
       {/* 4 — Assets */}
@@ -254,7 +271,7 @@ export default function BentoGrid() {
       </Card>
 
       {/* 9 — Analytics (monthly spending) */}
-      <Card icon={TrendingUp} title="Analytics" onClick={open('Analytics')}>
+      <Card icon={TrendingUp} title="Analytics" onClick={goReports}>
         <div className="card-foot">
           <div className="muted-label" style={{ fontSize: 12.5 }}>
             This month spending

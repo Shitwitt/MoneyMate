@@ -56,6 +56,17 @@ export function fmtShort(num, decimals = 1) {
   return `${neg ? '-' : ''}₹${out}`;
 }
 
+/** $14,188.00 — western grouping, used by the Accounts / Reports / Budgets views */
+export function usd(num, decimals = 2) {
+  const neg = num < 0;
+  const abs = Math.abs(num);
+  const s = abs.toLocaleString('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+  return `${neg ? '-' : ''}$${s}`;
+}
+
 export function fmtThousands(num) {
   return `${num < 0 ? '-' : ''}₹${Math.abs(num).toLocaleString('en-IN')}`;
 }
@@ -288,7 +299,21 @@ const initialState = {
   ],
 
   nav: { active: 'home', tabs: ['home', 'accounts', 'reports', 'search'] },
+
+  /* ---------- Step 2 view state ---------- */
+  route: { view: 'home', params: {} }, // home | accounts | reports | budgets | budgetDetail
+  reportsUi: {
+    month: 'Nov 26',
+    chartMode: 'bars', // bars | line
+    dimension: 'Category', // Category | Account | Label | Person | Places
+    type: 'Expense', // Expense | Income
+    menuOpen: false,
+    donutExpanded: true,
+  },
+  accountsUi: { slide: 0 },
+  budgetsUi: { slide: 0, showOnHome: true },
   toast: null,
+  howBudgetsOpen: false,
 };
 
 /* ---------- store core ---------- */
@@ -341,6 +366,53 @@ export const demoStore = {
   setNav(tab) {
     demoStore.setIn('nav.active', tab);
   },
+
+  /* ---------- routing ---------- */
+  go(view, params = {}) {
+    demoStore.set({ route: { view, params } });
+    if (view === 'accounts') demoStore.setIn('nav.active', 'accounts');
+    if (view === 'reports') demoStore.setIn('nav.active', 'reports');
+    if (view === 'home') demoStore.setIn('nav.active', 'home');
+  },
+  back() {
+    const v = state.route.view;
+    if (v === 'budgetDetail') return demoStore.go('budgets');
+    return demoStore.go('home');
+  },
+
+  /* ---------- reports ---------- */
+  setReportMonth(month) {
+    demoStore.setIn('reportsUi.month', month);
+  },
+  setChartMode(mode) {
+    demoStore.setIn('reportsUi.chartMode', mode);
+  },
+  toggleCategoryMenu() {
+    demoStore.setIn('reportsUi.menuOpen', !state.reportsUi.menuOpen);
+  },
+  setDimension(dim) {
+    demoStore.set({
+      reportsUi: { ...state.reportsUi, dimension: dim, menuOpen: false },
+    });
+  },
+  toggleReportType() {
+    const next = state.reportsUi.type === 'Expense' ? 'Income' : 'Expense';
+    demoStore.setIn('reportsUi.type', next);
+  },
+  toggleDonut() {
+    demoStore.setIn('reportsUi.donutExpanded', !state.reportsUi.donutExpanded);
+  },
+
+  /* ---------- accounts / budgets ---------- */
+  setAccountSlide(i) {
+    demoStore.setIn('accountsUi.slide', i);
+  },
+  setBudgetSlide(i) {
+    demoStore.setIn('budgetsUi.slide', i);
+  },
+  toggleShowBudget() {
+    demoStore.setIn('budgetsUi.showOnHome', !state.budgetsUi.showOnHome);
+  },
   cycleBudgetBento() {
     const next = state.overview.budgets.slide === 0 ? 1 : 0;
     demoStore.setIn('overview.budgets.slide', next);
@@ -358,6 +430,9 @@ export const demoStore = {
   },
   addTransaction(tx) {
     demoStore.setIn('upcoming', [tx, ...state.upcoming]);
+  },
+  openHowBudgets(open = true) {
+    demoStore.setIn('howBudgetsOpen', open);
   },
   exitDemo() {
     demoStore.set({ privacy: false });

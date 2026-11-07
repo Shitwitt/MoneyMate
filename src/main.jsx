@@ -8,6 +8,7 @@ import '@fontsource/plus-jakarta-sans/latin-700.css';
 import '@fontsource/plus-jakarta-sans/latin-800.css';
 import './styles/tokens.css';
 import './styles/app.css';
+import './styles/step2.css';
 
 import App from './App.jsx';
 

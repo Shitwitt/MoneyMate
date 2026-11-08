@@ -20,7 +20,21 @@ jobs:
         run: |
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
       - name: Build debug APK
-        run: bash ./gradlew assembleDebug --stacktrace
+        run: |
+          set +e
+          bash ./gradlew assembleDebug --stacktrace > build-log.txt 2>&1
+          result=$?
+          if [ "$result" -ne 0 ]; then
+            python3 - <<'PYCODE'
+          import pathlib
+          text = pathlib.Path('build-log.txt').read_text()
+          for line in text.splitlines():
+              if line.startswith('e:') or 'What went wrong' in line or line.startswith('> ') or line.startswith('* '):
+                  print('::error::' + line.replace('%', '%25'))
+          PYCODE
+          fi
+          cat build-log.txt
+          exit "$result"
       - uses: actions/upload-artifact@v4
         with:
           name: GlassChat-debug-apk

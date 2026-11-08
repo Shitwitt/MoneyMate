@@ -73,7 +73,7 @@ fun ChatRow(
     val avatarAccent = summary.primaryContact?.accentColor?.let { Color(it) } ?: colors.accent
     val sharedAvatar = with(sharedTransitionScope) {
         Modifier.sharedElement(
-            sharedContentState = rememberSharedContentState(key = "chat-avatar-${summary.chat.id}"),
+            state = rememberSharedContentState(key = "chat-avatar-${summary.chat.id}"),
             animatedVisibilityScope = animatedVisibilityScope,
         )
     }

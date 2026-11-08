@@ -603,7 +603,7 @@ private fun ChatTopBar(
     }
     val avatarModifier = with(sharedTransitionScope) {
         Modifier.sharedElement(
-            sharedContentState = rememberSharedContentState(
+            state = rememberSharedContentState(
                 key = "chat-avatar-${state.chat?.id.orEmpty()}",
             ),
             animatedVisibilityScope = animatedVisibilityScope,

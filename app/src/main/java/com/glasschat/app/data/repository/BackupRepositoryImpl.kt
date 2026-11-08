@@ -84,7 +84,7 @@ class BackupRepositoryImpl @Inject constructor(
         val participants = participantDao.getAll()
         val messages = messageDao.getAll()
         val attachments = attachmentDao.getAll()
-        val reactions = reactionDao.getAll()
+        val reactions = reactionDao.observeAll().first()
         val settings = settingDao.observeAll().first()
         val preferences = settingsRepository.preferences.first()
 
@@ -359,7 +359,7 @@ class BackupRepositoryImpl @Inject constructor(
         if (parsed.settings.isNotEmpty()) {
             settingDao.putAll(parsed.settings.map { AppSettingEntity(it.key, it.value) })
         }
-        parsed.preferences?.let { settingsRepository.update { it.toDomain() } }
+        parsed.preferences?.let { restored -> settingsRepository.update { restored.toDomain() } }
 
         staging.deleteRecursively()
 

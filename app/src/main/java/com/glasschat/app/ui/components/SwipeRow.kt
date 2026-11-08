@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.outlined.Archive
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -119,7 +122,7 @@ fun GlassSwipeRow(
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .width(maxRight)
+                    .width(with(density) { maxRight.toDp() })
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(22.dp))
                     .background(colors.accent.copy(alpha = 0.22f))

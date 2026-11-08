@@ -95,10 +95,10 @@ class OnboardingViewModel @Inject constructor(
         )
         val now = System.currentTimeMillis()
         val script = listOf(
-            SenderType.CONTACT to "Morning! Did the new glass theme land?" to 46L,
-            SenderType.ME to "Just finished it. Every panel is frosted now." to 44L,
-            SenderType.CONTACT to "Send a screenshot when you can ✨" to 39L,
-            SenderType.ME to "Tonight. Coffee first ☕" to 12L,
+            Triple(SenderType.CONTACT, "Morning! Did the new glass theme land?", 46L),
+            Triple(SenderType.ME, "Just finished it. Every panel is frosted now.", 44L),
+            Triple(SenderType.CONTACT, "Send a screenshot when you can ✨", 39L),
+            Triple(SenderType.ME, "Tonight. Coffee first ☕", 12L),
         )
         script.forEach { (speaker, text, minutesAgo) ->
             messageRepository.sendMessage(
@@ -126,9 +126,9 @@ class OnboardingViewModel @Inject constructor(
             existingContactIds = listOf(maya, theo),
         )
         val groupScript = listOf(
-            SenderType.CONTACT to "Who has the print-ready files?" to 320L,
-            SenderType.ME to "Uploaded them to the shared folder." to 315L,
-            SenderType.CONTACT to "Perfect — reviewing after lunch." to 300L,
+            Triple(SenderType.CONTACT, "Who has the print-ready files?", 320L),
+            Triple(SenderType.ME, "Uploaded them to the shared folder.", 315L),
+            Triple(SenderType.CONTACT, "Perfect — reviewing after lunch.", 300L),
         )
         groupScript.forEach { (speaker, text, minutesAgo) ->
             messageRepository.sendMessage(

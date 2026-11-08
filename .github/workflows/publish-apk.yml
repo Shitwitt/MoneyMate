@@ -1,0 +1,27 @@
+name: Publish GlassChat APK download
+on:
+  workflow_dispatch:
+  push:
+    branches: [arena/71512f21-moneymate]
+    paths: [.github/workflows/publish-apk.yml]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: GlassChat-debug-apk
+          path: apk
+          github-token: ${{ github.token }}
+          repository: Shitwitt/MoneyMate
+          run-id: 42460525730
+      - name: Publish installable APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: Shitwitt/MoneyMate
+        run: |
+          cp apk/app-debug.apk GlassChat-debug.apk
+          gh release create glasschat-debug-1 --target e64a09d1a4f030a1454c41c9612f4ab06b7ea421 --prerelease --title 'GlassChat 1.0 — Android APK' --notes 'Install GlassChat-debug.apk on Android 8.0 or newer. Signed debug build; device testing has not been run.' GlassChat-debug.apk

@@ -1,6 +1,8 @@
 name: GlassChat APK
 on:
   workflow_dispatch:
+  push:
+    branches: [arena/71512f21-moneymate]
 permissions:
   contents: read
 jobs:

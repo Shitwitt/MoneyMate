@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <files-path
+        name="media"
+        path="media/" />
+    <files-path
+        name="avatars"
+        path="avatars/" />
+    <cache-path
+        name="capture"
+        path="capture/" />
+</paths>

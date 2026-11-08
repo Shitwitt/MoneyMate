@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    GlassChat stores everything on-device only and disables Android Auto Backup so that
+    chat content never silently leaves the device. Users move data explicitly with the
+    in-app encrypted-at-rest-optional ZIP export in Settings -> Data.
+-->
+<full-backup-content>
+    <exclude
+        domain="database"
+        path="." />
+    <exclude
+        domain="file"
+        path="." />
+    <exclude
+        domain="sharedpref"
+        path="." />
+</full-backup-content>

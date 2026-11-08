@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Rear bubble: frosted glass -->
+    <path
+        android:fillAlpha="0.30"
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M37,29 H59 A13,13 0 0 1 72,42 V53 A13,13 0 0 1 59,66 H40 L32,74 L33.5,66 H37 A13,13 0 0 1 24,53 V42 A13,13 0 0 1 37,29 Z" />
+    <path
+        android:fillAlpha="0.55"
+        android:strokeColor="#8CFFFFFF"
+        android:strokeWidth="1.6"
+        android:pathData="M37,29 H59 A13,13 0 0 1 72,42 V53 A13,13 0 0 1 59,66 H40 L32,74 L33.5,66 H37 A13,13 0 0 1 24,53 V42 A13,13 0 0 1 37,29 Z" />
+
+    <!-- typing dots in the rear bubble -->
+    <path
+        android:fillColor="#E6FFFFFF"
+        android:pathData="M36,47.5 m-2.6,0 a2.6,2.6 0 1,0 5.2,0 a2.6,2.6 0 1,0 -5.2,0 Z" />
+    <path
+        android:fillColor="#CCFFFFFF"
+        android:pathData="M45.5,47.5 m-2.6,0 a2.6,2.6 0 1,0 5.2,0 a2.6,2.6 0 1,0 -5.2,0 Z" />
+    <path
+        android:fillColor="#99FFFFFF"
+        android:pathData="M55,47.5 m-2.6,0 a2.6,2.6 0 1,0 5.2,0 a2.6,2.6 0 1,0 -5.2,0 Z" />
+
+    <!-- Front bubble: liquid gradient -->
+    <path android:pathData="M58,43 H72 A13,13 0 0 1 85,56 V67 A13,13 0 0 1 72,80 H61 L52,88 L53.5,80 H58 A13,13 0 0 1 45,67 V56 A13,13 0 0 1 58,43 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="85"
+                android:endY="80"
+                android:startX="45"
+                android:startY="43"
+                android:type="linear">
+                <item
+                    android:color="#FFB49BFF"
+                    android:offset="0" />
+                <item
+                    android:color="#FF8C7CFF"
+                    android:offset="0.5" />
+                <item
+                    android:color="#FF4FE3D5"
+                    android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Specular edge highlight (glass refraction cue) -->
+    <path
+        android:fillAlpha="0.0"
+        android:pathData="M58,46 H72 A10,10 0 0 1 82,56"
+        android:strokeColor="#B3FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeWidth="2.4" />
+</vector>

@@ -283,7 +283,7 @@ fun ChatMenuSheet(
             )
             GlassSettingRow(
                 title = "Starred messages",
-                subtitle = starredOnly ? "Showing starred only" : "Filter this conversation",
+                subtitle = if (starredOnly) "Showing starred only" else "Filter this conversation",
                 icon = Icons.Filled.Star,
                 onClick = onToggleStarredOnly,
             )

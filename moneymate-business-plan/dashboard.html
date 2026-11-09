@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoneyMate · Tailoring + Fabric Business Playbook — Jalandhar</title>
+<style>
+  :root{
+    --bg:#0e0d0c; --panel:#171513; --panel2:#1f1c19; --line:#2e2924;
+    --ink:#f3ece1; --muted:#a99c8a; --gold:#d4a94a; --gold2:#f0cf7a;
+    --green:#5fbf7f; --red:#e2645a; --blue:#6fa8dc;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Roboto,'Helvetica Neue',Arial,sans-serif;
+       margin:0;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px 90px}
+  header{padding:46px 0 26px;border-bottom:1px solid var(--line);margin-bottom:26px}
+  h1{font-family:Georgia,'Times New Roman',serif;font-size:clamp(28px,4.4vw,46px);margin:0 0 8px;letter-spacing:.3px;font-weight:600}
+  h1 em{color:var(--gold);font-style:normal}
+  .sub{color:var(--muted);font-size:15px;max-width:820px}
+  .season{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px}
+  .pill{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:7px 15px;font-size:13px;color:var(--muted)}
+  .pill b{color:var(--gold2)}
+  nav{position:sticky;top:0;z-index:20;background:rgba(14,13,12,.94);backdrop-filter:blur(8px);
+      border-bottom:1px solid var(--line);margin:0 -20px 30px;padding:0 20px;display:flex;gap:4px;overflow-x:auto}
+  nav button{background:none;border:0;color:var(--muted);padding:14px 15px;font-size:14px;cursor:pointer;
+             border-bottom:2px solid transparent;white-space:nowrap;font-family:inherit}
+  nav button:hover{color:var(--ink)}
+  nav button.on{color:var(--gold2);border-bottom-color:var(--gold)}
+  section{display:none;animation:fade .25s ease}
+  section.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  h2{font-family:Georgia,serif;font-size:27px;margin:8px 0 6px;font-weight:600}
+  h3{font-size:17px;margin:30px 0 10px;color:var(--gold2);letter-spacing:.2px}
+  p.lead{color:var(--muted);max-width:840px;margin:0 0 22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:18px}
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+  .g4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--gold2);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.6px}
+  tr:hover td{background:#1b1815}
+  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+  .stat{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .stat .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px}
+  .stat .v{font-size:26px;font-family:Georgia,serif;margin-top:5px;color:var(--gold2)}
+  .stat .d{font-size:12px;color:var(--muted);margin-top:4px}
+  .pos{color:var(--green)}.neg{color:var(--red)}
+  label{display:block;font-size:12.5px;color:var(--muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.5px}
+  input,select{width:100%;background:#100e0d;border:1px solid var(--line);color:var(--ink);border-radius:9px;
+               padding:10px 11px;font-size:15px;font-family:inherit}
+  input:focus,select:focus{outline:none;border-color:var(--gold)}
+  .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+  /* ladder */
+  .rung{display:flex;gap:16px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);
+        border-radius:12px;padding:16px 18px;margin-bottom:11px;align-items:flex-start;transition:.18s}
+  .rung:hover{border-left-color:var(--gold2);background:var(--panel2)}
+  .rung.done{opacity:.55;border-left-color:var(--green)}
+  .rung .num{font-family:Georgia,serif;font-size:26px;color:var(--gold);min-width:40px;line-height:1}
+  .rung.done .num{color:var(--green)}
+  .rung h4{margin:0 0 4px;font-size:16.5px}
+  .rung p{margin:0;font-size:13.5px;color:var(--muted)}
+  .rung .dw{margin-top:7px;font-size:12.5px;color:var(--gold2)}
+  .tick{margin-left:auto;background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;
+        padding:6px 12px;cursor:pointer;font-size:12px;font-family:inherit;white-space:nowrap}
+  .tick:hover{border-color:var(--gold);color:var(--gold2)}
+  .rung.done .tick{border-color:var(--green);color:var(--green)}
+  .prog{height:7px;background:#241f1b;border-radius:99px;overflow:hidden;margin:14px 0 22px}
+  .prog i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:0;transition:.4s}
+  /* checklist */
+  .chk{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #211d19;font-size:14px;cursor:pointer}
+  .chk:hover{color:var(--gold2)}
+  .chk input{width:19px;height:19px;flex:none;margin-top:2px;accent-color:var(--gold);cursor:pointer}
+  .chk.done span{text-decoration:line-through;color:var(--muted)}
+  .chk span{flex:1}
+  .note{border-left:3px solid var(--gold);background:#1b1714;padding:13px 16px;border-radius:0 10px 10px 0;
+        font-size:14px;color:#d9cdb9;margin:16px 0}
+  .warn{border-left-color:var(--red);background:#1e1514;color:#e8c9c4}
+  .ok{border-left-color:var(--green);background:#141b16;color:#c8e2cf}
+  code{background:#100e0d;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px;color:var(--gold2)}
+  .flow{background:#100e0d;border:1px solid var(--line);border-radius:10px;padding:16px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+        font-size:12.5px;color:#c9bda9;white-space:pre;overflow-x:auto}
+  .btn{background:var(--gold);color:#1a1409;border:0;border-radius:9px;padding:10px 18px;font-weight:600;
+       cursor:pointer;font-size:14px;font-family:inherit}
+  .btn.ghost{background:none;border:1px solid var(--line);color:var(--muted)}
+  .btn:hover{filter:brightness(1.1)}
+  footer{margin-top:50px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+  a{color:var(--gold2)}
+  .small{font-size:12.5px;color:var(--muted)}
+  @media(max-width:640px){.rung{flex-wrap:wrap}.tick{margin-left:56px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>The <em>Ladder</em> — Custom Tailoring + Fabric Trade</h1>
+  <div class="sub">A complete operating playbook for a made-to-measure tailoring business in
+    <b>Jalandhar, Punjab</b> that is adding a cloth-roll (suiting &amp; shirting) counter and growing into
+    wholesale. Built 9 November 2026. Tick things off — your progress is saved in this browser.</div>
+  <div class="season" id="season"></div>
+</header>
+
+<nav id="nav">
+  <button data-t="overview" class="on">Overview</button>
+  <button data-t="ladder">The 10 Rungs</button>
+  <button data-t="calc">Profit Calculators</button>
+  <button data-t="fabric">Start Selling Cloth</button>
+  <button data-t="pricing">Pricing &amp; Bundles</button>
+  <button data-t="plan">90-Day Plan</button>
+  <button data-t="where">Where &amp; Sourcing</button>
+  <button data-t="ops">Shop SOPs</button>
+  <button data-t="check">Checklists</button>
+  <button data-t="risk">Risks &amp; KPIs</button>
+</nav>
+
+<!-- ============================ OVERVIEW ============================ -->
+<section id="overview" class="on">
+  <h2>The whole strategy on one page</h2>
+  <p class="lead">You currently sell <b>labour</b>. The plan is to sell <b>cloth + fit</b>, then to sell the
+    cloth to everyone else who stitches.</p>
+
+  <div class="grid g4">
+    <div class="stat"><div class="k">Typical tailor shop profit</div><div class="v">₹12k<span class="small">/mo</span></div>
+      <div class="d">on ₹1.63 L revenue — 7% margin. The trap.</div></div>
+    <div class="stat"><div class="k">Premium made-to-measure studio</div><div class="v">₹0.73L<span class="small">/mo</span></div>
+      <div class="d">Same 3 tailors, <b>37% fewer</b> garments, 26% margin.</div></div>
+    <div class="stat"><div class="k">+ Fabric counter (32 m/day)</div><div class="v">₹0.80L<span class="small">/mo</span></div>
+      <div class="d">Extra ₹4.5 L revenue, 18% margin, no extra tailor.</div></div>
+    <div class="stat"><div class="k">+ Wholesale (45 buyers)</div><div class="v">₹1.84L<span class="small">/mo</span></div>
+      <div class="d">₹23 L revenue at 7.9% — volume &amp; credit game.</div></div>
+  </div>
+
+  <h3>Why this works — four structural advantages</h3>
+  <div class="grid g2">
+    <div class="card"><b>1 · You take margin twice.</b><br>
+      <span class="small">A cloth shop sells fabric at 35–45% and stops. A tailor sells stitching at 50% and stops.
+      You sell a ₹6,500 "cloth + stitch" package that earns <b>₹3,645 (56%)</b> — versus ₹1,800 for stitching only.
+      Same customer, same visit, same tailor hours.</span></div>
+    <div class="card"><b>2 · Fabric is inventory; labour isn't.</b><br>
+      <span class="small">Tailoring revenue stops when the shutter drops. Stocked fabric sells at 8 pm, sells on
+      Sunday, and can move in 500-metre wholesale lots without hiring a single extra tailor.</span></div>
+    <div class="card"><b>3 · You supply your own competitors.</b><br>
+      <span class="small">Every tailor in Doaba who buys cloth from you is a customer whose growth is your growth.
+      That is a distribution moat a readymade showroom can never build.</span></div>
+    <div class="card"><b>4 · Punjab is the right state.</b><br>
+      <span class="small">Ludhiana (50 km) makes ~95% of India's woollen knitwear. Punjab has ~1.46 lakh textile
+      units, 10+ lakh textile workers, ~14% of state manufacturing GVA from textiles, ~₹12,241 Cr of textile
+      exports, three dedicated textile policies, and an Industrial &amp; Business Development Policy 2026 offering
+      capital subsidy up to 20% of fixed investment.</span></div>
+  </div>
+
+  <h3>The three stages — always in this order</h3>
+  <table>
+    <thead><tr><th>Stage</th><th>What you run</th><th class="n">Capital</th><th class="n">Revenue/mo</th><th class="n">EBITDA</th></tr></thead>
+    <tbody>
+      <tr><td><b>A</b></td><td>Premium made-to-measure tailor studio</td><td class="n">₹4.7 L</td><td class="n">₹2.8–6 L</td><td class="n pos">26–49%</td></tr>
+      <tr><td><b>B</b></td><td>+ Fabric retail counter (cloth rolls by the metre)</td><td class="n">+₹9.7 L</td><td class="n">+₹3.5–7 L</td><td class="n pos">10–25%</td></tr>
+      <tr><td><b>C</b></td><td>+ Wholesale / distribution to tailors &amp; shops</td><td class="n">+₹22 L</td><td class="n">+₹23 L → ₹2 Cr</td><td class="n">8–14%</td></tr>
+    </tbody>
+  </table>
+  <div class="note warn"><b>The fatal move:</b> opening a big cloth shop <i>before</i> you have a reputation for fit.
+    Then you're just another fabric retailer competing on price with 200 shops in Sadar Bazar — and you'll discount
+    stitching to move dead cloth, which trains customers to expect discounts forever.
+    <b>Fit first → price second → cloth third → marketing fourth → scale fifth.</b></div>
+
+  <h3>The one-sentence version</h3>
+  <div class="note ok" style="font-size:17px;font-family:Georgia,serif">
+    Stop selling stitching. Start selling <b>"the best-fitting suit in Jalandhar, cloth included, in 10 days,
+    guaranteed"</b> — then sell the cloth that makes it to everyone else.
+  </div>
+
+  <h3>This week — 7 things (9–16 Nov 2026)</h3>
+  <div class="grid g2">
+    <div class="card">
+      <div class="chk"><input type="checkbox" data-k="w1"><span>Print the <b>3-tier price list</b>, laminate it, put it on the counter.</span></div>
+      <div class="chk"><input type="checkbox" data-k="w2"><span>Print <b>300 measurement cards</b> — start one for every person who walks in.</span></div>
+      <div class="chk"><input type="checkbox" data-k="w3"><span>Change your opening line to: <i>"Suit banauna hai? Cloth vi assi kol hi — 10 din, fitting guarantee."</i></span></div>
+      <div class="chk"><input type="checkbox" data-k="w4"><span>One day in <b>Ludhiana</b> — buy 2 swatch books only (₹3–8k), no stock.</span></div>
+    </div>
+    <div class="card">
+      <div class="chk"><input type="checkbox" data-k="w5"><span>Ask <b>10 old customers for a Google review</b> — phone in hand, at delivery.</span></div>
+      <div class="chk"><input type="checkbox" data-k="w6"><span>Call <b>3 wedding vendors</b> (makeup, tent house, photographer) — offer 10% referral.</span></div>
+      <div class="chk"><input type="checkbox" data-k="w7"><span>Open the <b>money book</b>: every rupee in/out + a salary line for yourself.</span></div>
+      <div class="chk"><input type="checkbox" data-k="w8"><span>Put up the board: <b>"Wedding season booking open"</b> + WhatsApp status.</span></div>
+    </div>
+  </div>
+  <p class="small">Everything else in this playbook is a consequence of those eight.</p>
+</section>
+
+<!-- ============================ LADDER ============================ -->
+<section id="ladder">
+  <h2>The 10 Rungs</h2>
+  <p class="lead">Each rung has a <b>"done when"</b> test. Do not climb until you pass it. Most tailoring
+    businesses fail by climbing out of order — buying cloth before they have a fit reputation, or hiring
+    tailors before they have a price list.</p>
+  <div class="prog"><i id="lprog"></i></div>
+  <p class="small" id="lcount"></p>
+  <div id="rungs"></div>
+
+  <h3>The leaders to study — copy the system, not the logo</h3>
+  <table>
+    <thead><tr><th>Leader</th><th>Copy this</th><th>Ignore this</th></tr></thead>
+    <tbody>
+      <tr><td><b>Raymond "Made to Measure"</b></td>
+        <td>The <b>store ritual</b>: fashion adviser → understand the need → fabric swatches → style options →
+            master tailor measures → try-on. And their push into tier-4/5 towns — proof premium tailoring works
+            outside metros.</td>
+        <td>The capital intensity. You need the ritual, not a flagship.</td></tr>
+      <tr><td><b>The Raymond Shop franchisees</b><br><span class="small">(e.g. Bengaluru: ₹50k start → ₹22 Cr turnover)</span></td>
+        <td><b>Distribution logic</b>: own a locality, expand square footage as revenue grows, add
+            made-to-measure on top of ready-to-wear.</td>
+        <td>Assuming a franchise beats building your own name long-term.</td></tr>
+      <tr><td><b>Peter England / Van Heusen / Linen Club (ABFRL)</b></td>
+        <td><b>Fabric-first retail</b> — the cloth wall as the hero; season-wise collection drops; in-store
+            tailoring inside their own showrooms.</td>
+        <td>Their advertising spends.</td></tr>
+      <tr><td><b>Ludhiana suiting &amp; shirting distributors</b><br><span class="small">(Raymond / Arvind / Vimal / Siyaram's stockists)</span></td>
+        <td>How a <b>rate book + sample book + a monthly van route</b> turns 200 small tailors into a
+            distribution network. Study their credit discipline.</td>
+        <td>Dependence on a single principal brand.</td></tr>
+      <tr><td><b>Manyavar / Fabindia</b></td>
+        <td><b>Occasion ownership.</b> Manyayar owns "the Indian wedding groom". You can own
+            "the Punjabi wedding suit + sherwani in Doaba". Occasion beats product.</td>
+        <td>Their national supply chain.</td></tr>
+      <tr><td><b>Ludhiana woollen/knitwear exporters</b></td>
+        <td>Converting a local cluster into export orders via AEPC, trade fairs (Bharat Tex, IIGF) and
+            buyer-seller meets.</td>
+        <td>Export compliance burden in year 1.</td></tr>
+      <tr><td><b>Online MTM (Tailorman, Bivolino, D2C brands)</b></td>
+        <td><b>Remote measurement capture</b> — mailed kits, video measurement. Exactly what the NRI channel needs.</td>
+        <td>Their economics without a physical fitting.</td></tr>
+      <tr><td><b>Your city's best tailor</b></td>
+        <td>Find the one shop in Jalandhar whose customers travel from Ludhiana and Amritsar. Buy a shirt there.
+            Study the greeting, the mirror, the trial room, the bill, the packaging, the follow-up call.
+            <b>Then match it and add fabric.</b></td>
+        <td>—</td></tr>
+    </tbody>
+  </table>
+  <div class="note">The three people worth paying for, in order: <b>(1)</b> a master cutter who has cut
+    <i>coats</i> for a wedding shop, not just shirts · <b>(2)</b> a fabric salesman who has sold suiting on a
+    wholesale route — he brings a buyer list · <b>(3)</b> a CA who actually knows textiles.</div>
+</section>
+
+<!-- ============================ CALCULATORS ============================ -->
+<section id="calc">
+  <h2>Profit Calculators</h2>
+  <p class="lead">Change any number and the answer updates. These mirror
+    <code>financial-model.md</code>. Everything is a planning assumption — replace it with your real numbers.</p>
+
+  <h3>1 · Tailoring studio</h3>
+  <div class="card">
+    <div class="row">
+      <div><label>Tailors</label><input id="t_tl" type="number" value="3" min="1" max="40"></div>
+      <div><label>Units / tailor / day</label><input id="t_up" type="number" value="1.5" step="0.1" min="0.2" max="8"></div>
+      <div><label>Working days / month</label><input id="t_dy" type="number" value="26" min="15" max="31"></div>
+      <div><label>Blended charge / unit ₹</label><input id="t_ch" type="number" value="2400" step="50"></div>
+    </div>
+    <div class="row">
+      <div><label>Tailor salary ₹/mo</label><input id="t_sal" type="number" value="18000" step="500"></div>
+      <div><label>Cutter + helper ₹/mo</label><input id="t_cut" type="number" value="35000" step="1000"></div>
+      <div><label>Rent ₹/mo</label><input id="t_rent" type="number" value="32000" step="1000"></div>
+      <div><label>Electricity + fixed ₹/mo</label><input id="t_fix" type="number" value="15500" step="500"></div>
+      <div><label>Consumables % of rev</label><input id="t_con" type="number" value="4" step="0.5"></div>
+      <div><label>Marketing % of rev</label><input id="t_mkt" type="number" value="5" step="0.5"></div>
+    </div>
+    <div class="grid g4" style="margin-top:20px" id="t_out"></div>
+    <div class="note" id="t_note"></div>
+  </div>
+
+  <h3>2 · Positioning scenarios — same machines, different business</h3>
+  <div class="card" style="overflow-x:auto">
+    <table id="scen"></table>
+    <p class="small">A2 is the typical Jalandhar tailor shop: the owner works 12 hours and takes home less than a
+      bank clerk. A3 earns 4–6× more from <i>fewer</i> garments. The jump from A2 to A3 is not a skill upgrade —
+      it is a <b>product, pricing and shop-front upgrade</b>.</p>
+  </div>
+
+  <h3>3 · Fabric counter</h3>
+  <div class="card">
+    <div class="row">
+      <div><label>Metres sold / day</label><input id="f_m" type="number" value="32" min="1" max="400"></div>
+      <div><label>Retail ₹ / metre</label><input id="f_p" type="number" value="530" step="10"></div>
+      <div><label>Gross margin %</label><input id="f_g" type="number" value="40" step="1"></div>
+      <div><label>Working days / month</label><input id="f_d" type="number" value="26"></div>
+      <div><label>Rent ₹/mo</label><input id="f_r" type="number" value="45000" step="1000"></div>
+      <div><label>Staff ₹/mo</label><input id="f_s" type="number" value="26000" step="1000"></div>
+      <div><label>Utilities + fixed ₹/mo</label><input id="f_f" type="number" value="15500" step="500"></div>
+      <div><label>Wastage % of revenue</label><input id="f_w" type="number" value="3" step="0.5"></div>
+    </div>
+    <div class="grid g4" style="margin-top:20px" id="f_out"></div>
+    <div class="note" id="f_note"></div>
+  </div>
+
+  <h3>4 · Wholesale / distribution</h3>
+  <div class="card">
+    <div class="row">
+      <div><label>Active trade buyers</label><input id="w_b" type="number" value="45" min="1"></div>
+      <div><label>Metres / buyer / month</label><input id="w_m" type="number" value="130" step="10"></div>
+      <div><label>Wholesale ₹ / metre</label><input id="w_p" type="number" value="400" step="10"></div>
+      <div><label>Gross margin %</label><input id="w_g" type="number" value="15.5" step="0.5"></div>
+      <div><label>Sales team (people)</label><input id="w_t" type="number" value="3" min="0"></div>
+      <div><label>Salary each ₹/mo</label><input id="w_s" type="number" value="16000" step="500"></div>
+      <div><label>Godown + transport ₹/mo</label><input id="w_f" type="number" value="40000" step="1000"></div>
+      <div><label>Credit cost % of revenue</label><input id="w_c" type="number" value="1.6" step="0.2"></div>
+    </div>
+    <div class="grid g4" style="margin-top:20px" id="w_out"></div>
+    <div class="note warn" id="w_note"></div>
+  </div>
+
+  <h3>5 · "Cloth + stitch" package vs stitching only</h3>
+  <div class="card">
+    <div class="row">
+      <div><label>Fabric landed ₹/m</label><input id="p_l" type="number" value="230" step="5"></div>
+      <div><label>Retail ₹/m</label><input id="p_r" type="number" value="399" step="5"></div>
+      <div><label>Suit length (m)</label><input id="p_m" type="number" value="3.5" step="0.1"></div>
+      <div><label>Lining + trims ₹</label><input id="p_t" type="number" value="350" step="25"></div>
+      <div><label>Stitching labour cost ₹</label><input id="p_c" type="number" value="1700" step="50"></div>
+      <div><label>Stitching-only charge ₹</label><input id="p_s" type="number" value="3500" step="100"></div>
+      <div><label>Package price ₹</label><input id="p_p" type="number" value="6500" step="100"></div>
+    </div>
+    <div class="grid g4" style="margin-top:20px" id="p_out"></div>
+    <div class="note ok" id="p_note"></div>
+  </div>
+</section>
+
+<!-- ============================ FABRIC ============================ -->
+<section id="fabric">
+  <h2>How to Start Selling Cloth (Suit Rolls)</h2>
+  <p class="lead">You don't sell cloth today. Here is the exact path from zero to a serious fabric business —
+    starting with <b>₹3,000 and no inventory</b>.</p>
+
+  <h3>Step 0 — the three ways to sell cloth</h3>
+  <table>
+    <thead><tr><th>Model</th><th class="n">Capital</th><th class="n">Margin</th><th>Risk</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td><b>1 · Swatch-book selling</b> (zero stock)</td><td class="n">₹3–15k</td><td class="n">20–30%</td>
+        <td>Almost none</td><td class="pos"><b>Start this week</b></td></tr>
+      <tr><td><b>2 · Retail counter</b> (rolls by the metre)</td><td class="n">₹4–10 L</td><td class="n">30–50%</td>
+        <td>Dead stock</td><td>Stage B — Jan/Feb 2027</td></tr>
+      <tr><td><b>3 · Wholesale / distribution</b></td><td class="n">₹20–60 L</td><td class="n">10–18%</td>
+        <td>Credit + volume</td><td>Stage C — year 2–3</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note ok"><b>The swatch-book loop (this is the whole trick):</b><br>
+    1. Buy 2–4 hanging sample books from Ludhiana (₹300–1,500 each; 40–120 designs each).<br>
+    2. Customer picks design X → you take <b>50–100% advance</b> → write a fabric order.<br>
+    3. Next morning you drive 50 km to Ludhiana and buy exactly 3.5 m + 10%.<br>
+    4. You stitch. Margin: ₹399 retail − ₹230 landed = <b>₹592 per suit length</b>, zero inventory, zero dead rolls.<br>
+    5. After 8–12 weeks you know exactly which 30 designs sell. <b>Then</b> you buy stock — of only those 30.<br>
+    That is how you build ₹5 L of stock without a single rupee of guesswork.</div>
+
+  <h3>Step 1 — learn the trade vocabulary</h3>
+  <div class="grid g2">
+    <div class="card"><table>
+      <tbody>
+        <tr><td><b>Than / roll</b></td><td>A full factory roll, usually 30–60 m. Per-than rates are 5–12% below per-metre.</td></tr>
+        <tr><td><b>Cut piece / lot</b></td><td>Mill overruns &amp; export rejects. Cheap, irregular, high margin — high risk. Don't touch until you can grade by feel.</td></tr>
+        <tr><td><b>Suit length</b></td><td>3.2–3.8 m packed with lining. Sell it as a unit — it removes the customer's maths.</td></tr>
+        <tr><td><b>GSM</b></td><td>Weight. Shirting 100–140 · suiting 220–280 · winter suiting 280–340+.</td></tr>
+        <tr><td><b>Width</b></td><td>58–60" is standard. A 44" roll needs ~0.5 m more per suit — ₹200 loss per order if you quoted 58" maths.</td></tr>
+        <tr><td><b>PV / TR</b></td><td>Poly-viscose (the Indian workhorse) / terry rayon (cheaper, softer, less durable).</td></tr>
+        <tr><td><b>High-twist · 4-way stretch</b></td><td>Crease-resistant matte formal; stretch suiting is trending fast (₹350–700/m wholesale).</td></tr>
+      </tbody></table></div>
+    <div class="card"><table>
+      <tbody>
+        <tr><td><b>Selvedge</b></td><td>The woven edge. Branded fabric prints the brand along it — your proof of authenticity.</td></tr>
+        <tr><td><b>Shrinkage</b></td><td>Cotton 3–8%, PV 1–2%. Add it to every cut.</td></tr>
+        <tr><td><b>Bemberg / cupro</b></td><td>Premium lining. A ₹200 upgrade carrying ₹600 of perceived value.</td></tr>
+        <tr><td><b>Canvas</b></td><td>The chest piece. <b>Full canvas</b> = hand-stitched horsehair. <b>Half</b> = fused top + canvas chest. <b>Fused</b> = glue, bubbles in 3 years. The biggest quality story you can tell a customer.</td></tr>
+        <tr><td><b>MOQ</b></td><td>Minimum order — usually one than (30–60 m), 100 m at mills.</td></tr>
+        <tr><td><b>HSN</b></td><td>5208/5210 cotton woven · 5407 synthetic filament · 5515 other synthetic · 5111/5112 woollen worsted.</td></tr>
+        <tr><td><b>SAC 9988</b></td><td>Tailoring / job work — <b>5% GST</b>.</td></tr>
+      </tbody></table></div>
+  </div>
+
+  <h3>Step 2 — your opening assortment (8 categories, ~1,290 m)</h3>
+  <div class="card" style="overflow-x:auto"><table id="stock"></table></div>
+  <div class="note"><b>The colour rule:</b> 30% of stock value must sit in seven shades — navy, charcoal, black,
+    mid-grey, beige/khaki, olive, brown. Fashion colours max 10%, cleared within one season.
+    <b>Depth over breadth:</b> 30 proven designs × 40 m beats 100 guesses × 12 m.</div>
+
+  <h3>Step 3 — the 8 quality tests before you pay</h3>
+  <table>
+    <thead><tr><th>#</th><th>Test</th><th>How</th><th>What it catches</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Selvedge check</td><td>Read the print along the woven edge</td><td>Fake "Raymond-type" cloth</td></tr>
+      <tr><td>2</td><td>Crush test</td><td>Squeeze a handful 10 sec, release</td><td>PV springs back creased; cotton stays creased; wool recovers smoothly</td></tr>
+      <tr><td>3</td><td><b>Burn test</b></td><td>Burn one thread (with permission)</td><td>Cotton → grey ash, paper smell. Polyester → hard bead, chemical. Wool → self-extinguishes, burnt hair, crumbly ash</td></tr>
+      <tr><td>4</td><td>GSM</td><td>Weigh 10×10 cm × 100 on a ₹600 digital scale</td><td>Paying 280 GSM money for 220 GSM cloth</td></tr>
+      <tr><td>5</td><td>Shade continuity</td><td>Unroll 3–5 m, compare in <b>daylight</b></td><td>Shade variation — the #1 cause of a ruined suit</td></tr>
+      <tr><td>6</td><td>Width</td><td>Tape measure, not the label</td><td>Under-estimated fabric per garment</td></tr>
+      <tr><td>7</td><td>Defect scan</td><td>Run across a table under bright light</td><td>Slubs, holes, oil, uneven dye, skew</td></tr>
+      <tr><td>8</td><td>Shrinkage</td><td>Ask for the %, or steam a swatch and re-measure</td><td>How much extra to cut</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Step 4 — the 10-step fabric sale</h3>
+  <div class="flow">1  Greet within 10 seconds. "Ki banauna hai ji — suit, shirt ya kurta?"
+2  Ask the OCCASION and the DATE. (The date tells you if you can even take the order.)
+3  Ask the BUDGET out loud, comfortably. "₹2,000 tak ya ₹5,000 tak cloth?"
+4  Pull 3 ROLLS — not 30. Unroll 1 m of each. Drape it over their forearm.
+5  Move to the MIRROR. Hold it against their face. Say what you see.
+6  EDUCATE ONCE — composition, GSM, brand, why it costs more. 30 seconds. Then stop.
+7  Quote the SUIT-LENGTH PACK price first, then per metre. Anchoring.
+8  ATTACH — lining, pocketing, buttons, zip, interlining, thread. (55–70% margin.)
+9  ATTACH STITCHING — "Assi hi sil ke de dinde haan. 10 din. Aaj hi naap ho javega."
+10 BILL it, pack it, take the phone number, add to the database, ask for the review.</div>
+  <p class="small">Targets: 55% of walk-ins buy fabric · <b>35% of fabric buyers also book stitching</b> ·
+    average bill ₹1,800 (fabric only) → ₹5,500 (with stitching).</p>
+
+  <h3>Step 5 — shop fit-out (₹3.7–7.5 L)</h3>
+  <div class="grid g3" id="fitout"></div>
+
+  <div class="note warn"><b>How beginners lose money in fabric</b> — dead stock (buying 100 designs), wrong season
+    (wool in March), shade variation, under-measuring every day forever, <b>unrecorded cutting by your own
+    tailors</b>, discount wars with Sadar Bazar, credit to retail walk-ins, no GST invoice (losing 5% ITC),
+    no fire insurance, and buying what <i>you</i> like instead of what sells.</div>
+</section>
+
+<!-- ============================ PRICING ============================ -->
+<section id="pricing">
+  <h2>Pricing, Bundles and the Price Ladder</h2>
+  <p class="lead">Benchmarks are Jalandhar / tier-2 planning numbers for 2026-27. Walk into 5 competing shops with
+    a notebook before you print your card.</p>
+
+  <h3>The three tiers (men)</h3>
+  <table>
+    <thead><tr><th>Tier</th><th>What it includes</th><th>Shirt</th><th>2-piece suit</th><th>Sherwani</th><th>Who buys</th></tr></thead>
+    <tbody>
+      <tr><td><b>Essential</b></td><td>Stitching only, customer's fabric, 1 fitting, standard finish</td>
+        <td>₹500–700</td><td>₹2,500–3,500</td><td>₹4,500–8,000</td><td>Daily customers, alterations, referrals</td></tr>
+      <tr><td><b>Signature</b></td><td>+ premium trims, real horn buttons, Bemberg lining, <b>2 fittings</b>,
+        garment bag, 3-month free alteration</td>
+        <td>₹1,000–1,500</td><td>₹5,000–7,500</td><td>₹10,000–18,000</td><td>Grooms' families, professionals, officers</td></tr>
+      <tr><td><b>Bespoke</b></td><td><b>Your fabric</b>, hand-finished details, <b>3 fittings</b>, home/hotel
+        measurement, wooden box, 1-year alteration</td>
+        <td>₹2,000+</td><td>₹12,000–35,000</td><td>₹25,000–1,50,000</td><td>Grooms, NRIs, business families, politicians</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Full rate card (print this, then adjust ±15%)</h3>
+  <div class="grid g2">
+    <div class="card"><b>Men — stitching only</b><table>
+      <tbody>
+        <tr><td>Shirt (half sleeve)</td><td class="n">₹450 · 4 d</td></tr>
+        <tr><td>Shirt (full sleeve)</td><td class="n">₹600 · 4 d</td></tr>
+        <tr><td>Trouser</td><td class="n">₹700 · 5 d</td></tr>
+        <tr><td>Kurta</td><td class="n">₹600 · 4 d</td></tr>
+        <tr><td>Kurta + pyjama</td><td class="n">₹1,100 · 6 d</td></tr>
+        <tr><td>Pathani suit</td><td class="n">₹1,500 · 7 d</td></tr>
+        <tr><td>Waistcoat / Nehru jacket</td><td class="n">₹900 · 6 d</td></tr>
+        <tr><td>Blazer (unlined)</td><td class="n">₹2,200 · 10 d</td></tr>
+        <tr><td>2-piece suit (half canvas)</td><td class="n">₹3,500 · 12 d</td></tr>
+        <tr><td>3-piece suit</td><td class="n">₹4,800 · 15 d</td></tr>
+        <tr><td>Sherwani (simple → coordinated)</td><td class="n">₹4,500–15,000</td></tr>
+        <tr><td>Alteration</td><td class="n">₹200–500 · 2 d</td></tr>
+        <tr><td><b>Rush (under 6 days)</b></td><td class="n pos"><b>+40%</b></td></tr>
+      </tbody></table></div>
+    <div class="card"><b>Ladies — stitching only</b><table>
+      <tbody>
+        <tr><td>Blouse (simple)</td><td class="n">₹350</td></tr>
+        <tr><td>Blouse (designer / padded)</td><td class="n">₹700–1,500</td></tr>
+        <tr><td>Kurta</td><td class="n">₹500</td></tr>
+        <tr><td>Kurta + salwar + dupatta set</td><td class="n">₹1,100</td></tr>
+        <tr><td>Anarkali</td><td class="n">₹1,800–4,500</td></tr>
+        <tr><td>Lehenga</td><td class="n">₹1,800–6,000</td></tr>
+        <tr><td>Sharara / Gharara</td><td class="n">₹2,000–5,000</td></tr>
+        <tr><td>Gown</td><td class="n">₹2,500–7,000</td></tr>
+        <tr><td>Alteration</td><td class="n">₹200–600</td></tr>
+      </tbody></table>
+      <p class="small">Signature add-on: blouse +₹400 · kurta set +₹700 · lehenga +₹2,500.</p></div>
+  </div>
+
+  <h3>The bundles — where the real money is</h3>
+  <table>
+    <thead><tr><th>Bundle</th><th>Contents</th><th class="n">Price</th><th>Why it wins</th></tr></thead>
+    <tbody>
+      <tr><td><b>Groom Package</b></td><td>Sherwani + 2 kurta-pyjama + 1 suit + turban coordination, 3 fittings, home measurement</td><td class="n">₹35,000–1,50,000</td><td>One decision, one bill, one relationship</td></tr>
+      <tr><td><b>Groomsmen Package</b></td><td>6–10 matching kurta-pyjama or Nehru jackets, one colour story, all measured in one visit</td><td class="n">₹18,000–70,000</td><td>Highest margin per hour you'll ever earn</td></tr>
+      <tr><td><b>Family Wedding Package</b></td><td>Groom + father + 2 grandfathers + 4 brothers + 6 groomsmen</td><td class="n">₹80,000–4,00,000</td><td>Turns one wedding into 13 orders</td></tr>
+      <tr><td><b>Businessman's Year</b></td><td>2 suits + 4 shirts + 2 trousers + 1 blazer, measured once, delivered quarterly</td><td class="n">₹45,000–90,000</td><td>Locks a customer in for 12 months</td></tr>
+      <tr><td><b>Cloth + Stitch Combo</b></td><td>3.5 m from your roll + lining + buttons + full stitching</td><td class="n">₹5,900–8,700</td><td>The fabric business paying for itself</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Suit-length conversions — know these cold</h3>
+  <div class="grid g2">
+    <div class="card"><table><tbody>
+      <tr><td>Shirt (full sleeve)</td><td class="n">1.3–1.5 m</td></tr>
+      <tr><td>Trouser</td><td class="n">1.3–1.5 m</td></tr>
+      <tr><td>Kurta</td><td class="n">1.5–1.8 m</td></tr>
+      <tr><td>Kurta + pyjama</td><td class="n">2.6–3.0 m</td></tr>
+      <tr><td>Blazer (unlined)</td><td class="n">1.8–2.2 m</td></tr>
+      <tr><td><b>2-piece suit</b></td><td class="n pos"><b>3.3–3.8 m</b> (sell 3.5)</td></tr>
+    </tbody></table></div>
+    <div class="card"><table><tbody>
+      <tr><td>3-piece suit</td><td class="n">4.2–4.8 m</td></tr>
+      <tr><td>Sherwani</td><td class="n">3.5–4.5 m</td></tr>
+      <tr><td>Nehru jacket</td><td class="n">1.2–1.5 m</td></tr>
+      <tr><td>Ladies kurta set</td><td class="n">2.5–3.0 m (+2.5 m dupatta)</td></tr>
+      <tr><td>Lehenga (8–12 kalidar)</td><td class="n">6–12 m + 4–6 m can-can</td></tr>
+      <tr><td>Lining for a 2-piece suit</td><td class="n">1.5–2.0 m Bemberg</td></tr>
+    </tbody></table></div>
+  </div>
+
+  <h3>Fabric price ladder</h3>
+  <div class="card" style="overflow-x:auto"><table id="ladder"></table></div>
+
+  <h3>Three pricing rules that never break</h3>
+  <div class="grid g3">
+    <div class="card"><b>1 · Never discount Signature/Bespoke.</b><br><span class="small">Discount the <i>scope</i>
+      instead — move them to Essential. Protects your price integrity forever.</span></div>
+    <div class="card"><b>2 · Raise prices every October, by 10–12%.</b><br><span class="small">Announce it by
+      WhatsApp with a "old rates till 31 Oct" deadline. A price rise becomes a booking surge.</span></div>
+    <div class="card"><b>3 · Rush fee 30–50%, always.</b><br><span class="small">Wedding-season urgency is the
+      highest-margin money you'll earn. Not charging it means subsidising bad planning.</span></div>
+  </div>
+
+  <h3>GST on what you sell (from 22 Sep 2025)</h3>
+  <table>
+    <thead><tr><th>Supply</th><th class="n">Rate</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td>Tailoring / stitching on customer's fabric (SAC 9988)</td><td class="n pos">5%</td><td>Reduced from 18% under GST 2.0</td></tr>
+      <tr><td>Textile job work (embroidery, weaving, knitting)</td><td class="n pos">5%</td><td>Reduced from 18%</td></tr>
+      <tr><td>Fabric (HSN 5208/5210/5407/5515/5111/5112)</td><td class="n pos">5%</td><td></td></tr>
+      <tr><td>Garment / made-up up to ₹2,500 <b>per piece</b></td><td class="n pos">5%</td><td>Old ₹1,000 slab raised to ₹2,500</td></tr>
+      <tr><td>Garment / made-up above ₹2,500 <b>per piece</b></td><td class="n">18%</td><td>Raised from 12%. Per piece, not per bill</td></tr>
+      <tr><td>Fashion-design + tailoring bundled as a design service</td><td class="n">18%</td><td>If you sell "design" not "stitching" — ask your CA</td></tr>
+      <tr><td>Registration threshold (Punjab)</td><td class="n">₹40 L goods / ₹20 L services</td><td>Register voluntarily earlier — B2B needs a GST invoice</td></tr>
+      <tr><td>Composition scheme</td><td class="n">₹1.5 Cr goods / ₹50 L services</td><td>Blocks ITC and B2B — wrong for you once you wholesale</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><b>ITC is free money:</b> you pay 5% buying fabric in Ludhiana and collect 5% selling it.
+    With GST invoices on both sides you pay tax <b>only on your margin</b>. That 5% is 25–30% of your gross
+    margin. Being registered from day one pays for itself.</div>
+</section>
+
+<!-- ============================ PLAN ============================ -->
+<section id="plan">
+  <h2>The Dated Plan</h2>
+  <p class="lead">Starting Monday 9 November 2026. The season opens in 11 days and shuts on 16 December — then
+    you get a quiet four-month window to build.</p>
+
+  <h3>The calendar you're working against</h3>
+  <table>
+    <thead><tr><th>Date</th><th>Event</th><th>What it means</th></tr></thead>
+    <tbody>
+      <tr><td>8 Nov 2026</td><td>Diwali</td><td>Festive buying already happened</td></tr>
+      <tr><td><b>20 Nov 2026</b></td><td><b>Dev Uthani Ekadashi — season opens</b></td><td>Orders start</td></tr>
+      <tr><td>24 Nov 2026</td><td>Gurpurab</td><td>Big Punjabi festive buying</td></tr>
+      <tr><td>~21–26 Nov &amp; 2–12 Dec</td><td><b>Peak wedding muhurats</b></td><td>Your best 25 days of the year</td></tr>
+      <tr><td>16 Dec 2026</td><td>Kharmas begins</td><td>Season shuts</td></tr>
+      <tr><td>16 Dec – 14 Jan</td><td>No muhurats</td><td><b>Build the fabric business now</b></td></tr>
+      <tr><td>15 Jan – mid Mar 2027</td><td>Winter peak resumes</td><td>Second harvest</td></tr>
+      <tr><td>11 Feb 2027</td><td>Vasant Panchami (abujha muhurat)</td><td><b>Best date for your shop opening</b></td></tr>
+      <tr><td>13 Apr 2027</td><td>Baisakhi</td><td>Biggest Punjabi buying day after Diwali</td></tr>
+      <tr><td>8 May 2027</td><td>Akshaya Tritiya</td><td>Summer wedding peak</td></tr>
+      <tr><td>Sep–Oct 2027</td><td>Diwali stocking</td><td>The largest fabric-buying month of the year</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Phase 1 · This week (9–16 Nov) — capture the season that's already here</h3>
+  <div class="card">
+    <div class="chk"><input type="checkbox" data-k="p1a"><span>Write the 3-tier price list; print 50 copies <span class="small">(₹300)</span></span></div>
+    <div class="chk"><input type="checkbox" data-k="p1b"><span>Print 300 measurement cards <span class="small">(₹900)</span></span></div>
+    <div class="chk"><input type="checkbox" data-k="p1c"><span>Board outside: <b>"Wedding season booking open — suit in 10 days, fitting guarantee, cloth vi available"</b> <span class="small">(₹1,200)</span></span></div>
+    <div class="chk"><input type="checkbox" data-k="p1d"><span>Announce the <b>40% rush fee</b> for delivery inside 6 days</span></div>
+    <div class="chk"><input type="checkbox" data-k="p1e"><span>WhatsApp every customer from the last 2 years: "season open, book your slot"</span></div>
+    <div class="chk"><input type="checkbox" data-k="p1f"><span>Ask 15 happy customers for a Google review (send the direct link)</span></div>
+    <div class="chk"><input type="checkbox" data-k="p1g"><span>Claim Google Business Profile; 15 photos; categories "Tailor" + "Fabric store"</span></div>
+    <div class="chk"><input type="checkbox" data-k="p1h"><span>Instagram: 3 reels of your best work this week</span></div>
+    <div class="chk"><input type="checkbox" data-k="p1i"><span>Ludhiana day trip — buy <b>2 swatch books only</b> <span class="small">(₹3–8k)</span></span></div>
+    <div class="chk"><input type="checkbox" data-k="p1j"><span><b>50% advance on every wedding order</b> — no exceptions, printed on the bill</span></div>
+    <div class="chk"><input type="checkbox" data-k="p1k"><span>Start the daily money book (in / out / your salary)</span></div>
+    <div class="chk"><input type="checkbox" data-k="p1l"><span>Delivery calendar on the wall for Nov–Dec</span></div>
+  </div>
+
+  <h3>Phase 2 · Weeks 2–6 (17 Nov – 20 Dec) — execute the peak</h3>
+  <div class="card">
+    <div class="chk"><input type="checkbox" data-k="p2a"><span><b>Say no</b> to dates you can't hit. A refused order costs ₹5,000; a late order costs the customer forever.</span></div>
+    <div class="chk"><input type="checkbox" data-k="p2b"><span>Two shifts: 8am–2pm and 3pm–9pm, overtime at 1.5×</span></div>
+    <div class="chk"><input type="checkbox" data-k="p2c"><span>Hire 1–2 temporary karigar on piece rate (Ludhiana / Hoshiarpur / ex-apprentices)</span></div>
+    <div class="chk"><input type="checkbox" data-k="p2d"><span>Job card on every garment. No card, no stitching.</span></div>
+    <div class="chk"><input type="checkbox" data-k="p2e"><span>Book first-fitting appointments <b>at order time</b>, not "call later"</span></div>
+    <div class="chk"><input type="checkbox" data-k="p2f"><span>Photograph every delivered garment on the customer (with permission)</span></div>
+    <div class="chk"><input type="checkbox" data-k="p2g"><span>Collect the review at delivery, phone in hand</span></div>
+    <div class="chk"><input type="checkbox" data-k="p2h"><span>Push the fabric attach on every order — track the attach rate, target 30%</span></div>
+    <div class="chk"><input type="checkbox" data-k="p2i"><span>Every Sunday: count cash, update the book, review the rework board</span></div>
+  </div>
+
+  <h3>Phase 3 · The build window (21 Dec – 31 Mar)</h3>
+  <div class="grid g2">
+    <div class="card"><b>December — decide</b>
+      <div class="chk"><input type="checkbox" data-k="p3a"><span>Post-mortem: every order, price, cost, rework, delay → real profit</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3b"><span>Segment the customer database: grooms / repeat / one-time / NRI / trade</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3c"><span><b>Ludhiana 2-day sourcing trip</b> — 15 suppliers, rate lists, GSTINs, MOQs, credit terms</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3d"><span><b>Delhi 2-day trip</b> — Gandhi Nagar, Chandni Chowk/Katra Neel, Sadar Bazar; benchmark Ludhiana rates</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3e"><span>Decide the shop: location, size, rent, advance (use the scorecard)</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3f"><span>Register: Udyam (free) · GST · trade licence · current account</span></div>
+    </div>
+    <div class="card"><b>January — build</b>
+      <div class="chk"><input type="checkbox" data-k="p3g"><span>Sign the shop: 3-yr lock-in with a 1-yr exit, advance ≤ 3 months</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3h"><span>Fit-out: roll racks, glass counter, 2 trial rooms, lighting, signage</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3i"><span>Equipment: measuring machine, cutting table, steam press, barcode + billing PC</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3j"><span><b>Order opening stock ~1,290 m across 8 categories</b></span></div>
+      <div class="chk"><input type="checkbox" data-k="p3k"><span>Fabric code every roll; open the stock register</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3l"><span>Hire 1 fabric salesman + 1 cutting helper</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3m"><span>Print the rate board + "cloth + stitch" bundle cards</span></div>
+    </div>
+    <div class="card"><b>February — launch</b>
+      <div class="chk"><input type="checkbox" data-k="p3n"><span>Soft launch to your database: "10% off for old customers till 28 Feb"</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3o"><span><b>Grand opening 11 Feb 2027 (Vasant Panchami)</b> — invite all 10 vendor partners</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3p"><span>Instagram fabric content: "how to spot good suiting", "5 navy suits every man needs"</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3q"><span>Start the trade list: 50 tailors/boutiques within 20 km, swatch bag + wholesale rate card</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3r"><span><b>Write the credit policy before the first credit sale</b></span></div>
+    </div>
+    <div class="card"><b>March — tune</b>
+      <div class="chk"><input type="checkbox" data-k="p3s"><span>Stock review: liquidate dead rolls at cost. Dead stock is a liar.</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3t"><span>Order summer: linen, cotton suiting, light shirting, chikankari base</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3u"><span>Build the school-uniform pitch; book April appointments</span></div>
+      <div class="chk"><input type="checkbox" data-k="p3v"><span>First quarterly P&amp;L vs the financial model. Fix the biggest gap.</span></div>
+    </div>
+  </div>
+
+  <h3>The 36-month roadmap</h3>
+  <table>
+    <thead><tr><th>Month</th><th>Milestone</th><th class="n">Revenue run-rate</th><th class="n">Team</th></tr></thead>
+    <tbody>
+      <tr><td>0–3</td><td>Studio repositioned, price ladder, measurement DB, swatch-book fabric sales</td><td class="n">₹2–3 L</td><td class="n">3–4</td></tr>
+      <tr><td>4–6</td><td>Fabric counter live, 1,290 m stock, GST + Udyam + current account</td><td class="n">₹5–8 L</td><td class="n">6</td></tr>
+      <tr><td>7–12</td><td>First uniform contract, 40 trade buyers, 200 Google reviews</td><td class="n">₹10–16 L</td><td class="n">9</td></tr>
+      <tr><td>13–18</td><td>Godown + van route + 2 field sales boys, 60 trade buyers, bank CC limit sanctioned</td><td class="n">₹20–30 L</td><td class="n">14</td></tr>
+      <tr><td>19–24</td><td>Own-brand fabric launched, 4 routes, NRI program, trademark filed</td><td class="n">₹35–50 L</td><td class="n">20</td></tr>
+      <tr><td>25–30</td><td>Satellite studio (Kapurthala/Hoshiarpur), D2C site, 100+ trade buyers</td><td class="n">₹50–80 L</td><td class="n">28</td></tr>
+      <tr><td>31–36</td><td>Evaluate manufacturing unit + first export orders via AEPC</td><td class="n">₹80 L–1.5 Cr</td><td class="n">40+</td></tr>
+    </tbody>
+  </table>
+  <div class="note">At every milestone, <b>blended gross margin must not fall below 30%</b> and
+    <b>receivables must not exceed 45 days</b>. Growth that breaks either rule isn't growth — it's a slow
+    bankruptcy with good headlines.</div>
+
+  <h3>If you only have ₹50,000</h3>
+  <table>
+    <tbody>
+      <tr><td>2 suiting <b>swatch books</b> from Ludhiana (60–120 designs you can sell instantly)</td><td class="n">₹3,000</td></tr>
+      <tr><td>30 m of the 6 fastest shades (navy, black, charcoal, grey, beige, olive) as display stock</td><td class="n">₹5,000</td></tr>
+      <tr><td>Rate board + bundle cards + measurement cards printed</td><td class="n">₹2,000</td></tr>
+      <tr><td>Shop paint, lighting, a mirror, a trial curtain, a sofa cover — <b>perception</b></td><td class="n">₹15,000</td></tr>
+      <tr><td>Instagram/Google push + 500 WhatsApp messages to old customers</td><td class="n">₹10,000</td></tr>
+      <tr><td>Cash held to buy fabric <b>after</b> a customer pays an advance</td><td class="n">₹15,000</td></tr>
+      <tr><td><b>Total — a complete Rung 1–4 start with zero inventory risk</b></td><td class="n pos"><b>₹50,000</b></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================ WHERE ============================ -->
+<section id="where">
+  <h2>Where — Location, Sourcing and Expansion</h2>
+
+  <h3>Your market</h3>
+  <div class="grid g4">
+    <div class="stat"><div class="k">Jalandhar city</div><div class="v">~11–12 L</div><div class="d">8.7 L in Census 2011; 3rd largest in Punjab, largest in Doaba</div></div>
+    <div class="stat"><div class="k">District catchment</div><div class="v">~27 L</div><div class="d">21.9 L in 2011 — this is your real market</div></div>
+    <div class="stat"><div class="k">Language</div><div class="v">81.5%</div><div class="d">Punjabi first (15.6% Hindi). Sell in Punjabi. Always.</div></div>
+    <div class="stat"><div class="k">To Ludhiana</div><div class="v">50 km</div><div class="d">1 hour on NH-1. Delhi 350 km, Amritsar 110 km, Chandigarh 150 km</div></div>
+  </div>
+
+  <h3>Two businesses need two different locations</h3>
+  <table>
+    <thead><tr><th></th><th>Tailoring studio</th><th>Fabric retail counter</th><th>Wholesale godown</th></tr></thead>
+    <tbody>
+      <tr><td><b>Needs</b></td><td>Trust, quiet, parking, appointment-based</td><td><b>Visibility, footfall, frontage, display width</b></td><td>Cheap space, truck access, no frontage</td></tr>
+      <tr><td><b>Can hide in a lane?</b></td><td class="pos">Yes — 1st floor works</td><td class="neg">No</td><td>No need</td></tr>
+      <tr><td><b>Best fit</b></td><td>Model Town, Urban Estate, Civil Lines</td><td>A visible main road with a wide board</td><td>Basti Sheikh, Nakodar Road, Focal Point side, outskirts</td></tr>
+    </tbody>
+  </table>
+
+  <div class="grid g2">
+    <div class="card"><b>Premium / high-ticket retail</b>
+      <ul class="small">
+        <li><b>Model Town (Market / Main Market)</b> — the established premium belt. Highest rent, highest ticket.</li>
+        <li><b>Urban Estate Ph I/II, Sarabha Nagar</b> — residential-premium, parking, loyal repeat business.</li>
+        <li><b>Civil Lines / Kutchery Road</b> — officers, lawyers, doctors, banks. Ideal for formal suiting &amp; corporate uniforms.</li>
+        <li><b>Green Park, Colonel Avenue</b> — mixed premium.</li>
+      </ul></div>
+    <div class="card"><b>High-footfall traditional markets</b>
+      <ul class="small">
+        <li><b>Sadar Bazar</b> — enormous footfall, heavy competition, terrible parking. Good for volume fabric, bad for a bespoke studio.</li>
+        <li><b>Jyoti Chowk</b> — noted fabric hub (silk, cotton, synthetics).</li>
+        <li><b>Guru Nanak Dev Market, Mitha Bazar, Mai Hiran Gate, Katra Bazar</b> — old-city cloth &amp; general trade.</li>
+        <li><b>Nehru Garden Market, Bus Stand Road</b> — transit footfall, value buying.</li>
+        <li><b>Rama Mandi, Garha Road, Patel Nagar</b> — dense residential; great for a neighbourhood fabric+tailoring combo at low rent.</li>
+      </ul></div>
+    <div class="card"><b>Growth corridors (cheaper now, better in 3 years)</b>
+      <ul class="small">
+        <li><b>Nakodar Road, Lohian Khas Road, Kartarpur Road, Hoshiarpur Road, GT Road (Phagwara side)</b> —
+          main-road frontage at 40–60% of Model Town rent, <b>with car parking</b>.</li>
+        <li>This is where a <b>fabric showroom + godown combo</b> makes the most sense.</li>
+        <li><b>Near LPU, Phagwara (~30 km)</b> — a student city: blazers, event wear, kurta sets, cheap-formal.</li>
+      </ul></div>
+    <div class="card"><b>Avoid</b>
+      <ul class="small">
+        <li>❌ Deep inside a lane with no board visibility — fabric is a visual purchase.</li>
+        <li>❌ Purely residential lanes with no through traffic.</li>
+        <li>❌ Rent above 5% of realistic monthly revenue.</li>
+        <li>❌ No parking within 50 m — groom's families and fabric buyers arrive by car.</li>
+        <li>✅ Next to a dominant 40-year-old cloth shop is <i>fine</i> — your offer is different:
+          <b>cloth + fit + guarantee</b>, which they cannot copy.</li>
+      </ul></div>
+  </div>
+
+  <h3>Location scorecard — max 120, don't sign below 72</h3>
+  <div class="card" style="overflow-x:auto"><table id="loc"></table></div>
+  <div class="note">Before signing: stand outside for 30 minutes at 11 am, 6 pm and on a Sunday, and <b>count</b>
+    the people who stop to look at the board. Visit the 3 nearest competitors as a customer. Ask 5 neighbouring
+    shopkeepers "ehthe kinni vikri hundi hai?" and "picchli dukaan kyun band hoi?". Verify MC trade-licence and
+    signage permission, and that the landlord actually owns the property.</div>
+
+  <h3>Sourcing map</h3>
+  <table>
+    <thead><tr><th>Hub</th><th class="n">Distance</th><th>Best for</th><th>When to go</th></tr></thead>
+    <tbody>
+      <tr><td><b>Ludhiana</b> — Gandhi Nagar / Ganesh Market / Hukam Singh Rd; Chaura Bazar / Ghas Mandi /
+        Ghora Gali / Dr. Gujjarmal Rd; Field Ganj; Mali Ganj; Focal Point</td><td class="n">50 km · 1 hr</td>
+        <td>Suiting, shirting, knits, hosiery, woolens, ready-made, private-label manufacturers</td>
+        <td class="pos"><b>Every 1–2 weeks in year 1. Your primary source.</b></td></tr>
+      <tr><td><b>Amritsar</b> — Guru Bazaar (2,000+ shops), Shastri Market, Hall Bazaar, Katra Jaimal Singh,
+        Lahori Gate, Lawrence Rd</td><td class="n">110 km · 2 hr</td>
+        <td>Ladies' ethnic, Phulkari, Patiala suits, shawls, juttis, bridal</td><td>Monthly, if you add a ladies' line</td></tr>
+      <tr><td><b>Delhi NCR</b> — Gandhi Nagar (~14,000 shops, Asia's largest readymade/textile wholesale),
+        Chandni Chowk &amp; Katra Neel, Sadar Bazar, Naraina/Okhla</td><td class="n">350 km · 5.5 hr</td>
+        <td>Readymade, uniform fabric, bulk shirting, trims &amp; packaging, bridal, job lots</td><td>Every 4–6 weeks</td></tr>
+      <tr><td><b>Surat</b> — Ring Rd / Sahara Darwaja / New Bombay Market / Umarwada</td><td class="n">1,500 km</td>
+        <td>~40% of India's synthetic fabric; sharpest suiting/shirting rates; ethnic, embroidery, velvet; own-label</td>
+        <td>From year 2, at 500 m+ per design</td></tr>
+      <tr><td>Panipat</td><td class="n">220 km</td><td>Blankets, shawls, home furnishing, woolens</td><td>Winter sourcing</td></tr>
+      <tr><td>Bhilwara / Jaipur</td><td class="n">550–600 km</td><td>Suiting manufacturing belt, cotton prints, Jaipuri block</td><td>Year 2+</td></tr>
+      <tr><td>Mumbai — Mangaldas Market, Dadar</td><td class="n">1,700 km</td><td>Shirting/suiting, mill ends</td><td>Year 2+</td></tr>
+      <tr><td>Tirupur / Coimbatore</td><td class="n">—</td><td>Cotton shirting, knits, hosiery at scale</td><td>Year 3+ or via Ludhiana traders</td></tr>
+      <tr><td>IndiaMART / TradeIndia / Udaan</td><td class="n">online</td><td>Price discovery, quotes, samples</td><td>Continuously — to benchmark Ludhiana rates</td></tr>
+    </tbody>
+  </table>
+  <div class="note ok"><b>The rule:</b> every level closer to the mill you go, your margin rises 5–10 points.
+    Ludhiana is one level, Surat/Delhi wholesale two, a mill distributorship three.
+    <b>Plan to move up one level every 12 months.</b></div>
+
+  <h3>Expansion rings</h3>
+  <table>
+    <thead><tr><th>Ring</th><th>When</th><th>Where</th><th>Method</th></tr></thead>
+    <tbody>
+      <tr><td><b>1 · 0–25 km</b></td><td>Months 1–18</td>
+        <td>Jalandhar → Phagwara → Kapurthala → Sultanpur Lodhi → Nakodar → Nurmahal → Kartarpur → Phillaur →
+            Lohian Khas → Bhogpur → Adampur → Shahkot</td>
+        <td>Van route + 2 field sales boys + weekly trade calls. Cheapest growth you'll ever have.</td></tr>
+      <tr><td><b>2 · 25–120 km</b></td><td>Months 12–30</td>
+        <td>Hoshiarpar → Tanda → Dasuya → Garhshankar → Nawanshahr → Banga → Rahon → Balachaur → Moga →
+            Barnala → Ludhiana (trade only) → Amritsar peri-urban → Batala → Pathankot</td>
+        <td>Second van route, a route supervisor, and a <b>satellite studio</b> in Hoshiarpur or Kapurthala.</td></tr>
+      <tr><td><b>3 · Punjab + NCR + HP</b></td><td>Months 24–48</td>
+        <td>Chandigarh / Mohali / Panchkula (premium retail), Delhi NCR (distribution office), Shimla / Solan /
+            Una / Hamirpur (under-served winter suiting), Jammu / Kathua</td>
+        <td><b>Appoint sub-stockists on territory-exclusive terms</b> rather than opening shops. Capital-light.</td></tr>
+      <tr><td><b>4 · National + diaspora</b></td><td>Months 36+</td>
+        <td>200+ retailers across North India · D2C online · <b>Brampton, Surrey, Vancouver, Calgary · Southall,
+            Birmingham · Melbourne, Sydney · Dubai, Sharjah</b></td>
+        <td>Own-brand distribution, one NRI trip a year, merchant exporting via AEPC + IEC + RoSCTL/RoDTEP.</td></tr>
+    </tbody>
+  </table>
+  <div class="note warn"><b>Never open location #2 until location #1 has run profitably for 6 consecutive months
+    without you physically in it.</b> Every tailoring business that died while expanding died because the owner
+    was in shop #2 while shop #1 quietly fell apart.</div>
+</section>
+
+<!-- ============================ OPS ============================ -->
+<section id="ops">
+  <h2>Shop Operations &amp; SOPs</h2>
+  <p class="lead">A tailoring business becomes a real business the day its quality stops depending on who is
+    standing in the shop.</p>
+
+  <h3>The order flow — one job card that never leaves the garment</h3>
+  <div class="flow">Order book → Measurement card → JOB CARD created
+      ↓
+  CUTTING  (master cutter signs)  ← fabric issued from stock (fabric code + metres + roll reading)
+      ↓
+  STITCHING (tailor name + start/finish date)
+      ↓
+  FITTING 1  (customer present — notes written in words AND numbers)
+      ↓
+  CORRECTION → FITTING 2 → FINISHING (buttons, hem, thread trim)
+      ↓
+  QC 11-POINT CHECKLIST (signed) → PRESS / STEAM → PACK (garment bag + care card + spare buttons)
+      ↓
+  DELIVERY (customer signs · full payment · photo taken · review requested · next reminder set)</div>
+
+  <h3>Three boards on your wall</h3>
+  <div class="grid g3">
+    <div class="card"><b>Order board</b><br><span class="small">Every live order as a card in columns:
+      New · Cutting · Stitching · Fitting · Finishing · Ready · Delivered. Nothing hides.</span></div>
+    <div class="card"><b>Delivery calendar</b><br><span class="small">The next 21 days with every delivery date.
+      Anything red gets attention today.</span></div>
+    <div class="card"><b>Rework board</b><br><span class="small">Every alteration, whose fault, why. Reviewed every
+      Sunday. One tailor appearing 5 times is a training or salary issue — not a customer issue.</span></div>
+  </div>
+
+  <h3>Measurement protocol</h3>
+  <div class="grid g2">
+    <div class="card"><b>Men — full chart</b><br><span class="small">
+      Neck · Chest · Waist · Hip/Seat · Shoulder (bone to bone) · Sleeve length · Sleeve round/bicep · Wrist ·
+      Jacket length · Trouser length · Thigh · Knee · Bottom opening · Crotch/rise · Front rise · Back rise.<br><br>
+      <b>Plus posture:</b> stooped / erect / sloping shoulder L-R / high-low hip / prominent seat / belly / chest.</span></div>
+    <div class="card"><b>Ladies — full chart</b><br><span class="small">
+      Bust · under-bust · waist · hip · shoulder · armhole (front/back) · sleeve length · sleeve round · bicep ·
+      wrist · kurta length · salwar length · neck depth front &amp; back · bust point-to-point · dart length ·
+      dupatta length · lehenga length + waistband.<br><br>
+      <b>Plus figure notes:</b> sloping shoulder, full bust, flat seat, sway back, maternity.</span></div>
+  </div>
+  <div class="note"><b>Rules:</b> measure over thin clothing · tape parallel to the floor · two fingers' ease where
+    ease is intended · measure <b>both sides</b> for shoulder and sleeve and record the larger · write cm <b>and</b>
+    inches · never round to a convenient number · tell the customer <i>"normal khade ho jao, saah chhadd ke"</i>
+    so they don't suck in.<br><br>
+    One numbered card per customer → photographed → stored in a Sheet with phone, occasion, order history and a
+    <b>next reminder date</b>. 500 customers × ₹6,000 × one repeat every 2 years = <b>₹15 L a year you never
+    advertise for</b>.</div>
+
+  <h3>QC — 11 points, signed before packing</h3>
+  <div class="card">
+    <div class="chk"><input type="checkbox" data-k="q1"><span>Every measurement matches the card within ±0.5 cm</span></div>
+    <div class="chk"><input type="checkbox" data-k="q2"><span>No puckering or skipped stitches; SPI 10–12 shirts, 8–10 coats</span></div>
+    <div class="chk"><input type="checkbox" data-k="q3"><span>Seams pressed open/flat and finished (overlock or bound)</span></div>
+    <div class="chk"><input type="checkbox" data-k="q4"><span>Stripes/checks match at centre back, shoulders, sleeves, pockets</span></div>
+    <div class="chk"><input type="checkbox" data-k="q5"><span>Lining smooth, correct colour, no twist, adequate ease</span></div>
+    <div class="chk"><input type="checkbox" data-k="q6"><span>Buttons secure (shanked on coats), buttonholes clean, no fraying</span></div>
+    <div class="chk"><input type="checkbox" data-k="q7"><span>Zip runs smoothly, right length and colour, no fabric caught</span></div>
+    <div class="chk"><input type="checkbox" data-k="q8"><span>Hems even all round; trouser break correct at the shoe</span></div>
+    <div class="chk"><input type="checkbox" data-k="q9"><span>No thread ends, chalk marks, pins, stains or iron shine</span></div>
+    <div class="chk"><input type="checkbox" data-k="q10"><span>Final press crisp; collar &amp; lapel roll correct; creases sharp</span></div>
+    <div class="chk"><input type="checkbox" data-k="q11"><span>Label, care card, spare-button envelope, clean garment bag</span></div>
+  </div>
+
+  <h3>Cutting discipline — where your fabric profit lives</h3>
+  <ul class="small">
+    <li><b>Inspect before cutting:</b> shade continuity, weaving defects, stains, and shrinkage (3% on 3.5 m = 10 cm lost).</li>
+    <li><b>Record the roll reading before and after</b> on the job card. Stock theft in a fabric shop is almost always
+      unrecorded cutting, not robbery.</li>
+    <li><b>Nap/pile direction</b> — all pieces the same way for velvet and corduroy.</li>
+    <li><b>Match checks and stripes</b> at centre back, shoulders, sleeves, pockets. A mismatched check loses a premium customer faster than anything.</li>
+    <li><b>Marker efficiency ≥ 85%.</b> Every 5% saved on 1,000 m/month at ₹250/m = <b>₹12,500/month</b>.</li>
+    <li><b>Keep end-pieces ≥ 30 cm separately</b> — they become pocketing, facings, samples and free swatches for the trade network.</li>
+    <li><b>Two-person rule on bespoke:</b> cutter cuts, owner verifies against the measurement card. Both sign.</li>
+  </ul>
+
+  <h3>Fittings — the trust moment</h3>
+  <ul class="small">
+    <li>Always <b>by appointment</b>. A customer who waits 40 minutes at a fitting never books again.</li>
+    <li>Garment is basted, not finished — nothing cut away permanently at fitting 1.</li>
+    <li>Pin on the body, then <b>write the changes on the job card in words and numbers</b>, and photograph front/side/back.</li>
+    <li>Movement tests: <i>"baaahein uthaa ke vekho, baith ke vekho"</i> — a mirror doesn't catch these.</li>
+    <li>Never say "theek hai ji" while pinning. Say what you're changing and why — <b>that is what justifies the Signature price</b>.</li>
+    <li>Check in order: shoulder line → chest ease → waist suppression → sleeve pitch &amp; length → collar hug (no gap)
+      → jacket balance → trouser waist/seat → break at the shoe → all lengths.</li>
+  </ul>
+
+  <h3>Team &amp; pay (Jalandhar 2026)</h3>
+  <table>
+    <thead><tr><th>Role</th><th class="n">Pay</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td><b>Master cutter</b></td><td class="n">₹25–45k + % of bespoke revenue</td>
+        <td>Cutting decides 80% of fit. <b>Never a single point of failure — train a second.</b></td></tr>
+      <tr><td>Head tailor (coat/suit specialist)</td><td class="n">₹20–32k</td><td>A canvassed 2-piece is a specialist skill</td></tr>
+      <tr><td>Tailor (shirt/trouser/kurta)</td><td class="n">₹14–22k</td><td>Volume work</td></tr>
+      <tr><td>Ladies' / boutique specialist</td><td class="n">₹15–25k</td><td>Highest margin per stitching hour</td></tr>
+      <tr><td>Finisher + press</td><td class="n">₹9–14k</td><td>Perceived quality lives here</td></tr>
+      <tr><td>Fabric salesman/cutter</td><td class="n">₹12–18k + commission</td><td>Must be able to <i>sell</i>, not just measure</td></tr>
+      <tr><td>Front desk / order manager</td><td class="n">₹12–18k</td><td>Frees you to sell instead of chasing delivery</td></tr>
+    </tbody>
+  </table>
+  <div class="note">Tailors leave for ₹1,500/month. They stay for: <b>a machine of their own</b> (not shared), a named
+    workstation, Sunday off, tea twice a day, their name on the job card, and one garment stitched free each Diwali.
+    Pay = fixed salary + piece-rate bonus above target + a Diwali bonus tied to declared annual profit.
+    <b>Publish the scheme.</b></div>
+</section>
+
+<!-- ============================ CHECKLISTS ============================ -->
+<section id="check">
+  <h2>Checklists</h2>
+  <p class="lead">Tick them off — progress is saved in this browser. Print them from the
+    <code>10-kpis-risks-checklists.md</code> file for the wall.</p>
+
+  <h3>A · Launch week — before you open the fabric counter</h3>
+  <div class="card" id="ck-a"></div>
+  <h3>B · Ludhiana / Delhi sourcing trip</h3>
+  <div class="card" id="ck-b"></div>
+  <h3>C · Wedding (groom package) order</h3>
+  <div class="card" id="ck-c"></div>
+  <h3>D · New wholesale (trade) buyer</h3>
+  <div class="card" id="ck-d"></div>
+  <h3>E · Season readiness — run on 20 September and 20 October every year</h3>
+  <div class="card" id="ck-e"></div>
+  <h3>F · Compliance &amp; funding</h3>
+  <div class="card" id="ck-f"></div>
+  <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn ghost" id="reset">Reset all ticks</button>
+    <button class="btn ghost" id="expand">Expand everything</button>
+  </div>
+</section>
+
+<!-- ============================ RISK ============================ -->
+<section id="risk">
+  <h2>Risks, KPIs and the 25 Mistakes</h2>
+
+  <h3>The four existential risks</h3>
+  <div class="grid g2">
+    <div class="card"><b>1 · Trade receivables</b><br><span class="small">Kills more Punjab textile businesses than
+      anything else. A 15.5% wholesale margin is wiped out by two defaulters in ten.
+      <b>Mitigation:</b> written credit policy <i>before</i> the first credit sale; slabs (₹25k/21d → ₹3L/45d);
+      automatic supply stop at the limit; PDCs for Slab C/D; 2% cash discount for 7-day payment;
+      18% p.a. late interest invoiced and enforced at least once; 1.5% monthly bad-debt provision;
+      and <b>sales-boy incentive paid on collections, not sales</b>.</span></div>
+    <div class="card"><b>2 · One-man dependency</b><br><span class="small">No second cutter, no SOPs, no systems.
+      <b>Mitigation:</b> train a second cutter from year 1; write every SOP; document pattern blocks digitally;
+      a front-desk hire; one full day off per week from year 2; a written "if I'm unavailable for 30 days" plan.</span></div>
+    <div class="card"><b>3 · Family / ownership conflict</b><br><span class="small">The most common killer of Punjabi
+      family businesses. <b>Mitigation:</b> written roles, written profit share, a monthly family business meeting
+      with minutes, and strictly separate personal and business accounts from day one.</span></div>
+    <div class="card"><b>4 · Dead stock + over-expansion together</b><br><span class="small">You open a second shop
+      to "move" the stock you couldn't sell in the first. <b>Mitigation:</b> the 6-months-profitable-without-you rule;
+      max 40 m per design until it sells through once; a hard 90-day clearance rule.</span></div>
+  </div>
+
+  <h3>Full risk register</h3>
+  <div class="card" style="overflow-x:auto"><table id="risks"></table></div>
+
+  <h3>The 25 mistakes</h3>
+  <div class="grid g2">
+    <div class="card"><b>Pricing &amp; positioning</b><ol class="small">
+      <li>Competing on price instead of fit, service and guarantee.</li>
+      <li>No printed price list — so every order is a negotiation and every negotiation a discount.</li>
+      <li>No rush fee in wedding season.</li>
+      <li>Discounting the premium tier instead of moving the customer down a tier.</li>
+      <li>Charging the same for a Tuesday shirt and a groom's sherwani.</li></ol></div>
+    <div class="card"><b>Fabric buying</b><ol class="small" start="6">
+      <li>Buying 100 designs × 20 m instead of 30 designs × 40 m.</li>
+      <li>Buying stock before 8 weeks of swatch-book selling.</li>
+      <li>Not keeping a signed, dated sample of everything ordered.</li>
+      <li>Ignoring width (44" vs 58").</li>
+      <li>Paying cash without a GST invoice — losing 5% ITC forever.</li></ol></div>
+    <div class="card"><b>Operations</b><ol class="small" start="11">
+      <li>No job card, so nobody knows where a garment is.</li>
+      <li>Booking 130% of capacity and delivering late in season.</li>
+      <li>Letting tailors take cloth off rolls without recording it.</li>
+      <li>No rework log — the same mistake repeats 40 times a year.</li>
+      <li>Fittings by "call kar denge" instead of a booked appointment.</li></ol></div>
+    <div class="card"><b>Money</b><ol class="small" start="16">
+      <li>Business cash in the personal savings account.</li>
+      <li>No salary for yourself, so you can't see real profit.</li>
+      <li>No cash reserve going into July–September.</li>
+      <li>Credit to retail customers.</li>
+      <li>No written credit policy before the first wholesale credit sale.</li></ol></div>
+    <div class="card"><b>Growth</b><ol class="small" start="21">
+      <li>Opening a second shop before the first runs without you.</li>
+      <li>Hiring a 4th tailor without raising the average charge per garment.</li>
+      <li>No customer database — so every season starts from zero.</li>
+      <li>Marketing as "posting on Facebook sometimes" instead of a weekly system.</li>
+      <li>Building wholesale before the retail fit reputation exists.</li></ol></div>
+    <div class="card"><b>Marketing gaps worth naming</b>
+      <ul class="small">
+        <li>No Google Business Profile with 45+ reviews — your highest-ROI free asset.</li>
+        <li>No fit-transformation reels — the highest-performing content format in this trade.</li>
+        <li>No WhatsApp database with +3-month and +9-month reminders.</li>
+        <li>No vendor-partner network (makeup artist, photographer, tent house, banquet, visa agent).</li>
+        <li>No NRI program — Doaba's single biggest unfair advantage.</li>
+      </ul></div>
+  </div>
+
+  <h3>Weekly scoreboard</h3>
+  <div class="card" style="overflow-x:auto"><table id="kpis"></table></div>
+
+  <h3>The five numbers to check every Sunday</h3>
+  <div class="grid g4">
+    <div class="stat"><div class="k">Units / tailor / day</div><div class="v">≥ 2.2</div><div class="d">Below 1.8 you can't pay the salary</div></div>
+    <div class="stat"><div class="k">Avg charge / unit</div><div class="v">+10%/yr</div><div class="d">Flat charge = shrinking real margin</div></div>
+    <div class="stat"><div class="k">Fabric stock turn</div><div class="v">≥ 6×</div><div class="d">Dead rolls eat your working capital</div></div>
+    <div class="stat"><div class="k">Receivables days</div><div class="v">≤ 35</div><div class="d">Above 60 you are the bank</div></div>
+  </div>
+
+  <div class="note ok" style="font-size:16px;margin-top:26px">
+    <b>The last page — five sentences to remember</b><br>
+    1 · <b>Sell fit, not stitching.</b> Stitching is a commodity; fit is a promise.<br>
+    2 · <b>Sell cloth with the fit.</b> That's how one customer visit earns two margins.<br>
+    3 · <b>Buy deep, not wide.</b> 30 proven designs beat 100 guesses.<br>
+    4 · <b>Cash from customers, credit to nobody retail, a written limit for every trade buyer.</b><br>
+    5 · <b>Build the second rung before reaching for the third.</b> The ladder is the strategy.
+  </div>
+</section>
+
+<footer>
+  <b>MoneyMate Business Plan</b> — companion files: <code>README.md</code> · <code>01-the-ladder.md</code> ·
+  <code>02-90-day-and-12-month-plan.md</code> · <code>03-tailoring-economics.md</code> ·
+  <code>04-shop-operations-sops.md</code> · <code>05-marketing-and-customers.md</code> ·
+  <code>06-fabric-business-guide.md</code> · <code>07-wholesale-and-scale.md</code> ·
+  <code>08-legal-tax-compliance.md</code> · <code>financial-model.md</code> ·
+  <code>09-locations-jalandhar-punjab.md</code> · <code>10-kpis-risks-checklists.md</code><br><br>
+  Prices, rents, wages and margins are planning assumptions for Jalandhar/Punjab as at November 2026, built from
+  published Indian wholesale rate lists, boutique pricing benchmarks and Punjab policy announcements.
+  GST reflects the changes effective 22 September 2025. <b>Verify every rate on the ground and confirm tax
+  treatment with a CA before you spend money or print a bill.</b>
+</footer>
+</div>
+
+<script>
+/* ---------------- navigation ---------------- */
+const nav=document.getElementById('nav');
+nav.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  [...nav.children].forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('on'));
+  document.getElementById(b.dataset.t).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* ---------------- season countdown ---------------- */
+const SEASON=[
+  ['Season opens — Dev Uthani Ekadashi','2026-11-20'],
+  ['Gurpurab','2026-11-24'],
+  ['Peak weddings end','2026-12-12'],
+  ['Kharmas — build window opens','2026-12-16'],
+  ['Best shop-opening date (Vasant Panchami)','2027-02-11'],
+  ['Baisakhi','2027-04-13']
+];
+const today=new Date('2026-11-09T00:00:00Z');
+document.getElementById('season').innerHTML=SEASON.map(([n,d])=>{
+  const days=Math.round((new Date(d+'T00:00:00Z')-today)/864e5);
+  return `<span class="pill">${n} · <b>${days>0?'in '+days+' days':days===0?'today':Math.abs(days)+' days ago'}</b></span>`;
+}).join('');
+
+/* ---------------- persistence ---------------- */
+const KEY='moneymate-plan-v1';
+let store={};
+try{store=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){store={}}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}};
+document.addEventListener('change',e=>{
+  const el=e.target;
+  if(el.dataset.k){store[el.dataset.k]=el.checked;save();
+    el.closest('.chk')?.classList.toggle('done',el.checked);
+    el.closest('.rung')?.classList.toggle('done',el.checked);
+    updLadder();}
+});
+function hydrate(){
+  document.querySelectorAll('input[data-k]').forEach(el=>{
+    if(store[el.dataset.k]){el.checked=true;
+      el.closest('.chk')?.classList.add('done');
+      el.closest('.rung')?.classList.add('done');}
+  });updLadder();
+}
+
+/* ---------------- ladder ---------------- */
+const RUNGS=[
+ ['Fix the foundation','Written measurement chart for every customer · printed 3-tier price list · a delivery promise you actually keep · a daily money book with your own salary in it.','You can produce any customer\'s measurements, your price list and last month\'s profit in under 60 seconds. Cost ≈ ₹5,000.','r1'],
+ ['Reposition: shop → studio','Brand name · clean backlit board · trial room with a full-length mirror · warm lighting · lookbook folder · machines out of the customer\'s sight line · staff uniform · printed GST invoice · garment bag.','A stranger walks in, asks your rate, and accepts your top tier without you apologising. ₹60,000–1.5 L.','r2'],
+ ['Productise & price properly','Essential / Signature / Bespoke tiers · named bundles (Groom, Groomsmen, Family Wedding, Businessman\'s Year, Cloth+Stitch) · rush fee · an annual October price rise.','≥30% of orders are Signature or Bespoke and your average bill value has doubled. Costs ₹0.','r3'],
+ ['Build the fabric offer','Two market trips before one rupee of stock · 8 categories ≈1,290 m ≈₹2.7 L · swatch books first · roll racks, measuring machine, fabric codes · three ways to sell (per metre, suit length, package).','Fabric ≥35% of revenue, stock turning ≥5×/year. ₹4–10 L.','r4'],
+ ['Build the demand engine','Google Business Profile + 45 reviews · 3 reels/week · WhatsApp broadcast lists · the customer database with +3 and +9 month reminders · 10 vendor partnerships · the NRI channel.','≥25% of new customers come from Google/Instagram, and the season is fully booked 6 weeks early. ₹8–25k/month.','r5'],
+ ['Systemise the floor','Job card stapled to every garment · cutting → stitching → fitting → correction → finishing → QC → press → pack · three wall boards (orders, delivery calendar, rework).','The shop delivers correctly for 5 working days with you absent.','r6'],
+ ['Team & skills','Master cutter you cannot lose · a trained second cutter · ladies\' specialist · finisher · fabric salesman · front desk · published incentive scheme · apprentice pipeline.','No single employee leaving can stop delivery for more than 3 days.','r7'],
+ ['Institutionalise','Current account · Udyam · GST · Shops Act + trade licence · fire NOC · Tally/Busy with roll-wise metres · CA on retainer · insurance on stock · trademark filed · monthly P&L.','A bank officer can understand your business from your paperwork alone.','r8'],
+ ['Go B2B & wholesale','Uniform contracts (schools, hospitals, hotels, factories) · supply other tailors · godown + van routes + field sales · a written credit policy · MSME Samadhaan as your backstop.','B2B ≥40% of revenue and 45+ active repeat trade buyers.','r9'],
+ ['Brand, multi-city, export','Own-brand fabric with territorial exclusivity · satellite studio · D2C with remote measurement · the annual NRI trip · IEC + AEPC + RoSCTL/RoDTEP for exports · manufacturing under Punjab\'s textile policies.','You own a category in a region, not a shop in a lane.','r10']
+];
+document.getElementById('rungs').innerHTML=RUNGS.map((r,i)=>`
+  <div class="rung" id="${r[3]}">
+    <div class="num">${i+1}</div>
+    <div style="flex:1;min-width:240px">
+      <h4>${r[0]}</h4><p>${r[1]}</p>
+      <div class="dw">✓ Done when: ${r[2]}</div>
+    </div>
+    <button class="tick" data-r="${r[3]}">Done</button>
+  </div>`).join('');
+document.querySelectorAll('.tick').forEach(b=>b.addEventListener('click',()=>{
+  const k=b.dataset.r; const el=document.getElementById(k);
+  const on=!el.classList.contains('done');
+  el.classList.toggle('done',on); store[k]=on; save(); updLadder();
+}));
+function updLadder(){
+  const ids=RUNGS.map(r=>r[3]);
+  const done=ids.filter(k=>store[k]).length;
+  document.getElementById('lprog').style.width=(done/ids.length*100)+'%';
+  document.getElementById('lcount').textContent=`${done} of ${ids.length} rungs complete`;
+  document.querySelectorAll('.tick').forEach(b=>b.textContent=store[b.dataset.r]?'✓ Done':'Mark done');
+}
+
+/* ---------------- helpers ---------------- */
+const R=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const L=n=>{if(Math.abs(n)>=1e7)return '₹'+(n/1e7).toFixed(2)+' Cr';return '₹'+(n/1e5).toFixed(2)+' L'};
+const stat=(k,v,d,cls='')=>`<div class="stat"><div class="k">${k}</div><div class="v ${cls}">${v}</div><div class="d">${d||''}</div></div>`;
+const ids=a=>a.map(x=>document.getElementById(x));
+const live=(arr,fn)=>{arr.forEach(x=>x.addEventListener('input',fn));fn()};
+
+/* ---------------- calculator 1: tailoring ---------------- */
+const T=ids(['t_tl','t_up','t_dy','t_ch','t_sal','t_cut','t_rent','t_fix','t_con','t_mkt']);
+live(T,()=>{
+  const [tl,up,dy,ch,sal,cut,rent,fix,con,mkt]=T.map(x=>+x.value||0);
+  const units=tl*up*dy, rev=units*ch;
+  const cons=rev*con/100, lab=tl*sal+cut, fixed=rent+fix, m=rev*mkt/100;
+  const eb=rev-cons-lab-fixed-m, mg=rev?eb/rev*100:0;
+  const fixedTot=lab+rent+fix, contrib=ch*(1-(con+mkt)/100);
+  const be=contrib>0?fixedTot/contrib:0;
+  document.getElementById('t_out').innerHTML=
+    stat('Units / month',Math.round(units),`${tl} tailors × ${up}/day × ${dy} days`)+
+    stat('Revenue / month',L(rev),R(rev))+
+    stat('EBITDA / month',L(eb),R(eb)+(eb<0?' — losing money':''),eb<0?'neg':'pos')+
+    stat('EBITDA margin',mg.toFixed(1)+'%','target ≥ 20% for premium, ≥ 30% at scale',mg<15?'neg':'pos');
+  document.getElementById('t_note').innerHTML=
+    `<b>Break-even:</b> ${Math.round(be)} units a month (${(be/dy).toFixed(1)}/day) at ${R(ch)} per unit. `+
+    `Revenue per tailor per month: <b>${R(tl?rev/tl:0)}</b> — below ₹45,000 the salary isn't covered. `+
+    `<b>Cost per tailor hour:</b> ${R(tl&&up&&dy?((lab+rent+fix)/(tl*up*dy*9)):0)} (at 9 productive hrs/day) — `+
+    `your charge must be at least 2.5× this.`;
+});
+
+/* ---------------- calculator 2: scenarios ---------------- */
+const SC=[
+ ['A1 — Volume alteration shop (lane, Sadar Bazar side)',3,3.0,420,22000,2,18000],
+ ['A2 — Mid custom tailor (family + wedding orders)',3,2.2,950,32000,5,18000],
+ ['A3 — Premium made-to-measure studio (Model Town)',3,1.4,2600,55000,10,22000],
+ ['A4 — A3 at scale: 6 tailors + fabric attach',6,1.5,2600,55000,8,22000]
+];
+document.getElementById('scen').innerHTML=
+ '<thead><tr><th>Model</th><th class="n">Units/mo</th><th class="n">Charge</th><th class="n">Revenue</th>'+
+ '<th class="n">EBITDA</th><th class="n">Margin</th><th class="n">EBITDA/tailor/mo</th></tr></thead><tbody>'+
+ SC.map(([n,tl,up,ch,rent,mk,sal])=>{
+   const u=tl*up*26, rev=u*ch;
+   const eb=rev-rev*.04/1-(tl*sal+35000)-(rent+15500)-rev*mk/100;
+   const e=rev-rev*0.04-(tl*sal+35000)-(rent+15500)-rev*mk/100;
+   return `<tr><td>${n}</td><td class="n">${Math.round(u)}</td><td class="n">${R(ch)}</td><td class="n">${L(rev)}</td>`+
+     `<td class="n ${e<0?'neg':'pos'}">${L(e)}</td><td class="n">${(e/rev*100).toFixed(0)}%</td>`+
+     `<td class="n">${R(e/tl)}</td></tr>`;
+ }).join('')+'</tbody>';
+
+/* ---------------- calculator 3: fabric ---------------- */
+const F=ids(['f_m','f_p','f_g','f_d','f_r','f_s','f_f','f_w']);
+live(F,()=>{
+  const [m,p,g,d,r,s,f,w]=F.map(x=>+x.value||0);
+  const metres=m*d, rev=metres*p, gp=rev*g/100, wast=rev*w/100, fixed=r+s+f;
+  const eb=gp-wast-fixed, mg=rev?eb/rev*100:0;
+  const beMetres=fixed/((p*g/100)-(p*w/100));
+  document.getElementById('f_out').innerHTML=
+    stat('Metres / month',Math.round(metres)+' m',`${m} m/day × ${d} days`)+
+    stat('Revenue / month',L(rev),R(rev))+
+    stat('Gross profit',L(gp),R(gp/m||0)+' per metre')+
+    stat('EBITDA / month',L(eb),mg.toFixed(1)+'% margin',eb<0?'neg':'pos');
+  document.getElementById('f_note').innerHTML=
+    `<b>Break-even: ${Math.ceil(beMetres)} metres a month = ${(beMetres/d).toFixed(1)} m/day.</b> `+
+    `Below ${(beMetres/d).toFixed(0)} m/day the shop loses money no matter how good the fabric is. `+
+    `A fabric shop is a <b>traffic business</b>: rent is fixed, every metre is margin. `+
+    `Minimum viable: 25–30 m/day. Do not sign a lease for a location that can't plausibly deliver it.`;
+});
+
+/* ---------------- calculator 4: wholesale ---------------- */
+const W=ids(['w_b','w_m','w_p','w_g','w_t','w_s','w_f','w_c']);
+live(W,()=>{
+  const [b,m,p,g,t,s,f,c]=W.map(x=>+x.value||0);
+  const vol=b*m, rev=vol*p, gp=rev*g/100;
+  const team=t*s, inc=rev*0.015, credit=rev*c/100, fixed=f+team+inc+18000;
+  const eb=gp-fixed-credit, mg=rev?eb/rev*100:0;
+  document.getElementById('w_out').innerHTML=
+    stat('Volume / month',Math.round(vol).toLocaleString('en-IN')+' m',`${b} buyers × ${m} m`)+
+    stat('Revenue / month',L(rev),R(rev))+
+    stat('Gross profit',L(gp),`${g}% margin — this is a volume game`)+
+    stat('EBITDA / month',L(eb),mg.toFixed(1)+'% margin',eb<0?'neg':'pos');
+  document.getElementById('w_note').innerHTML=
+    `Credit cost alone is <b>${R(credit)}/month</b>. If your receivables slip from 35 to 60 days that number `+
+    `roughly doubles and your margin is gone. <b>Cap credit per buyer, stop supply automatically at the limit, `+
+    `and pay sales incentives on collections — not on sales.</b>`;
+});
+
+/* ---------------- calculator 5: package ---------------- */
+const P=ids(['p_l','p_r','p_m','p_t','p_c','p_s','p_p']);
+live(P,()=>{
+  const [land,ret,m,tr,lab,st,pkg]=P.map(x=>+x.value||0);
+  const clothCost=land*m, clothRev=ret*m;
+  const stGP=st-lab;
+  const pkgCost=clothCost+tr+lab, pkgGP=pkg-pkgCost;
+  document.getElementById('p_out').innerHTML=
+    stat('Stitching only',R(st),`GP ${R(stGP)} · ${(stGP/st*100||0).toFixed(0)}%`)+
+    stat('Cloth only ('+m+' m)',R(clothRev),`GP ${R(clothRev-clothCost)} · ${((clothRev-clothCost)/clothRev*100||0).toFixed(0)}%`)+
+    stat('Cloth + stitch package',R(pkg),`GP ${R(pkgGP)}`,  'pos')+
+    stat('Extra profit from bundling','+'+R(pkgGP-stGP),`${((pkgGP-stGP)/(stGP||1)*100).toFixed(0)}% more than stitching alone`,'pos');
+  document.getElementById('p_note').innerHTML=
+    `The package earns <b>${R(pkgGP)}</b> against <b>${R(stGP)}</b> for stitching-only — from the same customer, `+
+    `the same visit, the same tailor hours. And you can even <i>discount</i> the package by ${R(pkgGP-stGP)} and `+
+    `still out-earn the full-price stitching order. <b>Discounting from a bundle is always safer than discounting a service.</b>`;
+});
+
+/* ---------------- stock table ---------------- */
+const STOCK=[
+ ['Poly-viscose suiting (12 core designs)',240,190,435,'70% of suit volume — navy, charcoal, black, grey, beige, olive, brown + 2 checks + 2 stripes'],
+ ['Wool / poly-wool blazer suiting',150,420,850,'Nov–Feb premium. High ticket, thin competition'],
+ ['Cotton & poly shirting (20 designs)',200,110,240,'Fastest-moving, lowest capital, brings footfall'],
+ ['Kurta / Pathani cotton & linen-look',180,160,340,'Punjabi staple — Baisakhi, Gurpurab, weddings'],
+ ['Trousering (high-twist, gabardine, stretch)',120,210,460,'Sells alone constantly; add-on to every suit'],
+ ['Lining, interlining, canvas, padding, pocketing',200,70,145,'60–70% margin, needed for every job'],
+ ['Sherwani / wedding fabric (silk, jacquard, velvet)',80,620,1450,'Seasonal, but the highest ticket in the shop'],
+ ['Ladies suit material & dupatta sets (trial)',120,180,420,'Test it — huge market, different skill']
+];
+(()=>{let cap=0,rv=0;
+ const rows=STOCK.map(([n,m,c,s,why])=>{cap+=m*c;rv+=m*s;
+   return `<tr><td>${n}<br><span class="small">${why}</span></td><td class="n">${m}</td><td class="n">${R(c)}</td>`+
+     `<td class="n">${L(m*c)}</td><td class="n">${R(s)}</td><td class="n">${((s-c)/c*100).toFixed(0)}%</td></tr>`}).join('');
+ document.getElementById('stock').innerHTML=
+  '<thead><tr><th>Category</th><th class="n">Metres</th><th class="n">Landed ₹/m</th><th class="n">Capital</th>'+
+  '<th class="n">Retail ₹/m</th><th class="n">Markup</th></tr></thead><tbody>'+rows+
+  `<tr><td><b>TOTAL</b></td><td class="n"><b>${STOCK.reduce((a,b)=>a+b[1],0)} m</b></td><td></td>`+
+  `<td class="n pos"><b>${L(cap)}</b></td><td></td><td class="n"><b>${L(rv)}</b> retail value</td></tr>`+
+  `<tr><td colspan="6" class="small">+ Trims &amp; accessories ₹40–80k (55–70% margin — the classic "forgotten profit") ·
+   + optional ready-made fallback ₹50k from Ludhiana/Delhi Gandhi Nagar.</td></tr></tbody>`;
+})();
+
+/* ---------------- fit-out ---------------- */
+const FIT=[
+ ['Roll racks (20–40 running ft, wall + island)','₹90k–2.0 L'],
+ ['Fabric measuring machine (yard counter)','₹8k–25k'],
+ ['Roll-cutting table 8×4 ft + shears','₹21k–50k'],
+ ['Lighting: 4000K display, 3000K accent, mirror lights','₹25k–50k'],
+ ['Two trial rooms + full-length mirrors','₹25k–45k'],
+ ['Air conditioning (fabric shops are hot & dusty)','₹40k–70k'],
+ ['Backlit signage, Punjabi + English','₹35k–90k'],
+ ['CCTV ×4 (stock theft is real)','₹15k–25k'],
+ ['Billing PC + GST software + barcode printer','₹35k–60k'],
+ ['Steam press + vacuum/ironing table','₹25k–60k'],
+ ['Fire extinguisher + smoke detector — fabric is a fire load','₹6k–12k'],
+ ['Glass counter, mannequins ×3, hangers, packaging','₹70k–1.4 L']
+];
+document.getElementById('fitout').innerHTML=FIT.map(([a,b])=>
+  `<div class="card" style="margin:0"><b>${b}</b><br><span class="small">${a}</span></div>`).join('');
+
+/* ---------------- fabric price ladder ---------------- */
+const LAD=[
+ ['Economy poly-viscose suiting',165,205,285],
+ ['Mid poly-viscose / terry-rayon suiting',230,285,399],
+ ['Premium 4-way stretch suiting',380,460,649],
+ ['Wool-blend winter suiting',520,620,899],
+ ['Cotton shirting',95,120,179],
+ ['Kurta / Pathani cotton',145,180,269],
+ ['Trousering (high twist)',180,225,329],
+ ['Sherwani silk / jacquard',620,760,1199]
+];
+document.getElementById('ladder').innerHTML=
+ '<thead><tr><th>Category</th><th class="n">Landed ₹/m</th><th class="n">Wholesale ₹/m</th><th class="n">Wh margin</th>'+
+ '<th class="n">Retail ₹/m</th><th class="n">Retail margin</th><th class="n">3.5 m + stitching package</th></tr></thead><tbody>'+
+ LAD.map(([n,l,w,r])=>`<tr><td>${n}</td><td class="n">${R(l)}</td><td class="n">${R(w)}</td>`+
+  `<td class="n">${((w-l)/l*100).toFixed(0)}%</td><td class="n">${R(r)}</td>`+
+  `<td class="n pos">${((r-l)/l*100).toFixed(0)}%</td><td class="n">${R(r*3.5+4500)}</td></tr>`).join('')+
+ '</tbody>';
+
+/* ---------------- location scorecard ---------------- */
+const LOC=[
+ ['Main-road frontage; board visible from 100 m',3],
+ ['Daily footfall (count it yourself at 11 am, 6 pm and Sunday)',3],
+ ['Parking within 50 m — non-negotiable for fabric buyers and groom families',3],
+ ['Rent as % of expected monthly revenue (5 = under 3%, 1 = over 7%)',3],
+ ['Complementaries nearby: jeweller, shoe shop, boutique, marriage palace',2],
+ ['Shop width (12 ft+ = 5) and usable depth',2],
+ ['Condition: wiring, water, damp, roof, shutter, washroom',2],
+ ['Landlord terms: 3-yr lock-in with 1-yr exit, escalation ≤10%, signage & interiors permitted',2],
+ ['Competition within 500 m (5 = none/weak, 1 = five strong shops)',1],
+ ['Safety, night lighting, and the area\'s 5-year direction of travel',1],
+ ['Distance from your home — you will be there 12 hours a day',1]
+];
+document.getElementById('loc').innerHTML=
+ '<thead><tr><th>#</th><th>Criterion</th><th class="n">Weight</th><th class="n">Score 1–5</th><th class="n">Weighted</th></tr></thead><tbody>'+
+ LOC.map(([c,w],i)=>`<tr><td>${i+1}</td><td>${c}</td><td class="n">×${w}</td>`+
+  `<td class="n"><input type="number" min="1" max="5" value="" style="width:66px;padding:5px" data-lw="${w}" class="lscore"></td>`+
+  `<td class="n lout">—</td></tr>`).join('')+
+ `<tr><td colspan="4"><b>TOTAL (max 120)</b> — <span class="small">don't sign below 72</span></td>
+  <td class="n"><b id="ltot">—</b></td></tr></tbody>`;
+document.querySelectorAll('.lscore').forEach(inp=>inp.addEventListener('input',()=>{
+  let tot=0;
+  document.querySelectorAll('.lscore').forEach(x=>{
+    const v=+x.value||0, w=+x.dataset.lw, out=x.closest('tr').querySelector('.lout');
+    out.textContent=v?(v*w):'—'; tot+=v*w;
+  });
+  const el=document.getElementById('ltot'); el.textContent=tot||'—';
+  el.className=tot>=72?'pos':(tot>0?'neg':'');
+}));
+
+/* ---------------- risks ---------------- */
+const RISK=[
+ ['Dead fabric stock','High','High','₹6–15 L frozen in rolls nobody wants','Depth not breadth; ≤40 m/design until it sells once; 90-day clearance; season calendar'],
+ ['Trade receivables blow up','High','FATAL','15% wholesale margin wiped out by 2–3 defaulters','Written credit policy first; slabs; auto-stop; PDCs; incentive on collections; 1.5% provision'],
+ ['Master cutter leaves','Medium','FATAL','Delivery stops; fit quality collapses','Train a second cutter from year 1; % of bespoke revenue; non-solicit clause; digitise pattern blocks'],
+ ['Late delivery in wedding season','High','High','One angry groom\'s family = 50 lost customers','Never book >110% capacity; delivery calendar; say no out loud; rush fee rations demand'],
+ ['Fire in the godown','Low','FATAL','Total loss of stock in minutes','Extinguishers + smoke detection; no exposed wiring; stock off the floor; insurance at replacement value; godown separate from retail'],
+ ['Price war with Sadar Bazar / online','High','Medium','You discount until you can\'t pay rent','Never compete on price — compete on cloth+fit+guarantee+service'],
+ ['Seasonal cash crunch (Jul–Sep, Jan)','High','Medium','You borrow at 18% to pay rent','2 months of fixed cost held from the season; fill the off-season with uniforms and B2B'],
+ ['Owner burnout / one-man dependency','High','High','You are cutter, salesman, accountant and delivery boy','SOPs, front-desk hire, weekly review, one full day off per week from year 2'],
+ ['Unrecorded cloth taken by your own tailors','Medium','Medium','2–5% of stock disappears quietly','Every metre leaves a roll only against a job card; weekly roll reconciliation; CCTV at the cutting table'],
+ ['GST / compliance default','Medium','High','Penalties, blocked ITC, loan rejection','CA on monthly retainer; return calendar on the wall; 100% invoicing from day 1'],
+ ['Cheap unregistered competition','High','Medium','They quote 20% less — no tax, no rent','Sell the guarantee, the GST invoice (B2B buyers need ITC), the trial room, the delivery date'],
+ ['Assortment misjudgement','Medium','Medium','You buy what you like, not what sells','Weekly sell-through by design; reorder proven designs only; clear losers in 90 days'],
+ ['Credit to retail walk-ins','Medium','Medium','"Kal de jaanga" × 50 customers','Zero retail credit. Printed at the counter. No relatives exception'],
+ ['Bank refuses finance','Medium','Medium','Growth stalls at Stage B','All sales via bank/UPI; 2 yrs ITR + GST returns; Udyam; CGTMSE cover; stock register; clean CIBIL'],
+ ['Supplier shade variation / short measure','Medium','Medium','A ruined premium suit, a lost customer','Signed dated samples; 8-point inspection on arrival; one than per design per order; daylight colour check'],
+ ['Staff theft (cash or cloth)','Medium','Medium','Slow bleeding','Daily cash reconciliation, CCTV, roll readings, two-person rule on bespoke cutting, treat people well'],
+ ['Family conflict over money/roles','Medium','FATAL','The most common killer of Punjabi family businesses','Written roles & profit share; monthly family business meeting with minutes; separate accounts'],
+ ['Over-expansion (2nd shop too early)','Medium','FATAL','Cash spread thin; neither shop works','The 6-months-profitable-without-you rule'],
+ ['Owner health / accident','Low','High','The business IS you','Term life + health cover; a written 30-day-unavailable plan naming who does what'],
+ ['Shift to ready-made / online','Medium','Medium','Long-run structural','Own the fit, own the cloth, own the occasion. Ready-made can\'t do bespoke; online can\'t fit you in Jalandhar']
+];
+document.getElementById('risks').innerHTML=
+ '<thead><tr><th>#</th><th>Risk</th><th>Prob.</th><th>Impact</th><th>What it costs</th><th>Mitigation</th></tr></thead><tbody>'+
+ RISK.map((r,i)=>{
+   const c=r[2]==='FATAL'?'neg':(r[1]==='High'?'':'');
+   return `<tr><td>${i+1}</td><td><b>${r[0]}</b></td><td>${r[1]}</td><td class="${c}">${r[2]}</td>`+
+     `<td class="small">${r[3]}</td><td class="small">${r[4]}</td></tr>`}).join('')+'</tbody>';
+
+/* ---------------- KPIs ---------------- */
+const KPI=[
+ ['Orders booked / delivered / overdue','count','overdue = 0'],
+ ['Average bill value','revenue ÷ orders','rising every quarter'],
+ ['Units per tailor per day','units ÷ (tailors × days)','≥2.2 volume · ≥1.5 premium'],
+ ['Fabric metres sold per day','m','≥25 m/day'],
+ ['Fabric attach rate','orders with your fabric ÷ total orders','≥30%'],
+ ['Rework count','count','≤3% of orders'],
+ ['Late deliveries','count','≤5% of orders'],
+ ['Balance outstanding — retail','₹','₹0. Always.'],
+ ['Receivables days — trade','receivables ÷ daily wholesale revenue','≤35 days'],
+ ['Fabric stock value','₹','≤60 days of sales'],
+ ['Cash + bank','₹','≥2 months of fixed cost'],
+ ['New Google reviews','count','≥3 per week'],
+ ['New customer records added','% of customers','100%'],
+ ['Marketing spend','₹','≤8% of revenue'],
+ ['Gross margin %','gross profit ÷ revenue','≥42% blended (below 40% = pricing or buying is wrong)'],
+ ['Rent-to-revenue %','rent ÷ revenue','≤8%'],
+ ['Production labour-to-revenue %','direct labour ÷ revenue','≤35% in tailoring']
+];
+document.getElementById('kpis').innerHTML=
+ '<thead><tr><th>Metric</th><th>Formula</th><th>Target</th></tr></thead><tbody>'+
+ KPI.map(k=>`<tr><td><b>${k[0]}</b></td><td class="small">${k[1]}</td><td class="pos small">${k[2]}</td></tr>`).join('')+'</tbody>';
+
+/* ---------------- checklists ---------------- */
+const CK={
+ a:['Rent agreement signed, registered, deposit receipted','Trade licence from MC Jalandhar applied/received',
+    'GST registration active; GSTIN on the board and the bill','Udyam certificate printed',
+    'Current account open; UPI QR at the counter','CA engaged; billing software live; roll-wise stock module tested',
+    'Shop insurance in hand (fire + stock + burglary)','Fire extinguisher mounted; CCTV live; wiring checked',
+    'All rolls coded, entered in the stock register, ticketed with price/metre',
+    'Rate board printed and displayed (per metre + suit length + package)',
+    '40 hero designs on hangers; 2 finished garments displayed with their fabric',
+    'Trial rooms done, mirrors clean, lighting tested at 6 pm',
+    'Measuring machine calibrated against a steel tape',
+    'Staff trained: 10-step sale · 8 quality tests · GST billing · roll reconciliation',
+    'Order pads, measurement cards, job cards, delivery receipts printed',
+    'Google Business Profile updated ("Fabric store" category, 15 new photos)',
+    'Instagram: 9 posts before launch day','WhatsApp soft-launch broadcast sent to the database',
+    '10 vendor partners personally invited to the opening',
+    'First-30-days tracking sheet ready (m/day, conversion %, avg bill, attach %)'],
+ b:['BEFORE: last trip\'s supplier spreadsheet reviewed',
+    'BEFORE: top-20 selling designs and dead designs identified from the stock register',
+    'BEFORE: cash/UPI limit decided; bank transfer ready',
+    'BEFORE: tools packed — tape, digital scale, lighter, notebook, camera, existing samples',
+    'BEFORE: list of 25 shops with addresses and phone numbers; empty boot space for thans',
+    'DURING: ask per-than AND per-metre rate','DURING: ask composition, GSM, width, shrinkage %',
+    'DURING: ask MOQ, mixed-design-than allowance, credit terms, cash discount',
+    'DURING: get the replacement policy for shade variation/defect/shortage in writing',
+    'DURING: verify the GSTIN','DURING: photograph designs (with permission)',
+    'DURING: take a labelled physical swatch','DURING: burn-test one thread from a new supplier',
+    'DURING: weigh a 10×10 cm swatch to compute GSM',
+    'DURING: unroll 3–5 m and check shade continuity in daylight',
+    'DURING: measure the actual width — don\'t trust the label',
+    'DURING: negotiate — quote a real competing rate, ask for the distributor/opening rate',
+    'DURING: confirm freight terms and delivery to Jalandhar',
+    'AFTER (same night): spreadsheet updated with all 25 shops','AFTER: top 5 shortlisted, trial order placed with 2–3',
+    'AFTER: GST invoices filed month-wise','AFTER: 8-point quality inspection on every roll before it goes on the rack',
+    'AFTER: stock register entries made; payment diary updated with due dates'],
+ c:['Occasion, date and venue written on the order form',
+    'Three options shown in the customer\'s budget (low / mid / high)',
+    'Fabric selected from stock or swatch book; code and metres recorded',
+    'Full measurement card completed — both sides measured, posture noted',
+    'Style sheet SIGNED by the customer (lapel, buttons, vents, pockets, lining, monogram)',
+    'Delivery date written, underlined, and spoken out loud',
+    'Fitting 1 and Fitting 2 dates BOOKED at order time',
+    '50% advance received; printed receipt given',
+    'Job card created and stapled to the garment bundle',
+    'Fabric issued against the job card; roll reading recorded',
+    'Cutter\'s signature before the first stitch',
+    'Fitting 1 done; notes in words AND numbers; photos front/side/back',
+    'Corrections logged and assigned','Fitting 2 done; customer confirms',
+    '11-point QC signed','Press, steam, garment bag, spare-button envelope, care card',
+    'Full payment BEFORE the garment leaves','Photo with the customer; Google review requested on the spot',
+    'Database updated: +3 months shirt reminder, +9 months blazer reminder',
+    'Day-7 WhatsApp follow-up sent','Vendor partner referral commission paid same day'],
+ d:['Firm name, proprietor, address, phone, WhatsApp captured on the trade form',
+    'GSTIN verified on the GST portal','Trade type identified (tailor / boutique / retailer / institution)',
+    'Shop PHYSICALLY visited and photographed — yes, actually go',
+    'Estimated monthly requirement noted','Rate card issued with a version number and date',
+    'Hanging sample book issued and recorded (an asset — get it back if they leave)',
+    'First 2 orders CASH ONLY — no credit',
+    'Credit slab proposed and approved in writing by the owner',
+    'Credit policy acknowledgement signed by the buyer',
+    'PDCs / guarantor taken for Slab C or D','Route and call frequency assigned',
+    'Added to the ageing report from day one',
+    'First-month payment behaviour reviewed before the slab is confirmed'],
+ e:['20 SEP: winter/wedding fabric ordered and 80% received',
+    '20 SEP: sherwani, velvet, heavy silk, jacquard range in place',
+    '20 SEP: lining, canvas, trims, buttons, zips stocked to 2× normal',
+    '20 SEP: packaging ordered (garment bags, boxes, carry bags)',
+    '20 SEP: dead stock cleared at discount to free cash and rack space',
+    '20 SEP: suppliers\' peak-season delivery commitments confirmed in writing',
+    '20 SEP: cash/credit line arranged for the stock build',
+    '20 OCT: tailor capacity calculated for Nov–Dec; extra karigar identified',
+    '20 OCT: two-shift plan drafted; overtime rate announced',
+    '20 OCT: delivery calendar built with a hard "full by" date',
+    '20 OCT: new rate list printed and announced to the database',
+    '20 OCT: rush fee announced',
+    '20 OCT: groom/groomsmen/family packages printed and given to all 10 vendor partners',
+    '20 OCT: Google Business Profile hours updated for the season',
+    '20 OCT: 12 reels shot in advance for an 8-week Instagram calendar',
+    '20 OCT: WhatsApp broadcast to the full database — "season booking open"',
+    '20 OCT: NRI customers contacted individually with the season dates',
+    '20 OCT: advance-payment policy re-communicated to staff',
+    '20 OCT: cash-handling and reconciliation routine tightened for high volume'],
+ f:['PAN / TAN sorted (TAN needed if you deduct TDS on salaries or contract payments)',
+    'Udyam (MSME) registration — FREE, unlocks priority lending, tenders, MSMED payment protection',
+    'Current account in the business name; UPI QR at the counter',
+    'GST registration — voluntarily before threshold so B2B buyers get ITC',
+    'Punjab Shops & Commercial Establishments registration (within 30 days of opening)',
+    'MC Jalandhar trade licence + signage/hoarding permission',
+    'Fire NOC — mandatory in practice for a fabric godown',
+    'Trademark filed in Class 24 (textiles) + Class 25 (clothing)',
+    'GeM seller registration — for school/hospital/government uniform tenders',
+    'EPF + ESI once headcount crosses the threshold (ask your CA — commonly 20 / 10)',
+    'Professional Tax (Punjab) registration once you have salaried staff',
+    'Insurance: shop/fire + stock at replacement value, burglary, public liability, group PA for staff, money-in-transit',
+    'Written appointment letters with confidentiality of the customer & trade-buyer lists',
+    'Written credit policy signed by every trade buyer',
+    'Written supplier rate & supply agreements (rates, MOQ, replacement, credit, delivery)',
+    'Job-work agreement for outside tailors in peak season (rate, quality, rework penalty, offcut return)',
+    'Rent agreement: 3-yr lock-in with 1-yr exit, escalation ≤10%, signage & interiors permitted',
+    'Funding: PM Vishwakarma (tailors are a covered trade) → Mudra Kishor → Tarun → Tarun Plus (₹20 L, after repaying Tarun)',
+    'Funding: PMEGP (25–35% subsidy, needs a project report) · Stand-Up India (₹10 L–1 Cr for SC/ST & women) · CGTMSE cover',
+    'Funding: Punjab DIC Jalandhar visit for state schemes; Industrial & Business Development Policy 2026 for any manufacturing unit',
+    'Loan-ready: 100% of sales through bank/UPI, 2 yrs ITR + GST returns, stock register, CIBIL >720',
+    'Ask your CA all 12 questions in 08-legal-tax-compliance.md and get the answers in writing']
+};
+Object.entries(CK).forEach(([k,arr])=>{
+  document.getElementById('ck-'+k).innerHTML=arr.map((t,i)=>
+   `<div class="chk"><input type="checkbox" data-k="c${k}${i}"><span>${t}</span></div>`).join('');
+});
+
+/* ---------------- buttons ---------------- */
+document.getElementById('reset').addEventListener('click',()=>{
+  if(!confirm('Clear every tick in this browser?'))return;
+  store={};save();
+  document.querySelectorAll('input[data-k]').forEach(el=>{el.checked=false;
+    el.closest('.chk')?.classList.remove('done');el.closest('.rung')?.classList.remove('done')});
+  updLadder();
+});
+document.getElementById('expand').addEventListener('click',()=>{
+  document.querySelectorAll('section').forEach(s=>s.classList.add('on'));
+});
+
+hydrate();
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+# This file tracks the version of the Flutter CLI and the platform
+# versions that have been generated for this project.
+version:
+  channel: stable
+project_type: app

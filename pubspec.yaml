@@ -1,0 +1,69 @@
+name: moneymate
+description: MoneyMate — a local-first, offline Android expense manager.
+  Money is always stored as integer minor units (paise/cents), never double.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: '>=3.24.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State management (codegen via riverpod_generator from Phase 1).
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Routing with deep links (moneymanager://).
+  go_router: ^14.6.0
+
+  # Immutable models + JSON (codegen from Phase 1).
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+
+  # Local database (Drift codegen from Phase 1).
+  drift: ^2.20.0
+  sqlite3_flutter_libs: ^0.5.0
+
+  # Charts (Phase 5+).
+  fl_chart: ^0.69.0
+
+  # Local storage, security, notifications, background work.
+  shared_preferences: ^2.3.0
+  flutter_secure_storage: ^9.2.0
+  local_auth: ^2.3.0
+  dynamic_color: ^1.7.0
+  flutter_local_notifications: ^17.0.0
+  workmanager: ^0.5.1
+  home_widget: ^0.7.0
+
+  # Export / import / sharing.
+  printing: ^5.0.0
+  pdf: ^3.10.0
+  csv: ^6.0.0
+  share_plus: ^10.0.0
+  file_picker: ^8.0.0
+  image_picker: ^1.1.0
+
+  # Formatting + motion.
+  intl: ^0.20.2
+  flutter_animate: ^4.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.0
+  freezed: ^2.5.0
+  json_serializable: ^6.8.0
+  riverpod_generator: ^2.4.0
+  drift_dev: ^2.20.0
+
+flutter:
+  uses-material-design: true

@@ -1,5 +1,3 @@
-import 'dart:ui' show FontFeature;
-
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
@@ -95,7 +93,7 @@ abstract final class AppTheme {
         ),
       ),
       dividerTheme: DividerThemeData(color: colorScheme.outlineVariant),
-      listTileTheme: ListTileThemeData(
+      listTileTheme: const ListTileThemeData(
         minLeadingWidth: 48,
         minVerticalPadding: AppSpacing.sm,
       ),
@@ -107,7 +105,10 @@ abstract final class AppTheme {
     const List<FontFeature> tabular = <FontFeature>[
       FontFeature.tabularFigures(),
     ];
-    final TextTheme base = ThemeData.light().textTheme;
+    // Typography for the scheme's brightness; colours are overridden below.
+    final TextTheme base = ThemeData(
+      brightness: colorScheme.brightness,
+    ).textTheme;
     return base.copyWith(
       displayLarge: base.displayLarge?.copyWith(
         color: colorScheme.onSurface,

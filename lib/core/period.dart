@@ -51,28 +51,35 @@ DateRange rangeForPeriod(
 }) {
   switch (type) {
     case PeriodType.day:
-      final DateTime start = reference.startOfDay;
-      return DateRange(start: start, end: start.add(const Duration(days: 1)));
+      {
+        final DateTime start = reference.startOfDay;
+        return DateRange(
+          start: start,
+          end: start.add(const Duration(days: 1)),
+        );
+      }
     case PeriodType.week:
-      final DateTime dayStart = reference.startOfDay;
-      final int daysSinceStart = (reference.weekday - weekStartDay + 7) % 7;
-      final DateTime start = dayStart.subtract(Duration(days: daysSinceStart));
-      return DateRange(start: start, end: start.add(const Duration(days: 7)));
+      {
+        final DateTime dayStart = reference.startOfDay;
+        final int daysSinceStart = (reference.weekday - weekStartDay + 7) % 7;
+        final DateTime start =
+            dayStart.subtract(Duration(days: daysSinceStart));
+        return DateRange(start: start, end: start.add(const Duration(days: 7)));
+      }
     case PeriodType.month:
       return _monthRange(reference, monthStartDay);
     case PeriodType.year:
-      final DateTime start = DateTime(reference.year, 1, 1);
-      final DateTime end = DateTime(reference.year + 1, 1, 1);
-      return DateRange(start: start, end: end);
+      {
+        final DateTime start = DateTime(reference.year, 1, 1);
+        return DateRange(start: start, end: DateTime(reference.year + 1, 1, 1));
+      }
     case PeriodType.custom:
-      throw ArgumentError(
-        'Custom periods need an explicit DateRange',
-      );
+      throw ArgumentError('Custom periods need an explicit DateRange');
   }
 }
 
 DateRange _monthRange(DateTime reference, int monthStartDay) {
-  final int clampedDay = monthStartDay.clamp(1, 31);
+  final int clampedDay = monthStartDay.clamp(1, 31).toInt();
   // Candidate start inside the reference month.
   int dayInMonth = clampedDay;
   final int daysInRefMonth = daysInMonth(reference.year, reference.month);

@@ -40,7 +40,21 @@ jobs:
         run: flutter pub get
 
       - name: Analyze (must be 0 issues)
-        run: flutter analyze
+        shell: bash
+        run: |
+          set -o pipefail
+          set +e
+          flutter analyze 2>&1 | tee analyze.log
+          status=${PIPESTATUS[0]}
+          set -e
+          if [ "$status" -ne 0 ]; then
+            # Re-emit each finding as a check annotation so the exact issue is
+            # visible in the commit/PR UI, not just in the raw log.
+            while IFS= read -r line; do
+              printf '::error::%s\n' "$line"
+            done < <(grep -E "error •|warning •|info •" analyze.log | head -n 40)
+            exit "$status"
+          fi
 
       - name: Run unit and widget tests
         run: flutter test --reporter expanded

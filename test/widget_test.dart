@@ -18,10 +18,10 @@ void main() {
   testWidgets('home screen renders at 200% text scale without overflow',
       (WidgetTester tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
+      ProviderScope(
         child: MediaQuery(
-          data: MediaQueryData(textScaler: TextScaler.linear(2.0)),
-          child: MaterialApp(home: HomeScreen()),
+          data: const MediaQueryData(textScaler: TextScaler.linear(2.0)),
+          child: const MaterialApp(home: HomeScreen()),
         ),
       ),
     );

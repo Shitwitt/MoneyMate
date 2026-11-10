@@ -38,7 +38,7 @@ dependencies:
   local_auth: ^2.3.0
   dynamic_color: ^1.7.0
   flutter_local_notifications: ^17.0.0
-  workmanager: ^0.5.1
+  workmanager: ^0.6.0
   home_widget: ^0.7.0
 
   # Export / import / sharing.

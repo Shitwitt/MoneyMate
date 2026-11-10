@@ -71,10 +71,7 @@ jobs:
             # Re-emit the Gradle failure reason as check annotations.
             while IFS= read -r line; do
               printf '::error::%s\n' "$line"
-            done < <(grep -A 20 "What went wrong" build.log | head -n 12)
-            while IFS= read -r line; do
-              printf '::error::%s\n' "$line"
-            done < <(tail -n 8 build.log)
+            done < <(grep -E "^e: |error: |What went wrong|Execution failed|FAILURE" build.log | head -n 10)
             exit "$status"
           fi
 
